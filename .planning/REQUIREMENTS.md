@@ -66,7 +66,7 @@
 | DISP-02 | Phase 4 | Pending |
 | DISP-03 | Phase 4 | Pending |
 | DISP-04 | Phase 4 | Pending |
-| RELY-01 | Phase 1 | Pending |
+| RELY-01 | Phase 1 | Complete |
 | RELY-02 | Phase 2 | Pending |
 | RELY-03 | Phase 4 | Pending |
 | RELY-04 | Phase 2 | Pending |

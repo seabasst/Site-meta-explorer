@@ -24,7 +24,7 @@ This roadmap delivers demographic extraction and aggregation capabilities for Fa
 **Plans:** 1 plan
 
 Plans:
-- [ ] 01-01-PLAN.md - Upgrade to rebrowser-puppeteer-core via npm aliasing
+- [x] 01-01-PLAN.md - Upgrade to rebrowser-puppeteer-core via npm aliasing
 
 ---
 
@@ -81,7 +81,7 @@ Plans:
 
 | Phase | Status | Completed |
 |-------|--------|-----------|
-| 1 - Foundation | Planned | - |
+| 1 - Foundation | Complete | 2026-01-18 |
 | 2 - Demographic Extraction | Not started | - |
 | 3 - Aggregation | Not started | - |
 | 4 - Display | Not started | - |
