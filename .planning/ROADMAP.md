@@ -21,7 +21,10 @@ This roadmap delivers demographic extraction and aggregation capabilities for Fa
 2. Existing ad discovery functionality continues to work after upgrade
 3. No detection/blocking observed during normal scraping operations
 
-**Plans:** (created by /gsd:plan-phase)
+**Plans:** 1 plan
+
+Plans:
+- [ ] 01-01-PLAN.md - Upgrade to rebrowser-puppeteer-core via npm aliasing
 
 ---
 
@@ -78,7 +81,7 @@ This roadmap delivers demographic extraction and aggregation capabilities for Fa
 
 | Phase | Status | Completed |
 |-------|--------|-----------|
-| 1 - Foundation | Not started | - |
+| 1 - Foundation | Planned | - |
 | 2 - Demographic Extraction | Not started | - |
 | 3 - Aggregation | Not started | - |
 | 4 - Display | Not started | - |
