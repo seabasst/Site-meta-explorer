@@ -58,24 +58,24 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EXTR-01 | TBD | Pending |
-| EXTR-02 | TBD | Pending |
-| EXTR-03 | TBD | Pending |
-| EXTR-04 | TBD | Pending |
-| DISP-01 | TBD | Pending |
-| DISP-02 | TBD | Pending |
-| DISP-03 | TBD | Pending |
-| DISP-04 | TBD | Pending |
-| RELY-01 | TBD | Pending |
-| RELY-02 | TBD | Pending |
-| RELY-03 | TBD | Pending |
-| RELY-04 | TBD | Pending |
+| EXTR-01 | Phase 2 | Pending |
+| EXTR-02 | Phase 2 | Pending |
+| EXTR-03 | Phase 2 | Pending |
+| EXTR-04 | Phase 3 | Pending |
+| DISP-01 | Phase 4 | Pending |
+| DISP-02 | Phase 4 | Pending |
+| DISP-03 | Phase 4 | Pending |
+| DISP-04 | Phase 4 | Pending |
+| RELY-01 | Phase 1 | Pending |
+| RELY-02 | Phase 2 | Pending |
+| RELY-03 | Phase 4 | Pending |
+| RELY-04 | Phase 2 | Pending |
 
 **Coverage:**
 - v1 requirements: 12 total
-- Mapped to phases: 0
-- Unmapped: 12 (pending roadmap)
+- Mapped to phases: 12
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-18*
-*Last updated: 2026-01-18 after initial definition*
+*Last updated: 2026-01-18 - Phase mappings added*
