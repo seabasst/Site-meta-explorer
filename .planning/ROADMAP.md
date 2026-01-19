@@ -62,7 +62,11 @@ Plans:
 2. Aggregated summary reflects contribution of high-reach ads more than low-reach ads
 3. Aggregation handles missing data gracefully (ads without reach data still contribute)
 
-**Plans:** (created by /gsd:plan-phase)
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md - Aggregation module (types and pure functions)
+- [ ] 03-02-PLAN.md - Integration and verification
 
 ---
 
