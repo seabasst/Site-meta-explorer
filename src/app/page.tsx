@@ -264,7 +264,7 @@ export default function Home() {
       <div className="noise-overlay" />
 
       <main className="min-h-screen">
-        <div className="max-w-5xl mx-auto px-6 py-16">
+        <div className="max-w-7xl mx-auto px-6 py-16">
           {/* Header */}
           <header className="text-center mb-16 animate-fade-in-up">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] mb-6">
@@ -368,9 +368,47 @@ export default function Home() {
 
           {/* Results Section */}
           {result && (
-            <div className="space-y-6 animate-fade-in">
-              {/* Ad Library Section */}
-              <div className="glass rounded-2xl p-6">
+            <div className="animate-fade-in">
+              {/* Two Column Layout */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                {/* Left Column: Sitemap Analysis */}
+                <div className="space-y-6">
+                  <div className="glass rounded-2xl p-6">
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div>
+                        <h2 className="font-serif text-xl text-[var(--text-primary)] mb-1">
+                          Sitemap <span className="italic text-[var(--accent-green-light)]">Analysis</span>
+                        </h2>
+                        <p className="text-sm text-[var(--text-secondary)]">
+                          URLs discovered and categorized from the sitemap
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-[var(--text-primary)]">
+                          {result.totalUrls.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-[var(--text-muted)]">Total URLs</div>
+                      </div>
+                    </div>
+
+                    {/* Results Table */}
+                    <ResultsTable
+                      urls={result.data.urls}
+                      summary={result.data.summary}
+                      analyzedUrl={result.analyzedUrl}
+                      totalUrls={result.totalUrls}
+                      adDestinationUrls={adDestinationUrls}
+                      adCountMap={adCountMap}
+                      adLibraryLinksMap={adLibraryLinksMap}
+                      totalActiveAds={totalActiveAds}
+                    />
+                  </div>
+                </div>
+
+                {/* Right Column: Facebook Ads Analysis */}
+                <div className="space-y-6">
+                  {/* Ad Library Section */}
+                  <div className="glass rounded-2xl p-6">
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
                     <h2 className="font-serif text-xl text-[var(--text-primary)] mb-1">
@@ -603,8 +641,8 @@ export default function Home() {
                       />
                     </div>
 
-                    {/* Charts Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Charts - stacked vertically in column layout */}
+                    <div className="space-y-4">
                       {/* Age/Gender Chart */}
                       <div className="glass rounded-xl p-5">
                         <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
@@ -628,18 +666,10 @@ export default function Home() {
                   </div>
                 )}
               </div>
-
-              {/* Results Table */}
-              <ResultsTable
-                urls={result.data.urls}
-                summary={result.data.summary}
-                analyzedUrl={result.analyzedUrl}
-                totalUrls={result.totalUrls}
-                adDestinationUrls={adDestinationUrls}
-                adCountMap={adCountMap}
-                adLibraryLinksMap={adLibraryLinksMap}
-                totalActiveAds={totalActiveAds}
-              />
+                </div>
+                {/* End Right Column */}
+              </div>
+              {/* End Two Column Grid */}
             </div>
           )}
 
