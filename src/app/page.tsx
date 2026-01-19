@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ResultsTable } from '@/components/results-table';
 import { analyzeSitemap, AnalysisResult } from '@/actions/analyze-sitemap';
 import { AdLibraryResult } from '@/lib/ad-library-scraper';
-import { AdLibraryResultWithDemographics, AggregatedDemographics } from '@/lib/demographic-types';
+import { AdLibraryResultWithDemographics } from '@/lib/demographic-types';
 import { ScrapeConfig } from '@/components/demographics/scrape-config';
 import { DemographicsSummary } from '@/components/demographics/demographics-summary';
 import { AgeGenderChart } from '@/components/demographics/age-gender-chart';
@@ -583,6 +583,48 @@ export default function Home() {
                       {adResult.totalActiveAdsOnPage.toLocaleString()} total ads point to {adResult.totalAdsFound} unique URLs.
                       The difference represents ad variations (different creatives, copy, or audiences) targeting the same landing pages.
                     </span>
+                  </div>
+                )}
+
+                {/* Demographics Results */}
+                {adResult && (adResult as AdLibraryResultWithDemographics).aggregatedDemographics && (
+                  <div className="mt-6 space-y-6">
+                    <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                      Audience <span className="italic text-[var(--accent-green-light)]">Demographics</span>
+                    </h3>
+
+                    {/* Summary */}
+                    <div className="glass rounded-xl p-5">
+                      <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
+                        Key Insights
+                      </h4>
+                      <DemographicsSummary
+                        demographics={(adResult as AdLibraryResultWithDemographics).aggregatedDemographics!}
+                      />
+                    </div>
+
+                    {/* Charts Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Age/Gender Chart */}
+                      <div className="glass rounded-xl p-5">
+                        <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
+                          Age & Gender Breakdown
+                        </h4>
+                        <AgeGenderChart
+                          data={(adResult as AdLibraryResultWithDemographics).aggregatedDemographics!.ageGenderBreakdown}
+                        />
+                      </div>
+
+                      {/* Country Chart */}
+                      <div className="glass rounded-xl p-5">
+                        <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
+                          Geographic Distribution
+                        </h4>
+                        <CountryChart
+                          data={(adResult as AdLibraryResultWithDemographics).aggregatedDemographics!.regionBreakdown}
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
