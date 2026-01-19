@@ -10,7 +10,7 @@
 - [x] **EXTR-01**: Extract age group breakdown (percentage per age bracket) from ad detail pages
 - [x] **EXTR-02**: Extract gender breakdown (male/female percentages) from ad detail pages
 - [x] **EXTR-03**: Extract country/region reach distribution from ad detail pages
-- [ ] **EXTR-04**: Weight aggregated demographics by reach/impressions, not just ad count
+- [x] **EXTR-04**: Weight aggregated demographics by reach/impressions, not just ad count
 
 ### Display
 
@@ -61,7 +61,7 @@
 | EXTR-01 | Phase 2 | Complete |
 | EXTR-02 | Phase 2 | Complete |
 | EXTR-03 | Phase 2 | Complete |
-| EXTR-04 | Phase 3 | Pending |
+| EXTR-04 | Phase 3 | Complete |
 | DISP-01 | Phase 4 | Pending |
 | DISP-02 | Phase 4 | Pending |
 | DISP-03 | Phase 4 | Pending |
@@ -78,4 +78,4 @@
 
 ---
 *Requirements defined: 2026-01-18*
-*Last updated: 2026-01-19 - Phase 2 requirements complete*
+*Last updated: 2026-01-19 - Phase 3 requirements complete*
