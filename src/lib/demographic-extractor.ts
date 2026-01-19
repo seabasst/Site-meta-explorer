@@ -1,5 +1,29 @@
 import { AdDemographics, DemographicBreakdown, RegionBreakdown } from './demographic-types';
 
+// Debug flag - set to true to log first successful extraction
+let hasLoggedSample = false;
+
+/**
+ * Log a sample API response structure (for debugging/development).
+ * Only logs once per session to avoid spam.
+ */
+export function logSampleResponse(data: unknown, context: string): void {
+  if (hasLoggedSample) return;
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`[demographic-extractor] Sample ${context} response:`,
+      JSON.stringify(data, null, 2).slice(0, 2000) + '...');
+    hasLoggedSample = true;
+  }
+}
+
+/**
+ * Reset debug logging (for testing)
+ */
+export function resetDebugLogging(): void {
+  hasLoggedSample = false;
+}
+
 // Internal types for API response parsing
 interface ApiDemographicDistribution {
   age: string;
@@ -19,11 +43,13 @@ interface ApiRegionDistribution {
  *
  * @param data - Raw API response (parsed JSON)
  * @param adArchiveId - The ad's archive ID
+ * @param debug - If true, logs first successful response structure
  * @returns AdDemographics or null if no data found
  */
 export function extractDemographicsFromApiResponse(
   data: unknown,
-  adArchiveId: string
+  adArchiveId: string,
+  debug: boolean = false
 ): AdDemographics | null {
   const result: AdDemographics = {
     adArchiveId,
@@ -126,6 +152,11 @@ export function extractDemographicsFromApiResponse(
   // Return null if no demographic data found (RELY-02: graceful handling)
   if (result.ageGenderBreakdown.length === 0 && result.regionBreakdown.length === 0) {
     return null;
+  }
+
+  // Log sample response structure when debug enabled (helps validate API structure)
+  if (debug) {
+    logSampleResponse(data, `demographics-${adArchiveId}`);
   }
 
   return result;
