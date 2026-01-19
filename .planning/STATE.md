@@ -10,24 +10,24 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 2 of 4 (Demographic Extraction)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-01-19 - Completed 02-01-PLAN.md (types and top performer selector)
+Last activity: 2026-01-19 - Completed 02-02-PLAN.md (demographic extractor)
 
-Progress: ███░░░░░░░ 33%
+Progress: ████░░░░░░ 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 5.5min
+- Total plans completed: 3
+- Average duration: 9.7min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 1 | 8min | 8min |
-| 02-demographic-extraction | 1 | 3min | 3min |
+| 02-demographic-extraction | 2 | 21min | 10.5min |
 
 ## Accumulated Context
 
@@ -38,6 +38,7 @@ Progress: ███░░░░░░░ 33%
 | 01-01 | npm aliasing for rebrowser | Zero source code changes, transparent package swap |
 | 01-01 | Accept version lag (24.8.1 vs 24.35.0) | No breaking API changes in puppeteer 24.x series |
 | 02-01 | Reach over duration for top performer sorting | Higher-reach ads contribute more to weighted demographic aggregation |
+| 02-02 | Recursive traversal for JSON parsing | API response nesting depth unknown; flexible approach handles any structure |
 
 ### Pending Todos
 
@@ -50,5 +51,5 @@ Progress: ███░░░░░░░ 33%
 ## Session Continuity
 
 Last session: 2026-01-19
-Stopped at: Completed 02-01-PLAN.md, ready for 02-02
+Stopped at: Completed 02-02-PLAN.md, ready for 02-03
 Resume file: None
