@@ -137,72 +137,239 @@ async function scrapeAdDemographics(
   adArchiveId: string,
   debug: boolean = false
 ): Promise<AdDemographics | null> {
-  const demographicsMap: Map<string, AdDemographics> = new Map();
-
-  // Set up response listener for this ad
-  const responseHandler = async (response: HTTPResponse) => {
-    const url = response.url();
-
-    if (url.includes('/api/graphql') || url.includes('/ads/library/async')) {
-      try {
-        const text = await response.text();
-        const json = JSON.parse(text);
-        const demographics = extractDemographicsFromApiResponse(json, adArchiveId, debug);
-
-        if (demographics) {
-          demographicsMap.set(adArchiveId, demographics);
-        }
-      } catch {
-        // Response not parseable or body unavailable - continue
-      }
-    }
-  };
-
-  page.on('response', responseHandler);
-
   try {
     const adDetailUrl = `https://www.facebook.com/ads/library/?id=${adArchiveId}`;
+
+    if (debug) {
+      console.log(`[demographics] Navigating to: ${adDetailUrl}`);
+    }
 
     await page.goto(adDetailUrl, {
       waitUntil: 'networkidle0',
       timeout: 15000,
     });
 
-    // Wait for demographic data to potentially load (reduced for serverless)
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Wait for page content to load
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    // Try clicking "See ad details" button if present (EU transparency modal)
-    // Use multiple selectors as fallback (research pitfall #5)
-    const seeDetailsSelectors = [
-      'div[role="button"][aria-label*="See ad details"]',
-      'div[role="button"][aria-label*="see ad details"]',
-      '[data-testid="ad_details_button"]',
-    ];
-
-    for (const selector of seeDetailsSelectors) {
-      try {
-        const element = await page.$(selector);
-        if (element) {
-          await element.click();
-          // Wait for modal content to load (reduced for serverless)
-          await new Promise(resolve => setTimeout(resolve, 800));
-          break;
+    // Click "See ad details" to open the transparency modal
+    try {
+      const clicked = await page.evaluate(() => {
+        const xpath = "//*[contains(text(), 'See ad details')]";
+        const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+        const el = result.singleNodeValue as HTMLElement | null;
+        if (el) {
+          el.click();
+          return true;
         }
-      } catch {
-        // Selector failed, try next
+        return false;
+      });
+
+      if (clicked) {
+        if (debug) {
+          console.log(`[demographics] Clicked "See ad details", waiting for modal...`);
+        }
+        // Wait for modal to load
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Now click on "Transparency by location" tab to reveal the data
+        const transparencyClicked = await page.evaluate(() => {
+          // Try multiple ways to find and click the transparency section
+          const selectors = [
+            "//*[contains(text(), 'Transparency by location')]",
+            "//*[contains(text(), 'Transparency')]",
+            "//*[contains(text(), 'by location')]",
+          ];
+
+          for (const xpath of selectors) {
+            const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+            const el = result.singleNodeValue as HTMLElement | null;
+            if (el) {
+              el.click();
+              return xpath;
+            }
+          }
+
+          // Also try clicking any element that looks like an expandable section
+          const allElements = document.querySelectorAll('[role="button"], [aria-expanded], button, div[tabindex]');
+          for (const el of allElements) {
+            const text = el.textContent?.toLowerCase() || '';
+            if (text.includes('transparency') || text.includes('location') || text.includes('audience')) {
+              (el as HTMLElement).click();
+              return 'element-click';
+            }
+          }
+
+          return null;
+        });
+
+        if (debug) {
+          console.log(`[demographics] Clicked transparency section: ${transparencyClicked}`);
+        }
+
+        // Wait for transparency data to load
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+      } else {
+        if (debug) {
+          console.log(`[demographics] No "See ad details" link found`);
+        }
+        return null;
       }
+    } catch (err) {
+      if (debug) {
+        console.log(`[demographics] Error clicking "See ad details": ${err}`);
+      }
+      return null;
     }
 
-    // Give a bit more time for any final API responses
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // Save page text for debugging
+    if (debug) {
+      const pageText = await page.evaluate(() => document.body.innerText);
+      const fs = require('fs');
+      fs.writeFileSync(`/tmp/ad-page-text-${adArchiveId}.txt`, pageText);
+      console.log(`[demographics] Page text saved to /tmp/ad-page-text-${adArchiveId}.txt`);
+    }
 
-    return demographicsMap.get(adArchiveId) || null;
+    // Now extract demographic data from the DOM
+    // Facebook shows data in a table format: Location | Age Range | Gender | Reach (as numbers, not percentages)
+    const demographics = await page.evaluate((adId) => {
+      const result: {
+        adArchiveId: string;
+        ageGenderBreakdown: { age: string; gender: string; percentage: number }[];
+        regionBreakdown: { region: string; percentage: number }[];
+        euTotalReach?: number;
+        debugInfo?: string;
+      } = {
+        adArchiveId: adId,
+        ageGenderBreakdown: [],
+        regionBreakdown: [],
+      };
+
+      const pageText = document.body.innerText;
+      const lines = pageText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+      // Look for total reach - format: "Reach\n2,993"
+      const reachIndex = lines.findIndex(l => l === 'Reach');
+      if (reachIndex !== -1 && reachIndex < lines.length - 1) {
+        const reachValue = lines[reachIndex + 1];
+        const reachNum = parseInt(reachValue.replace(/[,\.]/g, ''), 10);
+        if (!isNaN(reachNum) && reachNum > 0) {
+          result.euTotalReach = reachNum;
+        }
+      }
+
+      // Find the demographic breakdown section
+      // Look for "Reach by location, age and gender" header
+      const breakdownStart = lines.findIndex(l =>
+        l.toLowerCase().includes('reach by location') ||
+        l.toLowerCase().includes('demographic breakdown')
+      );
+
+      if (breakdownStart !== -1) {
+        // The table headers are: Location, Age Range, Gender, Reach
+        // Data follows in groups of 4 lines per row
+        const headerIdx = lines.findIndex((l, i) => i > breakdownStart && l === 'Location');
+        if (headerIdx !== -1) {
+          // Skip headers: Location, Age Range, Gender, Reach
+          let dataStart = headerIdx + 4;
+
+          // Collect raw data rows
+          const rows: { location: string; age: string; gender: string; reach: number }[] = [];
+          const countries = ['Sweden', 'Germany', 'France', 'Italy', 'Spain', 'Netherlands', 'Belgium',
+            'Austria', 'Poland', 'Denmark', 'Norway', 'Finland', 'Portugal', 'Greece',
+            'Ireland', 'Czech Republic', 'Romania', 'Hungary', 'United Kingdom'];
+          const ageRanges = ['13-17', '18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
+          const genders = ['Female', 'Male', 'Unknown'];
+
+          while (dataStart < lines.length - 3) {
+            const loc = lines[dataStart];
+            const age = lines[dataStart + 1];
+            const gender = lines[dataStart + 2];
+            const reachStr = lines[dataStart + 3];
+
+            // Validate this looks like a data row
+            const isCountry = countries.some(c => loc.toLowerCase() === c.toLowerCase());
+            const isAge = ageRanges.some(a => age === a);
+            const isGender = genders.some(g => gender.toLowerCase() === g.toLowerCase());
+            const reach = parseInt(reachStr.replace(/[,\.]/g, ''), 10);
+
+            if (isCountry && isAge && isGender && !isNaN(reach)) {
+              rows.push({ location: loc, age, gender: gender.toLowerCase(), reach });
+              dataStart += 4;
+            } else {
+              // Check if we hit "About the advertiser" or similar end marker
+              if (loc.includes('About') || loc.includes('Beneficiary') || loc.includes('Close')) {
+                break;
+              }
+              dataStart++;
+            }
+          }
+
+          // Calculate total reach from rows
+          const totalReach = rows.reduce((sum, r) => sum + r.reach, 0) || result.euTotalReach || 1;
+
+          // Aggregate by age+gender
+          const ageGenderMap = new Map<string, number>();
+          for (const row of rows) {
+            const key = `${row.age}|${row.gender}`;
+            ageGenderMap.set(key, (ageGenderMap.get(key) || 0) + row.reach);
+          }
+          for (const [key, reach] of ageGenderMap) {
+            const [age, gender] = key.split('|');
+            const percentage = Math.round((reach / totalReach) * 1000) / 10; // Round to 1 decimal
+            result.ageGenderBreakdown.push({ age, gender, percentage });
+          }
+
+          // Aggregate by region
+          const regionMap = new Map<string, number>();
+          for (const row of rows) {
+            regionMap.set(row.location, (regionMap.get(row.location) || 0) + row.reach);
+          }
+          for (const [region, reach] of regionMap) {
+            const percentage = Math.round((reach / totalReach) * 1000) / 10;
+            result.regionBreakdown.push({ region, percentage });
+          }
+
+          result.debugInfo = `Found ${rows.length} data rows, total reach: ${totalReach}`;
+        }
+      }
+
+      // Fallback: If no structured data found, try regex patterns
+      if (result.ageGenderBreakdown.length === 0) {
+        result.debugInfo = 'No structured data found, using fallback patterns';
+
+        // Look for gender targeting info
+        if (pageText.includes('Gender\nWomen')) {
+          result.ageGenderBreakdown.push({ age: 'all', gender: 'female', percentage: 100 });
+        } else if (pageText.includes('Gender\nMen')) {
+          result.ageGenderBreakdown.push({ age: 'all', gender: 'male', percentage: 100 });
+        }
+      }
+
+      return result;
+    }, adArchiveId);
+
+    if (debug) {
+      console.log(`[demographics] Extracted: ${demographics.ageGenderBreakdown.length} age/gender, ${demographics.regionBreakdown.length} regions`);
+      console.log(`[demographics] Debug: ${demographics.debugInfo}`);
+    }
+
+    // Return null if no data found
+    if (demographics.ageGenderBreakdown.length === 0 && demographics.regionBreakdown.length === 0) {
+      if (debug) {
+        console.log(`[demographics] No demographic data found in page content`);
+      }
+      return null;
+    }
+
+    // Clean up debugInfo before returning
+    const { debugInfo, ...cleanDemographics } = demographics;
+    return cleanDemographics;
 
   } catch (error) {
     console.warn(`[demographics] Failed to scrape ad ${adArchiveId}:`, error);
-    return null; // Graceful degradation (RELY-02)
-  } finally {
-    page.off('response', responseHandler);
+    return null;
   }
 }
 
@@ -238,10 +405,30 @@ export async function scrapeAdLibrary(
   };
 
   try {
+    // Use local Chrome for development, serverless chromium for production
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    let executablePath: string;
+    let args: string[];
+
+    if (isProduction) {
+      // Serverless environment - use @sparticuz/chromium-min
+      executablePath = await chromium.executablePath(CHROMIUM_PACK_URL);
+      args = chromium.args;
+    } else {
+      // Local development - use installed Chrome
+      executablePath = process.platform === 'darwin'
+        ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+        : process.platform === 'win32'
+          ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+          : '/usr/bin/google-chrome';
+      args = ['--no-sandbox', '--disable-setuid-sandbox'];
+    }
+
     browser = await puppeteer.launch({
-      args: chromium.args,
+      args,
       defaultViewport: { width: 1920, height: 1080 },
-      executablePath: await chromium.executablePath(CHROMIUM_PACK_URL),
+      executablePath,
       headless: true,
     });
 
