@@ -164,12 +164,12 @@ async function scrapeAdDemographics(
     const adDetailUrl = `https://www.facebook.com/ads/library/?id=${adArchiveId}`;
 
     await page.goto(adDetailUrl, {
-      waitUntil: 'networkidle2',
-      timeout: 30000,
+      waitUntil: 'networkidle0',
+      timeout: 15000,
     });
 
-    // Wait for demographic data to potentially load
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Wait for demographic data to potentially load (reduced for serverless)
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Try clicking "See ad details" button if present (EU transparency modal)
     // Use multiple selectors as fallback (research pitfall #5)
@@ -184,8 +184,8 @@ async function scrapeAdDemographics(
         const element = await page.$(selector);
         if (element) {
           await element.click();
-          // Wait for modal content to load
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          // Wait for modal content to load (reduced for serverless)
+          await new Promise(resolve => setTimeout(resolve, 800));
           break;
         }
       } catch {
@@ -194,7 +194,7 @@ async function scrapeAdDemographics(
     }
 
     // Give a bit more time for any final API responses
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 200));
 
     return demographicsMap.get(adArchiveId) || null;
 
@@ -460,7 +460,7 @@ export async function scrapeAdLibrary(
 
     // Scrape demographics if requested
     if (options?.scrapeDemographics) {
-      const maxAds = options.maxDemographicAds || 10;
+      const maxAds = options.maxDemographicAds || 3; // Default to 3 for faster execution on serverless
 
       // Convert ads to AdWithMetrics for selection
       const adsWithMetrics: AdWithMetrics[] = ads.map(ad => ({
@@ -488,8 +488,8 @@ export async function scrapeAdLibrary(
         if (!performer.adArchiveId) continue;
 
         try {
-          // Add random delay between requests (research pitfall #3: detection)
-          const delay = 1000 + Math.random() * 2000; // 1-3 seconds
+          // Add short delay between requests (reduced for serverless timeout constraints)
+          const delay = 500 + Math.random() * 500; // 0.5-1 second
           await new Promise(resolve => setTimeout(resolve, delay));
 
           const demographics = await scrapeAdDemographics(page, performer.adArchiveId, debug);

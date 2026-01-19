@@ -139,8 +139,8 @@ export default function Home() {
   const [adResult, setAdResult] = useState<AdLibraryResult | null>(null);
   const [adError, setAdError] = useState<string | null>(null);
 
-  // Demographics configuration
-  const [maxDemographicAds, setMaxDemographicAds] = useState(10);
+  // Demographics configuration (default 3 for faster execution on serverless)
+  const [maxDemographicAds, setMaxDemographicAds] = useState(3);
 
   // Demographics loading progress
   const [demographicsProgress, setDemographicsProgress] = useState<{ current: number; total: number } | null>(null);
