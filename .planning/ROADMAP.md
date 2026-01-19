@@ -83,7 +83,12 @@ Plans:
 4. User sees loading progress during demographic scraping
 5. User can configure how many ads to analyze before starting scrape
 
-**Plans:** (created by /gsd:plan-phase)
+**Plans:** 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md - Install Recharts, create config input
+- [ ] 04-02-PLAN.md - Create chart and summary components
+- [ ] 04-03-PLAN.md - Integrate components into main page
 
 ---
 
@@ -94,7 +99,7 @@ Plans:
 | 1 - Foundation | Complete | 2026-01-18 |
 | 2 - Demographic Extraction | Complete | 2026-01-19 |
 | 3 - Aggregation | Complete | 2026-01-19 |
-| 4 - Display | Not started | - |
+| 4 - Display | Planning complete | - |
 
 ---
 
