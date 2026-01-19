@@ -202,13 +202,18 @@ export default function Home() {
     setIsLoadingAds(true);
     setAdError(null);
     setAdResult(null);
+    setDemographicsProgress({ current: 0, total: maxDemographicAds });
 
     try {
       // Use API route for better timeout control
       const res = await fetch('/api/scrape-ads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adLibraryUrl: adLibraryUrl.trim() }),
+        body: JSON.stringify({
+          adLibraryUrl: adLibraryUrl.trim(),
+          scrapeDemographics: true,
+          maxDemographicAds: maxDemographicAds,
+        }),
       });
 
       const response = await res.json();
@@ -222,6 +227,7 @@ export default function Home() {
       setAdError('Failed to scrape Ad Library. Please try again.');
     } finally {
       setIsLoadingAds(false);
+      setDemographicsProgress(null);
     }
   };
 
