@@ -2,6 +2,7 @@ import puppeteer, { Browser, HTTPResponse, Page } from 'puppeteer-core';
 import chromium from '@sparticuz/chromium-min';
 import { extractDemographicsFromApiResponse } from './demographic-extractor';
 import { selectTopPerformers } from './top-performer-selector';
+import { aggregateDemographics } from './demographic-aggregator';
 import { AdDemographics, AdWithMetrics, AdDataWithDemographics, AdLibraryResultWithDemographics } from './demographic-types';
 
 // URL to download chromium binary at runtime (required for serverless environments)
@@ -518,6 +519,9 @@ export async function scrapeAdLibrary(
         demographics: ad.adArchiveId ? (adDemographicsMap.get(ad.adArchiveId) || null) : null,
       }));
 
+      // Aggregate demographics (EXTR-04)
+      const aggregatedDemographicsResult = aggregateDemographics(extendedAds);
+
       await browser.close();
       browser = null;
 
@@ -531,6 +535,7 @@ export async function scrapeAdLibrary(
         demographicsScraped,
         demographicsFailed,
         topPerformersAnalyzed: topPerformers.length,
+        aggregatedDemographics: aggregatedDemographicsResult,
       } as AdLibraryResultWithDemographics;
     }
 

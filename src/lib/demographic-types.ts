@@ -42,6 +42,7 @@ export interface AdLibraryResultWithDemographics {
   demographicsScraped: number;      // How many ads had demographics extracted
   demographicsFailed: number;        // How many ads failed/had no data
   topPerformersAnalyzed: number;     // How many top performers were analyzed
+  aggregatedDemographics?: AggregatedDemographics;  // Weighted aggregation across all ads with demographics
 }
 
 // Extended ad data with demographics
