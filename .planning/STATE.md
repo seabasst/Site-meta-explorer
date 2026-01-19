@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md
 
 **Core value:** Surface who competitors are reaching with their ads - demographics and geography aggregated from their top performers.
-**Current focus:** Phase 3 - Aggregation
+**Current focus:** Phase 4 - UI Display
 
 ## Current Position
 
-Phase: 3 of 4 (Aggregation)
-Plan: 1 of 2 complete
-Status: In progress
-Last activity: 2026-01-19 - Completed 03-01-PLAN.md (Aggregation Module)
+Phase: 3 of 4 complete (Aggregation)
+Plan: 2 of 2 complete
+Status: Phase complete
+Last activity: 2026-01-19 - Completed 03-02-PLAN.md (Aggregation Integration)
 
-Progress: ███████░░░ 60%
+Progress: ████████░░ 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 7.2min
+- Total plans completed: 7
+- Average duration: 7.3min
 
 **By Phase:**
 
@@ -28,7 +28,7 @@ Progress: ███████░░░ 60%
 |-------|-------|-------|----------|
 | 01-foundation | 1 | 8min | 8min |
 | 02-demographic-extraction | 4 | 27min | 6.75min |
-| 03-aggregation | 1 | 6min | 6min |
+| 03-aggregation | 2 | 14min | 7min |
 
 ## Accumulated Context
 
@@ -46,6 +46,7 @@ Progress: ███████░░░ 60%
 | 03-01 | Default weight of 1 for ads without reach | Ensures all ads with demographics contribute to aggregation |
 | 03-01 | Array.from() for Map iteration | TypeScript compatibility without tsconfig changes |
 | 03-01 | Preserve age-gender correlation | Combined breakdown before deriving simplified breakdowns |
+| 03-02 | Optional aggregatedDemographics field | Backward compatibility - existing consumers unchanged |
 
 ### Pending Todos
 
@@ -58,5 +59,5 @@ Progress: ███████░░░ 60%
 ## Session Continuity
 
 Last session: 2026-01-19
-Stopped at: Completed 03-01-PLAN.md (Aggregation Module)
+Stopped at: Completed 03-02-PLAN.md (Aggregation Integration)
 Resume file: None
