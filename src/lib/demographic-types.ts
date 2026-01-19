@@ -60,3 +60,23 @@ export interface AdDataWithDemographics {
 export function hasAdDemographics(ad: AdDataWithDemographics): ad is AdDataWithDemographics & { demographics: AdDemographics } {
   return ad.demographics !== null;
 }
+
+// Aggregated demographics across multiple ads
+export interface AggregatedDemographics {
+  // Age breakdown (aggregated across genders)
+  ageBreakdown: { age: string; percentage: number }[];
+
+  // Gender breakdown (aggregated across ages)
+  genderBreakdown: { gender: string; percentage: number }[];
+
+  // Combined age-gender breakdown (preserves correlation)
+  ageGenderBreakdown: { age: string; gender: string; percentage: number }[];
+
+  // Region breakdown
+  regionBreakdown: { region: string; percentage: number }[];
+
+  // Metadata
+  totalReachAnalyzed: number;      // Sum of weights used
+  adsWithDemographics: number;     // Count of ads that contributed
+  adsWithoutReach: number;         // Count of ads that used default weight
+}
