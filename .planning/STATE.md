@@ -5,29 +5,29 @@
 See: .planning/PROJECT.md
 
 **Core value:** Surface who competitors are reaching with their ads - demographics and geography aggregated from their top performers.
-**Current focus:** Phase 2 - Demographic Extraction (COMPLETE)
+**Current focus:** Phase 2 - Demographic Extraction (COMPLETE with gap closure)
 
 ## Current Position
 
 Phase: 2 of 4 (Demographic Extraction)
-Plan: 3 of 3 complete
+Plan: 4 of 4 complete (including gap closure plan)
 Status: Phase complete
-Last activity: 2026-01-19 - Completed 02-03-PLAN.md (scraper integration)
+Last activity: 2026-01-19 - Completed 02-04-PLAN.md (API layer wiring)
 
 Progress: ██████░░░░ 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 8.5min
+- Total plans completed: 5
+- Average duration: 7.4min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 1 | 8min | 8min |
-| 02-demographic-extraction | 3 | 26min | 8.7min |
+| 02-demographic-extraction | 4 | 27min | 6.75min |
 
 ## Accumulated Context
 
@@ -41,6 +41,7 @@ Progress: ██████░░░░ 60%
 | 02-02 | Recursive traversal for JSON parsing | API response nesting depth unknown; flexible approach handles any structure |
 | 02-03 | Backward-compatible API with optional options | Existing consumers continue to work unchanged |
 | 02-03 | Random 1-3s delays between ad detail requests | Avoid detection from rapid sequential requests |
+| 02-04 | Optional parameters for backward compatibility | Existing consumers don't need changes when new options added |
 
 ### Pending Todos
 
@@ -53,5 +54,5 @@ Progress: ██████░░░░ 60%
 ## Session Continuity
 
 Last session: 2026-01-19
-Stopped at: Completed Phase 02, ready for Phase 03 (Aggregation)
+Stopped at: Completed Phase 02 (including gap closure), ready for Phase 03 (Aggregation)
 Resume file: None
