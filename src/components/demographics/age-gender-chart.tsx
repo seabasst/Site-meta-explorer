@@ -7,6 +7,15 @@ interface AgeGenderChartProps {
 }
 
 export function AgeGenderChart({ data }: AgeGenderChartProps) {
+  // Guard against empty data
+  if (!data?.length) {
+    return (
+      <div style={{ width: '100%', height: 300 }} className="flex items-center justify-center">
+        <p className="text-[var(--text-muted)]">No age/gender data available</p>
+      </div>
+    );
+  }
+
   // Transform to grouped format for stacked bar chart
   const groupedData = data.reduce((acc, item) => {
     const existing = acc.find(d => d.age === item.age);

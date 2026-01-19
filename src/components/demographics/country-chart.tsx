@@ -9,6 +9,15 @@ interface CountryChartProps {
 }
 
 export function CountryChart({ data }: CountryChartProps) {
+  // Guard against empty data
+  if (!data?.length) {
+    return (
+      <div style={{ width: '100%', height: 300 }} className="flex items-center justify-center">
+        <p className="text-[var(--text-muted)]">No geographic data available</p>
+      </div>
+    );
+  }
+
   // Take top 5 countries, group rest as "Other"
   const sortedData = [...data].sort((a, b) => b.percentage - a.percentage);
   const topCountries = sortedData.slice(0, 5);
