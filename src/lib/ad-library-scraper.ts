@@ -1,5 +1,8 @@
-import puppeteer, { Browser, HTTPResponse } from 'puppeteer-core';
+import puppeteer, { Browser, HTTPResponse, Page } from 'puppeteer-core';
 import chromium from '@sparticuz/chromium-min';
+import { extractDemographicsFromApiResponse } from './demographic-extractor';
+import { selectTopPerformers } from './top-performer-selector';
+import { AdDemographics, AdWithMetrics, AdDataWithDemographics, AdLibraryResultWithDemographics } from './demographic-types';
 
 // URL to download chromium binary at runtime (required for serverless environments)
 const CHROMIUM_PACK_URL =
@@ -121,6 +124,85 @@ function extractUrlsFromApiResponse(data: unknown): ExtractedAd[] {
 
   traverse(data);
   return results;
+}
+
+/**
+ * Scrape demographics from a single ad detail page.
+ * Navigates to the ad's detail page and captures demographic data from API responses.
+ * Returns null if demographics unavailable (graceful degradation).
+ */
+async function scrapeAdDemographics(
+  page: Page,
+  adArchiveId: string,
+  debug: boolean = false
+): Promise<AdDemographics | null> {
+  const demographicsMap: Map<string, AdDemographics> = new Map();
+
+  // Set up response listener for this ad
+  const responseHandler = async (response: HTTPResponse) => {
+    const url = response.url();
+
+    if (url.includes('/api/graphql') || url.includes('/ads/library/async')) {
+      try {
+        const text = await response.text();
+        const json = JSON.parse(text);
+        const demographics = extractDemographicsFromApiResponse(json, adArchiveId, debug);
+
+        if (demographics) {
+          demographicsMap.set(adArchiveId, demographics);
+        }
+      } catch {
+        // Response not parseable or body unavailable - continue
+      }
+    }
+  };
+
+  page.on('response', responseHandler);
+
+  try {
+    const adDetailUrl = `https://www.facebook.com/ads/library/?id=${adArchiveId}`;
+
+    await page.goto(adDetailUrl, {
+      waitUntil: 'networkidle2',
+      timeout: 30000,
+    });
+
+    // Wait for demographic data to potentially load
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Try clicking "See ad details" button if present (EU transparency modal)
+    // Use multiple selectors as fallback (research pitfall #5)
+    const seeDetailsSelectors = [
+      'div[role="button"][aria-label*="See ad details"]',
+      'div[role="button"][aria-label*="see ad details"]',
+      '[data-testid="ad_details_button"]',
+    ];
+
+    for (const selector of seeDetailsSelectors) {
+      try {
+        const element = await page.$(selector);
+        if (element) {
+          await element.click();
+          // Wait for modal content to load
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          break;
+        }
+      } catch {
+        // Selector failed, try next
+      }
+    }
+
+    // Give a bit more time for any final API responses
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    return demographicsMap.get(adArchiveId) || null;
+
+  } catch (error) {
+    console.warn(`[demographics] Failed to scrape ad ${adArchiveId}:`, error);
+    return null; // Graceful degradation (RELY-02)
+  } finally {
+    page.off('response', responseHandler);
+  }
 }
 
 export async function scrapeAdLibrary(adLibraryUrl: string, debug = false): Promise<AdLibraryResponse> {
