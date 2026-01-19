@@ -32,7 +32,7 @@ export interface AdLibraryError {
   error: string;
 }
 
-export type AdLibraryResponse = AdLibraryResult | AdLibraryError;
+export type AdLibraryResponse = AdLibraryResult | AdLibraryResultWithDemographics | AdLibraryError;
 
 function extractPageIdFromUrl(url: string): string | null {
   const match = url.match(/view_all_page_id=(\d+)/);
@@ -205,7 +205,14 @@ async function scrapeAdDemographics(
   }
 }
 
-export async function scrapeAdLibrary(adLibraryUrl: string, debug = false): Promise<AdLibraryResponse> {
+export async function scrapeAdLibrary(
+  adLibraryUrl: string,
+  debug = false,
+  options?: {
+    scrapeDemographics?: boolean;  // Default: false (backward compatible)
+    maxDemographicAds?: number;    // Default: 10
+  }
+): Promise<AdLibraryResponse> {
   const pageId = extractPageIdFromUrl(adLibraryUrl);
 
   if (!pageId) {
@@ -430,9 +437,6 @@ export async function scrapeAdLibrary(adLibraryUrl: string, debug = false): Prom
       }
     });
 
-    await browser.close();
-    browser = null;
-
     // Convert collected URLs to AdData format with counts and ad library links
     const ads: AdData[] = Array.from(urlCounts.entries())
       .map(([url, count], index) => {
@@ -452,6 +456,87 @@ export async function scrapeAdLibrary(adLibraryUrl: string, debug = false): Prom
         };
       })
       .sort((a, b) => b.adCount - a.adCount); // Sort by count descending
+
+    // Scrape demographics if requested
+    if (options?.scrapeDemographics) {
+      const maxAds = options.maxDemographicAds || 10;
+
+      // Convert ads to AdWithMetrics for selection
+      const adsWithMetrics: AdWithMetrics[] = ads.map(ad => ({
+        adArchiveId: ad.adArchiveId || '',
+        destinationUrl: ad.destinationUrl,
+        startedRunning: ad.startedRunning,
+        adCount: ad.adCount,
+        // Note: reach data would come from API responses if available
+        // For now, we use adCount as a proxy (more ads = more reach typically)
+      }));
+
+      // Select top performers (RELY-04)
+      const topPerformers = selectTopPerformers(adsWithMetrics, maxAds);
+
+      if (debug) {
+        console.log(`[demographics] Selected ${topPerformers.length} top performers for analysis`);
+      }
+
+      // Scrape demographics for top performers
+      let demographicsScraped = 0;
+      let demographicsFailed = 0;
+      const adDemographicsMap: Map<string, AdDemographics> = new Map();
+
+      for (const performer of topPerformers) {
+        if (!performer.adArchiveId) continue;
+
+        try {
+          // Add random delay between requests (research pitfall #3: detection)
+          const delay = 1000 + Math.random() * 2000; // 1-3 seconds
+          await new Promise(resolve => setTimeout(resolve, delay));
+
+          const demographics = await scrapeAdDemographics(page, performer.adArchiveId, debug);
+
+          if (demographics) {
+            adDemographicsMap.set(performer.adArchiveId, demographics);
+            demographicsScraped++;
+            if (debug) {
+              console.log(`[demographics] Extracted data for ad ${performer.adArchiveId}`);
+            }
+          } else {
+            demographicsFailed++;
+            if (debug) {
+              console.log(`[demographics] No data for ad ${performer.adArchiveId}`);
+            }
+          }
+        } catch (error) {
+          demographicsFailed++;
+          console.warn(`[demographics] Error scraping ad ${performer.adArchiveId}:`, error);
+          // Continue with next ad (RELY-02)
+        }
+      }
+
+      // Build extended result
+      const extendedAds: AdDataWithDemographics[] = ads.map(ad => ({
+        ...ad,
+        demographics: ad.adArchiveId ? (adDemographicsMap.get(ad.adArchiveId) || null) : null,
+      }));
+
+      await browser.close();
+      browser = null;
+
+      return {
+        success: true,
+        pageId,
+        pageName,
+        ads: extendedAds,
+        totalAdsFound: extendedAds.length,
+        totalActiveAdsOnPage,
+        demographicsScraped,
+        demographicsFailed,
+        topPerformersAnalyzed: topPerformers.length,
+      } as AdLibraryResultWithDemographics;
+    }
+
+    // Default: no demographics, return original format
+    await browser.close();
+    browser = null;
 
     return {
       success: true,
