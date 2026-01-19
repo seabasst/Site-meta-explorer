@@ -30,3 +30,33 @@ export interface AdWithMetrics {
   reachUpper?: number;
   adCount: number;
 }
+
+// Extended result that includes demographic data
+export interface AdLibraryResultWithDemographics {
+  success: true;
+  pageId: string;
+  pageName: string | null;
+  ads: AdDataWithDemographics[];
+  totalAdsFound: number;
+  totalActiveAdsOnPage: number | null;
+  demographicsScraped: number;      // How many ads had demographics extracted
+  demographicsFailed: number;        // How many ads failed/had no data
+  topPerformersAnalyzed: number;     // How many top performers were analyzed
+}
+
+// Extended ad data with demographics
+export interface AdDataWithDemographics {
+  adId: string;
+  adArchiveId: string | null;
+  destinationUrl: string | null;
+  linkText: string | null;
+  startedRunning: string | null;
+  adCount: number;
+  adLibraryLinks: string[];
+  demographics: AdDemographics | null;  // null if extraction failed or not attempted
+}
+
+// Type guard for result with demographics
+export function hasAdDemographics(ad: AdDataWithDemographics): ad is AdDataWithDemographics & { demographics: AdDemographics } {
+  return ad.demographics !== null;
+}
