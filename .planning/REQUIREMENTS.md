@@ -7,9 +7,9 @@
 
 ### Extraction
 
-- [ ] **EXTR-01**: Extract age group breakdown (percentage per age bracket) from ad detail pages
-- [ ] **EXTR-02**: Extract gender breakdown (male/female percentages) from ad detail pages
-- [ ] **EXTR-03**: Extract country/region reach distribution from ad detail pages
+- [x] **EXTR-01**: Extract age group breakdown (percentage per age bracket) from ad detail pages
+- [x] **EXTR-02**: Extract gender breakdown (male/female percentages) from ad detail pages
+- [x] **EXTR-03**: Extract country/region reach distribution from ad detail pages
 - [ ] **EXTR-04**: Weight aggregated demographics by reach/impressions, not just ad count
 
 ### Display
@@ -21,10 +21,10 @@
 
 ### Reliability
 
-- [ ] **RELY-01**: Upgrade to rebrowser-puppeteer-core for stealth (avoid detection)
-- [ ] **RELY-02**: Handle missing/unavailable demographic data gracefully without crashing
+- [x] **RELY-01**: Upgrade to rebrowser-puppeteer-core for stealth (avoid detection)
+- [x] **RELY-02**: Handle missing/unavailable demographic data gracefully without crashing
 - [ ] **RELY-03**: Allow user to configure how many ads to analyze (within timeout constraints)
-- [ ] **RELY-04**: Auto-select top performing ads (by reach or run duration) for analysis
+- [x] **RELY-04**: Auto-select top performing ads (by reach or run duration) for analysis
 
 ## v2 Requirements
 
@@ -58,18 +58,18 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EXTR-01 | Phase 2 | Pending |
-| EXTR-02 | Phase 2 | Pending |
-| EXTR-03 | Phase 2 | Pending |
+| EXTR-01 | Phase 2 | Complete |
+| EXTR-02 | Phase 2 | Complete |
+| EXTR-03 | Phase 2 | Complete |
 | EXTR-04 | Phase 3 | Pending |
 | DISP-01 | Phase 4 | Pending |
 | DISP-02 | Phase 4 | Pending |
 | DISP-03 | Phase 4 | Pending |
 | DISP-04 | Phase 4 | Pending |
 | RELY-01 | Phase 1 | Complete |
-| RELY-02 | Phase 2 | Pending |
+| RELY-02 | Phase 2 | Complete |
 | RELY-03 | Phase 4 | Pending |
-| RELY-04 | Phase 2 | Pending |
+| RELY-04 | Phase 2 | Complete |
 
 **Coverage:**
 - v1 requirements: 12 total
@@ -78,4 +78,4 @@
 
 ---
 *Requirements defined: 2026-01-18*
-*Last updated: 2026-01-18 - Phase mappings added*
+*Last updated: 2026-01-19 - Phase 2 requirements complete*

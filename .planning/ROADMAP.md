@@ -41,12 +41,13 @@ Plans:
 4. Top-performing ads (by reach or duration) are automatically selected for analysis
 5. When demographic data is unavailable for an ad, scraping continues with remaining ads
 
-**Plans:** 3 plans
+**Plans:** 4 plans
 
 Plans:
-- [ ] 02-01-PLAN.md - Types and top performer selection
-- [ ] 02-02-PLAN.md - Demographic extraction parser
-- [ ] 02-03-PLAN.md - Navigation and orchestration
+- [x] 02-01-PLAN.md - Types and top performer selection
+- [x] 02-02-PLAN.md - Demographic extraction parser
+- [x] 02-03-PLAN.md - Navigation and orchestration
+- [x] 02-04-PLAN.md - API layer wiring (gap closure)
 
 ---
 
@@ -87,7 +88,7 @@ Plans:
 | Phase | Status | Completed |
 |-------|--------|-----------|
 | 1 - Foundation | Complete | 2026-01-18 |
-| 2 - Demographic Extraction | Planned | - |
+| 2 - Demographic Extraction | Complete | 2026-01-19 |
 | 3 - Aggregation | Not started | - |
 | 4 - Display | Not started | - |
 
