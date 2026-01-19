@@ -400,42 +400,60 @@ export default function Home() {
                   )}
                 </div>
 
-                <form onSubmit={handleAdLibrarySubmit} className="flex gap-3">
-                  <input
-                    type="text"
-                    value={adLibraryUrl}
-                    onChange={(e) => setAdLibraryUrl(e.target.value)}
-                    placeholder="https://www.facebook.com/ads/library/?...&view_all_page_id=..."
-                    className="input-field flex-1 text-sm"
+                <form onSubmit={handleAdLibrarySubmit} className="space-y-4">
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={adLibraryUrl}
+                      onChange={(e) => setAdLibraryUrl(e.target.value)}
+                      placeholder="https://www.facebook.com/ads/library/?...&view_all_page_id=..."
+                      className="input-field flex-1 text-sm"
+                      disabled={isLoadingAds}
+                    />
+                    <button
+                      type="submit"
+                      disabled={isLoadingAds || !adLibraryUrl.trim()}
+                      className="btn-secondary flex items-center gap-2 whitespace-nowrap"
+                    >
+                      {isLoadingAds ? (
+                        <>
+                          <LoadingSpinner size="sm" />
+                          <span>Scanning...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Scan Ads</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <ScrapeConfig
+                    maxAds={maxDemographicAds}
+                    onMaxAdsChange={setMaxDemographicAds}
                     disabled={isLoadingAds}
                   />
-                  <button
-                    type="submit"
-                    disabled={isLoadingAds || !adLibraryUrl.trim()}
-                    className="btn-secondary flex items-center gap-2 whitespace-nowrap"
-                  >
-                    {isLoadingAds ? (
-                      <>
-                        <LoadingSpinner size="sm" />
-                        <span>Scanning...</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        <span>Scan Ads</span>
-                      </>
-                    )}
-                  </button>
                 </form>
 
                 {/* Ad Library Loading */}
                 {isLoadingAds && (
-                  <div className="mt-4 flex items-center gap-3 text-sm text-[var(--text-secondary)]">
-                    <LoadingSpinner size="sm" />
-                    <span>Launching browser and scanning ads (this may take a moment)...</span>
+                  <div className="mt-4 text-center py-4">
+                    <div className="inline-flex flex-col items-center gap-3">
+                      <LoadingSpinner size="lg" />
+                      <div className="text-center">
+                        <p className="text-[var(--text-primary)] font-medium">
+                          Analyzing demographics...
+                        </p>
+                        {demographicsProgress && (
+                          <p className="text-sm text-[var(--text-muted)] mt-1">
+                            {demographicsProgress.current} of {demographicsProgress.total} ads to process
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
 
