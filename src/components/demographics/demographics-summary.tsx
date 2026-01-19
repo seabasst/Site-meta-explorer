@@ -14,6 +14,9 @@ export function DemographicsSummary({ demographics }: DemographicsSummaryProps) 
         <p className="text-sm text-[var(--text-muted)]">
           No demographic data available
         </p>
+        <p className="text-xs text-[var(--text-muted)]">
+          Demographic data is only available for ads targeting the EU due to transparency regulations.
+        </p>
       </div>
     );
   }

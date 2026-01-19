@@ -627,9 +627,15 @@ export default function Home() {
                 {/* Demographics Results */}
                 {adResult && (adResult as AdLibraryResultWithDemographics).aggregatedDemographics && (
                   <div className="mt-6 space-y-6">
-                    <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                      Audience <span className="italic text-[var(--accent-green-light)]">Demographics</span>
-                    </h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                        Audience <span className="italic text-[var(--accent-green-light)]">Demographics</span>
+                      </h3>
+                      {/* Scrape metadata */}
+                      <div className="text-xs text-[var(--text-muted)]">
+                        {(adResult as AdLibraryResultWithDemographics).demographicsScraped || 0} of {(adResult as AdLibraryResultWithDemographics).topPerformersAnalyzed || 0} ads had data
+                      </div>
+                    </div>
 
                     {/* Summary */}
                     <div className="glass rounded-xl p-5">
