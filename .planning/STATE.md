@@ -10,17 +10,17 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 4 of 4 (Display)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-01-19 - Completed 04-01-PLAN.md
+Last activity: 2026-01-19 - Completed 04-02-PLAN.md
 
-Progress: ████████░░ 80%
+Progress: █████████░ 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 6.5min
+- Total plans completed: 9
+- Average duration: 6min
 
 **By Phase:**
 
@@ -29,7 +29,7 @@ Progress: ████████░░ 80%
 | 01-foundation | 1 | 8min | 8min |
 | 02-demographic-extraction | 4 | 27min | 6.75min |
 | 03-aggregation | 2 | 14min | 7min |
-| 04-display | 1 | 1min | 1min |
+| 04-display | 2 | 3min | 1.5min |
 
 ## Accumulated Context
 
@@ -48,6 +48,8 @@ Progress: ████████░░ 80%
 | 03-01 | Array.from() for Map iteration | TypeScript compatibility without tsconfig changes |
 | 03-01 | Preserve age-gender correlation | Combined breakdown before deriving simplified breakdowns |
 | 03-02 | Optional aggregatedDemographics field | Backward compatibility - existing consumers unchanged |
+| 04-02 | Type-safe Recharts formatter | Use typeof check for value in Tooltip formatter |
+| 04-02 | Top 5 countries with 'Other' | Show top 5 countries, group rest as 'Other' for readability |
 
 ### Pending Todos
 
@@ -59,6 +61,6 @@ Progress: ████████░░ 80%
 
 ## Session Continuity
 
-Last session: 2026-01-19 10:17 UTC
-Stopped at: Completed 04-01-PLAN.md (foundation setup)
+Last session: 2026-01-19 11:33 UTC
+Stopped at: Completed 04-02-PLAN.md (demographics visualization components)
 Resume file: None
