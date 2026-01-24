@@ -13,6 +13,7 @@ import { MediaTypeChart } from '@/components/demographics/media-type-chart';
 import { ProductMarketTable } from '@/components/analytics/product-market-table';
 import { AdLongevity } from '@/components/analytics/ad-longevity';
 import { AdCopyAnalysis } from '@/components/analytics/ad-copy-analysis';
+import { BrandComparison } from '@/components/analytics/brand-comparison';
 import { exportAdsToCSV, exportDemographicsToCSV, exportFullReportToCSV } from '@/lib/export-utils';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
@@ -164,6 +165,10 @@ export default function Home() {
 
   // Facebook API result (different structure from scraper)
   const [apiResult, setApiResult] = useState<FacebookApiResult | null>(null);
+
+  // Brand comparison mode
+  const [comparisonBrands, setComparisonBrands] = useState<FacebookApiResult[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -552,6 +557,91 @@ export default function Home() {
             </div>
           )}
 
+          {/* Brand Comparison Panel */}
+          {comparisonBrands.length > 0 && (
+            <div className="mb-8 animate-fade-in">
+              <div className="glass rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <h2 className="font-serif text-xl text-[var(--text-primary)]">
+                      Brand <span className="italic text-[var(--accent-green-light)]">Comparison</span>
+                    </h2>
+                    <span className="text-xs px-2 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-muted)]">
+                      {comparisonBrands.length}/3 brands
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setShowComparison(!showComparison)}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                        showComparison
+                          ? 'bg-[var(--accent-green)] text-white'
+                          : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      }`}
+                    >
+                      {showComparison ? 'Hide Comparison' : 'Show Comparison'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setComparisonBrands([]);
+                        setShowComparison(false);
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+
+                {/* Saved brand pills */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {comparisonBrands.map((brand, index) => (
+                    <div
+                      key={brand.pageId}
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
+                        index === 0 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' :
+                        index === 1 ? 'bg-blue-500/20 text-blue-400 border border-blue-500/50' :
+                        'bg-amber-500/20 text-amber-400 border border-amber-500/50'
+                      }`}
+                    >
+                      {brand.pageName || `Brand ${index + 1}`}
+                      <button
+                        onClick={() => setComparisonBrands(comparisonBrands.filter((_, i) => i !== index))}
+                        className="hover:opacity-70"
+                      >
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                  {comparisonBrands.length < 3 && (
+                    <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs text-[var(--text-muted)] border border-dashed border-[var(--border-subtle)]">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Add brand above
+                    </div>
+                  )}
+                </div>
+
+                {/* Comparison View */}
+                {showComparison && comparisonBrands.length >= 2 && (
+                  <BrandComparison
+                    brands={comparisonBrands}
+                    onRemoveBrand={(index) => setComparisonBrands(comparisonBrands.filter((_, i) => i !== index))}
+                  />
+                )}
+
+                {showComparison && comparisonBrands.length < 2 && (
+                  <div className="text-center py-8 text-[var(--text-muted)]">
+                    Add at least 2 brands to compare. Analyze a brand above and click "Compare" to save it.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Ad Library Results - Full Width */}
           {(apiResult || adResult || isLoadingAds) && (
             <div className="animate-fade-in mb-8">
@@ -615,6 +705,28 @@ export default function Home() {
                               )}
                             </div>
                           </div>
+                          {/* Save for Comparison */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (comparisonBrands.length < 3 && !comparisonBrands.find(b => b.pageId === apiResult.pageId)) {
+                                setComparisonBrands([...comparisonBrands, apiResult]);
+                              }
+                            }}
+                            disabled={comparisonBrands.length >= 3 || comparisonBrands.some(b => b.pageId === apiResult.pageId)}
+                            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border transition-colors ${
+                              comparisonBrands.some(b => b.pageId === apiResult.pageId)
+                                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'
+                                : comparisonBrands.length >= 3
+                                  ? 'bg-[var(--bg-tertiary)] border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed'
+                                  : 'bg-[var(--bg-tertiary)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)]'
+                            }`}
+                          >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            {comparisonBrands.some(b => b.pageId === apiResult.pageId) ? 'Saved' : 'Compare'}
+                          </button>
                         </>
                       ) : adResult && (
                         <>
