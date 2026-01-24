@@ -157,6 +157,9 @@ export default function Home() {
   // Data source selection: 'api' uses official Facebook API (faster, requires token), 'scraper' uses Puppeteer
   const [dataSource, setDataSource] = useState<DataSource>('api');
 
+  // Active status filter: 'ACTIVE' shows only running ads, 'ALL' shows all ads including inactive
+  const [activeStatus, setActiveStatus] = useState<'ACTIVE' | 'ALL'>('ACTIVE');
+
   // Facebook API result (different structure from scraper)
   const [apiResult, setApiResult] = useState<FacebookApiResult | null>(null);
 
@@ -230,6 +233,7 @@ export default function Home() {
             adLibraryUrl: adLibraryUrl.trim(),
             countries: ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'], // All EU countries for DSA data
             limit: 250, // Reduced from 1000 to avoid Facebook API payload limits
+            activeStatus,
           }),
         });
 
@@ -364,7 +368,7 @@ export default function Home() {
               </div>
 
               {/* Data Source Toggle */}
-              <div className="mt-4 flex items-center gap-4">
+              <div className="mt-4 flex items-center gap-4 flex-wrap">
                 <span className="text-xs text-[var(--text-muted)]">Data source:</span>
                 <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-1 border border-[var(--border-subtle)]">
                   <button
@@ -392,9 +396,40 @@ export default function Home() {
                     Scraper
                   </button>
                 </div>
-                <span className="text-xs text-[var(--text-muted)]">
-                  {dataSource === 'api' ? '(Faster, includes demographics)' : '(Slower, extracts destination URLs)'}
-                </span>
+
+                {/* Active Status Toggle - only shown when using API */}
+                {dataSource === 'api' && (
+                  <>
+                    <div className="w-px h-6 bg-[var(--border-subtle)]" />
+                    <span className="text-xs text-[var(--text-muted)]">Ads:</span>
+                    <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-1 border border-[var(--border-subtle)]">
+                      <button
+                        type="button"
+                        onClick={() => setActiveStatus('ACTIVE')}
+                        disabled={isLoadingAds}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                          activeStatus === 'ACTIVE'
+                            ? 'bg-[var(--accent-green)] text-white'
+                            : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
+                        }`}
+                      >
+                        Active Only
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveStatus('ALL')}
+                        disabled={isLoadingAds}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                          activeStatus === 'ALL'
+                            ? 'bg-[var(--accent-green)] text-white'
+                            : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
+                        }`}
+                      >
+                        All Ads
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
 
               {dataSource === 'scraper' && (

@@ -490,8 +490,9 @@ async function fetchAdsForCountry(options: {
   country: string;
   limit: number;
   adType: string;
+  activeStatus: 'ACTIVE' | 'INACTIVE' | 'ALL';
 }): Promise<FacebookAdData[]> {
-  const { accessToken, pageId, country, limit, adType } = options;
+  const { accessToken, pageId, country, limit, adType, activeStatus } = options;
 
   const fields = [
     'id',
@@ -517,6 +518,7 @@ async function fetchAdsForCountry(options: {
     access_token: accessToken,
     ad_reached_countries: JSON.stringify([country]),
     ad_type: adType,
+    ad_active_status: activeStatus,
     fields,
     limit: limit.toString(),
     search_page_ids: pageId,
@@ -548,6 +550,7 @@ export async function fetchFacebookAds(options: {
   countries?: string[];
   limit?: number;
   adType?: 'ALL' | 'POLITICAL_AND_ISSUE_ADS';
+  activeStatus?: 'ACTIVE' | 'INACTIVE' | 'ALL';
 }): Promise<FacebookApiResponse2> {
   const {
     accessToken,
@@ -556,6 +559,7 @@ export async function fetchFacebookAds(options: {
     countries = ['NL'], // Default to Netherlands for EU DSA data
     limit = 1000,
     adType = 'ALL',
+    activeStatus = 'ACTIVE',
   } = options;
 
   if (!pageId && !searchTerms) {
@@ -590,6 +594,7 @@ export async function fetchFacebookAds(options: {
               country,
               limit: adsPerCountry,
               adType,
+              activeStatus,
             })
           )
         );
@@ -636,6 +641,7 @@ export async function fetchFacebookAds(options: {
         access_token: accessToken,
         ad_reached_countries: JSON.stringify(countries),
         ad_type: adType,
+        ad_active_status: activeStatus,
         fields,
         limit: limit.toString(),
       });
@@ -785,6 +791,7 @@ export async function fetchAdsByPageUrl(
   options?: {
     countries?: string[];
     limit?: number;
+    activeStatus?: 'ACTIVE' | 'INACTIVE' | 'ALL';
   }
 ): Promise<FacebookApiResponse2> {
   const pageId = extractPageIdFromUrl(adLibraryUrl);
@@ -801,5 +808,6 @@ export async function fetchAdsByPageUrl(
     pageId,
     countries: options?.countries,
     limit: options?.limit,
+    activeStatus: options?.activeStatus,
   });
 }

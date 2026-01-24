@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
       searchTerms,
       countries = ['NL'],
       limit = 1000,
+      activeStatus = 'ACTIVE',
     } = body;
 
     // Get access token from environment or request
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
       result = await fetchAdsByPageUrl(adLibraryUrl, accessToken, {
         countries,
         limit,
+        activeStatus,
       });
     } else {
       // Direct API call with pageId or searchTerms
@@ -58,6 +60,7 @@ export async function POST(request: NextRequest) {
         searchTerms,
         countries,
         limit,
+        activeStatus,
       });
     }
 
