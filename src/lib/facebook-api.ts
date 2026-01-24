@@ -166,6 +166,10 @@ const EU_COUNTRIES = [
   'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'
 ];
 
+// Key EU markets to query separately for accurate country distribution
+// These are the largest EU ad markets by spend
+const KEY_EU_MARKETS = ['DE', 'FR', 'NL', 'SE', 'FI', 'DK', 'ES', 'IT', 'PL', 'BE'];
+
 const API_VERSION = 'v19.0';
 const API_BASE = 'https://graph.facebook.com';
 
@@ -478,6 +482,63 @@ async function countAdsByMediaType(options: {
 }
 
 /**
+ * Fetch ads for a single country (internal helper)
+ */
+async function fetchAdsForCountry(options: {
+  accessToken: string;
+  pageId: string;
+  country: string;
+  limit: number;
+  adType: string;
+}): Promise<FacebookAdData[]> {
+  const { accessToken, pageId, country, limit, adType } = options;
+
+  const fields = [
+    'id',
+    'page_id',
+    'page_name',
+    'ad_delivery_start_time',
+    'ad_delivery_stop_time',
+    'ad_creative_bodies',
+    'ad_creative_link_titles',
+    'ad_creative_link_descriptions',
+    'ad_creative_link_captions',
+    'eu_total_reach',
+    'age_country_gender_reach_breakdown',
+    'beneficiary_payers',
+    'target_ages',
+    'target_gender',
+    'target_locations',
+    'languages',
+    'publisher_platforms',
+  ].join(',');
+
+  const params = new URLSearchParams({
+    access_token: accessToken,
+    ad_reached_countries: JSON.stringify([country]),
+    ad_type: adType,
+    fields,
+    limit: limit.toString(),
+    search_page_ids: pageId,
+  });
+
+  try {
+    const res = await fetch(`${API_BASE}/${API_VERSION}/ads_archive?${params}`);
+    const data = await res.json() as FacebookApiResponse | { error: { message: string } };
+
+    if ('error' in data) {
+      console.error(`Error fetching ads for ${country}:`, data.error.message);
+      return [];
+    }
+
+    return data.data;
+  } catch (error) {
+    console.error(`Failed to fetch ads for ${country}:`, error);
+    return [];
+  }
+}
+
+/**
  * Fetch ads from Facebook Ad Library API
  */
 export async function fetchFacebookAds(options: {
@@ -504,75 +565,119 @@ export async function fetchFacebookAds(options: {
     };
   }
 
-  const fields = [
-    'id',
-    'page_id',
-    'page_name',
-    'ad_delivery_start_time',
-    'ad_delivery_stop_time',
-    'ad_creative_bodies',
-    'ad_creative_link_titles',
-    'ad_creative_link_descriptions',
-    'ad_creative_link_captions',
-    'eu_total_reach',
-    'age_country_gender_reach_breakdown',
-    'beneficiary_payers',
-    'target_ages',
-    'target_gender',
-    'target_locations',
-    'languages',
-    'publisher_platforms',
-  ].join(',');
-
-  const params = new URLSearchParams({
-    access_token: accessToken,
-    ad_reached_countries: JSON.stringify(countries),
-    ad_type: adType,
-    fields,
-    limit: limit.toString(),
-  });
-
-  if (pageId) {
-    params.set('search_page_ids', pageId);
-  }
-  if (searchTerms) {
-    params.set('search_terms', searchTerms);
-  }
-
   const allAds: FacebookAdData[] = [];
-  let currentUrl: string | null = `${API_BASE}/${API_VERSION}/ads_archive?${params}`;
   let pageName: string | null = null;
   let fetchedPageId: string | null = pageId || null;
 
   try {
-    while (currentUrl && allAds.length < limit) {
-      const res: Response = await fetch(currentUrl);
-      const data = await res.json() as FacebookApiResponse | { error: { message: string; code: number; error_subcode?: number } };
+    // When querying multiple EU countries, fetch each key market separately
+    // to get a representative sample from each country
+    const useMultiCountryQuery = countries.length > 5 && pageId;
 
-      if ('error' in data) {
-        return {
-          success: false,
-          error: data.error.message,
-          code: data.error.code,
-          subcode: data.error.error_subcode,
-        };
+    if (useMultiCountryQuery && pageId) {
+      // Query each key market separately (in parallel batches to avoid rate limits)
+      const adsPerCountry = Math.ceil(limit / KEY_EU_MARKETS.length);
+      const adIdSet = new Set<string>();
+
+      // Fetch in parallel batches of 3 to be gentle on rate limits
+      for (let i = 0; i < KEY_EU_MARKETS.length; i += 3) {
+        const batch = KEY_EU_MARKETS.slice(i, i + 3);
+        const batchResults = await Promise.all(
+          batch.map(country =>
+            fetchAdsForCountry({
+              accessToken,
+              pageId,
+              country,
+              limit: adsPerCountry,
+              adType,
+            })
+          )
+        );
+
+        // Merge and deduplicate
+        for (const countryAds of batchResults) {
+          for (const ad of countryAds) {
+            if (!adIdSet.has(ad.id)) {
+              adIdSet.add(ad.id);
+              allAds.push(ad);
+
+              // Extract page info from first ad
+              if (!pageName && ad.page_name) {
+                pageName = ad.page_name;
+                fetchedPageId = ad.page_id || fetchedPageId;
+              }
+            }
+          }
+        }
+      }
+    } else {
+      // Single country or small country list - use standard query
+      const fields = [
+        'id',
+        'page_id',
+        'page_name',
+        'ad_delivery_start_time',
+        'ad_delivery_stop_time',
+        'ad_creative_bodies',
+        'ad_creative_link_titles',
+        'ad_creative_link_descriptions',
+        'ad_creative_link_captions',
+        'eu_total_reach',
+        'age_country_gender_reach_breakdown',
+        'beneficiary_payers',
+        'target_ages',
+        'target_gender',
+        'target_locations',
+        'languages',
+        'publisher_platforms',
+      ].join(',');
+
+      const params = new URLSearchParams({
+        access_token: accessToken,
+        ad_reached_countries: JSON.stringify(countries),
+        ad_type: adType,
+        fields,
+        limit: limit.toString(),
+      });
+
+      if (pageId) {
+        params.set('search_page_ids', pageId);
+      }
+      if (searchTerms) {
+        params.set('search_terms', searchTerms);
       }
 
-      allAds.push(...data.data);
+      let currentUrl: string | null = `${API_BASE}/${API_VERSION}/ads_archive?${params}`;
 
-      // Extract page info from first ad
-      if (!pageName && data.data.length > 0) {
-        pageName = data.data[0].page_name || null;
-        fetchedPageId = data.data[0].page_id || fetchedPageId;
-      }
+      while (currentUrl && allAds.length < limit) {
+        const res: Response = await fetch(currentUrl);
+        const data = await res.json() as FacebookApiResponse | { error: { message: string; code: number; error_subcode?: number } };
 
-      // Check for more pages
-      currentUrl = data.paging?.next ?? null;
+        if ('error' in data) {
+          return {
+            success: false,
+            error: data.error.message,
+            code: data.error.code,
+            subcode: data.error.error_subcode,
+          };
+        }
 
-      // Respect limit
-      if (allAds.length >= limit) {
-        allAds.splice(limit);
-        break;
+        allAds.push(...data.data);
+
+        // Extract page info from first ad
+        if (!pageName && data.data.length > 0) {
+          pageName = data.data[0].page_name || null;
+          fetchedPageId = data.data[0].page_id || fetchedPageId;
+        }
+
+        // Check for more pages
+        currentUrl = data.paging?.next ?? null;
+
+        // Respect limit
+        if (allAds.length >= limit) {
+          allAds.splice(limit);
+          break;
+        }
       }
     }
 
