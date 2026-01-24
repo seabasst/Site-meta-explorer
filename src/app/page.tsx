@@ -228,7 +228,7 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             adLibraryUrl: adLibraryUrl.trim(),
-            countries: ['NL', 'DE', 'FR', 'BE'], // EU countries for DSA data
+            countries: ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'], // All EU countries for DSA data
             limit: 250, // Reduced from 1000 to avoid Facebook API payload limits
           }),
         });
