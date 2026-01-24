@@ -228,7 +228,7 @@ export default function Home() {
           body: JSON.stringify({
             adLibraryUrl: adLibraryUrl.trim(),
             countries: ['NL', 'DE', 'FR', 'BE'], // EU countries for DSA data
-            limit: 1000,
+            limit: 250, // Reduced from 1000 to avoid Facebook API payload limits
           }),
         });
 
