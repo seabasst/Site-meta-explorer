@@ -9,9 +9,11 @@ import { ScrapeConfig } from '@/components/demographics/scrape-config';
 import { DemographicsSummary } from '@/components/demographics/demographics-summary';
 import { AgeGenderChart } from '@/components/demographics/age-gender-chart';
 import { CountryChart } from '@/components/demographics/country-chart';
-// Media type chart temporarily disabled
-// import { MediaTypeChart } from '@/components/demographics/media-type-chart';
+import { MediaTypeChart } from '@/components/demographics/media-type-chart';
 import { ProductMarketTable } from '@/components/analytics/product-market-table';
+import { AdLongevity } from '@/components/analytics/ad-longevity';
+import { AdCopyAnalysis } from '@/components/analytics/ad-copy-analysis';
+import { exportAdsToCSV, exportDemographicsToCSV, exportFullReportToCSV } from '@/lib/export-utils';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
@@ -579,6 +581,40 @@ export default function Home() {
                             </div>
                             <div className="text-xs text-[var(--text-muted)]">Ads Analysed</div>
                           </div>
+                          {/* Export Dropdown */}
+                          <div className="relative group">
+                            <button
+                              type="button"
+                              className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors"
+                            >
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                              Export
+                            </button>
+                            <div className="absolute right-0 top-full mt-1 w-48 py-1 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                              <button
+                                onClick={() => exportFullReportToCSV(apiResult)}
+                                className="w-full px-4 py-2 text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                              >
+                                Full Report (CSV)
+                              </button>
+                              <button
+                                onClick={() => exportAdsToCSV(apiResult)}
+                                className="w-full px-4 py-2 text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                              >
+                                Ads Only (CSV)
+                              </button>
+                              {apiResult.aggregatedDemographics && (
+                                <button
+                                  onClick={() => exportDemographicsToCSV(apiResult)}
+                                  className="w-full px-4 py-2 text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                                >
+                                  Demographics (CSV)
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         </>
                       ) : adResult && (
                         <>
@@ -920,7 +956,15 @@ export default function Home() {
                         />
                       </div>
 
-                      {/* Media Type Chart - temporarily disabled */}
+                      {/* Media Type Chart */}
+                      {apiResult.mediaTypeBreakdown && (
+                        <div className="glass rounded-xl p-5">
+                          <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
+                            Creative Format
+                          </h4>
+                          <MediaTypeChart data={apiResult.mediaTypeBreakdown} />
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -937,6 +981,40 @@ export default function Home() {
                       </div>
                     </div>
                     <ProductMarketTable data={apiResult.productAnalysis} />
+                  </div>
+                )}
+
+                {/* Ad Longevity Analysis - API */}
+                {apiResult && apiResult.ads.length > 0 && (
+                  <div className="mt-6 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                        Ad <span className="italic text-[var(--accent-green-light)]">Longevity</span>
+                      </h3>
+                      <div className="text-xs text-[var(--text-muted)]">
+                        Identify evergreen winners
+                      </div>
+                    </div>
+                    <div className="glass rounded-xl p-5">
+                      <AdLongevity ads={apiResult.ads} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Ad Copy Analysis - API */}
+                {apiResult && apiResult.ads.length > 0 && (
+                  <div className="mt-6 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                        Copy <span className="italic text-[var(--accent-green-light)]">Analysis</span>
+                      </h3>
+                      <div className="text-xs text-[var(--text-muted)]">
+                        Hooks, CTAs & messaging patterns
+                      </div>
+                    </div>
+                    <div className="glass rounded-xl p-5">
+                      <AdCopyAnalysis ads={apiResult.ads} />
+                    </div>
                   </div>
                 )}
 
