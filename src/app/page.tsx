@@ -541,7 +541,7 @@ export default function Home() {
                             <div className="text-2xl font-bold text-[var(--text-primary)]">
                               {apiResult.totalAdsFound}
                             </div>
-                            <div className="text-xs text-[var(--text-muted)]">Ads Found</div>
+                            <div className="text-xs text-[var(--text-muted)]">Ads Analysed</div>
                           </div>
                         </>
                       ) : adResult && (
