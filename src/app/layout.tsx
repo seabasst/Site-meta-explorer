@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sitemap Analyzer - Ecommerce Landing Page Discovery",
-  description: "Analyze ecommerce sitemaps to extract and categorize landing pages for competitive research.",
+  title: "Facebook Ad Library Analyser - Competitive Ad Intelligence",
+  description: "Analyse competitor Facebook ads. Get demographics, reach data, audience insights, and targeting information.",
 };
 
 export default function RootLayout({
