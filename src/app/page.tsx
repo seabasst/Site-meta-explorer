@@ -14,7 +14,12 @@ import { ProductMarketTable } from '@/components/analytics/product-market-table'
 import { AdLongevity } from '@/components/analytics/ad-longevity';
 import { AdCopyAnalysis } from '@/components/analytics/ad-copy-analysis';
 import { BrandComparison } from '@/components/analytics/brand-comparison';
+import { TimeTrends } from '@/components/analytics/time-trends';
+import { LandingPageAnalysis } from '@/components/analytics/landing-page-analysis';
+import { FavoritesPanel } from '@/components/favorites/favorites-panel';
+import { useFavorites, FavoriteBrand } from '@/hooks/use-favorites';
 import { exportAdsToCSV, exportDemographicsToCSV, exportFullReportToCSV } from '@/lib/export-utils';
+import { extractPageIdFromUrl } from '@/lib/facebook-api';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
@@ -169,6 +174,9 @@ export default function Home() {
   // Brand comparison mode
   const [comparisonBrands, setComparisonBrands] = useState<FacebookApiResult[]>([]);
   const [showComparison, setShowComparison] = useState(false);
+
+  // Favorites
+  const { favorites, isLoaded: favoritesLoaded, addFavorite, removeFavorite, isFavorite, toggleFavorite } = useFavorites();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -465,6 +473,23 @@ export default function Home() {
                   ))}
                 </div>
               )}
+
+              {/* Favorites section */}
+              {!apiResult && !adResult && !isLoadingAds && favoritesLoaded && favorites.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <svg className="w-4 h-4 text-[var(--accent-yellow)]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    <span className="text-sm font-medium text-[var(--text-primary)]">Your Favorites</span>
+                  </div>
+                  <FavoritesPanel
+                    favorites={favorites}
+                    onSelect={(brand) => setAdLibraryUrl(brand.adLibraryUrl)}
+                    onRemove={removeFavorite}
+                  />
+                </div>
+              )}
             </div>
           </form>
 
@@ -726,6 +751,37 @@ export default function Home() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
                             {comparisonBrands.some(b => b.pageId === apiResult.pageId) ? 'Saved' : 'Compare'}
+                          </button>
+                          {/* Favorite Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const totalReach = apiResult.ads.reduce((sum, ad) => sum + ad.euTotalReach, 0);
+                              toggleFavorite({
+                                pageId: apiResult.pageId,
+                                pageName: apiResult.pageName || `Page ${apiResult.pageId}`,
+                                adLibraryUrl: adLibraryUrl,
+                                lastAnalyzed: new Date().toISOString(),
+                                totalAds: apiResult.totalAdsFound,
+                                totalReach,
+                              });
+                            }}
+                            className={`flex items-center justify-center w-9 h-9 rounded-lg border transition-colors ${
+                              isFavorite(apiResult.pageId)
+                                ? 'bg-[var(--accent-yellow)]/20 border-[var(--accent-yellow)]/50 text-[var(--accent-yellow)]'
+                                : 'bg-[var(--bg-tertiary)] border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--accent-yellow)] hover:border-[var(--accent-yellow)]'
+                            }`}
+                            title={isFavorite(apiResult.pageId) ? 'Remove from favorites' : 'Add to favorites'}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill={isFavorite(apiResult.pageId) ? 'currentColor' : 'none'}
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                            </svg>
                           </button>
                         </>
                       ) : adResult && (
@@ -1126,6 +1182,63 @@ export default function Home() {
                     </div>
                     <div className="glass rounded-xl p-5">
                       <AdCopyAnalysis ads={apiResult.ads} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Time Trends - API */}
+                {apiResult && apiResult.ads.length > 0 && (
+                  <div className="mt-6 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                        Activity <span className="italic text-[var(--accent-green-light)]">Timeline</span>
+                      </h3>
+                      <div className="text-xs text-[var(--text-muted)]">
+                        Advertising intensity over time
+                      </div>
+                    </div>
+                    <div className="glass rounded-xl p-5">
+                      <TimeTrends ads={apiResult.ads} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Landing Page Analysis - API */}
+                {apiResult && apiResult.ads.length > 0 && (
+                  <div className="mt-6 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                        Landing <span className="italic text-[var(--accent-green-light)]">Pages</span>
+                      </h3>
+                      <div className="text-xs text-[var(--text-muted)]">
+                        Where ads drive traffic
+                      </div>
+                    </div>
+                    <div className="glass rounded-xl p-5">
+                      <LandingPageAnalysis
+                        apiAds={apiResult.ads}
+                        sitemapUrls={result?.data.urls.map(u => u.loc)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Landing Page Analysis - Scraper */}
+                {adResult && !apiResult && adResult.ads.length > 0 && (
+                  <div className="mt-6 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                        Landing <span className="italic text-[var(--accent-green-light)]">Pages</span>
+                      </h3>
+                      <div className="text-xs text-[var(--text-muted)]">
+                        Where ads drive traffic
+                      </div>
+                    </div>
+                    <div className="glass rounded-xl p-5">
+                      <LandingPageAnalysis
+                        scraperAds={adResult.ads}
+                        sitemapUrls={result?.data.urls.map(u => u.loc)}
+                      />
                     </div>
                   </div>
                 )}
