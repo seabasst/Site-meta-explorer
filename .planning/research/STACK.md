@@ -1,379 +1,365 @@
-# Stack Research: Facebook Ad Library Demographic Extraction
+# Stack Research
 
-**Project:** Competitor Analysis Tool - Demographic Data Extraction
-**Researched:** 2026-01-18
-**Domain:** Facebook Ad Library scraping with demographic/reach data
+**Domain:** Data dashboard enhancement (v1.1)
+**Researched:** 2026-01-25
+**Confidence:** HIGH
 
 ## Executive Summary
 
-There are **two distinct approaches** for extracting demographic data from Facebook Ad Library:
+The existing stack (Next.js 16.1.2, React 19.2.3, Recharts 3.6.0, Tailwind CSS 4) is modern and well-suited for enhancement. The recommended additions focus on:
 
-1. **Official API** - Structured data, rate-limited (200 calls/hour), requires identity verification, only works for EU/UK ads or political ads globally
-2. **Browser Scraping** - Can extract from all ads, but requires anti-detection measures and is subject to terms of service concerns
+1. **shadcn/ui** for consistent, accessible UI components (fully compatible with React 19 + Tailwind v4)
+2. **Sonner** for toast notifications (shadcn/ui's official choice)
+3. **react-to-pdf + react-papaparse** for export functionality
+4. **recharts-to-png** for chart image export
+5. **lucide-react** for icons (already used by shadcn/ui)
 
-**Recommendation:** Use a **hybrid approach** - Official API for EU/UK ads (reliable, structured data), browser scraping for ad detail pages when API is insufficient.
+All recommendations are verified compatible with React 19 and Tailwind CSS 4.
 
 ---
 
-## Recommended Approach
+## Recommended Stack Additions
 
-### Primary: Official Facebook Ad Library API (for EU/UK demographics)
+### UI Enhancement Libraries
 
-**Why:** The API provides structured demographic data (`demographic_distribution`, `delivery_by_region`, `eu_total_reach`) without anti-bot concerns. For EU/UK-targeted ads, this is the cleanest approach.
+| Library | Version | Purpose | Why |
+|---------|---------|---------|-----|
+| shadcn/ui | latest (CLI) | Component system | React 19 + Tailwind v4 compatible; copy-paste components you own; built on Radix primitives for accessibility; no version lock-in |
+| lucide-react | ^0.562.0 | Icons | Optimized for React 19; tree-shakable; SVG-based; shadcn/ui default |
+| class-variance-authority | ^0.7.1 | Component variants | Type-safe variant management for Tailwind components |
+| clsx | ^2.1.1 | Conditional classes | Tiny utility for dynamic classNames |
+| tailwind-merge | ^3.0.1 | Class deduplication | Prevents Tailwind class conflicts when overriding |
+| tw-animate-css | latest | Animations | Tailwind v4 replacement for tailwindcss-animate |
 
-**Confidence:** HIGH (verified via official Meta documentation patterns)
+**The `cn()` utility pattern:**
+```typescript
+// lib/utils.ts
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-#### Setup Requirements
-
-| Step | Description | Time |
-|------|-------------|------|
-| 1. Identity Verification | Submit government ID at facebook.com/ID | 1-2 days |
-| 2. Developer Account | Register at developers.facebook.com | Same day |
-| 3. Create App | Create "Consumer" type app (no App Review needed) | 5 min |
-| 4. Generate Token | Use Graph API Explorer, extend to 60 days | 10 min |
-
-#### API Endpoint
-
-```
-GET https://graph.facebook.com/v23.0/ads_archive
-  ?search_terms={query}
-  &ad_reached_countries=['GB','DE','FR']
-  &fields=id,page_name,page_id,ad_delivery_start_time,ad_delivery_stop_time,demographic_distribution,delivery_by_region,eu_total_reach,impressions,spend,target_ages,target_gender,target_locations
-  &access_token={TOKEN}
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 ```
 
-#### Key Limitations
+**Rationale:** shadcn/ui is the clear winner for React 19 + Tailwind v4 projects. Unlike traditional component libraries, you copy the source code into your project, meaning:
+- Full customization without fighting library constraints
+- No peer dependency conflicts
+- Components use Radix primitives for accessibility (keyboard nav, focus management, screen readers)
+- Official Tailwind v4 support with OKLCH colors and `@theme` directive
 
-- **Rate limit:** 200 calls/hour
-- **Geographic scope:** Only EU/UK ads show demographics; political ads globally
-- **Data precision:** Spend/impressions given as ranges, not exact values
-- **No direct ID lookup:** Cannot query specific ad by Library ID
+### Toast/Error Notifications
 
-### Secondary: Enhanced Browser Scraping (for non-EU ads or detail expansion)
+| Library | Version | Purpose | Why |
+|---------|---------|---------|-----|
+| sonner | ^2.0.0 | Toast notifications | shadcn/ui's official toast; no hooks required; TypeScript-first; trigger from anywhere |
 
-**Why:** Your existing Puppeteer setup already intercepts GraphQL responses. For ads outside EU/UK or when you need additional detail page data, enhanced scraping is required.
+**Rationale:** Sonner is the modern standard for React toast notifications. It's:
+- Lightweight and fast
+- Works without React state management (call `toast()` from anywhere)
+- Has excellent defaults with full customization
+- Officially integrated with shadcn/ui
 
-**Confidence:** MEDIUM (approach is sound but anti-detection landscape shifts frequently)
+**Usage:**
+```typescript
+import { toast } from "sonner";
 
-#### Recommended Library: rebrowser-puppeteer-core
+// Trigger from anywhere - no hooks needed
+toast.success("Analysis complete!");
+toast.error("Failed to fetch data");
+```
 
-**Why rebrowser over puppeteer-stealth:**
-- `puppeteer-extra-plugin-stealth` is **no longer actively maintained** (as of Feb 2025)
-- Cloudflare and DataDome specifically detect puppeteer-stealth patterns now
-- rebrowser-patches fix the `Runtime.Enable` CDP leak that modern anti-bot systems detect
+### Chart Enhancement
+
+| Library | Version | Purpose | Why |
+|---------|---------|---------|-----|
+| recharts | ^3.6.0 (existing) | Charts | Already installed; supports Treemap, Sankey, Pie, Radar, etc. |
+| recharts-to-png | ^3.0.1 | Chart export | Export Recharts to PNG; wrapper around html2canvas |
+
+**Rationale:** Recharts 3.6.0 is already installed and comprehensive. Rather than replacing it, enhance with:
+
+1. **More chart types already available in Recharts:**
+   - `Treemap` - for hierarchical data visualization
+   - `PieChart` - for demographic distribution
+   - `RadarChart` - for multi-dimensional comparisons
+   - `Sankey` - for flow visualization
+
+2. **Chart export via recharts-to-png:**
+```typescript
+import { useCurrentPng } from "recharts-to-png";
+
+const [getPng, { ref, isLoading }] = useCurrentPng();
+
+const handleDownload = async () => {
+  const png = await getPng();
+  if (png) {
+    // Use file-saver or download directly
+    FileSaver.saveAs(png, "chart.png");
+  }
+};
+
+return <LineChart ref={ref} ... />;
+```
+
+**NOT recommended:** Replacing Recharts with alternatives like Chart.js or Visx. Recharts is already integrated and performant.
+
+### Export Libraries
+
+| Library | Version | Purpose | Why |
+|---------|---------|---------|-----|
+| react-to-pdf | ^3.0.0 | PDF export | Simple API; wraps jsPDF + html2canvas; supports React hooks |
+| react-papaparse | ^4.4.0 | CSV export | Fast parsing/generation; CSVDownloader component; TypeScript support |
+| file-saver | ^2.0.5 | File downloads | Trigger browser downloads; works with blobs and URLs |
+| @types/file-saver | ^2.0.7 | TypeScript types | Type definitions for file-saver |
+
+**PDF Export Approach:**
+```typescript
+import { usePDF } from "react-to-pdf";
+
+function ExportButton() {
+  const { toPDF, targetRef } = usePDF({
+    filename: "demographics-report.pdf",
+    page: { format: "A4" }
+  });
+
+  return (
+    <>
+      <div ref={targetRef}>
+        {/* Content to export */}
+      </div>
+      <button onClick={() => toPDF()}>Download PDF</button>
+    </>
+  );
+}
+```
+
+**CSV Export Approach:**
+```typescript
+import { CSVDownloader, jsonToCSV } from "react-papaparse";
+
+function CSVExportButton({ data }) {
+  return (
+    <CSVDownloader
+      data={data}
+      filename="demographics"
+      bom={true} // UTF-8 BOM for Excel compatibility
+    >
+      Download CSV
+    </CSVDownloader>
+  );
+}
+```
+
+**PDF Quality Note:** react-to-pdf creates screenshot-based PDFs (not vectorized). For dashboard exports this is acceptable, but text won't be selectable. For higher quality, use `scale: 2` in html2canvas options.
+
+### Media Display (Ad Previews)
+
+| Library | Version | Purpose | Why |
+|---------|---------|---------|-----|
+| next/image | built-in | Image optimization | Already in Next.js; WebP, lazy loading, responsive |
+| next/video | built-in | Video handling | Native HTML5 video with Next.js best practices |
+
+**Rationale:** Next.js 16 provides excellent built-in media handling. No external libraries needed.
+
+**Image handling:**
+```typescript
+import Image from "next/image";
+
+<Image
+  src={adCreative.imageUrl}
+  alt={adCreative.title}
+  width={300}
+  height={200}
+  placeholder="blur"
+  blurDataURL={adCreative.blurDataUrl} // optional
+/>
+```
+
+**Video handling:**
+```typescript
+<video
+  src={adCreative.videoUrl}
+  controls
+  muted
+  playsInline
+  preload="metadata"
+  className="rounded-lg"
+/>
+```
+
+**Next.js 16 changes:** The `priority` prop is deprecated; use `preload` instead. Quality allowlist is now required in next.config.ts.
+
+---
+
+## Installation
 
 ```bash
-# Replace existing puppeteer-core
-npm uninstall puppeteer-core
-npm install rebrowser-puppeteer-core@24.8.1
+# Core UI (shadcn/ui + dependencies)
+npx shadcn@latest init
+
+# After init, add components as needed:
+npx shadcn@latest add button card dialog dropdown-menu input select skeleton toast
+
+# Install Sonner (if not added by shadcn toast)
+npm install sonner
+
+# Export libraries
+npm install react-to-pdf react-papaparse file-saver recharts-to-png
+npm install -D @types/file-saver
+
+# Note: shadcn init will install these automatically:
+# - class-variance-authority
+# - clsx
+# - tailwind-merge
+# - lucide-react
+# - tw-animate-css
 ```
 
-**Or use npm aliasing in package.json:**
-```json
-{
-  "dependencies": {
-    "puppeteer-core": "npm:rebrowser-puppeteer-core@^24.8.1"
+**shadcn/ui init will prompt for:**
+- Style preference (New York or Default)
+- Base color
+- CSS variables usage
+- React Server Components
+- Component location (`@/components/ui`)
+
+---
+
+## Alternatives Considered
+
+| Category | Recommended | Alternative | Why Not Alternative |
+|----------|-------------|-------------|---------------------|
+| UI Components | shadcn/ui | Radix Themes | Radix Themes is more opinionated; shadcn gives full control |
+| UI Components | shadcn/ui | Material UI | Heavy bundle; different design language; React 19 support lagging |
+| UI Components | shadcn/ui | Chakra UI | Less Tailwind-native; different styling paradigm |
+| Icons | lucide-react | react-icons | Larger bundle; lucide is shadcn default |
+| Toast | Sonner | react-hot-toast | Both good; Sonner is shadcn official choice |
+| Toast | Sonner | react-toastify | Heavier; more configuration required |
+| Charts | Recharts | Chart.js | Already using Recharts; no reason to switch |
+| Charts | Recharts | Visx | Lower-level; Recharts already meets needs |
+| PDF | react-to-pdf | @react-pdf/renderer | @react-pdf requires rewriting components; overkill for screenshots |
+| PDF | react-to-pdf | jsPDF raw | react-to-pdf is simpler wrapper |
+| CSV | react-papaparse | react-csv | react-papaparse more actively maintained; better features |
+
+---
+
+## What NOT to Use
+
+### Libraries with React 19 Compatibility Issues
+
+| Library | Issue | Alternative |
+|---------|-------|-------------|
+| Material UI v5 | Peer dependency warnings; ref forwarding issues | shadcn/ui |
+| Chakra UI v2 | Not yet fully React 19 compatible | shadcn/ui |
+| tailwindcss-animate | Deprecated for Tailwind v4 | tw-animate-css |
+| react-icons | Bloated; includes all icon sets | lucide-react |
+
+### Libraries That Don't Add Value
+
+| Library | Why Skip |
+|---------|----------|
+| Framer Motion | Overkill for dashboard; CSS animations sufficient |
+| React Query/TanStack Query | App uses Server Actions; not needed |
+| Zustand/Redux | Simple state; React 19 hooks sufficient |
+| Axios | fetch is sufficient; Next.js optimizes it |
+
+### Anti-patterns
+
+1. **Don't install multiple chart libraries** - Recharts 3.6.0 covers all needed chart types
+2. **Don't use CSS-in-JS** (styled-components, Emotion) - Tailwind v4 handles all styling needs
+3. **Don't add a separate form library** - shadcn/ui forms + React 19 form actions are sufficient
+4. **Don't add date-fns/moment** - Native Intl.DateTimeFormat handles date formatting
+
+---
+
+## Compatibility Matrix
+
+| Library | React 19 | Tailwind v4 | Next.js 16 | Notes |
+|---------|----------|-------------|------------|-------|
+| shadcn/ui | Yes | Yes | Yes | Full support; CLI handles setup |
+| Radix UI | Yes | N/A | Yes | Primitives used by shadcn |
+| Sonner | Yes | Yes | Yes | No special config needed |
+| lucide-react | Yes* | N/A | Yes | May need --force flag for npm |
+| react-to-pdf | Yes | N/A | Yes | Uses html2canvas under hood |
+| react-papaparse | Yes | N/A | Yes | Framework-agnostic |
+| recharts-to-png | Yes | N/A | Yes | Compatible with Recharts 3.x |
+| file-saver | Yes | N/A | Yes | Framework-agnostic |
+
+*lucide-react: peer dependency warning can be ignored or use `--force`
+
+---
+
+## Configuration Notes
+
+### Next.js 16 Config for lucide-react
+
+```typescript
+// next.config.ts
+export default {
+  experimental: {
+    optimizePackageImports: ['lucide-react']
   }
 }
 ```
 
-**Confidence:** HIGH for the rebrowser approach (actively maintained, version 24.8.1 released May 2025)
+### Tailwind v4 Theme for shadcn
 
-#### Alternative: puppeteer-real-browser
+shadcn/ui will generate a CSS file with OKLCH colors. The `@theme` directive replaces `tailwind.config.js` theme extensions:
 
-If you need more comprehensive anti-detection (including cursor movement simulation):
+```css
+/* app/globals.css */
+@import "tailwindcss";
+@import "tw-animate-css";
 
-```bash
-npm install puppeteer-real-browser
-```
-
-**Note:** Requires `xvfb` on Linux for headless mode. The library is currently community-maintained after the original author stepped back in Feb 2026.
-
----
-
-## Data Formats
-
-### API Response: demographic_distribution
-
-```json
-{
-  "data": [{
-    "id": "1234567890",
-    "page_name": "Competitor Brand",
-    "demographic_distribution": [
-      { "age": "18-24", "gender": "female", "percentage": "0.08" },
-      { "age": "18-24", "gender": "male", "percentage": "0.12" },
-      { "age": "25-34", "gender": "female", "percentage": "0.22" },
-      { "age": "25-34", "gender": "male", "percentage": "0.18" },
-      { "age": "35-44", "gender": "female", "percentage": "0.15" },
-      { "age": "35-44", "gender": "male", "percentage": "0.10" },
-      { "age": "45-54", "gender": "female", "percentage": "0.06" },
-      { "age": "45-54", "gender": "male", "percentage": "0.04" },
-      { "age": "55-64", "gender": "female", "percentage": "0.03" },
-      { "age": "55-64", "gender": "male", "percentage": "0.02" },
-      { "age": "65+", "gender": "unknown", "percentage": "0.00" }
-    ],
-    "delivery_by_region": [
-      { "region": "England", "percentage": "0.65" },
-      { "region": "Scotland", "percentage": "0.15" },
-      { "region": "Wales", "percentage": "0.12" },
-      { "region": "Northern Ireland", "percentage": "0.08" }
-    ],
-    "eu_total_reach": "1500000",
-    "impressions": { "lower_bound": "1000000", "upper_bound": "2000000" },
-    "spend": { "lower_bound": "5000", "upper_bound": "10000" },
-    "target_ages": "25-54",
-    "target_gender": "All",
-    "target_locations": [
-      { "name": "United Kingdom", "type": "country" }
-    ]
-  }]
+@theme inline {
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(10% 0 0);
+  /* ... more tokens */
 }
 ```
 
-### GraphQL Response (Browser Scraping)
+### PDF Export Quality Settings
 
-When intercepting `/api/graphql` responses, demographic data appears in nested structures. Look for these fields:
-
-```javascript
-// Fields to extract from intercepted responses
-const demographicFields = [
-  'demographic_distribution',
-  'delivery_by_region',
-  'age_country_gender_reach_breakdown',
-  'eu_total_reach',
-  'br_total_reach',  // Brazil-specific
-  'target_ages',
-  'target_gender',
-  'target_locations',
-  'estimated_audience_size',
-  'impressions_with_index',
-  'spend'
-];
-```
-
-### TypeScript Interface (Recommended)
+For higher quality PDF exports:
 
 ```typescript
-interface DemographicSegment {
-  age: '18-24' | '25-34' | '35-44' | '45-54' | '55-64' | '65+';
-  gender: 'male' | 'female' | 'unknown';
-  percentage: string; // "0.15" format
-}
-
-interface RegionSegment {
-  region: string;
-  percentage: string;
-}
-
-interface AdDemographics {
-  adId: string;
-  demographics: DemographicSegment[];
-  regions: RegionSegment[];
-  euTotalReach: number | null;
-  impressions: { lower: number; upper: number } | null;
-  spend: { lower: number; upper: number; currency: string } | null;
-  targetAges: string | null;
-  targetGender: string | null;
-  targetLocations: Array<{ name: string; type: string }>;
-}
+const { toPDF, targetRef } = usePDF({
+  canvas: {
+    scale: 2, // Higher resolution
+    useCORS: true, // For external images
+  },
+  page: {
+    format: "A4",
+    margin: 20
+  }
+});
 ```
-
----
-
-## Anti-Detection Considerations
-
-### Rate Limiting Strategy
-
-| Source | Limit | Mitigation |
-|--------|-------|------------|
-| Official API | 200 calls/hour | Batch requests, cache responses, use pagination efficiently |
-| Browser Scraping | Undisclosed | See below |
-
-### Browser Scraping Anti-Detection
-
-**1. Request Timing**
-```typescript
-// Add random delays between actions
-const randomDelay = (min: number, max: number) =>
-  new Promise(r => setTimeout(r, min + Math.random() * (max - min)));
-
-// Between page loads: 2-5 seconds
-await randomDelay(2000, 5000);
-
-// Between scrolls: 800-1500ms
-await randomDelay(800, 1500);
-
-// Between clicks: 300-800ms
-await randomDelay(300, 800);
-```
-
-**2. Session Management**
-```typescript
-// Rotate user agents per session
-const userAgents = [
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36...',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...',
-  // Add 5-10 realistic user agents
-];
-
-// Don't reuse sessions for more than 50-100 ads
-```
-
-**3. IP Rotation (for production)**
-- Residential proxies recommended over datacenter
-- Rotate IP every 5-15 minutes
-- Use proxy providers that support Puppeteer (Bright Data, Oxylabs, etc.)
-
-**4. Behavioral Patterns**
-```typescript
-// Avoid: Perfectly consistent timing
-// Avoid: Scraping same page type repeatedly
-// Avoid: Identical action sequences
-
-// Do: Mix read-only browsing with scraping
-// Do: Vary scroll patterns
-// Do: Include natural pauses
-```
-
-### Vercel Timeout Considerations
-
-Your current 60s timeout is tight for demographic extraction. Options:
-
-| Option | Description | Recommendation |
-|--------|-------------|----------------|
-| Fluid Compute | Up to 800s on Pro | Best for scraping workloads |
-| Background Jobs | Use `waitUntil` for post-response work | Good for API calls |
-| Chunked Processing | Scrape 5-10 ads per request | Required regardless |
-| External Browser | Use Browserless.io or similar | Removes Vercel timeout entirely |
-
-**Recommended approach for demographics:**
-```typescript
-// Chunk ad IDs, process in batches
-export const maxDuration = 60;
-
-async function extractDemographics(adIds: string[]) {
-  const BATCH_SIZE = 5; // Process 5 ads per request
-  const batches = chunk(adIds, BATCH_SIZE);
-
-  // Return partial results, client continues with next batch
-  const results = await processBatch(batches[0]);
-  return { results, remaining: batches.slice(1).flat() };
-}
-```
-
----
-
-## What to Avoid
-
-### 1. Using puppeteer-extra-plugin-stealth in Production
-
-**Why:** Discontinued Feb 2025, actively detected by Cloudflare/DataDome. Cloudflare has specific signatures for puppeteer-stealth patterns.
-
-**Instead:** Use `rebrowser-puppeteer-core` or `puppeteer-real-browser`
-
-### 2. Scraping Without Rate Limiting
-
-**Why:** Aggressive scraping triggers IP blocks, potentially account restrictions. Facebook ML systems detect behavioral patterns across requests.
-
-**Instead:** Implement exponential backoff, random delays, daily limits
-
-### 3. Storing Access Tokens in Code
-
-**Why:** Tokens are sensitive, expire, and shouldn't be committed
-
-**Instead:** Use environment variables, refresh tokens server-side
-```typescript
-const token = process.env.FB_AD_LIBRARY_TOKEN;
-```
-
-### 4. Expecting Exact Metrics
-
-**Why:** Facebook provides spend/impressions as ranges, not precise values
-
-**Instead:** Store both `lower_bound` and `upper_bound`, display as ranges in UI
-
-### 5. Relying Solely on DOM Scraping
-
-**Why:** Facebook's DOM structure changes frequently, class names are obfuscated
-
-**Instead:** Prioritize API response interception (GraphQL/REST) over DOM parsing. Your current approach of intercepting `/api/graphql` responses is correct.
-
-### 6. Single Long-Running Scrape Sessions
-
-**Why:**
-- Vercel timeout (60s max on Pro)
-- Higher detection risk for long sessions
-- Memory issues with Puppeteer
-
-**Instead:** Chunk into 5-10 ad batches, implement resumable scraping
-
-### 7. Ignoring EU/Political Ad API Access
-
-**Why:** If targeting EU advertisers, the API is significantly more reliable than scraping
-
-**Instead:** Check if competitor ads are EU-targeted before deciding approach
-
----
-
-## Implementation Checklist
-
-### Phase 1: API Integration (EU/UK Demographics)
-
-- [ ] Complete identity verification at facebook.com/ID
-- [ ] Create developer app at developers.facebook.com
-- [ ] Generate and extend access token (60 days)
-- [ ] Implement `/api/ad-demographics` endpoint using Graph API
-- [ ] Add token refresh mechanism
-- [ ] Handle rate limiting (200 calls/hour)
-
-### Phase 2: Enhanced Browser Scraping
-
-- [ ] Replace `puppeteer-core` with `rebrowser-puppeteer-core`
-- [ ] Add demographic field extraction to GraphQL response parser
-- [ ] Implement random delay patterns
-- [ ] Add batch processing (5-10 ads per request)
-- [ ] Test detection bypass locally before deploying
-
-### Phase 3: Hybrid Logic
-
-- [ ] Detect if ad is EU-targeted (use API)
-- [ ] Fall back to browser scraping for non-EU ads
-- [ ] Implement caching layer (don't re-fetch unchanged data)
-- [ ] Add monitoring for rate limits and blocks
-
----
-
-## Confidence Assessment
-
-| Component | Confidence | Reasoning |
-|-----------|------------|-----------|
-| Official API fields/format | HIGH | Verified via Meta documentation and multiple scrapers |
-| API rate limits (200/hour) | HIGH | Consistently documented across sources |
-| rebrowser-puppeteer-core recommendation | HIGH | Active maintenance, version 24.8.1 May 2025 |
-| puppeteer-stealth deprecation | HIGH | Multiple sources confirm Feb 2025 discontinuation |
-| Anti-detection patterns | MEDIUM | Landscape shifts; current best practices may change |
-| Vercel timeout workarounds | HIGH | Verified via official Vercel documentation |
-| GraphQL response structure | MEDIUM | Based on scraper implementations; Facebook may change |
 
 ---
 
 ## Sources
 
-### Official/Authoritative
-- [Facebook Ad Library API Guide (AdManage)](https://admanage.ai/blog/facebook-ads-library-api) - Comprehensive 2025 API documentation
-- [APIs for Social Scientists - Facebook Ad Library](https://paulcbauer.github.io/apis_for_social_scientists_a_review/facebook-ad-library-api.html) - Academic review with code examples
-- [Vercel Serverless Timeout Guide](https://vercel.com/kb/guide/what-can-i-do-about-vercel-serverless-functions-timing-out) - Official timeout documentation
+### HIGH Confidence (Official Documentation)
 
-### Technical References
-- [rebrowser-patches GitHub](https://github.com/rebrowser/rebrowser-patches) - Anti-detection patches documentation
-- [rebrowser-puppeteer GitHub](https://github.com/rebrowser/rebrowser-puppeteer) - Drop-in puppeteer replacement
-- [minimaxir/facebook-ad-library-scraper](https://github.com/minimaxir/facebook-ad-library-scraper) - Reference Python implementation
+- [shadcn/ui React 19 + Tailwind v4 Support](https://ui.shadcn.com/docs/tailwind-v4)
+- [shadcn/ui Next.js Installation](https://ui.shadcn.com/docs/installation/next)
+- [Radix Primitives React 19 Compatibility](https://www.radix-ui.com/primitives/docs/overview/releases)
+- [Next.js Image Component](https://nextjs.org/docs/app/api-reference/components/image)
+- [Next.js Video Guide](https://nextjs.org/docs/app/guides/videos)
+- [Recharts GitHub](https://github.com/recharts/recharts)
+- [Sonner Documentation](https://sonner.emilkowal.ski/)
+- [react-to-pdf GitHub](https://github.com/ivmarcos/react-to-pdf)
+- [react-papaparse Documentation](https://react-papaparse.js.org/)
 
-### Anti-Detection Research
-- [Castle.io - Puppeteer Stealth to Nodriver Evolution](https://blog.castle.io/from-puppeteer-stealth-to-nodriver-how-anti-detect-frameworks-evolved-to-evade-bot-detection/) - Framework evolution analysis
-- [ZenRows - Bypass Bot Detection 2026](https://www.zenrows.com/blog/bypass-bot-detection) - Current detection bypass methods
-- [BrightData - Puppeteer Real Browser Guide](https://brightdata.com/blog/web-data/puppeteer-real-browser) - Anti-bot scraping techniques
+### MEDIUM Confidence (Verified with Multiple Sources)
 
-### Third-Party Tools (Reference)
-- [Apify Facebook Ads Library Scraper](https://apify.com/curious_coder/facebook-ads-library-scraper) - Commercial scraping solution
+- [Lucide React Guide](https://lucide.dev/guide/packages/lucide-react)
+- [recharts-to-png npm](https://www.npmjs.com/package/recharts-to-png)
+- [Class Variance Authority Docs](https://cva.style/docs)
+- [Tailwind Merge + clsx Pattern](https://ui.shadcn.com/docs/installation/manual)
+- [file-saver npm](https://www.npmjs.com/package/file-saver)
+
+### Supporting Research
+
+- [LogRocket: React Toast Libraries Compared 2025](https://blog.logrocket.com/react-toast-libraries-compared-2025/)
+- [npm Compare: CSV Libraries](https://npm-compare.com/react-csv,react-csv-downloader,react-csv-reader,react-papaparse)
+- [PDF Generation Libraries Comparison](https://dmitriiboikov.com/posts/2025/01/pdf-generation-comarison/)

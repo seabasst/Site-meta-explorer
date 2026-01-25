@@ -1,513 +1,557 @@
-# Architecture Research: Demographic Extraction
+# Architecture Research
 
-**Domain:** Facebook Ad Library demographic scraping extension
-**Researched:** 2026-01-18
-**Confidence:** HIGH (existing codebase patterns well-established)
+**Domain:** Data dashboard enhancement (v1.1)
+**Researched:** 2026-01-25
+**Confidence:** HIGH
 
 ## Executive Summary
 
-The demographic extraction feature requires extending the existing ad scraping flow to drill into individual ad detail pages and aggregate demographic data. The current architecture already handles the first step (ad discovery); this research addresses how to architect the second step (detail page scraping) and the third step (data aggregation).
+This research addresses three architectural questions for the v1.1 milestone:
+1. How to integrate ad media previews with the existing API flow
+2. Client-side vs server-side export tradeoffs
+3. Chart enhancement patterns for existing Recharts components
 
-**Key architectural decision:** Use a two-phase scraping approach within the existing API route, reusing the browser session for efficiency. Demographics are only available for EU-targeted ads via the "European Union Transparency" modal.
-
----
-
-## Existing Architecture Analysis
-
-### Current Flow
-
-```
-User Input (Ad Library URL)
-        |
-        v
-POST /api/scrape-ads
-        |
-        v
-scrapeAdLibrary() in ad-library-scraper.ts
-        |
-        v
-1. Launch Puppeteer browser
-2. Navigate to Ad Library page
-3. Intercept network responses for destination URLs
-4. Scroll to load all ads
-5. Extract ad IDs and destination URLs
-6. Return aggregated results
-        |
-        v
-UI displays destination URLs with ad counts
-```
-
-### Current Component Boundaries
-
-| Component | Location | Responsibility |
-|-----------|----------|----------------|
-| UI Layer | `page.tsx` | Form handling, state management, display |
-| API Route | `/api/scrape-ads/route.ts` | Request validation, timeout config, error handling |
-| Scraper Core | `lib/ad-library-scraper.ts` | Puppeteer orchestration, URL extraction |
-| Data Types | `lib/ad-library-scraper.ts` | `AdData`, `AdLibraryResult` interfaces |
-
-### Constraints Inherited
-
-- **60s Vercel timeout** (requires Vercel Pro)
-- **Puppeteer in serverless** uses `@sparticuz/chromium-min` with remote binary
-- **Single browser session** per request (no persistent browsers)
-- **Memory limits** in serverless environment
+The existing architecture is well-structured for these enhancements. Key recommendation: extend rather than replace. The current patterns (API route -> lib functions -> client components) accommodate all v1.1 features with minimal architectural changes.
 
 ---
 
-## Proposed Architecture
+## Integration with Existing Architecture
 
-### New Components
+### Current System Overview
 
-#### 1. DemographicScraper (`lib/demographic-scraper.ts`)
+```
+User Input
+    |
+    v
+page.tsx (client state)
+    |
+    v [POST /api/facebook-ads]
+route.ts (validation, orchestration)
+    |
+    v
+facebook-api.ts (Graph API client)
+    |
+    +-> demographic-aggregator.ts (weighted combination)
+    +-> spend-estimator.ts (CPM analysis)
+    |
+    v
+Client receives FacebookApiResult
+    |
+    v
+Component tree renders (charts, tables, analysis)
+```
 
-**Responsibility:** Scrape individual ad detail pages for demographic data.
+**Key characteristics:**
+- Single API endpoint handles all Facebook Ad Library queries
+- API response is comprehensive (~15 fields per ad)
+- Client-side rendering with Recharts
+- Export utilities already exist (client-side CSV generation)
+- No caching layer (each request is fresh)
+
+### Data Types Currently Returned
 
 ```typescript
-interface DemographicData {
+// From facebook-api.ts - existing fields per ad
+interface FacebookAdResult {
   adId: string;
-  hasEUTransparency: boolean;
-
-  // Audience targeting (what advertiser set)
-  targetAgeRange?: { min: number; max: number };
-  targetGender?: 'all' | 'male' | 'female';
-  targetLocations?: string[];  // Countries/regions
-  excludedLocations?: string[];
-
-  // Reach breakdown (actual delivery)
-  reachByCountry?: Record<string, number>;
-  reachByAge?: Record<string, number>;     // "18-24": 1500
-  reachByGender?: Record<string, number>;  // "male": 2000
-
-  // Metadata
-  totalReach?: number;
-  platforms?: ('facebook' | 'instagram' | 'messenger' | 'audience_network')[];
-}
-
-interface DemographicScraperResult {
-  success: boolean;
-  demographics: DemographicData[];
-  errors: { adId: string; error: string }[];
-  stats: {
-    total: number;
-    successful: number;
-    failed: number;
-    noEUData: number;
-  };
-}
-```
-
-**Why separate module:**
-- Single responsibility (demographic extraction vs. ad discovery)
-- Testable in isolation
-- Can be enhanced independently (e.g., add retry logic)
-
-#### 2. DemographicAggregator (`lib/demographic-aggregator.ts`)
-
-**Responsibility:** Aggregate individual ad demographics into summary statistics.
-
-```typescript
-interface AggregatedDemographics {
-  // Sample size
-  totalAdsAnalyzed: number;
-  adsWithDemographicData: number;
-
-  // Aggregated targeting patterns
-  targetingPatterns: {
-    ageRanges: { range: string; percentage: number }[];
-    genderSplit: { gender: string; percentage: number }[];
-    topCountries: { country: string; adCount: number }[];
-  };
-
-  // Aggregated reach data
-  reachAnalysis: {
-    totalReach: number;
-    reachByAge: Record<string, number>;
-    reachByGender: Record<string, number>;
-    reachByCountry: Record<string, number>;
-  };
-
-  // Insights
-  insights: string[];  // e.g., "75% of ads target ages 25-44"
-}
-```
-
-**Why aggregation layer:**
-- Raw per-ad data is too granular for UI consumption
-- Aggregation logic is complex and deserves isolation
-- Enables caching of aggregated results
-
-#### 3. Extended API Response
-
-Extend existing `/api/scrape-ads` or create `/api/scrape-demographics`:
-
-**Option A: Extend existing route (Recommended)**
-- Add optional `includeDemographics: boolean` parameter
-- Keeps single request flow
-- Risk: May exceed 60s timeout for many ads
-
-**Option B: Separate route**
-- `/api/scrape-demographics` accepts ad IDs from previous scrape
-- Two-request flow from UI
-- Benefit: Can process in background, show progress
-
-**Recommendation:** Start with Option A for simplicity, prepare for Option B if timeouts become an issue.
-
----
-
-## Data Flow
-
-### Phase 1: Ad Discovery (Existing)
-
-```
-Ad Library URL
-      |
-      v
-[Browser Session]
-      |
-      v
-Scroll + Intercept Network
-      |
-      v
-Extract: { adId, destinationUrl, adLibraryLinks }[]
-```
-
-### Phase 2: Demographic Extraction (New)
-
-```
-adIds from Phase 1
-      |
-      v
-[Reuse Browser Session]
-      |
-      v
-For each adId (batched, 3-5 concurrent):
-  |
-  +-> Navigate to https://www.facebook.com/ads/library/?id={adId}
-  |
-  +-> Click "See Ad Details" button
-  |
-  +-> Wait for EU Transparency modal
-  |
-  +-> Extract demographic data from modal
-  |
-  +-> Handle: no EU data, modal not found, timeout
-      |
-      v
-DemographicData[]
-```
-
-### Phase 3: Aggregation (New)
-
-```
-DemographicData[]
-      |
-      v
-[DemographicAggregator]
-      |
-      +-> Group by age range
-      +-> Sum reach by country
-      +-> Calculate percentages
-      +-> Generate insights
-      |
-      v
-AggregatedDemographics
-```
-
-### Complete Flow Diagram
-
-```
-                    User Input
-                        |
-                        v
-                  [API Route]
-                        |
-        +---------------+---------------+
-        |                               |
-        v                               v
-   [Ad Discovery]              (if demographics requested)
-        |                               |
-        v                               v
-   AdLibraryResult              [Demographic Scraper]
-        |                               |
-        |                               v
-        |                       DemographicData[]
-        |                               |
-        |                               v
-        |                       [Aggregator]
-        |                               |
-        +---------------+---------------+
-                        |
-                        v
-                Combined Response
-                        |
-                        v
-                   [UI State]
-                        |
-        +-------+-------+-------+
-        |       |       |       |
-        v       v       v       v
-    Results  Demographics  Charts  Insights
-    Table      Summary
-```
-
----
-
-## Integration Points
-
-### 1. Scraper to Scraper (Browser Session Sharing)
-
-The demographic scraper should receive the existing browser instance:
-
-```typescript
-// In ad-library-scraper.ts
-export async function scrapeAdLibrary(
-  adLibraryUrl: string,
-  options: {
-    debug?: boolean;
-    includeDemographics?: boolean;  // NEW
-    maxDemographicAds?: number;     // NEW: limit for timeout safety
-  }
-): Promise<AdLibraryResponse>
-
-// Internal flow
-const browser = await puppeteer.launch(/* ... */);
-// ... existing ad discovery ...
-
-if (options.includeDemographics) {
-  const demographicResult = await scrapeDemographics(
-    browser,  // Reuse session
-    ads.slice(0, options.maxDemographicAds || 50),
-    debug
-  );
-  // Merge results
-}
-```
-
-### 2. API Route to UI (Extended Response)
-
-```typescript
-// Extended AdLibraryResult
-interface AdLibraryResult {
-  // Existing fields
-  success: true;
+  adArchiveId: string;           // Used for Ad Library links
   pageId: string;
-  pageName: string | null;
-  ads: AdData[];
-  totalAdsFound: number;
-  totalActiveAdsOnPage: number | null;
-
-  // NEW: Optional demographics
-  demographics?: {
-    aggregated: AggregatedDemographics;
-    perAd: DemographicData[];  // Could be omitted if too large
-    scrapeStats: {
-      total: number;
-      successful: number;
-      failed: number;
-      skipped: number;
-    };
-  };
+  pageName: string;
+  startedRunning: string | null;
+  stoppedRunning: string | null;
+  isActive: boolean;
+  creativeBody: string | null;   // Ad copy text
+  linkTitle: string | null;      // Headline
+  linkCaption: string | null;
+  euTotalReach: number;
+  mediaType: 'video' | 'image' | 'unknown';
+  demographics: AdDemographics | null;
+  targeting: { ageMin, ageMax, gender, locations };
+  beneficiary: string | null;
+  payer: string | null;
 }
 ```
 
-### 3. UI State Management (page.tsx)
+**NOT currently fetched but available in Graph API:**
+- `ad_snapshot_url` - Link to Facebook's ad preview page
+- `ad_creative_link_captions` - Already partially used
+- Video/image URLs are NOT directly available via API
 
-Extend existing state to handle demographics:
+---
+
+## Ad Preview Integration
+
+### Challenge: Facebook Does Not Provide Direct Media URLs
+
+The Facebook Ad Library API provides `ad_snapshot_url` but NOT direct image/video URLs. The snapshot URL is:
+```
+https://www.facebook.com/ads/archive/render_ad/?id=<id>&access_token=<token>
+```
+
+This is a Facebook-hosted page that:
+1. Requires authentication (access token in URL)
+2. Cannot be embedded via iframe (X-Frame-Options)
+3. Cannot fetch media directly due to authentication
+
+### Recommended Approach: Link-Based Preview
+
+**Option A: External Link (Recommended for v1.1)**
+- Add `ad_snapshot_url` to API response
+- Create "Preview" button that opens Facebook's preview in new tab
+- Zero CORS/authentication issues
+- Users see official Facebook rendering
+
+**Implementation:**
+
+1. Update `facebook-api.ts` to fetch `ad_snapshot_url`:
+```typescript
+// Add to fields array in fetchFacebookAds()
+const fields = [
+  // ... existing fields
+  'ad_snapshot_url',  // ADD THIS
+].join(',');
+
+// Add to FacebookAdResult interface
+interface FacebookAdResult {
+  // ... existing fields
+  adSnapshotUrl: string | null;  // ADD THIS
+}
+
+// Map in conversion logic
+adSnapshotUrl: ad.ad_snapshot_url || null,
+```
+
+2. Create preview component:
+```typescript
+// src/components/ad-preview-link.tsx
+export function AdPreviewLink({ adSnapshotUrl, adArchiveId }: Props) {
+  const fallbackUrl = `https://www.facebook.com/ads/library/?id=${adArchiveId}`;
+
+  return (
+    <a
+      href={adSnapshotUrl || fallbackUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="..."
+    >
+      Preview Ad
+    </a>
+  );
+}
+```
+
+**Option B: Thumbnail Proxy (Future Enhancement)**
+
+For inline thumbnails without leaving the app:
+1. Create server-side proxy endpoint: `/api/ad-thumbnail`
+2. Use Puppeteer to screenshot the ad preview page
+3. Cache thumbnails to avoid repeated rendering
+4. Return image blob to client
+
+This is complex and has Vercel serverless constraints (10s timeout on Hobby, 60s on Pro). Recommend deferring to v1.2+.
+
+### API Response Changes
 
 ```typescript
-// NEW state
-const [demographicResult, setDemographicResult] = useState<AggregatedDemographics | null>(null);
-const [isLoadingDemographics, setIsLoadingDemographics] = useState(false);
+// Updated FacebookApiResult structure
+interface FacebookApiResult {
+  // ... existing fields
+  ads: Array<FacebookAdResult & {
+    adSnapshotUrl: string | null;  // NEW
+  }>;
+}
+```
 
-// Display in new component
-{demographicResult && (
-  <DemographicsPanel data={demographicResult} />
-)}
+**Backward compatible:** Existing code ignores new fields.
+
+---
+
+## Export Architecture
+
+### Current Implementation
+
+Export is already client-side in `src/lib/export-utils.ts`:
+
+```typescript
+function downloadCSV(data: string, filename: string) {
+  const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  // ... trigger download
+}
+```
+
+Three export functions exist:
+- `exportAdsToCSV()` - Basic ad list
+- `exportDemographicsToCSV()` - Demographics breakdown
+- `exportFullReportToCSV()` - Combined report
+
+### Client-Side vs Server-Side Tradeoffs
+
+| Aspect | Client-Side | Server-Side |
+|--------|-------------|-------------|
+| Latency | Instant (data already in memory) | Network round-trip required |
+| Memory | Browser memory limits (~500MB safe) | Serverless memory limits (1GB-3GB) |
+| Format flexibility | Limited (CSV, JSON easy; PDF hard) | Full (any format with right libraries) |
+| Security | Data exposed to client | Sensitive data never leaves server |
+| Vercel constraints | None | 10s timeout (Hobby), 60s (Pro) |
+| Dependencies | Minimal | May need heavy libs (pdfkit, xlsx) |
+
+### Recommendation: Keep Client-Side for CSV, Add Server-Side for PDF
+
+**CSV (keep client-side):**
+- Current implementation works well
+- Data is already on client
+- No additional latency
+- Supports thousands of rows easily
+
+**PDF export (add server-side):**
+
+For professional reports, add an API route:
+
+```typescript
+// src/app/api/export/pdf/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export const maxDuration = 60; // Pro plan required for > 10s
+
+export async function POST(request: NextRequest) {
+  const data = await request.json();
+
+  // Option 1: Use @react-pdf/renderer (lighter, faster)
+  // Option 2: Use jspdf (client-friendly but can run server-side)
+  // Option 3: Use puppeteer for HTML->PDF (heavy but flexible)
+
+  const pdfBuffer = await generatePDF(data);
+
+  return new NextResponse(pdfBuffer, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="report.pdf"`,
+    },
+  });
+}
+```
+
+**Vercel Serverless Constraints:**
+- Hobby plan: 10s max execution time
+- Pro plan: 60s max execution time (matches current `maxDuration = 60`)
+- PDF generation with @react-pdf/renderer typically takes 2-5s
+- Puppeteer-based PDF would risk timeout on Hobby
+
+### Export Enhancement Component Organization
+
+```
+src/
+  components/
+    export/
+      export-dropdown.tsx       # Existing, in page.tsx currently
+      export-pdf-button.tsx     # NEW - triggers PDF generation
+  lib/
+    export-utils.ts             # Existing CSV functions
+    export-pdf.ts               # NEW - PDF generation logic (if server-side)
+  app/
+    api/
+      export/
+        pdf/
+          route.ts              # NEW - PDF endpoint
+```
+
+---
+
+## Chart Enhancement Pattern
+
+### Current Recharts Usage
+
+The codebase uses Recharts 3.6.0 with a custom wrapper:
+
+```typescript
+// src/components/ui/chart.tsx
+// Provides: ChartContainer, ChartTooltip, ChartTooltipContent
+
+// Usage in time-trends.tsx:
+<ChartContainer config={chartConfig}>
+  <LineChart data={data}>
+    <CartesianGrid />
+    <XAxis dataKey="week" />
+    <ChartTooltip content={<ChartTooltipContent />} />
+    <Line dataKey="count" type="natural" />
+  </LineChart>
+</ChartContainer>
+```
+
+### Enhancement Patterns
+
+**1. Add Brush for Time Range Selection**
+
+```typescript
+import { Brush } from 'recharts';
+
+<LineChart data={monthlyData}>
+  {/* ... existing elements */}
+  <Brush
+    dataKey="month"
+    height={30}
+    stroke="var(--accent-green)"
+    fill="var(--bg-tertiary)"
+    startIndex={monthlyData.length - 6}  // Show last 6 months by default
+    endIndex={monthlyData.length - 1}
+  />
+</LineChart>
+```
+
+**2. Add Click Handlers for Drill-Down**
+
+```typescript
+<Bar
+  dataKey="adsLaunched"
+  onClick={(data, index) => {
+    // Drill down to show ads from that month
+    setSelectedMonth(data.month);
+    setShowMonthDetail(true);
+  }}
+  style={{ cursor: 'pointer' }}
+/>
+```
+
+**3. Add Reference Lines for Benchmarks**
+
+```typescript
+import { ReferenceLine } from 'recharts';
+
+<LineChart>
+  {/* ... */}
+  <ReferenceLine
+    y={averageReach}
+    stroke="var(--accent-yellow)"
+    strokeDasharray="3 3"
+    label={{ value: 'Avg', position: 'right' }}
+  />
+</LineChart>
+```
+
+**4. Implement Zoom via ReferenceArea (Advanced)**
+
+```typescript
+// State for zoom selection
+const [refAreaLeft, setRefAreaLeft] = useState<string | null>(null);
+const [refAreaRight, setRefAreaRight] = useState<string | null>(null);
+const [zoomedData, setZoomedData] = useState(fullData);
+
+<LineChart
+  onMouseDown={(e) => e && setRefAreaLeft(e.activeLabel)}
+  onMouseMove={(e) => refAreaLeft && e && setRefAreaRight(e.activeLabel)}
+  onMouseUp={() => {
+    if (refAreaLeft && refAreaRight) {
+      // Calculate zoom range and filter data
+      const [left, right] = [refAreaLeft, refAreaRight].sort();
+      setZoomedData(fullData.filter(d => d.month >= left && d.month <= right));
+    }
+    setRefAreaLeft(null);
+    setRefAreaRight(null);
+  }}
+>
+  {refAreaLeft && refAreaRight && (
+    <ReferenceArea
+      x1={refAreaLeft}
+      x2={refAreaRight}
+      strokeOpacity={0.3}
+      fill="var(--accent-green)"
+      fillOpacity={0.3}
+    />
+  )}
+</LineChart>
+```
+
+### New Chart Types to Consider
+
+| Chart Type | Use Case | Recharts Component |
+|------------|----------|-------------------|
+| Funnel | Conversion analysis | Not built-in, use BarChart creatively |
+| Radar | Multi-dimensional comparison | `<RadarChart>` |
+| Treemap | Category breakdown | `<Treemap>` |
+| Sankey | Flow visualization | Not built-in |
+| Scatter | Correlation analysis | `<ScatterChart>` |
+
+**Recommendation for v1.1:** Enhance existing charts (Line, Bar) with interactivity before adding new chart types.
+
+---
+
+## Component Organization
+
+### Proposed Structure for v1.1 Features
+
+```
+src/
+  components/
+    ui/
+      chart.tsx                    # EXISTING - ChartContainer wrapper
+    demographics/
+      age-gender-chart.tsx         # EXISTING
+      country-chart.tsx            # EXISTING
+      demographics-summary.tsx     # EXISTING
+      media-type-chart.tsx         # EXISTING
+    analytics/
+      time-trends.tsx              # EXISTING - enhance with Brush
+      ad-longevity.tsx             # EXISTING
+      ad-copy-analysis.tsx         # EXISTING
+      brand-comparison.tsx         # EXISTING
+      landing-page-analysis.tsx    # EXISTING
+      product-market-table.tsx     # EXISTING
+    ads/                           # NEW FOLDER
+      ad-preview-link.tsx          # NEW - external preview link
+      ad-card.tsx                  # NEW - card with preview thumbnail (v1.2)
+      ads-grid.tsx                 # NEW - grid layout for ad cards
+    export/                        # NEW FOLDER
+      export-menu.tsx              # REFACTOR from page.tsx inline code
+      export-pdf-button.tsx        # NEW - PDF export trigger
+    error/                         # NEW FOLDER
+      error-boundary.tsx           # NEW - React error boundary
+      error-message.tsx            # NEW - Styled error display
+  lib/
+    facebook-api.ts                # MODIFY - add ad_snapshot_url
+    export-utils.ts                # EXISTING - CSV exports
+    export-pdf.ts                  # NEW - PDF generation (if needed)
+```
+
+### Component Boundaries
+
+| Component | Responsibility | Data Source |
+|-----------|----------------|-------------|
+| AdPreviewLink | Render preview button | adSnapshotUrl prop |
+| ExportMenu | Show export options dropdown | apiResult prop |
+| TimeTrends | Render time charts with Brush | ads array prop |
+| ErrorMessage | Display user-friendly errors | error string prop |
+
+---
+
+## Data Flow Changes
+
+### Current Flow (Unchanged)
+
+```
+page.tsx state
+    |
+    +-- POST /api/facebook-ads
+    |       |
+    |       v
+    |   fetchFacebookAds()
+    |       |
+    |       v
+    |   return FacebookApiResult
+    |
+    v
+setApiResult(response)
+    |
+    v
+Render components with apiResult prop
+```
+
+### Enhanced Flow for v1.1
+
+```
+page.tsx state
+    |
+    +-- POST /api/facebook-ads
+    |       |
+    |       v
+    |   fetchFacebookAds()
+    |       +-- NOW includes ad_snapshot_url  <-- CHANGE
+    |       |
+    |       v
+    |   return FacebookApiResult
+    |
+    v
+setApiResult(response)
+    |
+    +-- AdPreviewLink receives adSnapshotUrl  <-- NEW
+    +-- TimeTrends receives ads (unchanged)
+    +-- ExportMenu receives apiResult
+            |
+            +-- CSV: client-side (unchanged)
+            +-- PDF: POST /api/export/pdf  <-- NEW
 ```
 
 ---
 
 ## Build Order
 
-### Phase 1: Foundation (Do First)
+Based on dependencies, recommended implementation order:
 
-1. **Define interfaces** in new file `lib/types/demographics.ts`
-   - `DemographicData`
-   - `AggregatedDemographics`
-   - Export from index
+### Phase 1: Foundation (No Dependencies)
+1. **Error handling components** - ErrorBoundary, ErrorMessage
+2. **Export refactoring** - Extract inline export to ExportMenu component
 
-2. **Create demographic scraper skeleton** `lib/demographic-scraper.ts`
-   - Function signature accepting browser + ad IDs
-   - Single-ad scraping logic
-   - Error handling per ad
+### Phase 2: API Enhancement (Depends on Phase 1)
+3. **Add ad_snapshot_url to API** - Modify facebook-api.ts
+4. **AdPreviewLink component** - Uses new API field
 
-**Rationale:** Interfaces first allows parallel work on scraper and aggregator.
+### Phase 3: Chart Interactivity (Depends on Phase 1)
+5. **Brush component integration** - Enhance TimeTrends
+6. **Click handlers** - Add to existing charts
+7. **Reference lines** - Add benchmarks to charts
 
-### Phase 2: Core Scraping
+### Phase 4: Export Enhancement (Depends on Phase 1, 2)
+8. **PDF export** - Add server-side route (if pursuing)
+9. **Export options UI** - Enhance ExportMenu
 
-3. **Implement detail page navigation**
-   - Navigate to `facebook.com/ads/library/?id={adId}`
-   - Detect "See Ad Details" button
-   - Click and wait for modal
+### Phase 5: Mobile/UI Polish (Depends on Phases 1-4)
+10. **Responsive breakpoints** - Adjust chart sizing
+11. **Touch interactions** - Mobile-friendly chart controls
 
-4. **Implement EU Transparency extraction**
-   - Parse modal HTML structure
-   - Extract reach-by-country table
-   - Extract age/gender breakdown
-   - Handle missing data gracefully
-
-5. **Add batch processing**
-   - Process 3-5 ads concurrently
-   - Implement timeout per ad (10s suggested)
-   - Collect errors without failing entire batch
-
-**Rationale:** Core value is here. Get single-ad working before scaling.
-
-### Phase 3: Aggregation
-
-6. **Create aggregator module** `lib/demographic-aggregator.ts`
-   - Sum/average numeric fields
-   - Calculate percentages
-   - Generate top-N lists
-   - Create insight strings
-
-7. **Integrate with main scraper**
-   - Add `includeDemographics` option
-   - Call demographic scraper after ad discovery
-   - Merge results into response
-
-**Rationale:** Aggregation depends on stable per-ad data shape.
-
-### Phase 4: UI Integration
-
-8. **Extend API response type**
-   - Add demographics to `AdLibraryResult`
-   - Update API route handler
-
-9. **Create `DemographicsPanel` component**
-   - Display aggregated stats
-   - Charts for age/gender/country
-   - Handle loading/empty states
-
-10. **Wire up in page.tsx**
-    - Add checkbox for "Include demographics"
-    - Display panel when data available
-
-**Rationale:** UI is last because it depends on finalized data shape.
-
-### Dependency Graph
-
-```
-[1. Interfaces]
-      |
-      +-----> [2. Scraper Skeleton]
-      |              |
-      |              v
-      |       [3. Navigation]
-      |              |
-      |              v
-      |       [4. Extraction]
-      |              |
-      |              v
-      |       [5. Batching]
-      |              |
-      +-----> [6. Aggregator] <----+
-                     |             |
-                     v             |
-              [7. Integration] ----+
-                     |
-                     v
-              [8. API Types]
-                     |
-                     v
-              [9. UI Component]
-                     |
-                     v
-              [10. Page Wiring]
-```
+**Rationale:**
+- Error handling first ensures robust foundation
+- API changes early unlock preview features
+- Chart enhancements independent of API changes
+- Export depends on having all data fields available
+- UI polish last when functionality is stable
 
 ---
 
-## Technical Considerations
+## Vercel/Serverless Considerations
 
-### Timeout Management
-
-**Problem:** 60s Vercel limit must accommodate:
-- Ad discovery (current: ~20-40s for large pages)
-- Demographic scraping (NEW: ~5-10s per ad)
-
-**Solutions:**
-1. **Limit demographic scraping** to first N ads (e.g., 10-20)
-2. **Parallelize** demographic fetches (3-5 concurrent)
-3. **Progressive loading** (future): Stream results as they complete
-
-**Recommendation:** Start with limit of 10 ads, expand based on timing data.
-
-### Selector Stability
-
-Facebook's DOM changes frequently. Mitigation strategies:
-
-1. **Multiple selector fallbacks**
-   ```typescript
-   const selectors = [
-     '[data-testid="ad-details-button"]',
-     'div[role="button"]:has-text("See Ad Details")',
-     'button:contains("See Ad Details")'
-   ];
-   ```
-
-2. **Text-based matching** as fallback
-   ```typescript
-   await page.evaluate(() => {
-     const buttons = document.querySelectorAll('div[role="button"]');
-     for (const btn of buttons) {
-       if (btn.textContent?.includes('See Ad Details')) {
-         btn.click();
-         return true;
-       }
-     }
-     return false;
-   });
-   ```
-
-3. **Network interception** for EU data (if exposed in API responses)
-
-### Error Resilience
-
-**Per-ad errors should not fail the batch:**
+### Existing Configuration
 
 ```typescript
-const results: DemographicData[] = [];
-const errors: { adId: string; error: string }[] = [];
-
-for (const adId of adIds) {
-  try {
-    const data = await scrapeAdDemographics(page, adId);
-    results.push(data);
-  } catch (error) {
-    errors.push({ adId, error: error.message });
-    // Continue to next ad
-  }
-}
+// src/app/api/facebook-ads/route.ts
+export const maxDuration = 60;  // Already configured for Pro plan
 ```
 
-### Memory Management
+### Constraints to Remember
 
-Reuse browser session but create fresh pages:
+| Constraint | Hobby Plan | Pro Plan | Impact |
+|------------|------------|----------|--------|
+| Execution time | 10s | 60s | PDF generation needs Pro |
+| Memory | 1GB | 3GB | Large CSV exports fine |
+| Payload size | 4.5MB | 4.5MB | Watch large data exports |
+| Concurrent executions | 10 | 1000 | Not a concern for this app |
+
+### Recommendations
+
+1. **Keep heavy operations in existing endpoint** - maxDuration already 60s
+2. **PDF generation** - Add maxDuration = 60 to any new export endpoint
+3. **No file system writes** - Vercel functions are ephemeral; generate and return immediately
+4. **Streaming for large exports** - Use Response with ReadableStream if exports grow large
 
 ```typescript
-async function scrapeDemographics(browser: Browser, adIds: string[]) {
-  const page = await browser.newPage();
-  try {
-    for (const adId of adIds) {
-      await page.goto(`.../${adId}`);
-      // Extract data
-      // Don't create new page per ad - reuse
-    }
-  } finally {
-    await page.close();  // Always cleanup
-  }
+// Example streaming response for large exports
+export async function POST(request: NextRequest) {
+  const stream = new ReadableStream({
+    start(controller) {
+      // Generate CSV chunks
+      controller.enqueue(new TextEncoder().encode(header));
+      for (const row of rows) {
+        controller.enqueue(new TextEncoder().encode(row));
+      }
+      controller.close();
+    },
+  });
+
+  return new Response(stream, {
+    headers: { 'Content-Type': 'text/csv' },
+  });
 }
 ```
 
@@ -515,114 +559,103 @@ async function scrapeDemographics(browser: Browser, adIds: string[]) {
 
 ## Anti-Patterns to Avoid
 
-### 1. Creating Separate Browser Per Ad
+### 1. Inline Media Embedding Without Proxy
 
 **Wrong:**
-```typescript
-for (const adId of adIds) {
-  const browser = await puppeteer.launch();  // NO!
-  // ...
-  await browser.close();
-}
-```
-
-**Right:** Reuse browser, optionally create new pages.
-
-### 2. Sequential One-by-One Processing
-
-**Wrong:**
-```typescript
-for (const adId of adIds) {
-  await scrapeAd(adId);  // Slow!
-}
-```
-
-**Right:** Batch with controlled concurrency.
-```typescript
-await pLimit(3)(adIds.map(id => () => scrapeAd(id)));
-```
-
-### 3. Failing Entire Request on Single Ad Error
-
-**Wrong:**
-```typescript
-const results = await Promise.all(adIds.map(scrapeAd));
-// One failure = all fail
+```tsx
+<img src={adSnapshotUrl} /> // Will fail - requires auth
 ```
 
 **Right:**
-```typescript
-const results = await Promise.allSettled(adIds.map(scrapeAd));
-// Process fulfilled and rejected separately
+```tsx
+<a href={adSnapshotUrl} target="_blank">Preview</a>
 ```
 
-### 4. Tight Coupling Between Scraper and Aggregator
+### 2. Server-Side CSV for Small Data
 
-**Wrong:** Aggregation logic inside scraper function.
+**Wrong:** Creating API route for CSV that's already on client
 
-**Right:** Separate modules with clear interfaces.
+**Right:** Use existing client-side export-utils.ts
 
----
+### 3. Blocking Chart Interactions
 
-## Scalability Considerations
-
-| Scale | Approach | Notes |
-|-------|----------|-------|
-| 1-10 ads | In-request processing | Current architecture works |
-| 10-50 ads | Timeout-aware batching | Limit concurrent, monitor timing |
-| 50+ ads | Background job | Requires architecture change |
-
-### Future: Background Processing
-
-If demand exceeds request timeout, consider:
-
-1. **Trigger.dev** for managed background jobs
-2. **Polling pattern:** Start job, return job ID, poll for completion
-3. **WebSocket/SSE:** Stream results as they complete
-
-**Not needed for MVP** but worth designing interfaces to allow migration.
-
----
-
-## File Structure
-
+**Wrong:**
+```tsx
+<Line onClick={async () => {
+  await fetchDetailData(); // Blocks interaction
+}} />
 ```
-src/
-  lib/
-    ad-library-scraper.ts      # Existing (modified)
-    demographic-scraper.ts     # NEW: Core scraping logic
-    demographic-aggregator.ts  # NEW: Aggregation logic
-    types/
-      demographics.ts          # NEW: Type definitions
-  components/
-    demographics-panel.tsx     # NEW: UI component
-    demographics-chart.tsx     # NEW: Chart visualizations (optional)
-  app/
-    api/
-      scrape-ads/
-        route.ts               # Existing (extended)
-    page.tsx                   # Existing (extended)
+
+**Right:**
+```tsx
+<Line onClick={(data) => {
+  setSelectedItem(data); // Instant state update
+  // Fetch in useEffect or separate handler
+}} />
 ```
+
+### 4. Breaking Existing API Contract
+
+**Wrong:** Changing existing field names/types
+
+**Right:** Adding new optional fields, keeping existing ones
 
 ---
 
 ## Sources
 
-### Facebook Ad Library & Demographics
-- [Facebook Ads Library API: Complete Guide (2025)](https://admanage.ai/blog/facebook-ads-library-api) - API capabilities and limitations
-- [Meta & Facebook Ads Library API](https://data365.co/blog/meta-facebook-ads-library-api) - EU transparency data access
-- [Foreplay Facebook Ads Library Guide](https://www.foreplay.co/post/facebook-ads-library) - EU transparency modal details
+**Facebook Ad Library API:**
+- [Facebook Ad Library API Complete Guide 2025](https://admanage.ai/blog/facebook-ads-library-api)
+- [Meta Ad Library API Guide](https://data365.co/blog/meta-facebook-ads-library-api)
+- [Facebook Ads Library API 2026 Update](https://deepsolv.ai/blog/facebook-ads-library-api-how-to-use-it-for-advanced-competitive-research-2026-update)
 
-### Puppeteer Architecture
-- [Ultimate Puppeteer Web Scraping Guide 2025](https://www.browserless.io/blog/ultimate-guide-to-puppeteer-web-scraping-in-2025) - Multi-step workflow patterns
-- [Puppeteer Cluster for Scaling](https://www.zenrows.com/blog/puppeteer-cluster) - Concurrency management
-- [Apify Puppeteer Tutorial](https://blog.apify.com/puppeteer-web-scraping-tutorial/) - Best practices
+**Next.js/Vercel Export Patterns:**
+- [Edge vs Serverless Functions 2025](https://medium.com/@itsamanyadav/edge-functions-vs-serverless-in-next-js-which-one-should-you-use-in-2025-f4ae28c0788d)
+- [PDF Generation on Vercel](https://medium.com/@gritchmond/how-to-generate-pdf-for-a-nextjs-project-hosted-on-vercel-a65457603412)
+- [Download Files in Next.js App Router](https://www.codeconcisely.com/posts/nextjs-app-router-api-download-file/)
+- [Streaming Files from Next.js Route Handlers](https://www.ericburel.tech/blog/nextjs-stream-files)
 
-### Next.js Architecture
-- [Next.js Server Actions vs API Routes](https://medium.com/@shavaizali159/next-js-api-routes-vs-server-actions-which-one-to-use-and-why-809f09d5069b) - When to use each
-- [Long-Running Tasks with Next.js](https://dev.to/bardaq/long-running-tasks-with-nextjs-a-journey-of-reinventing-the-wheel-1cjg) - Background processing patterns
-- [Puppeteer with Vercel Serverless](https://medium.com/@mahesh.paul.j/use-puppeteer-with-vercel-serverless-functions-in-a-next-js-application-5d6bbe627f84) - Serverless constraints
+**CORS and Proxy Patterns:**
+- [Avoiding CORS Issues in Next.js](https://www.propelauth.com/post/avoiding-cors-issues-in-react-next-js)
+- [Server-Side Proxy for Images](https://dev.to/bilelsalemdev/solving-image-download-with-a-server-side-proxy-in-nextjs-21g4)
+- [Next.js Proxy Configuration](https://blog.logrocket.com/how-to-use-proxy-next-js/)
 
-### Batch Processing Patterns
-- [AWS Web Crawling Architecture](https://docs.aws.amazon.com/prescriptive-guidance/latest/web-crawling-system-esg-data/architecture.html) - Scalable crawling patterns
-- [Distributed Web Crawling Guide](https://brightdata.com/blog/web-data/distributed-web-crawling) - Parallelization strategies
+**Recharts Interactivity:**
+- [Recharts API Documentation](https://recharts.github.io/en-US/api/)
+- [shadcn Chart Brush Component](https://www.shadcn.io/template/rudrodip-shadcn-chart-brush)
+- [Recharts Scatter Plot with Zoom](https://medium.com/@rohanbajaj/recharts-scatter-plot-with-zoom-and-selection-112d82b26f43)
+- [Recharts Releases](https://github.com/recharts/recharts/releases)
+
+---
+
+## Confidence Assessment
+
+| Area | Confidence | Reasoning |
+|------|------------|-----------|
+| Ad Preview (link approach) | HIGH | Verified against Facebook API docs, no CORS issues |
+| Ad Preview (thumbnail proxy) | MEDIUM | Feasible but complex; Vercel constraints |
+| CSV Export (client) | HIGH | Already implemented and working |
+| PDF Export (server) | MEDIUM | Requires Pro plan for timeout; libs verified |
+| Chart Brush/Zoom | HIGH | Recharts 3.x supports these features |
+| Component organization | HIGH | Follows existing patterns |
+| Build order | HIGH | Based on actual dependency analysis |
+
+---
+
+## Summary for Roadmap
+
+**Recommended phase structure based on this research:**
+
+1. **Error Handling & Export Refactor** - Foundation, no blockers
+2. **API Enhancement** - Add ad_snapshot_url, simple field addition
+3. **Ad Preview UI** - Depends on API enhancement
+4. **Chart Interactivity** - Independent track, can parallelize
+5. **PDF Export** - Optional, requires Pro plan evaluation
+6. **Mobile Polish** - After core features stable
+
+**Key decision points:**
+- Ad preview: Use link approach (v1.1) vs thumbnail proxy (v1.2+)
+- PDF export: Worth Pro plan requirement? Consider keeping CSV-only if not
+- Chart zoom: Worth complexity? Brush might be sufficient
+
+**No architectural rewrites needed** - all features integrate with existing patterns.

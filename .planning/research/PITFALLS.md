@@ -1,368 +1,390 @@
-# Pitfalls Research: Facebook Ad Library Demographic Scraping
+# Pitfalls Research
 
-**Project:** Ad Library Demographics Analyzer
-**Researched:** 2026-01-18
-**Confidence:** MEDIUM (based on community reports, some official documentation)
+**Domain:** Data dashboard enhancement (v1.1)
+**Researched:** 2026-01-25
+**Confidence:** HIGH (well-documented domain problems)
 
 ## Critical Pitfalls
 
-These will break the project or cause significant rework if not addressed.
+### Pitfall 1: Facebook Ad Media Cannot Be Directly Embedded
 
----
+**What goes wrong:** Attempting to directly embed ad images/videos from Facebook URLs results in broken images, CORS errors, or X-Frame-Options blocks. The `ad_snapshot_url` returns a Facebook page URL, not a direct media file, and Facebook explicitly blocks iframe embedding via `X-Frame-Options: DENY`.
 
-### Pitfall 1: Demographic Data Only Available via API for EU/Political Ads
+**Why it happens:**
+- Facebook Ad Library API does not return direct media file URLs in the response payload
+- The `ad_snapshot_url` is a link to `https://www.facebook.com/ads/archive/render_ad/?id=<id>&access_token=<token>` - a Facebook-hosted page, not raw media
+- Facebook sets `X-Frame-Options: DENY` on all facebook.com pages to prevent clickjacking
+- Hotlinking protection may block images even if you find direct URLs
+- Meta's oEmbed API (updated April 2025) requires app registration and access tokens
 
-**What goes wrong:** Teams assume they can scrape demographic breakdowns (age, gender, region) from any ad's detail page via browser automation. In reality, the demographic distribution data is only programmatically accessible through the official Ad Library API, and the API only returns this data for:
-- Ads running in the European Union
-- Political/social issue ads (globally)
-
-For non-EU, non-political ads, demographic data may appear visually on the page but is not reliably extractable.
-
-**Why it happens:** The visual Ad Library UI shows demographic charts, but these are rendered client-side from API data that isn't exposed in the page DOM or network responses in a consistent format.
-
-**Consequences:**
-- Scraper works in testing (with EU test data) but fails in production
-- Significant scope reduction if targeting US/non-EU advertisers
-- May need to pivot to API-based approach entirely
-
-**Warning signs:**
-- Demographic data appears in UI but not in intercepted network responses
-- Empty demographic fields for certain advertisers
-- Inconsistent data between ad pages
-
-**Prevention:**
-1. **Validate data availability first** - Before building scraping logic, manually inspect network traffic for target advertiser types to confirm demographic data is present
-2. **Consider API-first approach** - If demographics are critical, apply for API access (24-48 hour approval, requires ID verification)
-3. **Scope to EU advertisers** - If using browser scraping, focus on EU advertisers where demographic data is mandated by DSA (Digital Services Act)
-
-**Phase to address:** Phase 0 (Research/Validation) - Confirm data availability before implementation
-
-**Sources:**
-- [Facebook Ads Library API Guide 2025](https://admanage.ai/blog/facebook-ads-library-api)
-- [Swipekit Meta Ad Library API Guide](https://swipekit.app/articles/meta-ad-library-api)
-
----
-
-### Pitfall 2: 60-Second Timeout vs Multi-Page Drilling
-
-**What goes wrong:** Drilling into individual ad detail pages to extract demographics requires multiple page navigations. With Vercel's 60-second timeout (even on Pro), scraping more than a handful of ad detail pages is impossible.
-
-Current scraper scrolls through list page (already consuming ~30-40 seconds for large advertisers). Adding drill-in navigation per ad will exceed timeout for any meaningful sample size.
-
-**Why it happens:** Each ad detail page requires:
-- Navigation (~2-3 seconds)
-- Wait for dynamic content (~2-3 seconds)
-- Data extraction (~1 second)
-- Return navigation or new tab overhead
-
-At ~6 seconds per ad, only ~3-5 ads can be processed after initial page load.
-
-**Consequences:**
-- Only top 3-5 ads get demographic data
-- Timeout errors for advertisers with many ads
-- Inconsistent results (sometimes works, sometimes fails)
+**How to avoid:**
+1. **Do not plan iframe embedding of `ad_snapshot_url`** - it will fail
+2. **Options in order of reliability:**
+   - **Link out:** Provide clickable link to `https://www.facebook.com/ads/library/?id=<id>` (opens in new tab)
+   - **Screenshot preview:** Use a server-side screenshot service (Puppeteer, Playwright, or API) to capture preview images
+   - **Proxy fetch:** Server-side fetch of any available media URLs and serve from your own domain
 
 **Warning signs:**
-- Intermittent 504 Gateway Timeout errors
-- Successful runs return fewer ads than expected
-- Debug logs show navigation starting but not completing
+- Broken image icons in development
+- Console errors mentioning CORS, X-Frame-Options, or Refused to display
+- 403 Forbidden responses when fetching images
 
-**Prevention:**
-1. **Prioritize ruthlessly** - Only drill into top 3-5 ads by reach/impressions (already sorted in current scraper)
-2. **Parallel tab strategy** - Open multiple ad detail pages in parallel tabs, extract data concurrently
-3. **Two-stage architecture** - First request: get ad list + top performer IDs. Second request: drill specific ads (split the work)
-4. **Consider queueing** - Use background jobs (Vercel Cron + database) to process ads over multiple invocations
+**Phase to address:** Ad Preview phase - research spike FIRST, before any implementation
 
-**Phase to address:** Phase 1 (Architecture) - Design timeout-aware drilling strategy
+**Fallback:** If all embedding approaches fail, use "View on Facebook" links with thumbnail placeholder. This is a valid MVP approach.
 
 **Sources:**
-- [Vercel Puppeteer Deployment Guide](https://vercel.com/kb/guide/deploying-puppeteer-with-nextjs-on-vercel)
-- [Puppeteer Parallelization Guide](https://advancedweb.hu/how-to-speed-up-puppeteer-scraping-with-parallelization/)
+- [Facebook Ad Library API Complete Guide 2025](https://admanage.ai/blog/facebook-ads-library-api)
+- [Meta oEmbed Read Explained](https://www.bluehost.com/blog/meta-oembed-read-explained/)
+- [X-Frame-Options Bypass Discussion](https://requestly.com/blog/bypass-iframe-busting-header/)
 
 ---
 
-### Pitfall 3: Random CSS Class Names Break Selectors
+### Pitfall 2: Recharts 3.x Export Compatibility Issues
 
-**What goes wrong:** Facebook uses obfuscated, randomized CSS class names (e.g., `x1lliihq x6ikm8r x10wlt62`). Any scraper using class-based selectors will break when Facebook rebuilds their frontend (happens frequently, often weekly).
+**What goes wrong:** The recharts-to-png library that enables PNG export from Recharts charts has compatibility issues with Recharts 3.x (the project uses Recharts 3.6.0). Charts export as blank or corrupted images.
 
-**Why it happens:** Facebook's React build process generates hash-based class names for CSS-in-JS. These change on every build. Additionally, Facebook intentionally avoids adding stable identifiers to make scraping harder.
+**Why it happens:**
+- Recharts 3.x included breaking changes that affected recharts-to-png compatibility
+- The library relies on specific DOM structure and ref handling that changed in v3
+- html2canvas (underlying technology) can fail on certain SVG elements
 
-**Consequences:**
-- Scraper works today, fails tomorrow
-- Constant maintenance burden
-- False negatives ("no ads found" when ads exist)
+**How to avoid:**
+1. **Test export immediately** after implementing any chart changes
+2. **Pin compatible versions:** Check recharts-to-png docs for version matrix
+3. **Alternative approach:** Use Recharts' built-in SVG access + canvas conversion instead of recharts-to-png
+4. **Consider FusionCharts or similar** if export is critical path
 
 **Warning signs:**
-- Scraper suddenly returns empty results
-- Class names in error logs don't match current page source
-- Elements found in browser DevTools aren't found by Puppeteer
+- Blank exported images
+- Missing chart elements in exports
+- "Cannot read property of undefined" errors during export
 
-**Prevention:**
-1. **Avoid class-based selectors entirely** - Use structural selectors based on element hierarchy, ARIA roles, or data attributes
-2. **Use text content matching** - Select elements by their visible text (more stable than classes)
-3. **Intercept network responses** - Extract data from API responses (like current scraper does) rather than DOM
-4. **Build selector fallbacks** - Try multiple selector strategies, fail gracefully
-5. **Monitor for breakage** - Add health checks that verify expected elements exist
+**Phase to address:** Export phase - test early with current Recharts 3.6.0 version
 
-**Example - DO:**
-```typescript
-// Good: Select by role and text content
-await page.$$eval('[role="button"]', buttons =>
-  buttons.filter(b => b.textContent?.includes('See ad details'))
-);
-
-// Good: Extract from network responses (current approach)
-page.on('response', async (response) => {
-  if (response.url().includes('/api/graphql')) {
-    const json = await response.json();
-    // Extract from structured API data
-  }
-});
-```
-
-**Example - DON'T:**
-```typescript
-// Bad: Class-based selector will break
-await page.$('.x1lliihq.x6ikm8r.x10wlt62');
-```
-
-**Phase to address:** Phase 1 (Implementation) - Use network interception, avoid DOM selectors
+**Fallback:** Implement browser print-to-PDF functionality (`window.print()` with print stylesheet) as baseline export.
 
 **Sources:**
-- [Geek Culture: Bypass CSS Class Name Changes](https://medium.com/geekculture/bypass-scraping-websites-that-has-css-class-names-change-frequently-d4877ecd6d8f)
-- [n8n Community: Facebook Ads Library Scraper Issues](https://community.n8n.io/t/facebook-ads-library-scraper/52297)
+- [recharts-to-png GitHub](https://github.com/brammitch/recharts-to-png)
+- [Recharts Export Issue #1027](https://github.com/recharts/recharts/issues/1027)
 
 ---
 
-### Pitfall 4: IP Blocking and Rate Limiting
+### Pitfall 3: Client-Side CSV Export Memory Crashes
 
-**What goes wrong:** Aggressive scraping triggers Facebook's anti-bot detection, resulting in:
-- Temporary IP blocks (hours to days)
-- CAPTCHAs that halt scraping
-- Account restrictions if using authenticated sessions
-- "You're Temporarily Blocked" errors
+**What goes wrong:** Exporting large datasets (1000+ ads with demographic data) to CSV crashes the browser tab with out-of-memory errors, particularly in Chrome and Edge.
 
-**Why it happens:** Facebook monitors request patterns and blocks scrapers that:
-- Make too many requests from single IP
-- Navigate too quickly between pages
-- Lack human-like interaction patterns
-- Have detectable automation fingerprints
+**Why it happens:**
+- Client-side CSV generation builds the entire file in memory before download
+- DataTables/similar libraries show crashes between 2000-4000 rows with many columns
+- Chrome/Edge have stricter memory limits than Firefox
+- The app's "1000 ads" analysis mode could hit these limits with full demographic data
 
-**Consequences:**
-- Scraper works during development, fails in production
-- Vercel's shared IPs may already be flagged
-- Users see intermittent failures
-- Complete blocking requires waiting or IP change
+**How to avoid:**
+1. **Limit export size:** Cap at 500 rows or implement pagination
+2. **Server-side generation:** Generate CSV on Next.js API route, stream to client
+3. **Use streaming/chunking:** Blob streaming instead of building full string
+4. **Test with maximum data:** Always test export with 1000-ad analysis results
 
 **Warning signs:**
-- CAPTCHA challenges appearing
-- "Please verify you're not a robot" messages
-- Empty responses from pages that previously worked
-- 429 (Too Many Requests) status codes
+- Browser tab becomes unresponsive during export
+- "Aw, Snap!" errors in Chrome
+- Export works with small data but fails with full analysis
 
-**Prevention:**
-1. **Use puppeteer-extra with stealth plugin** - Masks automation fingerprints
-2. **Add realistic delays** - Random delays between actions (1-3 seconds)
-3. **Limit request volume** - Cap at 5-10 ad detail pages per invocation
-4. **Use residential proxies** - If scaling, rotate through residential IPs (not data center IPs)
-5. **Mimic human behavior** - Add scrolling, mouse movements, varied timing
-6. **Session persistence** - Reuse cookies between sessions to appear as returning user
+**Phase to address:** Export phase - decide architecture (client vs server) upfront
 
-**Current scraper status:** Uses basic user agent spoofing but no stealth plugin or delays between navigations. Vulnerable to detection at scale.
-
-**Phase to address:** Phase 1 (Implementation) - Add stealth mode and rate limiting
+**Fallback:** Limit export to current page/visible data only, with "full export coming soon" message for large datasets.
 
 **Sources:**
-- [ZenRows: Puppeteer Avoid Detection](https://www.zenrows.com/blog/puppeteer-avoid-detection)
-- [BestEver: Facebook Ad Library Scrapers 2025](https://www.bestever.ai/post/facebook-ad-library-scraper)
+- [DataTables Large Dataset Export Crash](https://datatables.net/forums/discussion/76897/chrome-and-edge-crashing-when-exporting-large-dataset)
+- [Node Streams for Large Files](https://www.coreycleary.me/loading-tons-of-data-performantly-using-node-js-streams)
 
 ---
 
-## Common Mistakes
+## UX Pitfalls
 
-These slow you down but won't kill the project.
+### Pitfall 4: Information Overload in Dashboard
 
----
+**What goes wrong:** Adding more metrics, charts, and data points makes the dashboard overwhelming. Users cannot find the insights they need.
 
-### Mistake 1: Not Using puppeteer-core + @sparticuz/chromium-min
+**Why it happens:**
+- Feature creep: "while we're at it, let's also show X"
+- Designer assumption that more data = more value
+- Lack of clear hierarchy - everything competes for attention
+- Cramming desktop layout into smaller screens
 
-**What goes wrong:** Using full `puppeteer` package exceeds Vercel's 250MB bundle size limit.
+**How to avoid:**
+1. **Apply 5-metric rule:** No more than 5 primary metrics visible at once
+2. **Clear visual hierarchy:** Critical data in upper-left, use size/color to show importance
+3. **Progressive disclosure:** Summary first, details on interaction
+4. **Remove before adding:** For each new element, ask "what can we remove?"
 
-**Current status:** Project already uses `puppeteer-core` + `@sparticuz/chromium-min` correctly.
+**Warning signs:**
+- Users asking "where is X?" when it's on screen
+- No clear eye path through the interface
+- Scrolling required to see primary data
+- Dashboard "looks like Christmas tree" (too many colors)
 
-**Prevention:** Already addressed in existing codebase. Maintain this pattern.
+**Phase to address:** UI/UX Overhaul phase - establish hierarchy first
 
-**Phase:** N/A (already handled)
+**Fallback:** If cluttered, default to hiding secondary metrics behind tabs/accordions.
 
----
-
-### Mistake 2: Opening New Browser Instance Per Ad
-
-**What goes wrong:** Each ad detail page opens a new browser instance instead of reusing the existing one. This:
-- Wastes 5-10 seconds on browser launch per ad
-- Consumes excessive memory
-- Quickly exceeds timeout
-
-**Prevention:**
-1. **Reuse single browser instance** - Open multiple tabs, don't launch new browsers
-2. **Use puppeteer-cluster** - Manages tab pool and error recovery
-3. **Close tabs immediately after extraction** - Don't accumulate open tabs
-
-**Phase to address:** Phase 1 (Implementation)
-
----
-
-### Mistake 3: Waiting for networkidle0
-
-**What goes wrong:** Using `waitUntil: 'networkidle0'` (zero network requests for 500ms) on Facebook pages causes indefinite hangs because Facebook constantly polls for updates.
-
-**Current status:** Scraper uses `networkidle2` which is better but still risks slowdowns.
-
-**Prevention:**
-1. **Use `domcontentloaded` + explicit waits** - Wait for specific elements rather than network silence
-2. **Set aggressive timeouts** - Cap page load at 15-20 seconds
-3. **Use `waitForSelector` with timeout** - Wait for the specific data element needed
-
-**Phase to address:** Phase 1 (Implementation)
+**Sources:**
+- [Databox Bad Dashboard Examples](https://databox.com/bad-dashboard-examples)
+- [Smashing Magazine Real-Time Dashboard UX](https://www.smashingmagazine.com/2025/09/ux-strategies-real-time-dashboards/)
 
 ---
 
-### Mistake 4: Assuming Demographic Data Structure is Stable
+### Pitfall 5: Wrong Chart Type Selection
 
-**What goes wrong:** Hardcoding expectations about demographic data format (e.g., exact age brackets, percentage precision) when Facebook can change these at any time.
+**What goes wrong:** Using pie charts for too many categories, 3D charts that distort values, or line charts for non-sequential data. Users misinterpret the data.
 
-**Prevention:**
-1. **Parse flexibly** - Use pattern matching, not exact string matching
-2. **Handle missing fields gracefully** - Return partial data if some demographics unavailable
-3. **Log structure changes** - Monitor for format changes in production
+**Why it happens:**
+- Aesthetic preference over clarity
+- Not considering what the data actually represents
+- Copy-pasting "cool" chart types from templates
+- Pie charts are default but rarely optimal
 
-**Phase to address:** Phase 2 (Data extraction)
+**How to avoid:**
+1. **Pie charts:** Maximum 3-4 slices (current country breakdown may have 20+)
+2. **Bar charts:** For comparisons between categories
+3. **Line charts:** Only for time-series or continuous data
+4. **Test comprehension:** Can someone understand the takeaway in 5 seconds?
 
----
+**Warning signs:**
+- Pie chart with 10+ slices
+- Horizontal scroll in charts
+- Users misreporting what chart shows
 
-### Mistake 5: Not Handling "No Demographic Data" Cases
+**Phase to address:** Chart Improvements phase - audit existing charts first
 
-**What goes wrong:** Not all ads have demographic data. Ads with low reach, recently started ads, or certain ad types may show "Not enough data" in the UI. Scraper fails or returns incorrect data.
+**Fallback:** When in doubt, use horizontal bar charts - they work for almost anything.
 
-**Prevention:**
-1. **Detect "no data" states** - Check for "Not enough data" text or empty charts
-2. **Return null, not error** - Missing demographics for one ad shouldn't fail entire request
-3. **Document in UI** - Show users which ads had available demographics vs not
-
-**Phase to address:** Phase 2 (Data extraction)
-
----
-
-## Facebook-Specific Issues
-
-Quirks unique to Facebook Ad Library that aren't obvious.
-
----
-
-### Issue 1: Dynamic Content Loading on Scroll
-
-**What it is:** Ad Library uses infinite scroll with lazy loading. Ads and their data only load as user scrolls. Initial page load contains minimal data.
-
-**Impact:** Current scraper handles this with scroll loop. Same pattern needed for detail pages.
-
-**Note:** Current implementation scrolls aggressively (up to 300 iterations). This is appropriate.
+**Sources:**
+- [OWOX Bad Data Visualization Examples](https://www.owox.com/blog/articles/bad-data-visualization-examples)
+- [Analytics Insight Visualization Mistakes 2025](https://www.analyticsinsight.net/data-science/avoid-these-7-data-visualization-mistakes-in-2025)
 
 ---
 
-### Issue 2: GraphQL Response Fragmentation
+### Pitfall 6: Mobile Charts Are Unreadable
 
-**What it is:** Facebook's API responses are fragmented across multiple GraphQL calls. Demographic data may arrive in a separate response from ad creative data.
+**What goes wrong:** Charts that look good on desktop become illegible on mobile - overlapping labels, tiny touch targets, impossible to see details.
 
-**Impact:** Network interception must capture multiple response types and correlate them.
+**Why it happens:**
+- Charts designed for desktop first
+- Recharts (and most chart libraries) don't automatically simplify for mobile
+- Label text doesn't scale proportionally
+- Touch targets too small (need 48x48px minimum)
 
-**Mitigation:** Current scraper intercepts multiple endpoint patterns (`/api/graphql`, `/ads/library/async`). Extend to capture demographic-specific endpoints.
+**How to avoid:**
+1. **Test on real devices** - not just browser resize
+2. **Reduce data points:** Limit mobile bar charts to 5-7 bars max
+3. **Use responsive breakpoints:** Different chart configs for mobile
+4. **Simplify labels:** Abbreviate or angle on small screens
+5. **Touch-friendly:** Larger tap targets, swipe interactions
 
----
+**Warning signs:**
+- Labels overlap on mobile
+- Cannot tap individual chart elements
+- Charts require horizontal scroll
+- Text smaller than 12px on mobile
 
-### Issue 3: Ad Detail Page URL Structure
+**Phase to address:** UI/UX Overhaul phase (mobile support) AND Chart Improvements phase
 
-**What it is:** Ad detail pages use format: `https://www.facebook.com/ads/library/?id={ad_id}`
+**Fallback:** On mobile, show simplified data tables instead of charts.
 
-The `ad_id` is extracted from current scraper's API interception (`ad_archive_id` field).
-
-**Impact:** Drilling requires constructing these URLs from captured IDs.
-
-**Current status:** Scraper already extracts `ad_archive_id` and constructs `adLibraryLinks`. This is correct.
-
----
-
-### Issue 4: EU vs Non-EU Data Availability
-
-**What it is:** Due to Digital Services Act (DSA), EU-targeted ads are required to show demographic distribution. Non-EU ads may not have this data visible.
-
-**Impact:** Tool may only work reliably for EU advertisers.
-
-**Mitigation:**
-- Document limitation clearly in UI
-- Detect user's target region and warn if non-EU
-- Consider filtering to EU countries in initial search
+**Sources:**
+- [Toptal Mobile Dashboard UI](https://www.toptal.com/designers/dashboard-design/mobile-dashboard-ui)
+- [Lightning Ventures Mobile Dashboard Tips](https://www.lightningventures.com.au/blogs/10-tips-for-mobile-friendly-dashboards)
 
 ---
 
-### Issue 5: Political Ad October 2025 Sunset (EU)
+### Pitfall 7: No Context for Numbers
 
-**What it is:** As of October 2025, Meta stopped accepting new political/electoral ads in the EU. The Ad Library still contains historical data but won't have new EU political ads.
+**What goes wrong:** Displaying "Reach: 1,234,567" without explaining if that's good, bad, average, or what it means for decision-making.
 
-**Impact:** If targeting political advertisers in EU, data will be increasingly stale.
+**Why it happens:**
+- Developer knows context, assumes user does too
+- Metrics displayed in isolation
+- Missing benchmarks or comparisons
+- No trend indicators
 
-**Mitigation:** Document limitation. Focus on commercial advertisers.
+**How to avoid:**
+1. **Add comparison context:** "vs. average", "top 10%", trending arrows
+2. **Use explanatory labels:** Tooltips explaining what metric means
+3. **Provide ranges:** "Low/Medium/High" alongside raw numbers
+4. **Show relative values:** Percentages alongside absolutes
 
----
+**Warning signs:**
+- Users asking "is this good?" about displayed numbers
+- Data displayed with no labels/legends
+- Raw numbers with no formatting (1234567 vs 1.2M)
 
-## Prevention Strategies Summary
+**Phase to address:** Chart Improvements phase - context in tooltips/labels
 
-| Pitfall | Strategy | Phase |
-|---------|----------|-------|
-| Demographics API-only | Validate data availability before build | 0 |
-| 60s timeout | Limit to top 3-5 ads, parallel tabs | 1 |
-| Random CSS classes | Network interception, avoid DOM selectors | 1 |
-| IP blocking | Stealth plugin, delays, limits | 1 |
-| New browser per ad | Reuse browser, tab pool | 1 |
-| networkidle0 hang | domcontentloaded + explicit waits | 1 |
-| Unstable data format | Flexible parsing, graceful degradation | 2 |
-| Missing demographic data | Null handling, UI messaging | 2 |
+**Fallback:** At minimum, format all numbers with commas/abbreviations.
 
----
-
-## Phase-Specific Warnings
-
-| Phase | Likely Pitfall | Mitigation |
-|-------|----------------|------------|
-| Research/Validation | Demographics not available for target advertisers | Manual inspection of network traffic first |
-| Architecture | Timeout constraints | Design for 3-5 ads max per request |
-| Implementation | Detection/blocking | Add stealth plugin, realistic delays |
-| Data extraction | Format changes | Flexible parsing, version monitoring |
-| UI/Integration | Empty states | Clear messaging for partial/missing data |
+**Sources:**
+- [UXPin Dashboard Design Principles](https://www.uxpin.com/studio/blog/dashboard-design-principles/)
 
 ---
 
-## Confidence Assessment
+## Performance Traps
 
-| Finding | Confidence | Source |
-|---------|------------|--------|
-| API-only demographics for non-EU | MEDIUM | Multiple community reports, official API docs |
-| 60s timeout limit | HIGH | Vercel documentation |
-| CSS class randomization | HIGH | Multiple community reports, easily verifiable |
-| IP blocking risk | HIGH | Extensive community documentation |
-| Stealth plugin effectiveness | MEDIUM | Community reports, may not fully prevent detection |
-| Demographic data format | LOW | Not verified against current production |
+### Pitfall 8: Blocking UI During Export
+
+**What goes wrong:** Export process freezes the UI for several seconds while generating file, user thinks app crashed.
+
+**Why it happens:**
+- Synchronous file generation on main thread
+- No progress indicator for long operations
+- Heavy PDF rendering blocking user interaction
+
+**How to avoid:**
+1. **Web Workers:** Move export generation to background thread
+2. **Progress indicators:** Show "Generating export... 45%"
+3. **Async with feedback:** Disable button, show spinner, re-enable on complete
+4. **Timeout fallback:** If export takes >5s, offer to email results
+
+**Warning signs:**
+- Unresponsive UI during export
+- Users clicking export button multiple times
+- Browser "page unresponsive" dialogs
+
+**Phase to address:** Export phase - plan async architecture from start
+
+**Fallback:** Add "Please wait, generating..." overlay that blocks interaction but shows progress.
+
+**Sources:**
+- [Medium Offline-First PDF/CSV Challenges](https://medium.com/@sanjayajosep/offline-first-challenge-making-csv-pdf-reports-right-on-android-faf2ee7946dc)
+
+---
+
+### Pitfall 9: Re-rendering Charts on Every Interaction
+
+**What goes wrong:** Charts re-render completely on minor state changes, causing visible flickering and performance degradation.
+
+**Why it happens:**
+- React state updates triggering full component re-renders
+- Chart data not properly memoized
+- Parent component state changes cascading to chart children
+- Animation replaying on every render
+
+**How to avoid:**
+1. **Memoize chart data:** useMemo for computed chart data
+2. **Isolate chart state:** Charts in their own components with stable props
+3. **Disable unnecessary animations:** Especially for data updates
+4. **Use keys carefully:** Avoid key changes that force remounts
+
+**Warning signs:**
+- Charts "flashing" on unrelated interactions
+- Animation replaying when it shouldn't
+- React DevTools showing excessive re-renders
+
+**Phase to address:** Chart Improvements phase - performance audit
+
+**Fallback:** React.memo wrapper on chart components as quick fix.
+
+**Sources:**
+- [Medium Optimizing Chart Rendering in React](https://medium.com/@balakumaran428/optimizing-chart-rendering-in-react-ensuring-smooth-performance-in-print-and-export-78206813496f)
+
+---
+
+## "Looks Done But Isn't" Checklist
+
+Before marking any phase complete, verify:
+
+### Ad Preview Phase
+- [ ] Tested with ads that have VIDEO (not just images)
+- [ ] Tested with ads that have MULTIPLE images (carousel)
+- [ ] Tested with ads where media is UNAVAILABLE
+- [ ] Tested with ads that have LONG text content
+- [ ] Fallback UI renders when media fails to load
+- [ ] "View on Facebook" link works and opens correct page
+
+### Chart Improvements Phase
+- [ ] All charts tested on mobile Safari AND mobile Chrome
+- [ ] Labels readable at smallest viewport (320px)
+- [ ] Touch interactions work (tap, swipe)
+- [ ] Empty state renders when no data
+- [ ] Charts work with extreme values (0%, 100%, negative)
+- [ ] Animations disabled in reduced-motion preference
+
+### Export Phase
+- [ ] Tested with MAXIMUM data (1000 ads analysis)
+- [ ] Export works in Safari (different blob handling)
+- [ ] Exported file opens correctly in Excel AND Google Sheets
+- [ ] Charts appear correctly in PDF (not blank)
+- [ ] Progress indicator shown for exports >1s
+- [ ] Error handling if export fails mid-generation
+
+### UI/UX Overhaul Phase
+- [ ] Tested on REAL iPhone (not just simulator)
+- [ ] Works in landscape orientation
+- [ ] Form inputs don't zoom on mobile (16px+ font)
+- [ ] Error states styled, not raw browser errors
+- [ ] Loading states for ALL async operations
+- [ ] Tab order logical for keyboard navigation
+
+---
+
+## Pitfall-to-Phase Mapping
+
+| Pitfall | Affected Phase | Action Required |
+|---------|---------------|-----------------|
+| Facebook media embedding blocks | Ad Preview | Research spike BEFORE implementation |
+| Recharts 3.x export compatibility | Export | Test early, plan fallback |
+| CSV memory crashes | Export | Decide client vs server-side upfront |
+| Information overload | UI/UX Overhaul | Establish hierarchy first |
+| Wrong chart types | Chart Improvements | Audit existing charts |
+| Mobile chart readability | UI/UX + Charts | Test real devices, not simulators |
+| Missing number context | Chart Improvements | Add tooltips/comparisons |
+| Blocking UI during export | Export | Plan async architecture |
+| Chart re-rendering | Chart Improvements | Memoization audit |
+
+---
+
+## Phase-Specific Research Flags
+
+Based on pitfall severity, these phases likely need deeper research spikes:
+
+| Phase | Research Needed | Risk if Skipped |
+|-------|----------------|-----------------|
+| Ad Preview | HIGH - Must verify what's actually possible with Facebook media | Could plan features that are impossible |
+| Export | MEDIUM - Test Recharts 3.x compatibility before committing | May need different export approach |
+| UI/UX Overhaul | LOW - Standard patterns, well-documented | Minor polish issues only |
+| Chart Improvements | LOW - Recharts well-documented | Performance edge cases |
 
 ---
 
 ## Sources
 
+### Facebook Ad Library & Media Embedding
 - [Facebook Ads Library API Complete Guide 2025](https://admanage.ai/blog/facebook-ads-library-api)
-- [BestEver: Facebook Ad Library Scrapers 2025](https://www.bestever.ai/post/facebook-ad-library-scraper)
-- [Vercel: Deploying Puppeteer with Next.js](https://vercel.com/kb/guide/deploying-puppeteer-with-nextjs-on-vercel)
-- [ZenRows: Puppeteer Avoid Detection](https://www.zenrows.com/blog/puppeteer-avoid-detection)
-- [ZenRows: Puppeteer Stealth Evasions](https://www.zenrows.com/blog/puppeteer-stealth-evasions-patching)
-- [Advanced Web: Puppeteer Parallelization](https://advancedweb.hu/how-to-speed-up-puppeteer-scraping-with-parallelization/)
-- [Geek Culture: Bypass CSS Class Name Changes](https://medium.com/geekculture/bypass-scraping-websites-that-has-css-class-names-change-frequently-d4877ecd6d8f)
-- [Swipekit: Meta Ad Library API](https://swipekit.app/articles/meta-ad-library-api)
-- [GitHub: facebook-scraper Issues](https://github.com/kevinzg/facebook-scraper/issues/409)
-- [Gumloop: Facebook Ads Library Scraping Issues](https://forum.gumloop.com/t/facebook-ads-library-scraping-doesnt-work-again/1896)
+- [Meta oEmbed Read Explained](https://www.bluehost.com/blog/meta-oembed-read-explained/)
+- [Bypass X-Frame-Options Discussion](https://requestly.com/blog/bypass-iframe-busting-header/)
+- [CORS Workarounds](https://medium.com/@dtkatz/3-ways-to-fix-the-cors-error-and-how-access-control-allow-origin-works-d97d55946d9)
+
+### Dashboard UX Best Practices
+- [UXPin Dashboard Design Principles 2025](https://www.uxpin.com/studio/blog/dashboard-design-principles/)
+- [Smashing Magazine Real-Time Dashboard UX](https://www.smashingmagazine.com/2025/09/ux-strategies-real-time-dashboards/)
+- [Databox Bad Dashboard Examples](https://databox.com/bad-dashboard-examples)
+- [OWOX Bad Data Visualization Examples](https://www.owox.com/blog/articles/bad-data-visualization-examples)
+
+### Mobile Dashboard Design
+- [Toptal Mobile Dashboard UI Best Practices](https://www.toptal.com/designers/dashboard-design/mobile-dashboard-ui)
+- [Lightning Ventures Mobile-Friendly Dashboards](https://www.lightningventures.com.au/blogs/10-tips-for-mobile-friendly-dashboards)
+- [Pencil & Paper Dashboard UX Patterns](https://www.pencilandpaper.io/articles/ux-pattern-analysis-data-dashboards)
+
+### Chart Export
+- [recharts-to-png npm](https://www.npmjs.com/package/recharts-to-png)
+- [Recharts Export Issue Discussion](https://github.com/recharts/recharts/issues/1027)
+- [DEV.to Export Charts to PDF with React](https://dev.to/ramonak/export-multiple-charts-to-pdf-with-react-and-jspdf-b47)
+
+### Export Memory & Performance
+- [DataTables Large Dataset Export Crash](https://datatables.net/forums/discussion/76897/chrome-and-edge-crashing-when-exporting-large-dataset)
+- [Node.js Streams for Large Data](https://www.coreycleary.me/loading-tons-of-data-performantly-using-node-js-streams)
+
+### Hotlinking & Image Protection
+- [Cloudflare Hotlink Protection](https://developers.cloudflare.com/waf/tools/scrape-shield/hotlink-protection/)
+- [WPOven Hotlinking Prevention](https://www.wpoven.com/blog/hotlinking/)
