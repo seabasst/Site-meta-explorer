@@ -132,6 +132,132 @@ function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   );
 }
 
+// Pricing tiers configuration
+const PRICING_TIERS = {
+  250: {
+    name: 'Pro',
+    price: 29,
+    ads: 250,
+    features: [
+      'Analyse up to 250 ads',
+      'Full demographic breakdowns',
+      'Ad copy analysis',
+      'Monthly reports (coming soon)',
+      'Priority support',
+    ],
+  },
+  500: {
+    name: 'Business',
+    price: 59,
+    ads: 500,
+    features: [
+      'Analyse up to 500 ads',
+      'Full demographic breakdowns',
+      'Ad copy analysis',
+      'Advanced competitive insights',
+      'Monthly reports (coming soon)',
+      'API access (coming soon)',
+      'Priority support',
+    ],
+  },
+  1000: {
+    name: 'Enterprise',
+    price: 99,
+    ads: 1000,
+    features: [
+      'Analyse 1,000+ ads',
+      'Full demographic breakdowns',
+      'Ad copy analysis',
+      'Advanced competitive insights',
+      'Custom monthly reports',
+      'Full API access',
+      'Dedicated support',
+      'Custom integrations',
+    ],
+  },
+} as const;
+
+function PricingModal({
+  tier,
+  onClose,
+}: {
+  tier: 250 | 500 | 1000;
+  onClose: () => void;
+}) {
+  const pricing = PRICING_TIERS[tier];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="relative glass rounded-2xl p-8 max-w-md w-full animate-fade-in glow-gold">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-yellow)]/20 text-[var(--accent-yellow)] text-xs font-medium mb-4">
+            {pricing.name} Plan
+          </div>
+          <h2 className="font-serif text-2xl text-[var(--text-primary)] mb-2">
+            Unlock <span className="italic text-[var(--accent-green-light)]">{pricing.ads} Ads</span> Analysis
+          </h2>
+          <p className="text-[var(--text-secondary)] text-sm">
+            Get deeper insights into your competitors&apos; advertising strategies
+          </p>
+        </div>
+
+        {/* Price */}
+        <div className="text-center mb-6">
+          <div className="flex items-baseline justify-center gap-1">
+            <span className="text-4xl font-bold text-[var(--text-primary)]">${pricing.price}</span>
+            <span className="text-[var(--text-muted)]">/month</span>
+          </div>
+        </div>
+
+        {/* Features */}
+        <ul className="space-y-3 mb-8">
+          {pricing.features.map((feature, index) => (
+            <li key={index} className="flex items-start gap-3 text-sm">
+              <svg className="w-5 h-5 text-[var(--accent-green-light)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-[var(--text-secondary)]">{feature}</span>
+            </li>
+          ))}
+        </ul>
+
+        {/* CTA */}
+        <button
+          onClick={() => {
+            // TODO: Integrate with payment provider (Stripe)
+            window.open('mailto:hello@example.com?subject=Upgrade to ' + pricing.name + ' Plan', '_blank');
+          }}
+          className="w-full btn-primary py-3 text-base font-semibold"
+        >
+          Get Started
+        </button>
+
+        <p className="text-center text-xs text-[var(--text-muted)] mt-4">
+          Cancel anytime. No questions asked.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // Example brands with their Ad Library URLs
 const EXAMPLE_BRANDS = [
   { name: 'Estrid', domain: 'estrid.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=2350793288288464' },
@@ -169,6 +295,10 @@ export default function Home() {
 
   // Analysis depth - number of ads to analyze (tiered: Free=100, Pro=250, Business=500/1000)
   const [analysisLimit, setAnalysisLimit] = useState<100 | 250 | 500 | 1000>(100);
+
+  // Pricing modal state
+  const [showPricingModal, setShowPricingModal] = useState(false);
+  const [selectedPricingTier, setSelectedPricingTier] = useState<250 | 500 | 1000 | null>(null);
 
   // Facebook API result (different structure from scraper)
   const [apiResult, setApiResult] = useState<FacebookApiResult | null>(null);
@@ -327,6 +457,17 @@ export default function Home() {
 
   return (
     <>
+      {/* Pricing Modal */}
+      {showPricingModal && selectedPricingTier && (
+        <PricingModal
+          tier={selectedPricingTier}
+          onClose={() => {
+            setShowPricingModal(false);
+            setSelectedPricingTier(null);
+          }}
+        />
+      )}
+
       {/* Background effects */}
       <div className="gradient-mesh" />
       <div className="noise-overlay" />
@@ -450,22 +591,33 @@ export default function Home() {
 
                     <span className="text-xs text-[var(--text-muted)]">Depth:</span>
                     <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-1 border border-[var(--border-subtle)]">
-                      {([100, 250, 500, 1000] as const).map((limit) => (
-                        <button
-                          key={limit}
-                          type="button"
-                          onClick={() => setAnalysisLimit(limit)}
-                          disabled={isLoadingAds}
-                          className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                            analysisLimit === limit
-                              ? 'bg-[var(--accent-green)] text-white'
-                              : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
-                          }`}
-                        >
-                          {limit === 1000 ? '1K' : limit}
-                          {limit === 100 && <span className="ml-1 opacity-60">Free</span>}
-                        </button>
-                      ))}
+                      {([100, 250, 500, 1000] as const).map((limit) => {
+                        const isPaid = limit > 100;
+                        return (
+                          <button
+                            key={limit}
+                            type="button"
+                            onClick={() => {
+                              if (isPaid) {
+                                setSelectedPricingTier(limit as 250 | 500 | 1000);
+                                setShowPricingModal(true);
+                              } else {
+                                setAnalysisLimit(limit);
+                              }
+                            }}
+                            disabled={isLoadingAds}
+                            className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                              analysisLimit === limit
+                                ? 'bg-[var(--accent-green)] text-white'
+                                : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
+                            }`}
+                          >
+                            {limit === 1000 ? '1K' : limit}
+                            {limit === 100 && <span className="ml-1 opacity-60">Free</span>}
+                            {isPaid && <span className="ml-1 opacity-60">Pro</span>}
+                          </button>
+                        );
+                      })}
                     </div>
                   </>
                 )}
