@@ -9,7 +9,6 @@ import { ScrapeConfig } from '@/components/demographics/scrape-config';
 import { DemographicsSummary } from '@/components/demographics/demographics-summary';
 import { AgeGenderChart } from '@/components/demographics/age-gender-chart';
 import { CountryChart } from '@/components/demographics/country-chart';
-import { MediaTypeChart } from '@/components/demographics/media-type-chart';
 import { ProductMarketTable } from '@/components/analytics/product-market-table';
 import { AdLongevity } from '@/components/analytics/ad-longevity';
 import { AdCopyAnalysis } from '@/components/analytics/ad-copy-analysis';
@@ -1124,15 +1123,6 @@ export default function Home() {
                         />
                       </div>
 
-                      {/* Media Type Chart */}
-                      {apiResult.mediaTypeBreakdown && (
-                        <div className="glass rounded-xl p-5">
-                          <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
-                            Creative Format
-                          </h4>
-                          <MediaTypeChart data={apiResult.mediaTypeBreakdown} />
-                        </div>
-                      )}
                     </div>
                   </div>
                 )}
