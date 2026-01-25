@@ -371,7 +371,7 @@ export default function Home() {
                     </svg>
                     <span>How it works</span>
                   </button>
-                  <div className="absolute left-0 top-full mt-1 w-80 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
+                  <div className="absolute left-0 top-full mt-1 w-80 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                     <h4 className="font-medium text-[var(--text-primary)] mb-2">Which ads are analysed?</h4>
                     <div className="space-y-2 text-xs text-[var(--text-secondary)]">
                       <p>
