@@ -574,13 +574,15 @@ export async function fetchFacebookAds(options: {
   let fetchedPageId: string | null = pageId || null;
 
   try {
-    // When querying multiple EU countries, fetch each key market separately
-    // to get a representative sample from each country
-    const useMultiCountryQuery = countries.length > 5 && pageId;
+    // For smaller limits (<=250), use a single query to ALL EU countries
+    // This is simpler, faster, and ensures we get the exact number of ads requested
+    // For larger limits, we use multi-country queries to get better geographic distribution
+    const useMultiCountryQuery = countries.length > 5 && pageId && limit > 250;
 
     if (useMultiCountryQuery && pageId) {
       // Query each key market separately (in parallel batches to avoid rate limits)
-      const adsPerCountry = Math.ceil(limit / KEY_EU_MARKETS.length);
+      // Fetch 3x per country to compensate for deduplication across markets
+      const adsPerCountry = Math.ceil((limit * 3) / KEY_EU_MARKETS.length);
       const adIdSet = new Set<string>();
 
       // Fetch in parallel batches of 3 to be gentle on rate limits
@@ -726,8 +728,18 @@ export async function fetchFacebookAds(options: {
       };
     });
 
-    // Sort by reach descending
-    ads.sort((a, b) => b.euTotalReach - a.euTotalReach);
+    // Sort by start date descending (newest first), then by reach as tiebreaker
+    ads.sort((a, b) => {
+      const dateA = a.startedRunning ? new Date(a.startedRunning).getTime() : 0;
+      const dateB = b.startedRunning ? new Date(b.startedRunning).getTime() : 0;
+      if (dateB !== dateA) return dateB - dateA;
+      return b.euTotalReach - a.euTotalReach;
+    });
+
+    // Trim to requested limit after sorting to ensure we return the newest ads
+    if (ads.length > limit) {
+      ads.splice(limit);
+    }
 
     // Aggregate demographics
     const aggregatedDemographics = aggregateDemographics(ads);
