@@ -512,6 +512,38 @@ export default function Home() {
                     );
                   })}
                 </div>
+
+                {/* How it works info dropdown */}
+                <div className="relative group">
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 px-2 py-1.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>How it works</span>
+                  </button>
+                  <div className="absolute left-0 top-full mt-1 w-80 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
+                    <h4 className="font-medium text-[var(--text-primary)] mb-2">Which ads are analysed?</h4>
+                    <div className="space-y-2 text-xs text-[var(--text-secondary)]">
+                      <p>
+                        We fetch the <span className="text-[var(--accent-green-light)] font-medium">newest ads</span> from the brand&apos;s Facebook Ad Library, sorted by start date (most recent first).
+                      </p>
+                      <p>
+                        The depth setting controls how many ads to analyse. With 100 ads, you get the 100 most recently launched campaigns.
+                      </p>
+                      <p className="pt-2 border-t border-[var(--border-subtle)]">
+                        <span className="font-medium text-[var(--text-primary)]">Why newest first?</span><br />
+                        Recent ads reflect current strategy, messaging, and targeting. They show what&apos;s working <em>now</em> for the brand.
+                      </p>
+                      <p className="pt-2 border-t border-[var(--border-subtle)]">
+                        <span className="font-medium text-[var(--text-primary)]">Data source</span><br />
+                        Demographics come from Facebook&apos;s EU DSA transparency data, which includes reach by age, gender, and country.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Quick start examples - always visible for easy brand switching */}
