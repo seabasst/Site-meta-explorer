@@ -3,9 +3,6 @@
 import { useState } from 'react';
 import { ResultsTable } from '@/components/results-table';
 import { analyzeSitemap, AnalysisResult } from '@/actions/analyze-sitemap';
-import { AdLibraryResult } from '@/lib/ad-library-scraper';
-import { AdLibraryResultWithDemographics } from '@/lib/demographic-types';
-import { ScrapeConfig } from '@/components/demographics/scrape-config';
 import { DemographicsSummary } from '@/components/demographics/demographics-summary';
 import { AgeGenderChart } from '@/components/demographics/age-gender-chart';
 import { CountryChart } from '@/components/demographics/country-chart';
@@ -22,8 +19,6 @@ import { extractPageIdFromUrl } from '@/lib/facebook-api';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
-
-type DataSource = 'api' | 'scraper';
 
 function HowItWorksSection() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -278,17 +273,7 @@ export default function Home() {
   // Ad Library state
   const [adLibraryUrl, setAdLibraryUrl] = useState('');
   const [isLoadingAds, setIsLoadingAds] = useState(false);
-  const [adResult, setAdResult] = useState<AdLibraryResult | null>(null);
   const [adError, setAdError] = useState<string | null>(null);
-
-  // Demographics configuration (default 3 for faster execution on serverless)
-  const [maxDemographicAds, setMaxDemographicAds] = useState(3);
-
-  // Demographics loading progress
-  const [demographicsProgress, setDemographicsProgress] = useState<{ current: number; total: number } | null>(null);
-
-  // Data source selection: 'api' uses official Facebook API (faster, requires token), 'scraper' uses Puppeteer
-  const [dataSource, setDataSource] = useState<DataSource>('api');
 
   // Active status filter: 'ACTIVE' shows only running ads, 'ALL' shows all ads including inactive
   const [activeStatus, setActiveStatus] = useState<'ACTIVE' | 'ALL'>('ACTIVE');
@@ -300,7 +285,7 @@ export default function Home() {
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [selectedPricingTier, setSelectedPricingTier] = useState<250 | 500 | 1000 | null>(null);
 
-  // Facebook API result (different structure from scraper)
+  // Facebook API result
   const [apiResult, setApiResult] = useState<FacebookApiResult | null>(null);
 
   // Brand comparison mode
@@ -317,8 +302,7 @@ export default function Home() {
     setIsLoading(true);
     setError(null);
     setResult(null);
-    setAdResult(null);
-
+    
     try {
       const response = await analyzeSitemap(inputUrl.trim());
 
@@ -342,8 +326,7 @@ export default function Home() {
     setIsLoading(true);
     setError(null);
     setResult(null);
-    setAdResult(null);
-
+    
     analyzeSitemap(site)
       .then((response) => {
         if (response.success) {
@@ -366,94 +349,36 @@ export default function Home() {
 
     setIsLoadingAds(true);
     setAdError(null);
-    setAdResult(null);
     setApiResult(null);
-    setDemographicsProgress({ current: 0, total: maxDemographicAds });
 
     try {
-      if (dataSource === 'api') {
-        // Use official Facebook API (faster, includes demographics automatically)
-        const res = await fetch('/api/facebook-ads', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            adLibraryUrl: adLibraryUrl.trim(),
-            countries: ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'], // All EU countries for DSA data
-            limit: analysisLimit,
-            activeStatus,
-          }),
-        });
+      const res = await fetch('/api/facebook-ads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adLibraryUrl: adLibraryUrl.trim(),
+          countries: ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'], // All EU countries for DSA data
+          limit: analysisLimit,
+          activeStatus,
+        }),
+      });
 
-        const response = await res.json();
+      const response = await res.json();
 
-        if (response.success) {
-          setApiResult(response);
-        } else {
-          setAdError(response.error);
-        }
+      if (response.success) {
+        setApiResult(response);
       } else {
-        // Use Puppeteer scraper (slower, but works without API token)
-        const res = await fetch('/api/scrape-ads', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            adLibraryUrl: adLibraryUrl.trim(),
-            scrapeDemographics: true,
-            maxDemographicAds: maxDemographicAds,
-          }),
-        });
-
-        const response = await res.json();
-
-        if (response.success) {
-          setAdResult(response);
-        } else {
-          setAdError(response.error);
-        }
+        setAdError(response.error);
       }
     } catch {
       setAdError('Failed to fetch Ad Library data. Please try again.');
     } finally {
       setIsLoadingAds(false);
-      setDemographicsProgress(null);
     }
   };
 
-  // Extract destination URLs and their ad counts (handle both API and scraper results)
-  const adDestinationUrls = (() => {
-    if (apiResult) {
-      // API result - no destination URLs, but we can still use it for demographics
-      return [];
-    }
-    return adResult?.ads
-      .map((ad) => ad.destinationUrl)
-      .filter((url): url is string => url !== null) || [];
-  })();
-
-  // Create a map of URL -> ad count
-  const adCountMap: Record<string, number> = {};
-  adResult?.ads.forEach((ad) => {
-    if (ad.destinationUrl) {
-      adCountMap[ad.destinationUrl] = ad.adCount;
-    }
-  });
-
-  // Create a map of URL -> ad library links
-  const adLibraryLinksMap: Record<string, string[]> = {};
-  adResult?.ads.forEach((ad) => {
-    if (ad.destinationUrl && ad.adLibraryLinks.length > 0) {
-      adLibraryLinksMap[ad.destinationUrl] = ad.adLibraryLinks;
-    }
-  });
-
-  // Get total active ads - prefer Facebook's count, fallback to sum of found ads
-  const totalActiveAds = apiResult?.totalAdsFound
-    ?? adResult?.totalActiveAdsOnPage
-    ?? adResult?.ads.reduce((sum, ad) => sum + ad.adCount, 0)
-    ?? 0;
-
-  // Get the active result (API or scraper)
-  const activeAdResult = apiResult || adResult;
+  // Get total active ads from API result
+  const totalActiveAds = apiResult?.totalAdsFound ?? 0;
 
   return (
     <>
@@ -525,113 +450,69 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Data Source Toggle */}
+              {/* Options */}
               <div className="mt-4 flex items-center gap-4 flex-wrap">
-                <span className="text-xs text-[var(--text-muted)]">Data source:</span>
+                <span className="text-xs text-[var(--text-muted)]">Ads:</span>
                 <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-1 border border-[var(--border-subtle)]">
                   <button
                     type="button"
-                    onClick={() => setDataSource('api')}
+                    onClick={() => setActiveStatus('ACTIVE')}
                     disabled={isLoadingAds}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                      dataSource === 'api'
+                      activeStatus === 'ACTIVE'
                         ? 'bg-[var(--accent-green)] text-white'
                         : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
                     }`}
                   >
-                    Official API
+                    Active Only
                   </button>
                   <button
                     type="button"
-                    onClick={() => setDataSource('scraper')}
+                    onClick={() => setActiveStatus('ALL')}
                     disabled={isLoadingAds}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                      dataSource === 'scraper'
+                      activeStatus === 'ALL'
                         ? 'bg-[var(--accent-green)] text-white'
                         : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
                     }`}
                   >
-                    Scraper
+                    All Ads
                   </button>
                 </div>
 
-                {/* Active Status Toggle - only shown when using API */}
-                {dataSource === 'api' && (
-                  <>
-                    <div className="w-px h-6 bg-[var(--border-subtle)]" />
-                    <span className="text-xs text-[var(--text-muted)]">Ads:</span>
-                    <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-1 border border-[var(--border-subtle)]">
+                <div className="w-px h-6 bg-[var(--border-subtle)]" />
+
+                <span className="text-xs text-[var(--text-muted)]">Depth:</span>
+                <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-1 border border-[var(--border-subtle)]">
+                  {([100, 250, 500, 1000] as const).map((limit) => {
+                    const isPaid = limit > 100;
+                    return (
                       <button
+                        key={limit}
                         type="button"
-                        onClick={() => setActiveStatus('ACTIVE')}
+                        onClick={() => {
+                          if (isPaid) {
+                            setSelectedPricingTier(limit as 250 | 500 | 1000);
+                            setShowPricingModal(true);
+                          } else {
+                            setAnalysisLimit(limit);
+                          }
+                        }}
                         disabled={isLoadingAds}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                          activeStatus === 'ACTIVE'
+                        className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                          analysisLimit === limit
                             ? 'bg-[var(--accent-green)] text-white'
                             : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
                         }`}
                       >
-                        Active Only
+                        {limit === 1000 ? '1K' : limit}
+                        {limit === 100 && <span className="ml-1 opacity-60">Free</span>}
+                        {isPaid && <span className="ml-1 opacity-60">Pro</span>}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setActiveStatus('ALL')}
-                        disabled={isLoadingAds}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                          activeStatus === 'ALL'
-                            ? 'bg-[var(--accent-green)] text-white'
-                            : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
-                        }`}
-                      >
-                        All Ads
-                      </button>
-                    </div>
-
-                    <div className="w-px h-6 bg-[var(--border-subtle)]" />
-
-                    <span className="text-xs text-[var(--text-muted)]">Depth:</span>
-                    <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-1 border border-[var(--border-subtle)]">
-                      {([100, 250, 500, 1000] as const).map((limit) => {
-                        const isPaid = limit > 100;
-                        return (
-                          <button
-                            key={limit}
-                            type="button"
-                            onClick={() => {
-                              if (isPaid) {
-                                setSelectedPricingTier(limit as 250 | 500 | 1000);
-                                setShowPricingModal(true);
-                              } else {
-                                setAnalysisLimit(limit);
-                              }
-                            }}
-                            disabled={isLoadingAds}
-                            className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                              analysisLimit === limit
-                                ? 'bg-[var(--accent-green)] text-white'
-                                : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
-                            }`}
-                          >
-                            {limit === 1000 ? '1K' : limit}
-                            {limit === 100 && <span className="ml-1 opacity-60">Free</span>}
-                            {isPaid && <span className="ml-1 opacity-60">Pro</span>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {dataSource === 'scraper' && (
-                <div className="mt-4">
-                  <ScrapeConfig
-                    maxAds={maxDemographicAds}
-                    onMaxAdsChange={setMaxDemographicAds}
-                    disabled={isLoadingAds}
-                  />
+                    );
+                  })}
                 </div>
-              )}
+              </div>
 
               {/* Quick start examples - always visible for easy brand switching */}
               {!isLoadingAds && (
@@ -651,7 +532,7 @@ export default function Home() {
               )}
 
               {/* Favorites section */}
-              {!apiResult && !adResult && !isLoadingAds && favoritesLoaded && favorites.length > 0 && (
+              {!apiResult && !isLoadingAds && favoritesLoaded && favorites.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
                   <div className="flex items-center gap-2 mb-3">
                     <svg className="w-4 h-4 text-[var(--accent-yellow)]" fill="currentColor" viewBox="0 0 20 20">
@@ -670,7 +551,7 @@ export default function Home() {
           </form>
 
           {/* Sitemap Analysis - Collapsible */}
-          {!apiResult && !adResult && !isLoadingAds && (
+          {!apiResult && !isLoadingAds && (
             <details className="mb-8 animate-fade-in-up stagger-2">
               <summary className="cursor-pointer list-none">
                 <div className="glass rounded-2xl p-4 hover:bg-[var(--bg-elevated)] transition-colors">
@@ -728,7 +609,7 @@ export default function Home() {
           )}
 
           {/* How it works section */}
-          {!result && !apiResult && !adResult && !isLoading && !isLoadingAds && <HowItWorksSection />}
+          {!result && !apiResult && !isLoading && !isLoadingAds && <HowItWorksSection />}
 
           {/* Error Message */}
           {error && (
@@ -844,7 +725,7 @@ export default function Home() {
           )}
 
           {/* Ad Library Results - Full Width */}
-          {(apiResult || adResult || isLoadingAds) && (
+          {(apiResult || isLoadingAds) && (
             <div className="animate-fade-in mb-8">
               <div className="glass rounded-2xl p-6">
                 <div className="flex items-start justify-between gap-4 mb-4">
@@ -856,10 +737,8 @@ export default function Home() {
                       Cross-reference with active Facebook ads to see which pages are being promoted
                     </p>
                   </div>
-                  {(apiResult || adResult) && (
+                  {apiResult && (
                     <div className="flex items-center gap-4 text-right">
-                      {apiResult ? (
-                        <>
                           <div>
                             <div className="text-2xl font-bold text-[var(--accent-yellow)]">
                               {apiResult.ads.reduce((sum, ad) => sum + ad.euTotalReach, 0).toLocaleString()}
@@ -959,25 +838,6 @@ export default function Home() {
                               <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                             </svg>
                           </button>
-                        </>
-                      ) : adResult && (
-                        <>
-                          {adResult.totalActiveAdsOnPage && (
-                            <div>
-                              <div className="text-2xl font-bold text-[var(--accent-yellow)]">
-                                {adResult.totalActiveAdsOnPage.toLocaleString()}
-                              </div>
-                              <div className="text-xs text-[var(--text-muted)]">Total Active Ads</div>
-                            </div>
-                          )}
-                          <div>
-                            <div className="text-2xl font-bold text-[var(--text-primary)]">
-                              {adResult.totalAdsFound}
-                            </div>
-                            <div className="text-xs text-[var(--text-muted)]">Unique URLs</div>
-                          </div>
-                        </>
-                      )}
                     </div>
                   )}
                 </div>
@@ -991,11 +851,6 @@ export default function Home() {
                         <p className="text-[var(--text-primary)] font-medium">
                           Analysing ads...
                         </p>
-                        {demographicsProgress && (
-                          <p className="text-sm text-[var(--text-muted)] mt-1">
-                            {demographicsProgress.current} of {demographicsProgress.total} ads to process
-                          </p>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -1052,48 +907,7 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Ad Library Results Summary - Scraper Result */}
-                {adResult && !apiResult && (
-                  <div className="mt-4 p-4 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
-                    <div className="flex items-center gap-2 mb-3">
-                      <svg className="w-4 h-4 text-[var(--cat-landing)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="font-medium text-[var(--text-primary)]">
-                        {adResult.pageName || `Page ${adResult.pageId}`}
-                      </span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--accent-yellow)] text-[#1c1c0d]">
-                        via Scraper
-                      </span>
-                    </div>
-                    {adResult.ads.length > 0 && (
-                      <div className="text-sm text-[var(--text-secondary)]">
-                        <p className="mb-2">Top advertised destinations:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {adResult.ads.slice(0, 5).map((ad, index) => (
-                            <a
-                              key={index}
-                              href={ad.destinationUrl || '#'}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] transition-colors text-xs"
-                            >
-                              <span className="truncate max-w-[200px]">{ad.destinationUrl?.replace(/^https?:\/\/[^/]+/, '')}</span>
-                              <span className="text-[var(--accent-yellow)] font-medium">({ad.adCount})</span>
-                            </a>
-                          ))}
-                          {adResult.ads.length > 5 && (
-                            <span className="px-2.5 py-1 text-xs text-[var(--text-muted)]">
-                              +{adResult.ads.length - 5} more
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* All Active Ads - expandable list (API Result) */}
+                {/* All Active Ads - expandable list */}
                 {apiResult && apiResult.ads.length > 0 && (
                   <div className="mt-4">
                     <details className="group">
@@ -1156,90 +970,6 @@ export default function Home() {
                         </table>
                       </div>
                     </details>
-                  </div>
-                )}
-
-                {/* All Active Ads - expandable list (Scraper Result) */}
-                {adResult && !apiResult && adResult.ads.length > 0 && (
-                  <div className="mt-4">
-                    <details className="group">
-                      <summary className="cursor-pointer list-none flex items-center gap-2 text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent-green-light)] transition-colors">
-                        <svg className="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                        View all {Object.values(adLibraryLinksMap).flat().length || adResult.ads.reduce((sum, ad) => sum + ad.adCount, 0)} active ads
-                      </summary>
-                      <div className="mt-3 max-h-[400px] overflow-y-auto rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
-                        <table className="w-full text-sm">
-                          <thead className="sticky top-0 bg-[var(--bg-tertiary)] border-b border-[var(--border-subtle)]">
-                            <tr>
-                              <th className="px-4 py-2 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Destination URL</th>
-                              <th className="px-4 py-2 text-center text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-20">Variants</th>
-                              <th className="px-4 py-2 text-right text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-32">View Ads</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-[var(--border-subtle)]">
-                            {adResult.ads.map((ad, index) => (
-                              <tr key={index} className="hover:bg-[var(--bg-elevated)] transition-colors">
-                                <td className="px-4 py-3">
-                                  <a
-                                    href={ad.destinationUrl || '#'}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[var(--text-secondary)] hover:text-[var(--accent-green-light)] transition-colors truncate block max-w-[400px]"
-                                    title={ad.destinationUrl || ''}
-                                  >
-                                    {ad.destinationUrl?.replace(/^https?:\/\//, '') || 'Unknown'}
-                                  </a>
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                  <span className="inline-flex items-center justify-center min-w-[28px] px-2 py-1 text-xs font-bold rounded-lg bg-[var(--accent-yellow)] text-[#1c1c0d]">
-                                    {ad.adCount}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-3 text-right">
-                                  {ad.adLibraryLinks.length > 0 ? (
-                                    <div className="flex items-center justify-end gap-1 flex-wrap">
-                                      {ad.adLibraryLinks.slice(0, 3).map((link, linkIndex) => (
-                                        <a
-                                          key={linkIndex}
-                                          href={link}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-[var(--bg-elevated)] text-[var(--accent-green-light)] hover:bg-[var(--border-subtle)] transition-colors"
-                                        >
-                                          Ad {linkIndex + 1}
-                                        </a>
-                                      ))}
-                                      {ad.adLibraryLinks.length > 3 && (
-                                        <span className="text-xs text-[var(--text-muted)]">
-                                          +{ad.adLibraryLinks.length - 3}
-                                        </span>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <span className="text-xs text-[var(--text-muted)]">—</span>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </details>
-                  </div>
-                )}
-
-                {/* Info about ad variations - show when we have scraper data */}
-                {adResult && !apiResult && adResult.totalActiveAdsOnPage && adResult.totalActiveAdsOnPage > adResult.totalAdsFound && (
-                  <div className="mt-4 flex gap-2 text-xs text-[var(--text-muted)]">
-                    <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>
-                      {adResult.totalActiveAdsOnPage.toLocaleString()} total ads point to {adResult.totalAdsFound} unique URLs.
-                      The difference represents ad variations (different creatives, copy, or audiences) targeting the same landing pages.
-                    </span>
                   </div>
                 )}
 
@@ -1390,75 +1120,6 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Landing Page Analysis - Scraper */}
-                {adResult && !apiResult && adResult.ads.length > 0 && (
-                  <div className="mt-6 space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                        Landing <span className="italic text-[var(--accent-green-light)]">Pages</span>
-                      </h3>
-                      <div className="text-xs text-[var(--text-muted)]">
-                        Where ads drive traffic
-                      </div>
-                    </div>
-                    <div className="glass rounded-xl p-5">
-                      <LandingPageAnalysis
-                        scraperAds={adResult.ads}
-                        sitemapUrls={result?.data.urls.map(u => u.loc)}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Spend Analysis - Temporarily disabled while updating CPM benchmarks */}
-
-                {/* Demographics Results - Scraper */}
-                {adResult && !apiResult && (adResult as AdLibraryResultWithDemographics).aggregatedDemographics && (
-                  <div className="mt-6 space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                        Audience <span className="italic text-[var(--accent-green-light)]">Demographics</span>
-                      </h3>
-                      {/* Scrape metadata */}
-                      <div className="text-xs text-[var(--text-muted)]">
-                        {(adResult as AdLibraryResultWithDemographics).demographicsScraped || 0} of {(adResult as AdLibraryResultWithDemographics).topPerformersAnalyzed || 0} ads had data
-                      </div>
-                    </div>
-
-                    {/* Summary */}
-                    <div className="glass rounded-xl p-5">
-                      <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
-                        Key Insights
-                      </h4>
-                      <DemographicsSummary
-                        demographics={(adResult as AdLibraryResultWithDemographics).aggregatedDemographics!}
-                      />
-                    </div>
-
-                    {/* Charts - stacked vertically in column layout */}
-                    <div className="space-y-4">
-                      {/* Age/Gender Chart */}
-                      <div className="glass rounded-xl p-5">
-                        <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
-                          Age & Gender Breakdown
-                        </h4>
-                        <AgeGenderChart
-                          data={(adResult as AdLibraryResultWithDemographics).aggregatedDemographics!.ageGenderBreakdown}
-                        />
-                      </div>
-
-                      {/* Country Chart */}
-                      <div className="glass rounded-xl p-5">
-                        <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
-                          Geographic Distribution
-                        </h4>
-                        <CountryChart
-                          data={(adResult as AdLibraryResultWithDemographics).aggregatedDemographics!.regionBreakdown}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -1466,7 +1127,7 @@ export default function Home() {
           {/* Sitemap Results - Collapsible when we have sitemap data */}
           {result && (
             <div className="mb-8 animate-fade-in">
-              <details className="group" open={!apiResult && !adResult}>
+              <details className="group" open={!apiResult}>
                 <summary className="cursor-pointer list-none">
                   <div className="glass rounded-2xl p-4 hover:bg-[var(--bg-elevated)] transition-colors">
                     <div className="flex items-center justify-between">
@@ -1503,9 +1164,9 @@ export default function Home() {
                     summary={result.data.summary}
                     analyzedUrl={result.analyzedUrl}
                     totalUrls={result.totalUrls}
-                    adDestinationUrls={adDestinationUrls}
-                    adCountMap={adCountMap}
-                    adLibraryLinksMap={adLibraryLinksMap}
+                    adDestinationUrls={[]}
+                    adCountMap={{}}
+                    adLibraryLinksMap={{}}
                     totalActiveAds={totalActiveAds}
                   />
                 </div>
