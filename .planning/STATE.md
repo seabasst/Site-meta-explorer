@@ -5,13 +5,13 @@
 See: .planning/PROJECT.md
 
 **Core value:** Surface who competitors are reaching with their ads - demographics and geography aggregated from their top performers.
-**Current focus:** Complete
+**Current focus:** Milestone v1.0 ready for audit
 
 ## Current Position
 
 Phase: 4 of 4 (Display)
 Plan: 3 of 3 complete
-Status: Complete
+Status: Milestone v1.0 complete - ready for audit
 Last activity: 2026-01-25 - Completed 04-03-PLAN.md
 
 Progress: ██████████ 100%

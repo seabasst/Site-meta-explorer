@@ -14,16 +14,16 @@
 
 ### Display
 
-- [ ] **DISP-01**: Show aggregated text summary of demographics (e.g., "55% female, 60% ages 25-44")
-- [ ] **DISP-02**: Display age/gender breakdown as visual chart
-- [ ] **DISP-03**: Display country distribution as visual chart
-- [ ] **DISP-04**: Show loading states with progress during demographic scraping
+- [x] **DISP-01**: Show aggregated text summary of demographics (e.g., "55% female, 60% ages 25-44")
+- [x] **DISP-02**: Display age/gender breakdown as visual chart
+- [x] **DISP-03**: Display country distribution as visual chart
+- [x] **DISP-04**: Show loading states with progress during demographic scraping
 
 ### Reliability
 
 - [x] **RELY-01**: Upgrade to rebrowser-puppeteer-core for stealth (avoid detection)
 - [x] **RELY-02**: Handle missing/unavailable demographic data gracefully without crashing
-- [ ] **RELY-03**: Allow user to configure how many ads to analyze (within timeout constraints)
+- [x] **RELY-03**: Allow user to configure how many ads to analyze (within timeout constraints)
 - [x] **RELY-04**: Auto-select top performing ads (by reach or run duration) for analysis
 
 ## v2 Requirements
@@ -62,13 +62,13 @@
 | EXTR-02 | Phase 2 | Complete |
 | EXTR-03 | Phase 2 | Complete |
 | EXTR-04 | Phase 3 | Complete |
-| DISP-01 | Phase 4 | Pending |
-| DISP-02 | Phase 4 | Pending |
-| DISP-03 | Phase 4 | Pending |
-| DISP-04 | Phase 4 | Pending |
+| DISP-01 | Phase 4 | Complete |
+| DISP-02 | Phase 4 | Complete |
+| DISP-03 | Phase 4 | Complete |
+| DISP-04 | Phase 4 | Complete |
 | RELY-01 | Phase 1 | Complete |
 | RELY-02 | Phase 2 | Complete |
-| RELY-03 | Phase 4 | Pending |
+| RELY-03 | Phase 4 | Complete |
 | RELY-04 | Phase 2 | Complete |
 
 **Coverage:**
@@ -78,4 +78,4 @@
 
 ---
 *Requirements defined: 2026-01-18*
-*Last updated: 2026-01-19 - Phase 3 requirements complete*
+*Last updated: 2026-01-25 - Phase 4 requirements complete (all v1 requirements done)*
