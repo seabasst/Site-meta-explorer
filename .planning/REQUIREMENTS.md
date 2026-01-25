@@ -87,25 +87,25 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UIUX-01 | TBD | Pending |
-| MOBL-01 | TBD | Pending |
-| MOBL-02 | TBD | Pending |
-| PREV-01 | TBD | Pending |
-| PREV-02 | TBD | Pending |
-| PREV-03 | TBD | Pending |
-| CHRT-01 | TBD | Pending |
-| CHRT-02 | TBD | Pending |
-| CHRT-03 | TBD | Pending |
-| EXPT-01 | TBD | Pending |
-| ERRH-01 | TBD | Pending |
-| ERRH-02 | TBD | Pending |
-| ERRH-03 | TBD | Pending |
+| UIUX-01 | Phase 5 | Pending |
+| ERRH-01 | Phase 5 | Pending |
+| ERRH-02 | Phase 5 | Pending |
+| ERRH-03 | Phase 5 | Pending |
+| PREV-01 | Phase 6 | Pending |
+| PREV-02 | Phase 6 | Pending |
+| PREV-03 | Phase 6 | Pending |
+| CHRT-01 | Phase 7 | Pending |
+| CHRT-02 | Phase 7 | Pending |
+| CHRT-03 | Phase 7 | Pending |
+| EXPT-01 | Phase 8 | Pending |
+| MOBL-01 | Phase 9 | Pending |
+| MOBL-02 | Phase 9 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 13 total
-- Mapped to phases: 0
-- Unmapped: 13 ⚠️
+- Mapped to phases: 13 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-25*
-*Last updated: 2026-01-25 after initial definition*
+*Last updated: 2026-01-25 after roadmap created*
