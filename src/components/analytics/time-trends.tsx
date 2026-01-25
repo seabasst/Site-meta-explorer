@@ -198,29 +198,73 @@ export function TimeTrends({ ads }: TimeTrendsProps) {
 
       {/* Monthly Chart */}
       <div>
-        <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-3">Monthly Ad Launches</h4>
-        <div className="flex items-end gap-1 h-32">
-          {analysis.monthlyData.map((month, index) => {
-            const height = (month.adsLaunched / maxMonthlyAds) * 100;
-            const isRecent = index >= analysis.monthlyData.length - 3;
-            return (
-              <div key={month.month} className="flex-1 flex flex-col items-center gap-1">
-                <div className="text-xs text-[var(--text-muted)] tabular-nums">
-                  {month.adsLaunched}
-                </div>
-                <div
-                  className={`w-full rounded-t transition-all duration-500 ${
-                    isRecent ? 'bg-[var(--accent-green)]' : 'bg-[var(--accent-green)]/40'
-                  }`}
-                  style={{ height: `${Math.max(height, 4)}%` }}
-                  title={`${month.label}: ${month.adsLaunched} ads, ${formatNumber(month.totalReach)} reach`}
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="text-sm font-medium text-[var(--text-secondary)]">Monthly Ad Launches</h4>
+          <div className="text-xs text-[var(--text-muted)]">
+            Total: <span className="font-medium text-[var(--text-primary)]">{analysis.monthlyData.reduce((sum, m) => sum + m.adsLaunched, 0)} ads</span>
+          </div>
+        </div>
+        <div className="relative">
+          {/* SVG Line Chart Overlay */}
+          <svg
+            className="absolute inset-0 w-full h-32 pointer-events-none"
+            preserveAspectRatio="none"
+            style={{ zIndex: 10 }}
+          >
+            <polyline
+              fill="none"
+              stroke="var(--accent-yellow)"
+              strokeWidth="2"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              points={analysis.monthlyData.map((month, index) => {
+                const x = ((index + 0.5) / analysis.monthlyData.length) * 100;
+                const y = 100 - (month.adsLaunched / maxMonthlyAds) * 85 - 8;
+                return `${x}%,${y}%`;
+              }).join(' ')}
+            />
+            {/* Dots at each data point */}
+            {analysis.monthlyData.map((month, index) => {
+              const x = ((index + 0.5) / analysis.monthlyData.length) * 100;
+              const y = 100 - (month.adsLaunched / maxMonthlyAds) * 85 - 8;
+              return (
+                <circle
+                  key={month.month}
+                  cx={`${x}%`}
+                  cy={`${y}%`}
+                  r="4"
+                  fill="var(--accent-yellow)"
+                  stroke="var(--bg-primary)"
+                  strokeWidth="2"
                 />
-                <div className="text-xs text-[var(--text-muted)] -rotate-45 origin-center whitespace-nowrap">
-                  {month.label}
+              );
+            })}
+          </svg>
+
+          {/* Bar Chart */}
+          <div className="flex items-end gap-1 h-32">
+            {analysis.monthlyData.map((month, index) => {
+              const height = (month.adsLaunched / maxMonthlyAds) * 85;
+              const isRecent = index >= analysis.monthlyData.length - 3;
+              return (
+                <div key={month.month} className="flex-1 flex flex-col items-center gap-1 relative">
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-medium text-[var(--accent-yellow)] tabular-nums bg-[var(--bg-primary)]/80 px-1 rounded">
+                    {month.adsLaunched}
+                  </div>
+                  <div
+                    className={`w-full rounded-t transition-all duration-500 ${
+                      isRecent ? 'bg-[var(--accent-green)]' : 'bg-[var(--accent-green)]/40'
+                    }`}
+                    style={{ height: `${Math.max(height, 4)}%` }}
+                    title={`${month.label}: ${month.adsLaunched} ads, ${formatNumber(month.totalReach)} reach`}
+                  />
+                  <div className="text-xs text-[var(--text-muted)] -rotate-45 origin-center whitespace-nowrap">
+                    {month.label}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 
