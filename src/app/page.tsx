@@ -239,14 +239,29 @@ export default function Home() {
 
       if (response.success) {
         setApiResult(response);
+        setAdError(null);
       } else {
-        setAdError(response.error);
+        const errorObj = new Error(response.error || 'Failed to fetch Ad Library data');
+        setAdError(errorObj);
+        toast.error('Failed to analyze ads', {
+          description: getUserFriendlyMessage(errorObj),
+        });
       }
-    } catch {
-      setAdError('Failed to fetch Ad Library data. Please try again.');
+    } catch (error) {
+      const errorObj = error instanceof Error ? error : new Error('Failed to fetch Ad Library data');
+      setAdError(errorObj);
+      toast.error('Failed to analyze ads', {
+        description: getUserFriendlyMessage(errorObj),
+      });
     } finally {
       setIsLoadingAds(false);
     }
+  };
+
+  // Retry handler for error alert
+  const handleRetry = () => {
+    setAdError(null);
+    handleAdLibrarySubmit({ preventDefault: () => {} } as React.FormEvent);
   };
 
   return (
@@ -667,25 +682,18 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* Ad Library Loading */}
-                {isLoadingAds && (
-                  <div className="mt-4 text-center py-8">
-                    <div className="inline-flex flex-col items-center gap-3">
-                      <LoadingSpinner size="lg" />
-                      <div className="text-center">
-                        <p className="text-[var(--text-primary)] font-medium">
-                          Analysing ads...
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                {/* Ad Library Loading - Skeleton UI */}
+                {isLoadingAds && !apiResult && (
+                  <ResultsSkeleton />
                 )}
 
-                {/* Ad Library Error */}
-                {adError && (
-                  <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200">
-                    <p className="text-red-600 text-sm">{adError}</p>
-                  </div>
+                {/* Ad Library Error with Retry */}
+                {adError && !isLoadingAds && (
+                  <ApiErrorAlert
+                    error={adError}
+                    onRetry={handleRetry}
+                    className="mt-4"
+                  />
                 )}
 
                 {/* Ad Library Results Summary - API Result */}
