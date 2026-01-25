@@ -1,7 +1,14 @@
 'use client';
 
 import { useMemo } from 'react';
+import { CartesianGrid, Line, LineChart, XAxis } from 'recharts';
 import type { FacebookAdResult } from '@/lib/facebook-api';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/ui/chart';
 
 interface TimeTrendsProps {
   ads: FacebookAdResult[];
@@ -136,7 +143,6 @@ export function TimeTrends({ ads }: TimeTrendsProps) {
   }
 
   const maxMonthlyAds = Math.max(...analysis.monthlyData.map(m => m.adsLaunched), 1);
-  const maxWeeklyAds = Math.max(...analysis.weeklyData.map(w => w.count), 1);
 
   return (
     <div className="space-y-6">
@@ -269,75 +275,64 @@ export function TimeTrends({ ads }: TimeTrendsProps) {
       </div>
 
       {/* Weekly Breakdown */}
-      <div>
+      <div className="p-4 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
         <div className="flex items-center justify-between mb-3">
           <h4 className="text-sm font-medium text-[var(--text-secondary)]">Weekly Ad Launches (Last 8 Weeks)</h4>
           <div className="text-xs text-[var(--text-muted)]">
             Total: <span className="font-medium text-[var(--text-primary)]">{analysis.weeklyData.reduce((sum, w) => sum + w.count, 0)} ads</span>
           </div>
         </div>
-        <div className="relative">
-          {/* SVG Line Chart Overlay */}
-          <svg
-            className="absolute inset-0 w-full h-28 pointer-events-none"
-            preserveAspectRatio="none"
-            style={{ zIndex: 10 }}
+        <ChartContainer
+          config={{
+            count: {
+              label: "Ads Launched",
+              color: "var(--accent-blue)",
+            },
+          } satisfies ChartConfig}
+          className="h-[180px] w-full"
+        >
+          <LineChart
+            accessibilityLayer
+            data={analysis.weeklyData}
+            margin={{
+              left: 12,
+              right: 12,
+              top: 12,
+              bottom: 12,
+            }}
           >
-            <polyline
-              fill="none"
-              stroke="var(--accent-blue)"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              points={analysis.weeklyData.map((week, index) => {
-                const x = ((index + 0.5) / analysis.weeklyData.length) * 100;
-                const y = maxWeeklyAds > 0 ? 100 - (week.count / maxWeeklyAds) * 80 - 10 : 90;
-                return `${x}%,${y}%`;
-              }).join(' ')}
+            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border-subtle)" />
+            <XAxis
+              dataKey="week"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
             />
-            {/* Dots at each data point */}
-            {analysis.weeklyData.map((week, index) => {
-              const x = ((index + 0.5) / analysis.weeklyData.length) * 100;
-              const y = maxWeeklyAds > 0 ? 100 - (week.count / maxWeeklyAds) * 80 - 10 : 90;
-              return (
-                <circle
-                  key={index}
-                  cx={`${x}%`}
-                  cy={`${y}%`}
-                  r="4"
-                  fill="var(--accent-blue)"
-                  stroke="var(--bg-primary)"
-                  strokeWidth="2"
-                />
-              );
-            })}
-          </svg>
-
-          {/* Bar Chart */}
-          <div className="flex items-end gap-2 h-28">
-            {analysis.weeklyData.map((week, index) => {
-              const height = maxWeeklyAds > 0 ? (week.count / maxWeeklyAds) * 80 : 0;
-              const isRecent = index >= analysis.weeklyData.length - 2;
-              return (
-                <div key={index} className="flex-1 flex flex-col items-center gap-1 relative">
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-medium text-blue-400 tabular-nums bg-[var(--bg-primary)]/80 px-1 rounded">
-                    {week.count}
-                  </div>
-                  <div
-                    className={`w-full rounded-t transition-all duration-300 ${
-                      isRecent ? 'bg-blue-500' : 'bg-blue-500/40'
-                    }`}
-                    style={{ height: `${Math.max(height, 4)}%` }}
-                    title={`${week.week}: ${week.count} ads`}
-                  />
-                  <div className="text-xs text-[var(--text-muted)] truncate w-full text-center">
-                    {week.week}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Line
+              dataKey="count"
+              type="natural"
+              stroke="var(--accent-blue)"
+              strokeWidth={2}
+              dot={{
+                fill: "var(--accent-blue)",
+                stroke: "var(--bg-tertiary)",
+                strokeWidth: 2,
+                r: 4,
+              }}
+              activeDot={{
+                r: 6,
+                fill: "var(--accent-blue)",
+                stroke: "var(--bg-tertiary)",
+                strokeWidth: 2,
+              }}
+            />
+          </LineChart>
+        </ChartContainer>
         <div className="flex justify-between text-xs text-[var(--text-muted)] mt-2">
           <span>8 weeks ago</span>
           <span className="text-blue-400 font-medium">This week</span>
