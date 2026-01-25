@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-25)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Planning next milestone
+**Current focus:** v1.1 Polish & Preview
 
 ## Current Position
 
-Phase: N/A (between milestones)
-Plan: N/A
-Status: Ready to plan next milestone
-Last activity: 2026-01-25 — v1.0 milestone complete
+Phase: Not started (run /gsd:create-roadmap)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-01-25 — Milestone v1.1 started
 
-Progress: v1.0 shipped
+Progress: v1.0 shipped, v1.1 initialized
 
 ## Milestones
 

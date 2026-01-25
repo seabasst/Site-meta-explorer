@@ -8,6 +8,17 @@ A competitor analysis tool that extracts demographic and reach data from Faceboo
 
 Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
 
+## Current Milestone: v1.1 Polish & Preview
+
+**Goal:** Improve the existing experience with better UI, ad previews, and refined visualizations.
+
+**Target features:**
+- UI/UX overhaul (visual design, input experience, layout, mobile)
+- Ad preview display (images/videos/text from ads)
+- Chart improvements (more types, interactivity, formatting)
+- Error handling (clear, helpful feedback)
+- Export capability (download/save results)
+
 ## Requirements
 
 ### Validated
@@ -28,7 +39,13 @@ Surface who competitors are reaching with their ads — demographics and geograp
 
 ### Active
 
-(None — define requirements for next milestone)
+- [ ] Visual design refresh (colors, spacing, typography)
+- [ ] Improved input experience and results layout
+- [ ] Mobile/responsive support
+- [ ] Ad preview display (images, videos, creative text)
+- [ ] Enhanced charts (more types, hover/drill-down, better labels)
+- [ ] Clear error feedback when operations fail
+- [ ] Export/download analysis results
 
 ### Out of Scope
 
@@ -68,4 +85,4 @@ Surface who competitors are reaching with their ads — demographics and geograp
 | Tiered analysis depth (100-1000) | Balance speed vs completeness | ✓ Good |
 
 ---
-*Last updated: 2026-01-25 after v1.0 milestone*
+*Last updated: 2026-01-25 after v1.1 milestone started*
