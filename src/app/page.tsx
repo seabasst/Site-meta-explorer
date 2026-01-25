@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { ResultsTable } from '@/components/results-table';
-import { analyzeSitemap, AnalysisResult } from '@/actions/analyze-sitemap';
 import { DemographicsSummary } from '@/components/demographics/demographics-summary';
 import { AgeGenderChart } from '@/components/demographics/age-gender-chart';
 import { CountryChart } from '@/components/demographics/country-chart';
@@ -19,101 +17,6 @@ import { extractPageIdFromUrl } from '@/lib/facebook-api';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
-
-function HowItWorksSection() {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  return (
-    <div className="info-box animate-fade-in-up stagger-2">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between text-left"
-      >
-        <div className="flex items-center gap-3">
-          <svg className="w-5 h-5 text-[var(--accent-yellow)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span className="font-semibold text-[var(--text-primary)]">How does this work?</span>
-        </div>
-        <svg
-          className={`w-5 h-5 text-[var(--text-muted)] transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {isExpanded && (
-        <div className="mt-5 space-y-5 animate-fade-in">
-          {/* Steps */}
-          <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="step-number">1</div>
-              <div>
-                <h4 className="font-semibold text-[var(--text-primary)] mb-1">Sitemap Discovery</h4>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  We fetch and parse the website&apos;s XML sitemap to discover all public URLs. This includes checking common paths like /sitemap.xml, /sitemap_index.xml, and nested sitemaps.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="step-number">2</div>
-              <div>
-                <h4 className="font-semibold text-[var(--text-primary)] mb-1">URL Classification</h4>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  Each URL is automatically categorized into Landing Pages, Products, Collections, Blog posts, Account pages, or Cart/Checkout based on URL patterns and structure.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="step-number">3</div>
-              <div>
-                <h4 className="font-semibold text-[var(--text-primary)] mb-1">Ad Library Cross-Reference</h4>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  Optionally, paste a Facebook Ad Library URL to see which of these pages are being actively advertised. We&apos;ll match ad destinations to your sitemap URLs.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Why not all ads callout */}
-          <div className="mt-6 p-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
-            <div className="flex gap-3">
-              <svg className="w-5 h-5 text-[var(--accent-green-light)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <div>
-                <h4 className="font-semibold text-[var(--text-primary)] mb-2">Why don&apos;t all ads show up?</h4>
-                <ul className="text-sm text-[var(--text-secondary)] space-y-2">
-                  <li className="flex gap-2">
-                    <span className="text-[var(--accent-yellow)]">•</span>
-                    <span><strong className="text-[var(--text-primary)]">Ad Variations:</strong> Advertisers often run many ad creatives (different images, copy, videos) that all point to the same landing page. If they have 100 ads but only 10 unique landing pages, you&apos;ll see 10 URLs with high ad counts.</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-[var(--accent-yellow)]">•</span>
-                    <span><strong className="text-[var(--text-primary)]">A/B Testing:</strong> Brands test multiple ad versions targeting different audiences, all leading to the same destination.</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-[var(--accent-yellow)]">•</span>
-                    <span><strong className="text-[var(--text-primary)]">Dynamic URLs:</strong> Some ads use tracking parameters or redirect URLs that may not exactly match sitemap URLs.</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="text-[var(--accent-yellow)]">•</span>
-                    <span><strong className="text-[var(--text-primary)]">External Pages:</strong> Ads may link to pages not in the sitemap (Shopify checkouts, Linktree, app stores, etc.).</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   const sizeClasses = {
@@ -265,11 +168,6 @@ const EXAMPLE_BRANDS = [
 ];
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [inputUrl, setInputUrl] = useState('');
-
   // Ad Library state
   const [adLibraryUrl, setAdLibraryUrl] = useState('');
   const [isLoadingAds, setIsLoadingAds] = useState(false);
@@ -294,54 +192,6 @@ export default function Home() {
 
   // Favorites
   const { favorites, isLoaded: favoritesLoaded, addFavorite, removeFavorite, isFavorite, toggleFavorite } = useFavorites();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputUrl.trim()) return;
-
-    setIsLoading(true);
-    setError(null);
-    setResult(null);
-    
-    try {
-      const response = await analyzeSitemap(inputUrl.trim());
-
-      if (response.success) {
-        setResult(response);
-      } else {
-        setError(response.error);
-      }
-    } catch {
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleQuickStart = (site: string, adLibUrl?: string) => {
-    setInputUrl(site);
-    if (adLibUrl) {
-      setAdLibraryUrl(adLibUrl);
-    }
-    setIsLoading(true);
-    setError(null);
-    setResult(null);
-    
-    analyzeSitemap(site)
-      .then((response) => {
-        if (response.success) {
-          setResult(response);
-        } else {
-          setError(response.error);
-        }
-      })
-      .catch(() => {
-        setError('An unexpected error occurred. Please try again.');
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
 
   const handleAdLibrarySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -376,9 +226,6 @@ export default function Home() {
       setIsLoadingAds(false);
     }
   };
-
-  // Get total active ads from API result
-  const totalActiveAds = apiResult?.totalAdsFound ?? 0;
 
   return (
     <>
@@ -581,95 +428,6 @@ export default function Home() {
               )}
             </div>
           </form>
-
-          {/* Sitemap Analysis - Collapsible */}
-          {!apiResult && !isLoadingAds && (
-            <details className="mb-8 animate-fade-in-up stagger-2">
-              <summary className="cursor-pointer list-none">
-                <div className="glass rounded-2xl p-4 hover:bg-[var(--bg-elevated)] transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <svg className="w-5 h-5 text-[var(--accent-yellow)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                      </svg>
-                      <span className="font-medium text-[var(--text-primary)]">Sitemap Analysis</span>
-                      <span className="text-xs text-[var(--text-muted)]">(Optional: Cross-reference with website URLs)</span>
-                    </div>
-                    <svg className="w-5 h-5 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
-              </summary>
-              <div className="mt-2 glass rounded-2xl p-6">
-                <form onSubmit={handleSubmit}>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
-                    Enter a website URL to analyse its sitemap
-                  </label>
-                  <div className="flex gap-3">
-                    <input
-                      type="text"
-                      value={inputUrl}
-                      onChange={(e) => setInputUrl(e.target.value)}
-                      placeholder="example.com or https://example.com"
-                      className="input-field flex-1"
-                      disabled={isLoading}
-                    />
-                    <button
-                      type="submit"
-                      disabled={isLoading || !inputUrl.trim()}
-                      className="btn-secondary flex items-center gap-2 whitespace-nowrap"
-                    >
-                      {isLoading ? (
-                        <>
-                          <LoadingSpinner size="sm" />
-                          <span>Analysing...</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                          </svg>
-                          <span>Analyse Sitemap</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </details>
-          )}
-
-          {/* How it works section */}
-          {!result && !apiResult && !isLoading && !isLoadingAds && <HowItWorksSection />}
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-8 p-4 rounded-xl bg-red-50 border border-red-200 animate-fade-in">
-              <div className="flex gap-3">
-                <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-red-600 text-sm">{error}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Loading State */}
-          {isLoading && (
-            <div className="text-center py-16 animate-fade-in">
-              <div className="inline-flex flex-col items-center gap-4">
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-full border-2 border-[var(--border-medium)] border-t-[var(--accent-green-light)] animate-spin" />
-                  <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-transparent border-b-[var(--accent-green-light)] animate-spin opacity-30" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
-                </div>
-                <div className="text-center">
-                  <p className="text-[var(--text-primary)] font-medium">Analyzing sitemap...</p>
-                  <p className="text-sm text-[var(--text-muted)] mt-1">Fetching and categorizing URLs</p>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Brand Comparison Panel */}
           {comparisonBrands.length > 0 && (
@@ -1146,63 +904,12 @@ export default function Home() {
                     <div className="glass rounded-xl p-5">
                       <LandingPageAnalysis
                         apiAds={apiResult.ads}
-                        sitemapUrls={result?.data.urls.map(u => u.loc)}
                       />
                     </div>
                   </div>
                 )}
 
               </div>
-            </div>
-          )}
-
-          {/* Sitemap Results - Collapsible when we have sitemap data */}
-          {result && (
-            <div className="mb-8 animate-fade-in">
-              <details className="group" open={!apiResult}>
-                <summary className="cursor-pointer list-none">
-                  <div className="glass rounded-2xl p-4 hover:bg-[var(--bg-elevated)] transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <svg className="w-5 h-5 text-[var(--accent-yellow)] transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                        <span className="font-medium text-[var(--text-primary)]">Sitemap Analysis</span>
-                        <span className="text-xs text-[var(--text-muted)]">({result.totalUrls.toLocaleString()} URLs found)</span>
-                      </div>
-                    </div>
-                  </div>
-                </summary>
-                <div className="mt-2 glass rounded-2xl p-6">
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <div>
-                      <h2 className="font-serif text-xl text-[var(--text-primary)] mb-1">
-                        Sitemap <span className="italic text-[var(--accent-green-light)]">Analysis</span>
-                      </h2>
-                      <p className="text-sm text-[var(--text-secondary)]">
-                        URLs discovered and categorized from the sitemap
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-[var(--text-primary)]">
-                        {result.totalUrls.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-[var(--text-muted)]">Total URLs</div>
-                    </div>
-                  </div>
-
-                  <ResultsTable
-                    urls={result.data.urls}
-                    summary={result.data.summary}
-                    analyzedUrl={result.analyzedUrl}
-                    totalUrls={result.totalUrls}
-                    adDestinationUrls={[]}
-                    adCountMap={{}}
-                    adLibraryLinksMap={{}}
-                    totalActiveAds={totalActiveAds}
-                  />
-                </div>
-              </details>
             </div>
           )}
 
