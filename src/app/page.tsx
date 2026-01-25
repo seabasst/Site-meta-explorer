@@ -196,12 +196,31 @@ export default function Home() {
   // Favorites
   const { favorites, isLoaded: favoritesLoaded, addFavorite, removeFavorite, isFavorite, toggleFavorite } = useFavorites();
 
+  // URL validation on blur
+  const handleUrlBlur = () => {
+    if (!adLibraryUrl.trim()) {
+      setUrlError(null); // Don't show error for empty field
+      return;
+    }
+
+    const result = validateAdLibraryUrl(adLibraryUrl.trim());
+    setUrlError(result.valid ? null : result.error || null);
+  };
+
   const handleAdLibrarySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!adLibraryUrl.trim()) return;
 
+    // Validate before submitting
+    const validation = validateAdLibraryUrl(adLibraryUrl.trim());
+    if (!validation.valid) {
+      setUrlError(validation.error || 'Invalid URL');
+      return;
+    }
+
     setIsLoadingAds(true);
     setAdError(null);
+    setUrlError(null);
     setApiResult(null);
 
     try {
@@ -273,10 +292,16 @@ export default function Home() {
                 <input
                   type="text"
                   value={adLibraryUrl}
-                  onChange={(e) => setAdLibraryUrl(e.target.value)}
+                  onChange={(e) => {
+                    setAdLibraryUrl(e.target.value);
+                    if (urlError) setUrlError(null);
+                  }}
+                  onBlur={handleUrlBlur}
                   placeholder="https://www.facebook.com/ads/library/?...&view_all_page_id=..."
-                  className="input-field flex-1"
+                  className={`input-field flex-1 ${urlError ? 'border-red-500 focus:ring-red-500' : ''}`}
                   disabled={isLoadingAds}
+                  aria-invalid={!!urlError}
+                  aria-describedby={urlError ? 'url-error' : undefined}
                 />
                 <button
                   type="submit"
@@ -299,6 +324,13 @@ export default function Home() {
                   )}
                 </button>
               </div>
+
+              {/* URL Validation Error */}
+              {urlError && (
+                <p id="url-error" className="mt-2 text-sm text-red-500" role="alert">
+                  {urlError}
+                </p>
+              )}
 
               {/* Options */}
               <div className="mt-4 flex items-center gap-4 flex-wrap">
