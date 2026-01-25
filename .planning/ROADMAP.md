@@ -59,10 +59,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User sees clear, non-technical error messages when API fails
   3. User can click "Retry" to re-attempt failed requests
   4. User gets real-time validation feedback on URL input
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 05-01: TBD
+- [ ] 05-01-PLAN.md — Install shadcn/ui components and npm packages
+- [ ] 05-02-PLAN.md — Create error utilities and validation schema
+- [ ] 05-03-PLAN.md — Create skeleton components and mount Toaster
+- [ ] 05-04-PLAN.md — Integrate all error handling into page.tsx
 
 ### Phase 6: Ad Preview
 **Goal**: Enable users to view ad creatives and access Facebook ad pages
@@ -124,7 +127,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 2. Data Extraction | v1.0 | - | Complete | 2026-01-25 |
 | 3. Aggregation | v1.0 | - | Complete | 2026-01-25 |
 | 4. Display | v1.0 | - | Complete | 2026-01-25 |
-| 5. Error Handling & Foundation | v1.1 | 0/TBD | Not started | - |
+| 5. Error Handling & Foundation | v1.1 | 0/4 | Planned | - |
 | 6. Ad Preview | v1.1 | 0/TBD | Not started | - |
 | 7. Chart Improvements | v1.1 | 0/TBD | Not started | - |
 | 8. Export Enhancement | v1.1 | 0/TBD | Not started | - |
