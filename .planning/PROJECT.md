@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A competitor analysis tool that extracts demographic and reach data from Facebook Ad Library. Users enter an Ad Library page URL, and the app scrapes top-performing ads to show aggregated audience breakdowns — countries, age groups, gender splits, and reach metrics.
+A competitor analysis tool that extracts demographic and reach data from Facebook Ad Library. Users enter an Ad Library page URL, and the app fetches ad data via Facebook's Graph API to show aggregated audience breakdowns — countries, age groups, gender splits, and reach metrics.
 
 ## Core Value
 
@@ -13,53 +13,59 @@ Surface who competitors are reaching with their ads — demographics and geograp
 ### Validated
 
 - ✓ Ad Library URL input and validation — existing
-- ✓ Puppeteer-based scraping infrastructure — existing
 - ✓ Ad discovery from Ad Library pages — existing
 - ✓ Basic results display with Tailwind styling — existing
+- ✓ Extract age group breakdown per ad — v1.0
+- ✓ Extract gender breakdown per ad — v1.0
+- ✓ Extract country/region breakdown per ad — v1.0
+- ✓ Extract reach/impressions data per ad — v1.0
+- ✓ Weight demographics by reach (not ad count) — v1.0
+- ✓ Aggregate demographics into summary view — v1.0
+- ✓ Display aggregated demographics in UI — v1.0
+- ✓ Visual charts for age/gender and country distribution — v1.0
+- ✓ Loading states during analysis — v1.0
+- ✓ Configurable analysis depth (100/250/500/1000 ads) — v1.0
 
 ### Active
 
-- [ ] Drill into individual ad detail pages to extract demographic data
-- [ ] Extract country/region breakdown per ad
-- [ ] Extract age group breakdown per ad
-- [ ] Extract gender breakdown per ad
-- [ ] Extract reach/impressions data per ad
-- [ ] Identify top performers (by reach or run duration)
-- [ ] Aggregate demographics into summary view
-- [ ] Display aggregated demographics in UI
+(None — define requirements for next milestone)
 
 ### Out of Scope
 
-- Sitemap analysis — deprioritized, existing code can remain but not the focus
 - Per-ad demographic breakdown — aggregated summary only
-- Scraping all ads — focus on top performers for efficiency
 - Historical tracking — point-in-time analysis only
 - Export functionality — display only for v1
+- Puppeteer-based scraping — removed, using Facebook Graph API
 
 ## Context
 
-This is a brownfield project built on an existing Next.js app with:
-- Next.js 16 with App Router and Server Actions
-- Puppeteer + @sparticuz/chromium-min for headless scraping
-- Deployed to Vercel (requires Pro for 60s function timeout)
-- Current scraper intercepts network responses and extracts destination URLs
+**Current State:**
+- Shipped v1.0 with ~7,700 LOC TypeScript
+- Tech stack: Next.js 16, React 19, Recharts, Tailwind CSS
+- Uses Facebook Graph API with EU DSA transparency data
+- Deployed to Vercel
 
-The Facebook Ad Library shows demographic data on individual ad detail pages — accessed by clicking into an ad. This data includes geographic reach, age/gender breakdowns, and impression ranges.
+**Architecture:**
+- `/api/facebook-ads` — Graph API integration
+- `facebook-api.ts` — API client with demographic aggregation
+- `demographic-aggregator.ts` — Weighted demographic combination
+- Recharts components for visualization
 
 ## Constraints
 
-- **Runtime:** Vercel serverless with 60-second timeout — must scrape efficiently
-- **Rate limiting:** Facebook may throttle or block aggressive scraping — need careful pacing
-- **Data availability:** Demographics only available for ads with sufficient reach
-- **Tech stack:** Maintain existing Next.js + Puppeteer architecture
+- **API Rate Limits:** Facebook Graph API has rate limits
+- **EU Data Only:** Demographics only available for EU-targeted ads via DSA
+- **Tech stack:** Maintain existing Next.js architecture
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Focus on top performers only | Efficiency — fewer requests, more signal | — Pending |
-| Aggregate summary over per-ad details | User need is competitor patterns, not individual ads | — Pending |
-| Pivot from sitemap focus | Demographics is the core value now | — Pending |
+| Facebook Graph API over browser scraping | More reliable, faster, official data source | ✓ Good |
+| Weight demographics by reach | High-reach ads represent more audience | ✓ Good |
+| Aggregate summary over per-ad details | User need is competitor patterns, not individual ads | ✓ Good |
+| Recharts for visualization | Lightweight, good React integration | ✓ Good |
+| Tiered analysis depth (100-1000) | Balance speed vs completeness | ✓ Good |
 
 ---
-*Last updated: 2026-01-18 after initialization*
+*Last updated: 2026-01-25 after v1.0 milestone*

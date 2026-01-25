@@ -139,17 +139,14 @@ function PricingModal({
 
         {/* CTA */}
         <button
-          onClick={() => {
-            // TODO: Integrate with payment provider (Stripe)
-            window.open('mailto:hello@example.com?subject=Upgrade to ' + pricing.name + ' Plan', '_blank');
-          }}
-          className="w-full btn-primary py-3 text-base font-semibold"
+          disabled
+          className="w-full py-3 text-base font-semibold rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-muted)] cursor-not-allowed"
         >
-          Get Started
+          Coming Soon
         </button>
 
         <p className="text-center text-xs text-[var(--text-muted)] mt-4">
-          Cancel anytime. No questions asked.
+          Paid plans launching soon. Stay tuned!
         </p>
       </div>
     </div>
