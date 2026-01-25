@@ -268,29 +268,79 @@ export function TimeTrends({ ads }: TimeTrendsProps) {
         </div>
       </div>
 
-      {/* Weekly Sparkline (Recent) */}
+      {/* Weekly Breakdown */}
       <div>
-        <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-3">Last 8 Weeks</h4>
-        <div className="flex items-end gap-2 h-16">
-          {analysis.weeklyData.map((week, index) => {
-            const height = maxWeeklyAds > 0 ? (week.count / maxWeeklyAds) * 100 : 0;
-            return (
-              <div key={index} className="flex-1 flex flex-col items-center gap-1">
-                <div
-                  className="w-full rounded-t bg-blue-500/60 transition-all duration-300"
-                  style={{ height: `${Math.max(height, 4)}%` }}
-                  title={`${week.week}: ${week.count} ads`}
-                />
-                <div className="text-xs text-[var(--text-muted)] truncate w-full text-center">
-                  {week.count}
-                </div>
-              </div>
-            );
-          })}
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="text-sm font-medium text-[var(--text-secondary)]">Weekly Ad Launches (Last 8 Weeks)</h4>
+          <div className="text-xs text-[var(--text-muted)]">
+            Total: <span className="font-medium text-[var(--text-primary)]">{analysis.weeklyData.reduce((sum, w) => sum + w.count, 0)} ads</span>
+          </div>
         </div>
-        <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1">
-          <span>{analysis.weeklyData[0]?.week}</span>
-          <span>This week</span>
+        <div className="relative">
+          {/* SVG Line Chart Overlay */}
+          <svg
+            className="absolute inset-0 w-full h-28 pointer-events-none"
+            preserveAspectRatio="none"
+            style={{ zIndex: 10 }}
+          >
+            <polyline
+              fill="none"
+              stroke="var(--accent-blue)"
+              strokeWidth="2"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              points={analysis.weeklyData.map((week, index) => {
+                const x = ((index + 0.5) / analysis.weeklyData.length) * 100;
+                const y = maxWeeklyAds > 0 ? 100 - (week.count / maxWeeklyAds) * 80 - 10 : 90;
+                return `${x}%,${y}%`;
+              }).join(' ')}
+            />
+            {/* Dots at each data point */}
+            {analysis.weeklyData.map((week, index) => {
+              const x = ((index + 0.5) / analysis.weeklyData.length) * 100;
+              const y = maxWeeklyAds > 0 ? 100 - (week.count / maxWeeklyAds) * 80 - 10 : 90;
+              return (
+                <circle
+                  key={index}
+                  cx={`${x}%`}
+                  cy={`${y}%`}
+                  r="4"
+                  fill="var(--accent-blue)"
+                  stroke="var(--bg-primary)"
+                  strokeWidth="2"
+                />
+              );
+            })}
+          </svg>
+
+          {/* Bar Chart */}
+          <div className="flex items-end gap-2 h-28">
+            {analysis.weeklyData.map((week, index) => {
+              const height = maxWeeklyAds > 0 ? (week.count / maxWeeklyAds) * 80 : 0;
+              const isRecent = index >= analysis.weeklyData.length - 2;
+              return (
+                <div key={index} className="flex-1 flex flex-col items-center gap-1 relative">
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-medium text-blue-400 tabular-nums bg-[var(--bg-primary)]/80 px-1 rounded">
+                    {week.count}
+                  </div>
+                  <div
+                    className={`w-full rounded-t transition-all duration-300 ${
+                      isRecent ? 'bg-blue-500' : 'bg-blue-500/40'
+                    }`}
+                    style={{ height: `${Math.max(height, 4)}%` }}
+                    title={`${week.week}: ${week.count} ads`}
+                  />
+                  <div className="text-xs text-[var(--text-muted)] truncate w-full text-center">
+                    {week.week}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flex justify-between text-xs text-[var(--text-muted)] mt-2">
+          <span>8 weeks ago</span>
+          <span className="text-blue-400 font-medium">This week</span>
         </div>
       </div>
 
