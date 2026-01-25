@@ -2,13 +2,10 @@
 
 import { useMemo } from 'react';
 import type { FacebookAdResult } from '@/lib/facebook-api';
-import type { AdData } from '@/lib/ad-library-scraper';
 
 interface LandingPageAnalysisProps {
   // API result ads (have linkCaption but no destination URL)
   apiAds?: FacebookAdResult[];
-  // Scraper result ads (have destination URLs)
-  scraperAds?: AdData[];
   // Optional sitemap URLs to cross-reference
   sitemapUrls?: string[];
 }
@@ -44,46 +41,12 @@ function formatNumber(num: number): string {
   return num.toString();
 }
 
-export function LandingPageAnalysis({ apiAds, scraperAds, sitemapUrls }: LandingPageAnalysisProps) {
+export function LandingPageAnalysis({ apiAds, sitemapUrls }: LandingPageAnalysisProps) {
   const analysis = useMemo(() => {
     const landingPages = new Map<string, LandingPageData>();
     const sitemapSet = new Set(sitemapUrls?.map(u => u.toLowerCase()) || []);
 
-    // Process scraper data (has actual destination URLs)
-    if (scraperAds && scraperAds.length > 0) {
-      for (const ad of scraperAds) {
-        if (!ad.destinationUrl) continue;
-
-        const url = ad.destinationUrl.toLowerCase();
-        const existing = landingPages.get(url);
-
-        if (existing) {
-          existing.adCount += ad.adCount;
-          if (ad.linkText && !existing.topCreatives.includes(ad.linkText)) {
-            existing.topCreatives.push(ad.linkText);
-          }
-        } else {
-          // Check if URL matches any sitemap URL (exact or partial)
-          const isInSitemap = sitemapSet.has(url) ||
-            Array.from(sitemapSet).some(sitemapUrl =>
-              url.includes(sitemapUrl.replace(/^https?:\/\/[^/]+/, '')) ||
-              sitemapUrl.includes(url.replace(/^https?:\/\/[^/]+/, ''))
-            );
-
-          landingPages.set(url, {
-            url: ad.destinationUrl,
-            displayUrl: formatUrl(ad.destinationUrl),
-            adCount: ad.adCount,
-            totalReach: 0, // Scraper doesn't provide reach
-            isInSitemap,
-            topCreatives: ad.linkText ? [ad.linkText] : [],
-            firstSeen: ad.startedRunning,
-          });
-        }
-      }
-    }
-
-    // Process API data (no destination URLs, group by link caption)
+    // Process API data (group by link caption)
     if (apiAds && apiAds.length > 0) {
       // Group by linkCaption which often contains domain/path
       const captionGroups = new Map<string, FacebookAdResult[]>();
@@ -165,7 +128,7 @@ export function LandingPageAnalysis({ apiAds, scraperAds, sitemapUrls }: Landing
       topDomains,
       hasReachData: totalReach > 0,
     };
-  }, [apiAds, scraperAds, sitemapUrls]);
+  }, [apiAds, sitemapUrls]);
 
   if (analysis.landingPages.length === 0) {
     return (

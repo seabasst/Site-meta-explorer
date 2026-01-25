@@ -21,16 +21,6 @@ export interface AdDemographics {
   impressionsUpper?: number;
 }
 
-// Ad with metrics for top performer selection
-export interface AdWithMetrics {
-  adArchiveId: string;
-  destinationUrl: string | null;
-  startedRunning: string | null;
-  reachLower?: number;
-  reachUpper?: number;
-  adCount: number;
-}
-
 // Extended result that includes demographic data
 export interface AdLibraryResultWithDemographics {
   success: true;
