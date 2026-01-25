@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-01-25)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 5 complete. Ready for Phase 6.
+**Current focus:** Phase 6 — Ad Preview
 
 ## Current Position
 
-Phase: 5 of 9 (Error Handling & Foundation) - COMPLETE
-Plan: 4 of 4 complete
-Status: Phase complete
-Last activity: 2026-01-25 — Completed 05-04-PLAN.md
+Phase: 6 of 9 (Ad Preview)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-25 — Phase 5 verified and complete
 
 Progress: ████████████░░░░░░░░ 62% (v1.0 complete, v1.1 phase 5/9 done, 4/13 plans)
 

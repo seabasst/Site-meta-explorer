@@ -87,10 +87,10 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UIUX-01 | Phase 5 | Pending |
-| ERRH-01 | Phase 5 | Pending |
-| ERRH-02 | Phase 5 | Pending |
-| ERRH-03 | Phase 5 | Pending |
+| UIUX-01 | Phase 5 | Complete |
+| ERRH-01 | Phase 5 | Complete |
+| ERRH-02 | Phase 5 | Complete |
+| ERRH-03 | Phase 5 | Complete |
 | PREV-01 | Phase 6 | Pending |
 | PREV-02 | Phase 6 | Pending |
 | PREV-03 | Phase 6 | Pending |
