@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md
 
 **Core value:** Surface who competitors are reaching with their ads - demographics and geography aggregated from their top performers.
-**Current focus:** Phase 4 - Display
+**Current focus:** Complete
 
 ## Current Position
 
 Phase: 4 of 4 (Display)
-Plan: 2 of 3 complete
-Status: In progress
-Last activity: 2026-01-19 - Completed 04-02-PLAN.md
+Plan: 3 of 3 complete
+Status: Complete
+Last activity: 2026-01-25 - Completed 04-03-PLAN.md
 
-Progress: █████████░ 90%
+Progress: ██████████ 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: 6min
 
 **By Phase:**
@@ -29,7 +29,7 @@ Progress: █████████░ 90%
 | 01-foundation | 1 | 8min | 8min |
 | 02-demographic-extraction | 4 | 27min | 6.75min |
 | 03-aggregation | 2 | 14min | 7min |
-| 04-display | 2 | 3min | 1.5min |
+| 04-display | 3 | 3min | 1min |
 
 ## Accumulated Context
 
@@ -50,17 +50,19 @@ Progress: █████████░ 90%
 | 03-02 | Optional aggregatedDemographics field | Backward compatibility - existing consumers unchanged |
 | 04-02 | Type-safe Recharts formatter | Use typeof check for value in Tooltip formatter |
 | 04-02 | Top 5 countries with 'Other' | Show top 5 countries, group rest as 'Other' for readability |
+| 04-03 | Use facebook-ads API instead of scrape-ads | EU DSA data provides demographics directly; more reliable than scraping |
+| 04-03 | Vertical chart layout | Better readability on all screen sizes |
 
 ### Pending Todos
 
-(None yet)
+(None)
 
 ### Blockers/Concerns
 
-(None yet)
+(None)
 
 ## Session Continuity
 
-Last session: 2026-01-19 11:33 UTC
-Stopped at: Completed 04-02-PLAN.md (demographics visualization components)
+Last session: 2026-01-25
+Stopped at: Project complete - all phases and plans delivered
 Resume file: None
