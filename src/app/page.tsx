@@ -457,8 +457,8 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Quick start examples */}
-              {!apiResult && !adResult && !isLoadingAds && (
+              {/* Quick start examples - always visible for easy brand switching */}
+              {!isLoadingAds && (
                 <div className="mt-4 flex items-center gap-3 flex-wrap">
                   <span className="text-xs text-[var(--text-muted)]">Examples:</span>
                   {EXAMPLE_BRANDS.map((brand) => (
