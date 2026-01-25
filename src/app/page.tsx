@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { DemographicsSummary } from '@/components/demographics/demographics-summary';
 import { AgeGenderChart } from '@/components/demographics/age-gender-chart';
 import { CountryChart } from '@/components/demographics/country-chart';
@@ -14,6 +15,10 @@ import { FavoritesPanel } from '@/components/favorites/favorites-panel';
 import { useFavorites, FavoriteBrand } from '@/hooks/use-favorites';
 import { exportAdsToCSV, exportDemographicsToCSV, exportFullReportToCSV } from '@/lib/export-utils';
 import { extractPageIdFromUrl } from '@/lib/facebook-api';
+import { ResultsSkeleton } from '@/components/loading/results-skeleton';
+import { ApiErrorAlert } from '@/components/error/api-error-alert';
+import { validateAdLibraryUrl } from '@/lib/validation';
+import { getUserFriendlyMessage } from '@/lib/errors';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
@@ -168,7 +173,8 @@ export default function Home() {
   // Ad Library state
   const [adLibraryUrl, setAdLibraryUrl] = useState('');
   const [isLoadingAds, setIsLoadingAds] = useState(false);
-  const [adError, setAdError] = useState<string | null>(null);
+  const [adError, setAdError] = useState<Error | null>(null);
+  const [urlError, setUrlError] = useState<string | null>(null);
 
   // Active status filter: 'ACTIVE' shows only running ads, 'ALL' shows all ads including inactive
   const [activeStatus, setActiveStatus] = useState<'ACTIVE' | 'ALL'>('ACTIVE');
