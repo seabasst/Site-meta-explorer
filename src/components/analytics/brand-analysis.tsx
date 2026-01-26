@@ -23,6 +23,7 @@ import {
   CheckCircle,
   Info,
   Sparkles,
+  MessageSquare,
 } from 'lucide-react';
 import { analyzeBrand, type BrandAnalysis as BrandAnalysisType, type BrandInsight } from '@/lib/brand-analyzer';
 import type { FacebookAdResult, AggregatedDemographics, MediaTypeBreakdown } from '@/lib/facebook-api';
@@ -157,6 +158,14 @@ function InsightCard({ insight }: { insight: BrandInsight }) {
           <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
             {insight.description}
           </p>
+          {insight.recommendation && (
+            <div className="mt-2 pt-2 border-t border-[var(--border-subtle)]">
+              <p className="text-xs text-[var(--accent-green-light)] leading-relaxed flex items-start gap-1.5">
+                <Lightbulb className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                <span><strong>Recommendation:</strong> {insight.recommendation}</span>
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -181,6 +190,25 @@ export function BrandAnalysis({
 
   return (
     <div className="space-y-6">
+      {/* Deeper Audit CTA */}
+      <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-[var(--accent-yellow)]/10 to-[var(--accent-green)]/10 border border-[var(--accent-yellow)]/20">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-[var(--accent-yellow)]/20">
+            <Target className="w-5 h-5 text-[var(--accent-yellow)]" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-[var(--text-primary)]">Need a deeper audit?</p>
+            <p className="text-xs text-[var(--text-secondary)]">Get a comprehensive competitive analysis from our team</p>
+          </div>
+        </div>
+        <a
+          href="mailto:sebastian@kirimedia.co?subject=Deep%20Audit%20Request"
+          className="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-lg bg-[var(--accent-yellow)] text-[var(--bg-primary)] hover:bg-[var(--accent-yellow)]/90 transition-colors"
+        >
+          Contact Us
+        </a>
+      </div>
+
       {/* Header with Strategy Badge */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <div
@@ -289,19 +317,52 @@ export function BrandAnalysis({
             subValue={`Median: ${(kpis.medianReach / 1000).toFixed(1)}K`}
             icon={BarChart3}
           />
+          <KPICard
+            label="Message Diversity"
+            value={kpis.messagingDiversity.charAt(0).toUpperCase() + kpis.messagingDiversity.slice(1)}
+            subValue={`${kpis.uniqueHooksCount} unique hooks`}
+            icon={MessageSquare}
+            highlight={kpis.messagingDiversity === 'high'}
+          />
+          <KPICard
+            label="Price Messaging"
+            value={`${kpis.priceHeavyAdsPercentage.toFixed(0)}%`}
+            subValue={`${kpis.discountHeavyAdsPercentage.toFixed(0)}% discount-focused`}
+            icon={Target}
+            highlight={kpis.priceHeavyAdsPercentage < 30}
+          />
         </div>
       </div>
 
+      {/* Messaging Insights */}
+      {analysis.insights.filter(i => i.category === 'messaging').length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
+            Messaging Analysis & Recommendations
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {analysis.insights
+              .filter(i => i.category === 'messaging')
+              .map((insight, index) => (
+                <InsightCard key={index} insight={insight} />
+              ))}
+          </div>
+        </div>
+      )}
+
       {/* Strategic Insights */}
-      {analysis.insights.length > 0 && (
+      {analysis.insights.filter(i => i.category !== 'messaging').length > 0 && (
         <div>
           <h3 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
             Strategic Insights
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {analysis.insights.slice(0, 6).map((insight, index) => (
-              <InsightCard key={index} insight={insight} />
-            ))}
+            {analysis.insights
+              .filter(i => i.category !== 'messaging')
+              .slice(0, 8)
+              .map((insight, index) => (
+                <InsightCard key={index} insight={insight} />
+              ))}
           </div>
         </div>
       )}

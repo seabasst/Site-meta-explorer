@@ -42,14 +42,24 @@ export interface BrandKPIs {
   primaryAgeGroup: string;
   topMarkets: string[];
   marketConcentration: number; // How concentrated in top markets (0-100)
+
+  // Messaging Analysis
+  messagingDiversity: 'high' | 'medium' | 'low';
+  priceHeavyAdsPercentage: number; // % of ads with price mentions
+  discountHeavyAdsPercentage: number; // % of ads with discount language
+  urgencyAdsPercentage: number; // % of ads with urgency language
+  emotionalAdsPercentage: number; // % of ads with emotional appeals
+  uniqueHooksCount: number; // Number of distinct messaging angles
+  dominantMessagingStyle: 'price-focused' | 'benefit-focused' | 'emotional' | 'urgency' | 'balanced';
 }
 
 export interface BrandInsight {
-  category: 'strategy' | 'creative' | 'targeting' | 'performance' | 'opportunity';
+  category: 'strategy' | 'creative' | 'targeting' | 'performance' | 'opportunity' | 'messaging';
   title: string;
   description: string;
   metric?: string;
   sentiment: 'positive' | 'neutral' | 'warning' | 'insight';
+  recommendation?: string; // Actionable recommendation
 }
 
 export interface BrandAnalysis {
@@ -86,6 +96,127 @@ function median(arr: number[]): number {
   const sorted = [...arr].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+/**
+ * Analyze messaging patterns in ad copy
+ */
+interface MessagingAnalysis {
+  priceHeavyAdsPercentage: number;
+  discountHeavyAdsPercentage: number;
+  urgencyAdsPercentage: number;
+  emotionalAdsPercentage: number;
+  uniqueHooksCount: number;
+  messagingDiversity: 'high' | 'medium' | 'low';
+  dominantMessagingStyle: 'price-focused' | 'benefit-focused' | 'emotional' | 'urgency' | 'balanced';
+}
+
+function analyzeMessaging(ads: FacebookAdResult[]): MessagingAnalysis {
+  const adTexts = ads
+    .map(ad => ad.creativeBody?.toLowerCase() || '')
+    .filter(text => text.length > 0);
+
+  if (adTexts.length === 0) {
+    return {
+      priceHeavyAdsPercentage: 0,
+      discountHeavyAdsPercentage: 0,
+      urgencyAdsPercentage: 0,
+      emotionalAdsPercentage: 0,
+      uniqueHooksCount: 0,
+      messagingDiversity: 'low',
+      dominantMessagingStyle: 'balanced',
+    };
+  }
+
+  // Price patterns: $XX, €XX, £XX, XX€, "price", "only", "just", numbers with currency
+  const pricePatterns = /(\$|€|£|usd|eur|gbp)\s*\d+|\d+\s*(€|£|\$)|(\bprice\b|\bonly\b\s*\$|\bjust\b\s*\$|\bfrom\b\s*\$|\bstarting\b\s*(at\s*)?\$)/i;
+
+  // Discount patterns: % off, save, discount, sale, deal, free shipping
+  const discountPatterns = /(\d+%\s*off|\bsave\b|\bdiscount\b|\bsale\b|\bdeal\b|\bfree shipping\b|\bbogo\b|\bbuy\s*\d+\s*get\b|\bhalf\s*price\b|\bclearance\b)/i;
+
+  // Urgency patterns: limited time, ends soon, last chance, hurry, now, today only, don't miss
+  const urgencyPatterns = /(\blimited\s*(time|offer|stock)\b|\bends\s*(soon|today|tonight)\b|\blast\s*chance\b|\bhurry\b|\bact\s*now\b|\btoday\s*only\b|\bdon'?t\s*miss\b|\bwhile\s*(supplies|stocks)\s*last\b|\bexpires?\b|\brunning\s*out\b)/i;
+
+  // Emotional patterns: love, amazing, perfect, dream, transform, life-changing, feel
+  const emotionalPatterns = /(\byou('?ll)?\s*love\b|\bamazing\b|\bperfect\b|\bdream\b|\btransform\b|\blife.?changing\b|\bfeel\s*(great|amazing|confident|beautiful)\b|\bdeserve\b|\btreat\s*yourself\b|\bgame.?changer\b|\bfinally\b)/i;
+
+  // Count ads matching each pattern
+  let priceCount = 0;
+  let discountCount = 0;
+  let urgencyCount = 0;
+  let emotionalCount = 0;
+
+  for (const text of adTexts) {
+    if (pricePatterns.test(text)) priceCount++;
+    if (discountPatterns.test(text)) discountCount++;
+    if (urgencyPatterns.test(text)) urgencyCount++;
+    if (emotionalPatterns.test(text)) emotionalCount++;
+  }
+
+  const total = adTexts.length;
+  const priceHeavyAdsPercentage = (priceCount / total) * 100;
+  const discountHeavyAdsPercentage = (discountCount / total) * 100;
+  const urgencyAdsPercentage = (urgencyCount / total) * 100;
+  const emotionalAdsPercentage = (emotionalCount / total) * 100;
+
+  // Calculate unique hooks by extracting first sentence/phrase patterns
+  const hooks = new Set<string>();
+  for (const text of adTexts) {
+    // Get first ~50 chars or first sentence as the "hook"
+    const firstSentence = text.split(/[.!?]/)[0]?.trim().substring(0, 50) || '';
+    if (firstSentence.length > 10) {
+      // Normalize to detect similar hooks
+      const normalized = firstSentence
+        .replace(/\d+/g, 'X')
+        .replace(/\$|€|£/g, '$')
+        .trim();
+      hooks.add(normalized);
+    }
+  }
+  const uniqueHooksCount = hooks.size;
+
+  // Calculate messaging diversity based on variety of styles used
+  const stylesUsed = [
+    priceHeavyAdsPercentage > 20,
+    discountHeavyAdsPercentage > 20,
+    urgencyAdsPercentage > 20,
+    emotionalAdsPercentage > 20,
+  ].filter(Boolean).length;
+
+  let messagingDiversity: 'high' | 'medium' | 'low' = 'low';
+  if (stylesUsed >= 3 && uniqueHooksCount >= 10) {
+    messagingDiversity = 'high';
+  } else if (stylesUsed >= 2 || uniqueHooksCount >= 5) {
+    messagingDiversity = 'medium';
+  }
+
+  // Determine dominant messaging style
+  const styleScores = {
+    'price-focused': priceHeavyAdsPercentage + discountHeavyAdsPercentage,
+    'benefit-focused': 100 - priceHeavyAdsPercentage - urgencyAdsPercentage,
+    'emotional': emotionalAdsPercentage,
+    'urgency': urgencyAdsPercentage,
+  };
+
+  let dominantMessagingStyle: 'price-focused' | 'benefit-focused' | 'emotional' | 'urgency' | 'balanced' = 'balanced';
+  const maxScore = Math.max(...Object.values(styleScores));
+
+  if (maxScore > 50) {
+    if (styleScores['price-focused'] === maxScore) dominantMessagingStyle = 'price-focused';
+    else if (styleScores['emotional'] === maxScore) dominantMessagingStyle = 'emotional';
+    else if (styleScores['urgency'] === maxScore) dominantMessagingStyle = 'urgency';
+    else dominantMessagingStyle = 'benefit-focused';
+  }
+
+  return {
+    priceHeavyAdsPercentage,
+    discountHeavyAdsPercentage,
+    urgencyAdsPercentage,
+    emotionalAdsPercentage,
+    uniqueHooksCount,
+    messagingDiversity,
+    dominantMessagingStyle,
+  };
 }
 
 /**
@@ -174,6 +305,9 @@ function extractKPIs(
     marketConcentration = top3.reduce((sum, r) => sum + r.percentage, 0);
   }
 
+  // Messaging analysis
+  const messaging = analyzeMessaging(ads);
+
   return {
     totalAds: ads.length,
     activeAds,
@@ -198,6 +332,14 @@ function extractKPIs(
     primaryAgeGroup,
     topMarkets,
     marketConcentration,
+    // Messaging KPIs
+    messagingDiversity: messaging.messagingDiversity,
+    priceHeavyAdsPercentage: messaging.priceHeavyAdsPercentage,
+    discountHeavyAdsPercentage: messaging.discountHeavyAdsPercentage,
+    urgencyAdsPercentage: messaging.urgencyAdsPercentage,
+    emotionalAdsPercentage: messaging.emotionalAdsPercentage,
+    uniqueHooksCount: messaging.uniqueHooksCount,
+    dominantMessagingStyle: messaging.dominantMessagingStyle,
   };
 }
 
@@ -331,6 +473,112 @@ function generateInsights(kpis: BrandKPIs, ads: FacebookAdResult[]): BrandInsigh
       title: 'High Average Reach',
       description: `${(kpis.avgReachPerAd / 1000).toFixed(0)}K average reach per ad suggests significant ad spend and broad audience targeting.`,
       metric: `${(kpis.avgReachPerAd / 1000).toFixed(0)}K avg reach`,
+      sentiment: 'positive',
+    });
+  }
+
+  // ============================================
+  // MESSAGING INSIGHTS
+  // ============================================
+
+  // Price-heavy messaging warning
+  if (kpis.priceHeavyAdsPercentage > 50) {
+    insights.push({
+      category: 'messaging',
+      title: 'Price-Heavy Messaging',
+      description: `${kpis.priceHeavyAdsPercentage.toFixed(0)}% of ads lead with price points. Heavy price focus can commoditize your brand and attract deal-seekers over loyal customers.`,
+      metric: `${kpis.priceHeavyAdsPercentage.toFixed(0)}% price-focused`,
+      sentiment: 'warning',
+      recommendation: 'Test benefit-led and emotional messaging to build brand value beyond price competition.',
+    });
+  } else if (kpis.priceHeavyAdsPercentage > 30) {
+    insights.push({
+      category: 'messaging',
+      title: 'Moderate Price Focus',
+      description: `${kpis.priceHeavyAdsPercentage.toFixed(0)}% of ads include price messaging. A balanced approach, but consider testing more value-proposition led copy.`,
+      metric: `${kpis.priceHeavyAdsPercentage.toFixed(0)}% price-focused`,
+      sentiment: 'neutral',
+    });
+  }
+
+  // Discount-heavy messaging
+  if (kpis.discountHeavyAdsPercentage > 40) {
+    insights.push({
+      category: 'messaging',
+      title: 'Discount-Dependent Strategy',
+      description: `${kpis.discountHeavyAdsPercentage.toFixed(0)}% of ads feature discounts or sales. This can train customers to wait for deals and erode margins.`,
+      metric: `${kpis.discountHeavyAdsPercentage.toFixed(0)}% discount-focused`,
+      sentiment: 'warning',
+      recommendation: 'Diversify with value-based messaging that justifies full price. Highlight quality, uniqueness, or transformation.',
+    });
+  }
+
+  // Low messaging diversity
+  if (kpis.messagingDiversity === 'low') {
+    insights.push({
+      category: 'messaging',
+      title: 'Low Message Diversity',
+      description: `Only ${kpis.uniqueHooksCount} unique hooks detected. Repetitive messaging limits audience appeal and causes creative fatigue faster.`,
+      metric: `${kpis.uniqueHooksCount} unique hooks`,
+      sentiment: 'warning',
+      recommendation: 'Test different angles: problem-aware, solution-aware, testimonial-led, story-driven, and benefit-focused hooks.',
+    });
+  } else if (kpis.messagingDiversity === 'high') {
+    insights.push({
+      category: 'messaging',
+      title: 'Strong Message Diversity',
+      description: `${kpis.uniqueHooksCount} unique hooks across multiple messaging styles. This brand tests various angles to find what resonates.`,
+      metric: `${kpis.uniqueHooksCount} unique hooks`,
+      sentiment: 'positive',
+    });
+  }
+
+  // Urgency overuse
+  if (kpis.urgencyAdsPercentage > 50) {
+    insights.push({
+      category: 'messaging',
+      title: 'Urgency Overload',
+      description: `${kpis.urgencyAdsPercentage.toFixed(0)}% of ads use urgency tactics. Overuse can feel manipulative and reduce trust with sophisticated buyers.`,
+      metric: `${kpis.urgencyAdsPercentage.toFixed(0)}% urgency-based`,
+      sentiment: 'warning',
+      recommendation: 'Balance urgency with educational content and social proof to build trust alongside conversion pressure.',
+    });
+  }
+
+  // Emotional messaging opportunity
+  if (kpis.emotionalAdsPercentage < 15 && kpis.priceHeavyAdsPercentage > 30) {
+    insights.push({
+      category: 'messaging',
+      title: 'Missing Emotional Connection',
+      description: `Only ${kpis.emotionalAdsPercentage.toFixed(0)}% emotional content while ${kpis.priceHeavyAdsPercentage.toFixed(0)}% is price-focused. Emotional resonance drives brand loyalty and higher LTV.`,
+      metric: `${kpis.emotionalAdsPercentage.toFixed(0)}% emotional`,
+      sentiment: 'insight',
+      recommendation: 'Test aspirational messaging, customer transformations, and lifestyle imagery to connect beyond transactions.',
+    });
+  } else if (kpis.emotionalAdsPercentage > 40) {
+    insights.push({
+      category: 'messaging',
+      title: 'Strong Emotional Appeal',
+      description: `${kpis.emotionalAdsPercentage.toFixed(0)}% of ads use emotional messaging. This builds deeper brand connections and customer loyalty.`,
+      metric: `${kpis.emotionalAdsPercentage.toFixed(0)}% emotional`,
+      sentiment: 'positive',
+    });
+  }
+
+  // Dominant style insight
+  if (kpis.dominantMessagingStyle === 'price-focused') {
+    insights.push({
+      category: 'messaging',
+      title: 'Price-Led Brand Position',
+      description: 'This brand positions primarily on price. While effective for conversion, it limits premium positioning and attracts price-sensitive customers.',
+      sentiment: 'insight',
+      recommendation: 'Consider a 70/30 split: 70% value/benefit messaging, 30% price/offer messaging to balance conversion with brand building.',
+    });
+  } else if (kpis.dominantMessagingStyle === 'benefit-focused') {
+    insights.push({
+      category: 'messaging',
+      title: 'Value-Led Positioning',
+      description: 'This brand leads with benefits and value propositions rather than price. This supports premium positioning and customer loyalty.',
       sentiment: 'positive',
     });
   }

@@ -41,23 +41,35 @@ function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 // Pricing tiers configuration
 const PRICING_TIERS = {
   250: {
-    name: 'Pro',
-    price: 29,
+    name: 'Starter',
+    price: 9,
     ads: 250,
     features: [
       'Analyse up to 250 ads',
       'Full demographic breakdowns',
       'Ad copy analysis',
-      'Monthly reports (coming soon)',
       'Priority support',
     ],
   },
   500: {
-    name: 'Business',
-    price: 59,
+    name: 'Pro',
+    price: 19,
     ads: 500,
     features: [
       'Analyse up to 500 ads',
+      'Full demographic breakdowns',
+      'Ad copy analysis',
+      'Advanced competitive insights',
+      'Priority support',
+    ],
+  },
+  1000: {
+    name: 'Business',
+    price: 29,
+    ads: 1000,
+    isEnterprise: false,
+    features: [
+      'Analyse up to 1,000 ads',
       'Full demographic breakdowns',
       'Ad copy analysis',
       'Advanced competitive insights',
@@ -66,12 +78,14 @@ const PRICING_TIERS = {
       'Priority support',
     ],
   },
-  1000: {
+  'enterprise': {
     name: 'Enterprise',
-    price: 99,
-    ads: 1000,
+    price: null,
+    ads: '1000+',
+    isEnterprise: true,
+    contactEmail: 'sebastian@kirimedia.co',
     features: [
-      'Analyse 1,000+ ads',
+      'Analyse unlimited ads',
       'Full demographic breakdowns',
       'Ad copy analysis',
       'Advanced competitive insights',
@@ -87,10 +101,11 @@ function PricingModal({
   tier,
   onClose,
 }: {
-  tier: 250 | 500 | 1000;
+  tier: 250 | 500 | 1000 | 'enterprise';
   onClose: () => void;
 }) {
   const pricing = PRICING_TIERS[tier];
+  const isEnterprise = tier === 'enterprise';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -127,10 +142,16 @@ function PricingModal({
 
         {/* Price */}
         <div className="text-center mb-6">
-          <div className="flex items-baseline justify-center gap-1">
-            <span className="text-4xl font-bold text-[var(--text-primary)]">${pricing.price}</span>
-            <span className="text-[var(--text-muted)]">/month</span>
-          </div>
+          {isEnterprise ? (
+            <div className="text-[var(--text-primary)]">
+              <span className="text-2xl font-bold">Custom Pricing</span>
+            </div>
+          ) : (
+            <div className="flex items-baseline justify-center gap-1">
+              <span className="text-4xl font-bold text-[var(--text-primary)]">${pricing.price}</span>
+              <span className="text-[var(--text-muted)]">/month</span>
+            </div>
+          )}
         </div>
 
         {/* Features */}
@@ -146,15 +167,28 @@ function PricingModal({
         </ul>
 
         {/* CTA */}
-        <button
-          disabled
-          className="w-full py-3 text-base font-semibold rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-muted)] cursor-not-allowed"
-        >
-          Coming Soon
-        </button>
+        {isEnterprise ? (
+          <a
+            href="mailto:sebastian@kirimedia.co?subject=Enterprise%20Plan%20Inquiry"
+            className="block w-full py-3 text-base font-semibold rounded-lg bg-[var(--accent-green)] text-white text-center hover:bg-[var(--accent-green-light)] transition-colors"
+          >
+            Contact Us
+          </a>
+        ) : (
+          <button
+            disabled
+            className="w-full py-3 text-base font-semibold rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-muted)] cursor-not-allowed"
+          >
+            Coming Soon
+          </button>
+        )}
 
         <p className="text-center text-xs text-[var(--text-muted)] mt-4">
-          Paid plans launching soon. Stay tuned!
+          {isEnterprise ? (
+            <>Get in touch at <a href="mailto:sebastian@kirimedia.co" className="text-[var(--accent-green-light)] hover:underline">sebastian@kirimedia.co</a></>
+          ) : (
+            'Paid plans launching soon. Stay tuned!'
+          )}
         </p>
       </div>
     </div>
@@ -185,12 +219,12 @@ export default function Home() {
   // Region filter: 'global' shows all ads, 'eu' shows only EU ads (with full demographic data)
   const [regionFilter, setRegionFilter] = useState<'global' | 'eu'>('eu');
 
-  // Analysis depth - number of ads to analyze (tiered: Free=100, Pro=250, Business=500/1000)
+  // Analysis depth - number of ads to analyze (tiered: Free=100, Starter=$9/250, Pro=$19/500, Business=$29/1000, Enterprise=1000+)
   const [analysisLimit, setAnalysisLimit] = useState<100 | 250 | 500 | 1000>(100);
 
   // Pricing modal state
   const [showPricingModal, setShowPricingModal] = useState(false);
-  const [selectedPricingTier, setSelectedPricingTier] = useState<250 | 500 | 1000 | null>(null);
+  const [selectedPricingTier, setSelectedPricingTier] = useState<250 | 500 | 1000 | 'enterprise' | null>(null);
 
   // Facebook API result
   const [apiResult, setApiResult] = useState<FacebookApiResult | null>(null);
@@ -476,6 +510,12 @@ export default function Home() {
                 <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-1 border border-[var(--border-subtle)]">
                   {([100, 250, 500, 1000] as const).map((limit) => {
                     const isPaid = limit > 100;
+                    const tierLabels: Record<number, string> = {
+                      100: 'Free',
+                      250: '$9',
+                      500: '$19',
+                      1000: '$29',
+                    };
                     return (
                       <button
                         key={limit}
@@ -496,11 +536,22 @@ export default function Home() {
                         }`}
                       >
                         {limit === 1000 ? '1K' : limit}
-                        {limit === 100 && <span className="ml-1 opacity-60">Free</span>}
-                        {isPaid && <span className="ml-1 opacity-60">Pro</span>}
+                        <span className="ml-1 opacity-60">{tierLabels[limit]}</span>
                       </button>
                     );
                   })}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedPricingTier('enterprise');
+                      setShowPricingModal(true);
+                    }}
+                    disabled={isLoadingAds}
+                    className="px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]"
+                  >
+                    1K+
+                    <span className="ml-1 opacity-60">Enterprise</span>
+                  </button>
                 </div>
 
                 {/* How it works info dropdown */}
