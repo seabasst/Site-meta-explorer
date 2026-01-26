@@ -19,6 +19,7 @@ import { ResultsSkeleton } from '@/components/loading/results-skeleton';
 import { ApiErrorAlert } from '@/components/error/api-error-alert';
 import { validateAdLibraryUrl } from '@/lib/validation';
 import { getUserFriendlyMessage } from '@/lib/errors';
+import { AdPreviewCard } from '@/components/ads/ad-preview-card';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
@@ -712,26 +713,17 @@ export default function Home() {
                     </div>
                     {apiResult.ads.length > 0 && (
                       <div className="text-sm text-[var(--text-secondary)]">
-                        <p className="mb-2">Top performing ads by reach:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {apiResult.ads.slice(0, 5).map((ad, index) => (
-                            <a
-                              key={index}
-                              href={`https://www.facebook.com/ads/library/?id=${ad.adArchiveId}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--bg-elevated)] hover:bg-[var(--border-subtle)] transition-colors text-xs"
-                            >
-                              <span className="truncate max-w-[200px]">{ad.linkTitle || ad.creativeBody?.slice(0, 30) || `Ad ${ad.adId}`}</span>
-                              <span className="text-[var(--accent-yellow)] font-medium">({ad.euTotalReach.toLocaleString()} reach)</span>
-                            </a>
+                        <p className="mb-2 font-medium text-[var(--text-primary)]">Top Ads</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
+                          {apiResult.ads.slice(0, 6).map((ad, index) => (
+                            <AdPreviewCard key={ad.adArchiveId || index} ad={ad} />
                           ))}
-                          {apiResult.ads.length > 5 && (
-                            <span className="px-2.5 py-1 text-xs text-[var(--text-muted)]">
-                              +{apiResult.ads.length - 5} more
-                            </span>
-                          )}
                         </div>
+                        {apiResult.ads.length > 6 && (
+                          <p className="text-center text-xs text-[var(--text-muted)] mt-4">
+                            +{apiResult.ads.length - 6} more ads (expand &quot;View all&quot; below)
+                          </p>
+                        )}
                       </div>
                     )}
                     <div className="mt-3 text-xs text-[var(--text-muted)]">
