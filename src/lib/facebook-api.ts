@@ -11,6 +11,9 @@ import type {
   RegionBreakdown,
   AggregatedDemographics,
 } from './demographic-types';
+
+// Re-export types needed by other modules
+export type { AggregatedDemographics } from './demographic-types';
 import { analyzeSpend, COUNTRY_NAMES, type SpendAnalysis } from './spend-estimator';
 
 // Facebook API response types
