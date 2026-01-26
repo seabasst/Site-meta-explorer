@@ -98,15 +98,18 @@ Plans:
 **Goal**: Gate features by subscription status
 **Depends on**: Phase 11
 **Requirements**: PAY-03, TIER-01, TIER-02
+**Status**: Not started
 **Success Criteria** (what must be TRUE):
   1. Free user sees analysis limited to 100 ads
   2. Pro user can select 500 or 1000 ad depth
   3. Free user sees "Pro feature" badges on locked features
   4. System correctly reflects subscription changes in real-time
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 12-01: TBD
+- [ ] 12-01-PLAN.md — Tier configuration foundation (tier constants, useTierAccess hook, API enhancement)
+- [ ] 12-02-PLAN.md — Server-side tier enforcement (API limit capping, logging)
+- [ ] 12-03-PLAN.md — Tier UI components (ProBadge, DepthSelector, page integration)
 
 ### Phase 13: Pro Features
 **Goal**: Build gated Pro capabilities
@@ -134,5 +137,5 @@ Phases execute in numeric order: 10 → 11 → 12 → 13
 | 6-9 | v1.1 | - | Deferred | - |
 | 10. Auth Foundation | v2.0 | 2/2 | Complete | 2026-01-26 |
 | 11. Stripe Integration | v2.0 | 4/4 | Complete | 2026-01-26 |
-| 12. Tier Enforcement | v2.0 | 0/TBD | Not started | - |
+| 12. Tier Enforcement | v2.0 | 0/3 | Not started | - |
 | 13. Pro Features | v2.0 | 0/TBD | Not started | - |
