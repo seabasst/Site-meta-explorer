@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 ## Current Position
 
 Phase: 11 of 13 (Stripe Integration)
-Plan: 01 of 04 complete
+Plan: 02 of 04 complete
 Status: In progress
-Last activity: 2026-01-26 — Completed 11-01-PLAN.md (Stripe SDK & Database Foundation)
+Last activity: 2026-01-26 — Completed 11-02-PLAN.md (Checkout Flow)
 
-Progress: ████████████░░░░░░░░ 60% (v1.0 shipped, v1.1 partial, v2.0 Phase 10 done, 11-01 complete)
+Progress: █████████████░░░░░░░ 65% (v1.0 shipped, v1.1 partial, v2.0 Phase 10 done, 11-01/02 complete)
 
 ## Milestones
 
@@ -37,7 +37,7 @@ Progress: ████████████░░░░░░░░ 60% (v1.0
 |-------|-------|-------|----------|
 | 5 (v1.1) | 4 | — | — |
 | 10 (Auth Foundation) | 2 | ~19min | ~10min |
-| 11 (Stripe Integration) | 1 | 4min | 4min |
+| 11 (Stripe Integration) | 2 | 12min | 6min |
 | 12-13 (v2.0) | 0 | TBD | — |
 
 ## Accumulated Context
@@ -69,6 +69,11 @@ Recent decisions affecting current work:
 - Stripe API version pinned to 2025-12-15.clover
 - Singleton pattern for Prisma and Stripe clients
 
+**From 11-02:**
+- Lazy initialization for Prisma and Stripe clients (proxy pattern)
+- Server Actions pattern for payment flows: 'use server' + auth() + database + redirect
+- UpgradeButton uses useTransition for loading states
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -87,6 +92,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 11-01-PLAN.md (Stripe SDK & Database Foundation)
+Stopped at: Completed 11-02-PLAN.md (Checkout Flow)
 Resume file: None
-Next: 11-02-PLAN.md — Checkout flow
+Next: 11-03-PLAN.md — Webhook handling
