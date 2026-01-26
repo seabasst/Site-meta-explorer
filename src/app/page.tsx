@@ -25,6 +25,7 @@ import { Play, Image as ImageIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
+import { UpgradeButton } from '@/components/subscription/upgrade-button';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
@@ -385,7 +386,10 @@ export default function Home() {
                   <div className="w-20 h-4 rounded bg-[var(--bg-tertiary)] animate-pulse" />
                 </div>
               ) : session ? (
-                <UserMenu />
+                <div className="flex items-center gap-4">
+                  <UpgradeButton />
+                  <UserMenu />
+                </div>
               ) : (
                 <SignInButton provider="email" />
               )}
