@@ -6,8 +6,8 @@ Polish and enhance the existing v1.0 MVP with improved error handling, ad previe
 
 ## Milestones
 
-- ✅ **v1.0 MVP** - Phases 1-4 (shipped 2026-01-25)
-- 🚧 **v1.1 Polish & Preview** - Phases 5-9 (in progress)
+- **v1.0 MVP** - Phases 1-4 (shipped 2026-01-25)
+- **v1.1 Polish & Preview** - Phases 5-9 (in progress)
 
 ## Phases
 
@@ -18,7 +18,7 @@ Polish and enhance the existing v1.0 MVP with improved error handling, ad previe
 Decimal phases appear between their surrounding integers in numeric order.
 
 <details>
-<summary>✅ v1.0 MVP (Phases 1-4) - SHIPPED 2026-01-25</summary>
+<summary>v1.0 MVP (Phases 1-4) - SHIPPED 2026-01-25</summary>
 
 ### Phase 1: Foundation
 **Goal**: Project setup and API integration
@@ -38,7 +38,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 </details>
 
-### 🚧 v1.1 Polish & Preview (In Progress)
+### v1.1 Polish & Preview (In Progress)
 
 **Milestone Goal:** Improve user experience with better error handling, ad previews, enhanced charts, export options, and mobile support.
 
@@ -75,10 +75,11 @@ Plans:
   1. User can click to view any ad on Facebook (opens new tab)
   2. User can see ad creative text in results
   3. User can distinguish video ads from image ads via visual indicators
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: TBD
+- [ ] 06-01-PLAN.md — Create AdPreviewCard component with media type badges
+- [ ] 06-02-PLAN.md — Integrate AdPreviewCard into page.tsx results
 
 ### Phase 7: Chart Improvements
 **Goal**: Enhanced chart interactivity and responsiveness
@@ -119,7 +120,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
+Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -128,7 +129,7 @@ Phases execute in numeric order: 5 → 6 → 7 → 8 → 9
 | 3. Aggregation | v1.0 | - | Complete | 2026-01-25 |
 | 4. Display | v1.0 | - | Complete | 2026-01-25 |
 | 5. Error Handling & Foundation | v1.1 | 4/4 | Complete | 2026-01-25 |
-| 6. Ad Preview | v1.1 | 0/TBD | Not started | - |
+| 6. Ad Preview | v1.1 | 0/2 | Planned | - |
 | 7. Chart Improvements | v1.1 | 0/TBD | Not started | - |
 | 8. Export Enhancement | v1.1 | 0/TBD | Not started | - |
 | 9. Mobile Polish | v1.1 | 0/TBD | Not started | - |
