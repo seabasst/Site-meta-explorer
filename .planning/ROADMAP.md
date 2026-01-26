@@ -85,10 +85,13 @@ Plans:
   2. User can view their current subscription status
   3. User can cancel their subscription
   4. User can resume a cancelled subscription
-**Plans**: TBD
+**Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 11-01: TBD
+- [ ] 11-01-PLAN.md — Database & Stripe foundation (Prisma, User model, Stripe client)
+- [ ] 11-02-PLAN.md — Checkout flow (Server Action, UpgradeButton, UI integration)
+- [ ] 11-03-PLAN.md — Webhook handler & subscription sync (signature verification, status updates)
+- [ ] 11-04-PLAN.md — Subscription UI (status display, Customer Portal access)
 
 ### Phase 12: Tier Enforcement
 **Goal**: Gate features by subscription status
@@ -129,6 +132,6 @@ Phases execute in numeric order: 10 → 11 → 12 → 13
 | 5 | v1.1 | 4/4 | Complete | 2026-01-25 |
 | 6-9 | v1.1 | - | Deferred | - |
 | 10. Auth Foundation | v2.0 | 2/2 | Complete | 2026-01-26 |
-| 11. Stripe Integration | v2.0 | 0/TBD | Not started | - |
+| 11. Stripe Integration | v2.0 | 0/4 | Planned | - |
 | 12. Tier Enforcement | v2.0 | 0/TBD | Not started | - |
 | 13. Pro Features | v2.0 | 0/TBD | Not started | - |
