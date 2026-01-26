@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-25)
 ## Current Position
 
 Phase: 6 of 9 (Ad Preview)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-01-25 — Phase 5 verified and complete
+Plan: 1 of 2 complete
+Status: In progress
+Last activity: 2026-01-26 — Completed 06-01-PLAN.md
 
-Progress: ████████████░░░░░░░░ 62% (v1.0 complete, v1.1 phase 5/9 done, 4/13 plans)
+Progress: █████████████░░░░░░░ 65% (v1.0 complete, v1.1 phase 6/9, 5/16 plans)
 
 ## Milestones
 
@@ -26,15 +26,16 @@ Progress: ████████████░░░░░░░░ 62% (v1.0
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4 (v1.1)
+- Total plans completed: 5 (v1.1)
 - Average duration: 4 min
-- Total execution time: 16 min
+- Total execution time: 17 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 05 | 4/4 | 16 min | 4 min |
+| 06 | 1/2 | 1 min | 1 min |
 
 ## Accumulated Context
 
@@ -50,6 +51,8 @@ Recent decisions affecting current work:
 - 05-03: Toaster position top-right with richColors for visibility
 - 05-04: On-blur URL validation (not on-change) to avoid annoying users while typing
 - 05-04: Dual error feedback (toast + inline ApiErrorAlert) ensures visibility
+- 06-01: External link icon inline with title for clear UX association
+- 06-01: Fallback text uses last 6 chars of adArchiveId for identification
 
 ### Pending Todos
 
@@ -61,6 +64,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-25
-Stopped at: Completed Phase 5 (Error Handling & Foundation)
+Last session: 2026-01-26
+Stopped at: Completed 06-01-PLAN.md (AdPreviewCard component)
 Resume file: None
