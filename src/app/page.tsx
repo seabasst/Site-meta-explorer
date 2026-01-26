@@ -387,10 +387,7 @@ export default function Home() {
               ) : session ? (
                 <UserMenu />
               ) : (
-                <div className="flex gap-2">
-                  <SignInButton provider="google" />
-                  <SignInButton provider="email" />
-                </div>
+                <SignInButton provider="email" />
               )}
             </div>
 
