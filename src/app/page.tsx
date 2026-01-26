@@ -22,6 +22,9 @@ import { getUserFriendlyMessage } from '@/lib/errors';
 import { AdPreviewCard } from '@/components/ads/ad-preview-card';
 import { BrandAnalysis } from '@/components/analytics/brand-analysis';
 import { Play, Image as ImageIcon } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { SignInButton } from '@/components/auth/sign-in-button';
+import { UserMenu } from '@/components/auth/user-menu';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
@@ -207,6 +210,9 @@ const EXAMPLE_BRANDS = [
 ];
 
 export default function Home() {
+  // Auth state
+  const { data: session, status: authStatus } = useSession();
+
   // Ad Library state
   const [adLibraryUrl, setAdLibraryUrl] = useState('');
   const [isLoadingAds, setIsLoadingAds] = useState(false);
@@ -370,7 +376,25 @@ export default function Home() {
       <main className="min-h-screen">
         <div className="max-w-7xl mx-auto px-6 py-16">
           {/* Header */}
-          <header className="text-center mb-16 animate-fade-in-up">
+          <header className="text-center mb-16 animate-fade-in-up relative">
+            {/* Auth UI - top right */}
+            <div className="absolute top-0 right-0">
+              {authStatus === 'loading' ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-[var(--bg-tertiary)] animate-pulse" />
+                  <div className="w-20 h-4 rounded bg-[var(--bg-tertiary)] animate-pulse" />
+                </div>
+              ) : session ? (
+                <UserMenu />
+              ) : (
+                <div className="flex gap-2">
+                  <SignInButton provider="google" />
+                  <SignInButton provider="github" />
+                </div>
+              )}
+            </div>
+
+            {/* Existing header content */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] mb-6">
               <span className="w-2 h-2 rounded-full bg-[var(--accent-yellow)] animate-pulse-subtle" />
               Competitive Intelligence Tool
