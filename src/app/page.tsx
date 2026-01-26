@@ -20,6 +20,7 @@ import { ApiErrorAlert } from '@/components/error/api-error-alert';
 import { validateAdLibraryUrl } from '@/lib/validation';
 import { getUserFriendlyMessage } from '@/lib/errors';
 import { AdPreviewCard } from '@/components/ads/ad-preview-card';
+import { Play, Image as ImageIcon } from 'lucide-react';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
@@ -747,6 +748,7 @@ export default function Home() {
                           <thead className="sticky top-0 bg-[var(--bg-tertiary)] border-b border-[var(--border-subtle)]">
                             <tr>
                               <th className="px-4 py-2 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Ad Content</th>
+                              <th className="px-4 py-2 text-center text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-16">Type</th>
                               <th className="px-4 py-2 text-center text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-24">EU Reach</th>
                               <th className="px-4 py-2 text-center text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-24">Targeting</th>
                               <th className="px-4 py-2 text-right text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-20">View</th>
@@ -767,6 +769,21 @@ export default function Home() {
                                       Started: {ad.startedRunning || 'Unknown'}
                                     </div>
                                   </div>
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  {ad.mediaType === 'video' && (
+                                    <span className="inline-flex items-center gap-1 text-purple-500" title="Video">
+                                      <Play className="w-4 h-4" />
+                                    </span>
+                                  )}
+                                  {ad.mediaType === 'image' && (
+                                    <span className="inline-flex items-center gap-1 text-blue-500" title="Image">
+                                      <ImageIcon className="w-4 h-4" />
+                                    </span>
+                                  )}
+                                  {ad.mediaType === 'unknown' && (
+                                    <span className="text-[var(--text-muted)]">-</span>
+                                  )}
                                 </td>
                                 <td className="px-4 py-3 text-center">
                                   <span className="inline-flex items-center justify-center min-w-[28px] px-2 py-1 text-xs font-bold rounded-lg bg-[var(--accent-yellow)] text-[#1c1c0d]">
