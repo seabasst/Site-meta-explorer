@@ -1,20 +1,17 @@
 /**
- * AdPreviewCard - Displays ad creative with link to Facebook Ad Library
- *
- * Features:
- * - Clickable card opens Facebook Ad Library in new tab
- * - Media type badge (video/image) in top-right corner
- * - Full creative text display (no truncation)
- * - Hover effects for interactivity feedback
+ * AdPreviewCard - Clean text-based ad preview card
+ * Clicking opens the ad on Facebook Ad Library
  */
 
-import { Play, Image as ImageIcon, ExternalLink } from 'lucide-react';
+import { Play, Image as ImageIcon, ExternalLink, MousePointerClick } from 'lucide-react';
 
 interface AdPreviewCardProps {
   ad: {
     adArchiveId: string;
     creativeBody: string | null;
     linkTitle: string | null;
+    linkUrl: string | null;
+    snapshotUrl: string | null;
     mediaType: 'video' | 'image' | 'unknown';
     euTotalReach: number;
     startedRunning: string | null;
@@ -22,64 +19,97 @@ interface AdPreviewCardProps {
 }
 
 export function AdPreviewCard({ ad }: AdPreviewCardProps) {
-  // Fallback display text logic
-  const displayTitle = ad.linkTitle || ad.creativeBody || `View Ad #${ad.adArchiveId.slice(-6)}`;
-  const displayBody = ad.creativeBody && ad.linkTitle ? ad.creativeBody : null;
+  const adUrl = `https://www.facebook.com/ads/library/?id=${ad.adArchiveId}`;
 
-  // Format date nicely
+  // Format date
   const formattedDate = ad.startedRunning
     ? new Date(ad.startedRunning).toLocaleDateString()
-    : 'Unknown start date';
+    : 'Unknown';
 
-  // Format reach with thousands separator
+  // Format reach
   const formattedReach = ad.euTotalReach.toLocaleString();
+
+  // Get domain from link URL
+  const linkDomain = ad.linkUrl ? (() => {
+    try {
+      return new URL(ad.linkUrl).hostname.replace('www.', '');
+    } catch {
+      return null;
+    }
+  })() : null;
 
   return (
     <a
-      href={`https://www.facebook.com/ads/library/?id=${ad.adArchiveId}`}
+      href={adUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative flex flex-col p-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] cursor-pointer hover:border-[var(--accent-green)] transition-colors"
+      className="group relative flex flex-col rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] hover:border-[var(--accent-green)] transition-all overflow-hidden"
     >
-      {/* Media Type Badge (top-right corner) */}
-      {ad.mediaType !== 'unknown' && (
-        <div className="absolute top-2 right-2 p-1.5 rounded-md bg-[var(--bg-elevated)] border border-[var(--border-subtle)]">
+      {/* Visual Preview Prompt */}
+      <div className="relative h-28 bg-gradient-to-br from-[var(--bg-elevated)] via-[var(--bg-tertiary)] to-[var(--bg-elevated)] flex items-center justify-center">
+        {/* Media type icon */}
+        <div className="flex flex-col items-center gap-1.5 text-[var(--text-muted)] group-hover:text-[var(--accent-green-light)] transition-colors">
           {ad.mediaType === 'video' ? (
-            <Play className="w-4 h-4 text-purple-500" />
+            <Play className="w-8 h-8 opacity-50 group-hover:opacity-80 transition-opacity" />
           ) : (
-            <ImageIcon className="w-4 h-4 text-blue-500" />
+            <ImageIcon className="w-8 h-8 opacity-50 group-hover:opacity-80 transition-opacity" />
+          )}
+          <div className="flex items-center gap-1 text-xs opacity-70 group-hover:opacity-100">
+            <MousePointerClick className="w-3 h-3" />
+            <span>View {ad.mediaType === 'video' ? 'video' : 'ad'}</span>
+          </div>
+        </div>
+
+        {/* Badges */}
+        <div className="absolute top-2 left-2 flex items-center gap-2">
+          {/* Reach Badge */}
+          <span className="px-2 py-0.5 rounded bg-[var(--accent-yellow)]/20 text-[var(--accent-yellow)] text-xs font-medium">
+            {formattedReach} reach
+          </span>
+          {/* Media Type Badge */}
+          {ad.mediaType !== 'unknown' && (
+            <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+              ad.mediaType === 'video'
+                ? 'bg-purple-500/20 text-purple-400'
+                : 'bg-blue-500/20 text-blue-400'
+            }`}>
+              {ad.mediaType === 'video' ? 'Video' : 'Image'}
+            </span>
           )}
         </div>
-      )}
 
-      {/* Title / Main Text */}
-      <div className="flex items-start gap-2 pr-10">
-        <h3 className={`text-sm font-medium group-hover:text-[var(--accent-green-light)] transition-colors ${
-          !ad.linkTitle && !ad.creativeBody ? 'text-[var(--text-muted)]' : 'text-[var(--text-primary)]'
-        }`}>
-          {displayTitle}
-        </h3>
-        <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-[var(--text-muted)] opacity-60 group-hover:opacity-100 transition-opacity" />
+        {/* External link indicator */}
+        <div className="absolute top-2 right-2 p-1.5 rounded-md bg-[var(--bg-elevated)]/80 text-[var(--text-muted)] group-hover:text-[var(--accent-green-light)] opacity-0 group-hover:opacity-100 transition-all">
+          <ExternalLink className="w-3.5 h-3.5" />
+        </div>
       </div>
 
-      {/* Creative Body (if different from title) */}
-      {displayBody && (
-        <p className="mt-2 text-sm text-[var(--text-secondary)]">
-          {displayBody}
-        </p>
-      )}
+      {/* Content */}
+      <div className="p-3 flex-1 flex flex-col gap-2">
+        {/* Title */}
+        {ad.linkTitle && (
+          <h3 className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[var(--accent-green-light)] transition-colors line-clamp-2">
+            {ad.linkTitle}
+          </h3>
+        )}
 
-      {/* Metadata Row */}
-      <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[var(--border-subtle)]">
-        {/* EU Reach Badge */}
-        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[var(--accent-yellow)]/10 text-[var(--accent-yellow)]">
-          {formattedReach} reach
-        </span>
+        {/* Body text */}
+        {ad.creativeBody && (
+          <p className="text-xs text-[var(--text-secondary)] line-clamp-2">
+            {ad.creativeBody}
+          </p>
+        )}
 
-        {/* Start Date */}
-        <span className="text-xs text-[var(--text-muted)]">
-          Started: {formattedDate}
-        </span>
+        {/* Metadata */}
+        <div className="flex items-center gap-2 mt-auto pt-2 text-xs text-[var(--text-muted)]">
+          <span>{formattedDate}</span>
+          {linkDomain && (
+            <>
+              <span className="opacity-40">•</span>
+              <span className="truncate">{linkDomain}</span>
+            </>
+          )}
+        </div>
       </div>
     </a>
   );

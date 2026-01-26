@@ -53,6 +53,8 @@ interface FacebookAdData {
   ad_creative_link_titles?: string[];
   ad_creative_link_descriptions?: FacebookAdCreativeLinkDescription[];
   ad_creative_link_captions?: string[];
+  ad_creative_link_urls?: string[];
+  ad_snapshot_url?: string;
   eu_total_reach?: number;
   age_country_gender_reach_breakdown?: FacebookCountryBreakdown[];
   beneficiary_payers?: FacebookBeneficiaryPayer[];
@@ -87,6 +89,8 @@ export interface FacebookAdResult {
   creativeBody: string | null;
   linkTitle: string | null;
   linkCaption: string | null;
+  linkUrl: string | null;
+  snapshotUrl: string | null;
   euTotalReach: number;
   mediaType: 'video' | 'image' | 'unknown';
   demographics: AdDemographics | null;
@@ -504,6 +508,8 @@ async function fetchAdsForCountry(options: {
     'ad_creative_link_titles',
     'ad_creative_link_descriptions',
     'ad_creative_link_captions',
+    'ad_creative_link_urls',
+    'ad_snapshot_url',
     'eu_total_reach',
     'age_country_gender_reach_breakdown',
     'beneficiary_payers',
@@ -709,6 +715,8 @@ export async function fetchFacebookAds(options: {
         creativeBody: ad.ad_creative_bodies?.[0] || null,
         linkTitle: ad.ad_creative_link_titles?.[0] || null,
         linkCaption: ad.ad_creative_link_captions?.[0] || null,
+        linkUrl: ad.ad_creative_link_urls?.[0] || null,
+        snapshotUrl: ad.ad_snapshot_url || null,
         euTotalReach: ad.eu_total_reach || 0,
         mediaType: 'unknown' as const, // Media type determined via separate API calls
         demographics: demographics ? {

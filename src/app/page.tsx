@@ -20,6 +20,7 @@ import { ApiErrorAlert } from '@/components/error/api-error-alert';
 import { validateAdLibraryUrl } from '@/lib/validation';
 import { getUserFriendlyMessage } from '@/lib/errors';
 import { AdPreviewCard } from '@/components/ads/ad-preview-card';
+import { BrandAnalysis } from '@/components/analytics/brand-analysis';
 import { Play, Image as ImageIcon } from 'lucide-react';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
@@ -191,6 +192,9 @@ export default function Home() {
   // Facebook API result
   const [apiResult, setApiResult] = useState<FacebookApiResult | null>(null);
 
+  // Timeline-specific ads (always fetches ALL ads regardless of activeStatus filter)
+  const [timelineAds, setTimelineAds] = useState<FacebookApiResult['ads'] | null>(null);
+
   // Brand comparison mode
   const [comparisonBrands, setComparisonBrands] = useState<FacebookApiResult[]>([]);
   const [showComparison, setShowComparison] = useState(false);
@@ -224,24 +228,57 @@ export default function Home() {
     setAdError(null);
     setUrlError(null);
     setApiResult(null);
+    setTimelineAds(null);
+
+    const euCountries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'];
 
     try {
-      const res = await fetch('/api/facebook-ads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          adLibraryUrl: adLibraryUrl.trim(),
-          countries: ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'], // All EU countries for DSA data
-          limit: analysisLimit,
-          activeStatus,
+      // Fetch main results and timeline data in parallel
+      // Timeline always fetches ALL ads to show complete historical activity
+      const [mainRes, timelineRes] = await Promise.all([
+        fetch('/api/facebook-ads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            adLibraryUrl: adLibraryUrl.trim(),
+            countries: euCountries,
+            limit: analysisLimit,
+            activeStatus,
+          }),
         }),
-      });
+        // Only fetch timeline separately if activeStatus is not already 'ALL'
+        // Timeline uses higher limit (500) to get enough historical data for 8-week chart
+        activeStatus === 'ALL' ? Promise.resolve(null) : fetch('/api/facebook-ads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            adLibraryUrl: adLibraryUrl.trim(),
+            countries: euCountries,
+            limit: 500, // Higher limit for timeline to include historical/inactive ads
+            activeStatus: 'ALL',
+          }),
+        }),
+      ]);
 
-      const response = await res.json();
+      const response = await mainRes.json();
 
       if (response.success) {
         setApiResult(response);
         setAdError(null);
+
+        // Set timeline ads - use separate fetch if available, otherwise use main response
+        if (timelineRes) {
+          const timelineResponse = await timelineRes.json();
+          if (timelineResponse.success) {
+            setTimelineAds(timelineResponse.ads);
+          } else {
+            // Fallback to main ads if timeline fetch failed
+            setTimelineAds(response.ads);
+          }
+        } else {
+          // activeStatus was already 'ALL', use main response
+          setTimelineAds(response.ads);
+        }
       } else {
         const errorObj = new Error(response.error || 'Failed to fetch Ad Library data');
         setAdError(errorObj);
@@ -714,11 +751,14 @@ export default function Home() {
                     </div>
                     {apiResult.ads.length > 0 && (
                       <div className="text-sm text-[var(--text-secondary)]">
-                        <p className="mb-2 font-medium text-[var(--text-primary)]">Top Ads</p>
+                        <p className="mb-2 font-medium text-[var(--text-primary)]">Top Ads by Reach</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
-                          {apiResult.ads.slice(0, 6).map((ad, index) => (
-                            <AdPreviewCard key={ad.adArchiveId || index} ad={ad} />
-                          ))}
+                          {[...apiResult.ads]
+                            .sort((a, b) => b.euTotalReach - a.euTotalReach)
+                            .slice(0, 6)
+                            .map((ad, index) => (
+                              <AdPreviewCard key={ad.adArchiveId || index} ad={ad} />
+                            ))}
                         </div>
                         {apiResult.ads.length > 6 && (
                           <p className="text-center text-xs text-[var(--text-muted)] mt-4">
@@ -828,6 +868,28 @@ export default function Home() {
                   </div>
                 )}
 
+                {/* Expert Brand Analysis */}
+                {apiResult && apiResult.ads.length > 0 && (
+                  <div className="mt-6 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                        Expert <span className="italic text-[var(--accent-green-light)]">Analysis</span>
+                      </h3>
+                      <div className="text-xs text-[var(--text-muted)]">
+                        AI-powered brand insights
+                      </div>
+                    </div>
+                    <div className="glass rounded-xl p-5">
+                      <BrandAnalysis
+                        brandName={apiResult.pageName || `Page ${apiResult.pageId}`}
+                        ads={apiResult.ads}
+                        demographics={apiResult.aggregatedDemographics}
+                        mediaBreakdown={apiResult.mediaTypeBreakdown}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {/* Demographics Results - API */}
                 {apiResult && apiResult.aggregatedDemographics && (
                   <div className="mt-6 space-y-6">
@@ -850,28 +912,57 @@ export default function Home() {
                       />
                     </div>
 
-                    {/* Charts - stacked vertically in column layout */}
-                    <div className="space-y-4">
-                      {/* Age/Gender Chart */}
-                      <div className="glass rounded-xl p-5">
-                        <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
-                          Age & Gender Breakdown
-                        </h4>
-                        <AgeGenderChart
-                          data={apiResult.aggregatedDemographics.ageGenderBreakdown}
-                        />
-                      </div>
+                    {/* Charts - collapsible */}
+                    <div className="space-y-3">
+                      {/* Age/Gender Chart - Collapsible */}
+                      <details className="group glass rounded-xl overflow-hidden">
+                        <summary className="cursor-pointer list-none p-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors">
+                          <div className="flex items-center gap-3">
+                            <svg className="w-4 h-4 text-[var(--text-muted)] transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                            <h4 className="text-sm font-medium text-[var(--text-primary)]">Age & Gender Breakdown</h4>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                            {(() => {
+                              const topSegment = apiResult.aggregatedDemographics.ageGenderBreakdown[0];
+                              return topSegment ? (
+                                <span>Top: <span className="text-[var(--accent-green-light)]">{topSegment.gender} {topSegment.age}</span> ({topSegment.percentage.toFixed(1)}%)</span>
+                              ) : null;
+                            })()}
+                          </div>
+                        </summary>
+                        <div className="px-5 pb-5">
+                          <AgeGenderChart
+                            data={apiResult.aggregatedDemographics.ageGenderBreakdown}
+                          />
+                        </div>
+                      </details>
 
-                      {/* Country Chart */}
-                      <div className="glass rounded-xl p-5">
-                        <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
-                          Geographic Distribution
-                        </h4>
-                        <CountryChart
-                          data={apiResult.aggregatedDemographics.regionBreakdown}
-                        />
-                      </div>
-
+                      {/* Country Chart - Collapsible */}
+                      <details className="group glass rounded-xl overflow-hidden">
+                        <summary className="cursor-pointer list-none p-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors">
+                          <div className="flex items-center gap-3">
+                            <svg className="w-4 h-4 text-[var(--text-muted)] transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                            <h4 className="text-sm font-medium text-[var(--text-primary)]">Geographic Distribution</h4>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                            {(() => {
+                              const topCountries = apiResult.aggregatedDemographics.regionBreakdown.slice(0, 3);
+                              return topCountries.length > 0 ? (
+                                <span>Top: <span className="text-[var(--accent-green-light)]">{topCountries.map(c => c.region).join(', ')}</span></span>
+                              ) : null;
+                            })()}
+                          </div>
+                        </summary>
+                        <div className="px-5 pb-5">
+                          <CountryChart
+                            data={apiResult.aggregatedDemographics.regionBreakdown}
+                          />
+                        </div>
+                      </details>
                     </div>
                   </div>
                 )}
@@ -925,19 +1016,22 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Time Trends - API */}
-                {apiResult && apiResult.ads.length > 0 && (
+                {/* Time Trends - API (uses ALL ads for complete historical view) */}
+                {apiResult && timelineAds && timelineAds.length > 0 && (
                   <div className="mt-6 space-y-6">
                     <div className="flex items-center justify-between">
                       <h3 className="font-serif text-lg text-[var(--text-primary)]">
                         Activity <span className="italic text-[var(--accent-green-light)]">Timeline</span>
                       </h3>
                       <div className="text-xs text-[var(--text-muted)]">
+                        {activeStatus === 'ACTIVE' && timelineAds.length !== apiResult.ads.length && (
+                          <span className="text-[var(--accent-yellow)] mr-2">Includes inactive ads</span>
+                        )}
                         Advertising intensity over time
                       </div>
                     </div>
                     <div className="glass rounded-xl p-5">
-                      <TimeTrends ads={apiResult.ads} />
+                      <TimeTrends ads={timelineAds} />
                     </div>
                   </div>
                 )}

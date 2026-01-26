@@ -1,14 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import { CartesianGrid, Line, LineChart, XAxis } from 'recharts';
+import { CartesianGrid, Line, LineChart, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import type { FacebookAdResult } from '@/lib/facebook-api';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from '@/components/ui/chart';
 
 interface TimeTrendsProps {
   ads: FacebookAdResult[];
@@ -142,8 +136,6 @@ export function TimeTrends({ ads }: TimeTrendsProps) {
     );
   }
 
-  const maxMonthlyAds = Math.max(...analysis.monthlyData.map(m => m.adsLaunched), 1);
-
   return (
     <div className="space-y-6">
       {/* Trend Summary */}
@@ -202,140 +194,75 @@ export function TimeTrends({ ads }: TimeTrendsProps) {
         </div>
       </div>
 
-      {/* Monthly Chart */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-medium text-[var(--text-secondary)]">Monthly Ad Launches</h4>
-          <div className="text-xs text-[var(--text-muted)]">
-            Total: <span className="font-medium text-[var(--text-primary)]">{analysis.monthlyData.reduce((sum, m) => sum + m.adsLaunched, 0)} ads</span>
-          </div>
-        </div>
-        <div className="relative">
-          {/* SVG Line Chart Overlay */}
-          <svg
-            className="absolute inset-0 w-full h-32 pointer-events-none"
-            preserveAspectRatio="none"
-            style={{ zIndex: 10 }}
-          >
-            <polyline
-              fill="none"
-              stroke="var(--accent-yellow)"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              points={analysis.monthlyData.map((month, index) => {
-                const x = ((index + 0.5) / analysis.monthlyData.length) * 100;
-                const y = 100 - (month.adsLaunched / maxMonthlyAds) * 85 - 8;
-                return `${x}%,${y}%`;
-              }).join(' ')}
-            />
-            {/* Dots at each data point */}
-            {analysis.monthlyData.map((month, index) => {
-              const x = ((index + 0.5) / analysis.monthlyData.length) * 100;
-              const y = 100 - (month.adsLaunched / maxMonthlyAds) * 85 - 8;
-              return (
-                <circle
-                  key={month.month}
-                  cx={`${x}%`}
-                  cy={`${y}%`}
-                  r="4"
-                  fill="var(--accent-yellow)"
-                  stroke="var(--bg-primary)"
-                  strokeWidth="2"
-                />
-              );
-            })}
-          </svg>
-
-          {/* Bar Chart */}
-          <div className="flex items-end gap-1 h-32">
-            {analysis.monthlyData.map((month, index) => {
-              const height = (month.adsLaunched / maxMonthlyAds) * 85;
-              const isRecent = index >= analysis.monthlyData.length - 3;
-              return (
-                <div key={month.month} className="flex-1 flex flex-col items-center gap-1 relative">
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-medium text-[var(--accent-yellow)] tabular-nums bg-[var(--bg-primary)]/80 px-1 rounded">
-                    {month.adsLaunched}
-                  </div>
-                  <div
-                    className={`w-full rounded-t transition-all duration-500 ${
-                      isRecent ? 'bg-[var(--accent-green)]' : 'bg-[var(--accent-green)]/40'
-                    }`}
-                    style={{ height: `${Math.max(height, 4)}%` }}
-                    title={`${month.label}: ${month.adsLaunched} ads, ${formatNumber(month.totalReach)} reach`}
-                  />
-                  <div className="text-xs text-[var(--text-muted)] -rotate-45 origin-center whitespace-nowrap">
-                    {month.label}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Weekly Breakdown */}
+      {/* Weekly Line Chart - Primary Visualization */}
       <div className="p-4 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-medium text-[var(--text-secondary)]">Weekly Ad Launches (Last 8 Weeks)</h4>
+          <h4 className="text-sm font-medium text-[var(--text-secondary)]">New Ads Per Week</h4>
           <div className="text-xs text-[var(--text-muted)]">
-            Total: <span className="font-medium text-[var(--text-primary)]">{analysis.weeklyData.reduce((sum, w) => sum + w.count, 0)} ads</span>
+            Last 8 weeks: <span className="font-medium text-[var(--text-primary)]">{analysis.weeklyData.reduce((sum, w) => sum + w.count, 0)} ads</span>
           </div>
         </div>
-        <ChartContainer
-          config={{
-            count: {
-              label: "Ads Launched",
-              color: "var(--accent-blue)",
-            },
-          } satisfies ChartConfig}
-          className="h-[180px] w-full"
-        >
-          <LineChart
-            accessibilityLayer
-            data={analysis.weeklyData}
-            margin={{
-              left: 12,
-              right: 12,
-              top: 12,
-              bottom: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border-subtle)" />
-            <XAxis
-              dataKey="week"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Line
-              dataKey="count"
-              type="natural"
-              stroke="var(--accent-blue)"
-              strokeWidth={2}
-              dot={{
-                fill: "var(--accent-blue)",
-                stroke: "var(--bg-tertiary)",
-                strokeWidth: 2,
-                r: 4,
+        <div className="h-[200px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={analysis.weeklyData}
+              margin={{
+                left: 0,
+                right: 12,
+                top: 20,
+                bottom: 5,
               }}
-              activeDot={{
-                r: 6,
-                fill: "var(--accent-blue)",
-                stroke: "var(--bg-tertiary)",
-                strokeWidth: 2,
-              }}
-            />
-          </LineChart>
-        </ChartContainer>
-        <div className="flex justify-between text-xs text-[var(--text-muted)] mt-2">
+            >
+              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              <XAxis
+                dataKey="week"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tick={{ fill: '#888', fontSize: 11 }}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tick={{ fill: '#888', fontSize: 11 }}
+                allowDecimals={false}
+                width={30}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'rgba(28, 28, 13, 0.95)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+                formatter={(value: number) => [`${value} ads`, 'Launched']}
+                labelStyle={{ color: '#888' }}
+              />
+              <Line
+                dataKey="count"
+                type="monotone"
+                stroke="#a3e635"
+                strokeWidth={2.5}
+                dot={{
+                  fill: "#a3e635",
+                  stroke: "#1c1c0d",
+                  strokeWidth: 2,
+                  r: 5,
+                }}
+                activeDot={{
+                  r: 7,
+                  fill: "#a3e635",
+                  stroke: "#1c1c0d",
+                  strokeWidth: 2,
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="flex justify-between text-xs text-[var(--text-muted)] mt-2 px-2">
           <span>8 weeks ago</span>
-          <span className="text-blue-400 font-medium">This week</span>
+          <span className="text-lime-400 font-medium">This week</span>
         </div>
       </div>
 
