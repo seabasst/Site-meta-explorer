@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-26)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 11 in progress — Stripe Integration
+**Current focus:** Phase 11 complete — Stripe Integration done
 
 ## Current Position
 
 Phase: 11 of 13 (Stripe Integration)
-Plan: 03 of 04 complete
-Status: In progress
-Last activity: 2026-01-26 — Completed 11-03-PLAN.md (Stripe Webhook Handler)
+Plan: 04 of 04 complete
+Status: Phase complete
+Last activity: 2026-01-26 — Completed 11-04-PLAN.md (Subscription Status Display)
 
-Progress: ██████████████░░░░░░ 70% (v1.0 shipped, v1.1 partial, v2.0 Phase 10 done, 11-01/02/03 complete)
+Progress: ████████████████░░░░ 80% (v1.0 shipped, v1.1 partial, v2.0 Phases 10-11 complete)
 
 ## Milestones
 
@@ -22,12 +22,12 @@ Progress: ██████████████░░░░░░ 70% (v1.0
 |---------|--------|---------|
 | v1.0 MVP | Complete | 2026-01-25 |
 | v1.1 Polish | Partial (Phase 5 shipped, 6-9 deferred) | 2026-01-25 |
-| v2.0 Payments & Auth | In Progress (Phase 10 complete, 11 almost done) | - |
+| v2.0 Payments & Auth | In Progress (Phase 10-11 complete, 12-13 remaining) | - |
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Average duration: —
 - Total execution time: —
 
@@ -37,7 +37,7 @@ Progress: ██████████████░░░░░░ 70% (v1.0
 |-------|-------|-------|----------|
 | 5 (v1.1) | 4 | — | — |
 | 10 (Auth Foundation) | 2 | ~19min | ~10min |
-| 11 (Stripe Integration) | 3 | 16min | ~5min |
+| 11 (Stripe Integration) | 4 | 22min | ~5.5min |
 | 12-13 (v2.0) | 0 | TBD | — |
 
 ## Accumulated Context
@@ -79,6 +79,11 @@ Recent decisions affecting current work:
 - Stripe statuses mapped to simplified 4-state model: free, pro, past_due, cancelled
 - Return 200 on processing errors to prevent Stripe retry loops
 
+**From 11-04:**
+- Client-side status fetching via API route (/api/subscription/status)
+- SubscriptionStatus is self-contained (badge + action in one component)
+- Customer Portal used for subscription management (cancel, resume, payment update)
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -93,11 +98,12 @@ None.
 - Google OAuth requires user to configure credentials in .env.local
 - Stripe account/keys required for payment integration (documented in .env.local.example)
 - ~~Database needed for user accounts and subscriptions~~ (Complete: Prisma + SQLite)
-- Stripe webhook requires STRIPE_WEBHOOK_SECRET for local testing (use Stripe CLI)
+- ~~Stripe webhook requires configuration~~ (Complete: documented in 11-03-SUMMARY.md)
+- Stripe Customer Portal must be configured in Stripe Dashboard for subscription management
 
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 11-03-PLAN.md (Stripe Webhook Handler)
+Stopped at: Completed 11-04-PLAN.md (Subscription Status Display)
 Resume file: None
-Next: 11-04-PLAN.md — Subscription status display
+Next: Phase 12 — Tier gating (features locked by subscription status)
