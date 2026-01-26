@@ -233,7 +233,13 @@ export default function Home() {
     setApiResult(null);
     setTimelineAds(null);
 
-    const euCountries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'];
+    // Major global markets + all EU countries for comprehensive ad coverage
+    const globalCountries = [
+      // Major non-EU markets
+      'US', 'GB', 'CA', 'AU', 'NZ', 'NO', 'CH',
+      // EU countries
+      'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'
+    ];
 
     try {
       // Fetch main results and timeline data in parallel
@@ -244,7 +250,7 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             adLibraryUrl: adLibraryUrl.trim(),
-            countries: euCountries,
+            countries: globalCountries,
             limit: analysisLimit,
             activeStatus,
           }),
@@ -256,7 +262,7 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             adLibraryUrl: adLibraryUrl.trim(),
-            countries: euCountries,
+            countries: globalCountries,
             limit: 500, // Higher limit for timeline to include historical/inactive ads
             activeStatus: 'ALL',
           }),
