@@ -69,10 +69,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User can click "Sign in with GitHub" and be authenticated
   3. User sees their logged-in state (name/avatar) in UI
   4. User can log out from any page
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 10-01: TBD
+- [ ] 10-01-PLAN.md — Auth infrastructure (Auth.js config, route handler, SessionProvider)
+- [ ] 10-02-PLAN.md — Auth UI components (sign-in/out buttons, user menu, page integration)
 
 ### Phase 11: Stripe Integration
 **Goal**: Subscription payments and management
@@ -126,7 +127,7 @@ Phases execute in numeric order: 10 → 11 → 12 → 13
 | 1-4 | v1.0 | - | Complete | 2026-01-25 |
 | 5 | v1.1 | 4/4 | Complete | 2026-01-25 |
 | 6-9 | v1.1 | - | Deferred | - |
-| 10. Auth Foundation | v2.0 | 0/TBD | Not started | - |
+| 10. Auth Foundation | v2.0 | 0/2 | Planned | - |
 | 11. Stripe Integration | v2.0 | 0/TBD | Not started | - |
 | 12. Tier Enforcement | v2.0 | 0/TBD | Not started | - |
 | 13. Pro Features | v2.0 | 0/TBD | Not started | - |
