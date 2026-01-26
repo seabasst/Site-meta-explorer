@@ -389,7 +389,7 @@ export default function Home() {
               ) : (
                 <div className="flex gap-2">
                   <SignInButton provider="google" />
-                  <SignInButton provider="github" />
+                  <SignInButton provider="email" />
                 </div>
               )}
             </div>
