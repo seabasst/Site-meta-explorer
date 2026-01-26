@@ -236,7 +236,7 @@ export function TimeTrends({ ads }: TimeTrendsProps) {
                   borderRadius: '8px',
                   color: '#fff',
                 }}
-                formatter={(value: number) => [`${value} ads`, 'Launched']}
+                formatter={(value) => [`${value ?? 0} ads`, 'Launched']}
                 labelStyle={{ color: '#888' }}
               />
               <Line
