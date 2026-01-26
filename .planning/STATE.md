@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-26)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 10 complete — Ready for Phase 11 (User/Subscription Data Model)
+**Current focus:** Phase 11 in progress — Stripe Integration
 
 ## Current Position
 
-Phase: 10 of 13 (Auth Foundation) - COMPLETE
-Plan: 02 of 02 complete
-Status: Phase complete
-Last activity: 2026-01-26 — Completed 10-02-PLAN.md (Auth UI Components)
+Phase: 11 of 13 (Stripe Integration)
+Plan: 01 of 04 complete
+Status: In progress
+Last activity: 2026-01-26 — Completed 11-01-PLAN.md (Stripe SDK & Database Foundation)
 
-Progress: ███████████░░░░░░░░░ 56% (v1.0 shipped, v1.1 partial, v2.0 Phase 10 done)
+Progress: ████████████░░░░░░░░ 60% (v1.0 shipped, v1.1 partial, v2.0 Phase 10 done, 11-01 complete)
 
 ## Milestones
 
@@ -22,12 +22,12 @@ Progress: ███████████░░░░░░░░░ 56% (v1.0
 |---------|--------|---------|
 | v1.0 MVP | Complete | 2026-01-25 |
 | v1.1 Polish | Partial (Phase 5 shipped, 6-9 deferred) | 2026-01-25 |
-| v2.0 Payments & Auth | In Progress (Phase 10 complete) | - |
+| v2.0 Payments & Auth | In Progress (Phase 10 complete, 11 started) | - |
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: —
 - Total execution time: —
 
@@ -37,7 +37,8 @@ Progress: ███████████░░░░░░░░░ 56% (v1.0
 |-------|-------|-------|----------|
 | 5 (v1.1) | 4 | — | — |
 | 10 (Auth Foundation) | 2 | ~19min | ~10min |
-| 11-13 (v2.0) | 0 | TBD | — |
+| 11 (Stripe Integration) | 1 | 4min | 4min |
+| 12-13 (v2.0) | 0 | TBD | — |
 
 ## Accumulated Context
 
@@ -62,6 +63,12 @@ Recent decisions affecting current work:
 - Google OAuth conditionally shown when configured
 - Custom sign-in page at /auth/signin
 
+**From 11-01:**
+- Prisma 7 with SQLite for local development database
+- User model has stripeCustomerId, subscriptionStatus, subscriptionId fields
+- Stripe API version pinned to 2025-12-15.clover
+- Singleton pattern for Prisma and Stripe clients
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -74,12 +81,12 @@ None.
 
 - ~~Auth provider selection and setup needed~~ (Complete: Google OAuth + email/password)
 - Google OAuth requires user to configure credentials in .env.local
-- Stripe account/keys required for payment integration
-- Database needed for user accounts and subscriptions
+- Stripe account/keys required for payment integration (documented in .env.local.example)
+- ~~Database needed for user accounts and subscriptions~~ (Complete: Prisma + SQLite)
 
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 10-02-PLAN.md (Auth UI Components)
+Stopped at: Completed 11-01-PLAN.md (Stripe SDK & Database Foundation)
 Resume file: None
-Next: Phase 11 — User/Subscription Data Model
+Next: 11-02-PLAN.md — Checkout flow
