@@ -2,40 +2,37 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-25)
+See: .planning/PROJECT.md (updated 2026-01-26)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 6 — Ad Preview
+**Current focus:** v2.0 Payments & Auth — Defining requirements
 
 ## Current Position
 
-Phase: 6 of 9 (Ad Preview)
-Plan: 1 of 2 complete
-Status: In progress
-Last activity: 2026-01-26 — Completed 06-01-PLAN.md
+Phase: Not started (run /gsd:create-roadmap)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-01-26 — Milestone v2.0 started
 
-Progress: █████████████░░░░░░░ 65% (v1.0 complete, v1.1 phase 6/9, 5/16 plans)
+Progress: ██████████░░░░░░░░░░ 50% (v1.0 shipped, v1.1 partial, v2.0 starting)
 
 ## Milestones
 
 | Version | Status | Shipped |
 |---------|--------|---------|
 | v1.0 MVP | Complete | 2026-01-25 |
-| v1.1 | In Progress | - |
+| v1.1 Polish | Partial (merged into v2.0) | - |
+| v2.0 Payments & Auth | In Progress | - |
 
 ## Performance Metrics
 
-**Velocity:**
-- Total plans completed: 5 (v1.1)
-- Average duration: 4 min
-- Total execution time: 17 min
+**v1.1 (partial):**
+- Plans completed: 5/16
+- Phases: 5 complete, 6 partial (merged into v2.0)
 
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 05 | 4/4 | 16 min | 4 min |
-| 06 | 1/2 | 1 min | 1 min |
+**v2.0:**
+- Total plans completed: 0
+- Phases planned: 0 (run /gsd:create-roadmap)
 
 ## Accumulated Context
 
@@ -44,15 +41,14 @@ Progress: █████████████░░░░░░░ 65% (v1.0
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- v1.1: Link-out approach for ad previews (Facebook blocks embedding)
-- v1.1: shadcn/ui for component library (React 19 + Tailwind v4 compatible)
-- 05-01: shadcn/ui new-york style with Tailwind v4 configuration
-- 05-02: Zod 4.x uses .issues (not .errors) for validation error access
-- 05-03: Toaster position top-right with richColors for visibility
-- 05-04: On-blur URL validation (not on-change) to avoid annoying users while typing
-- 05-04: Dual error feedback (toast + inline ApiErrorAlert) ensures visibility
-- 06-01: External link icon inline with title for clear UX association
-- 06-01: Fallback text uses last 6 chars of adArchiveId for identification
+- v2.0: Social OAuth only (Google/GitHub) — no password management
+- v2.0: Two tiers (Free + Pro) — simple pricing model
+- v2.0: Stripe for payments
+- v2.0: Gate features by tier (depth + feature access)
+
+**Carried from v1.1:**
+- shadcn/ui for component library (React 19 + Tailwind v4 compatible)
+- Link-out approach for ad previews (Facebook blocks embedding)
 
 ### Pending Todos
 
@@ -60,10 +56,12 @@ None.
 
 ### Blockers/Concerns
 
-- PDF export may require Vercel Pro (60s timeout) — verify during Phase 8
+- Auth provider selection and setup needed
+- Stripe account/keys required for payment integration
+- Database needed for user accounts and subscriptions
 
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 06-01-PLAN.md (AdPreviewCard component)
+Stopped at: Started v2.0 milestone — ready to define requirements
 Resume file: None

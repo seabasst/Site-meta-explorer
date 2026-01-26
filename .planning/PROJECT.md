@@ -8,16 +8,15 @@ A competitor analysis tool that extracts demographic and reach data from Faceboo
 
 Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
 
-## Current Milestone: v1.1 Polish & Preview
+## Current Milestone: v2.0 Payments & Auth
 
-**Goal:** Improve the existing experience with better UI, ad previews, and refined visualizations.
+**Goal:** Monetize the tool with Stripe subscriptions and tiered access, gating premium features behind a Pro plan.
 
 **Target features:**
-- UI/UX overhaul (visual design, input experience, layout, mobile)
-- Ad preview display (images/videos/text from ads)
-- Chart improvements (more types, interactivity, formatting)
-- Error handling (clear, helpful feedback)
-- Export capability (download/save results)
+- User authentication (Google/GitHub OAuth)
+- Stripe subscription payments (Free + Pro tiers)
+- Tiered feature access (depth limits, feature gating)
+- Pro features: ad previews, enhanced charts, export, deeper analysis (500-1000 ads)
 
 ## Requirements
 
@@ -39,20 +38,32 @@ Surface who competitors are reaching with their ads — demographics and geograp
 
 ### Active
 
-- [ ] Visual design refresh (colors, spacing, typography)
-- [ ] Improved input experience and results layout
-- [ ] Mobile/responsive support
-- [ ] Ad preview display (images, videos, creative text)
-- [ ] Enhanced charts (more types, hover/drill-down, better labels)
+**Authentication & Payments:**
+- [ ] Google OAuth login
+- [ ] GitHub OAuth login
+- [ ] Stripe subscription integration
+- [ ] Two tiers: Free and Pro
+- [ ] Tier enforcement (gate features by subscription status)
+
+**Pro-only features:**
+- [ ] Deep analysis (500-1000 ads) — Pro only
+- [ ] Ad preview display (images, videos, creative text) — Pro only
+- [ ] Enhanced charts (more types, hover/drill-down, better labels) — Pro only
+- [ ] Export/download analysis results — Pro only
+
+**All users:**
+- [ ] Basic analysis (100 ads)
 - [ ] Clear error feedback when operations fail
-- [ ] Export/download analysis results
 
 ### Out of Scope
 
 - Per-ad demographic breakdown — aggregated summary only
 - Historical tracking — point-in-time analysis only
-- Export functionality — display only for v1
 - Puppeteer-based scraping — removed, using Facebook Graph API
+- Email/password authentication — social OAuth only for simplicity
+- Enterprise tier — keep it simple with Free + Pro
+- Team/organization accounts — single user accounts only for v2.0
+- Mobile app — web responsive only
 
 ## Context
 
@@ -83,6 +94,10 @@ Surface who competitors are reaching with their ads — demographics and geograp
 | Aggregate summary over per-ad details | User need is competitor patterns, not individual ads | ✓ Good |
 | Recharts for visualization | Lightweight, good React integration | ✓ Good |
 | Tiered analysis depth (100-1000) | Balance speed vs completeness | ✓ Good |
+| Social OAuth only (Google/GitHub) | No password management, simpler UX | — Pending |
+| Two tiers (Free + Pro) | Simple pricing, clear value proposition | — Pending |
+| Stripe for payments | Industry standard, good Next.js integration | — Pending |
+| Gate features by tier (not just depth) | Multiple value levers for Pro tier | — Pending |
 
 ---
-*Last updated: 2026-01-25 after v1.1 milestone started*
+*Last updated: 2026-01-26 after v2.0 milestone started*
