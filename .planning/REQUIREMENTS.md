@@ -15,8 +15,8 @@ Requirements for Payments & Auth milestone. Each maps to roadmap phases.
 
 ### Payments
 
-- [ ] **PAY-01**: User can subscribe to Pro tier via Stripe checkout
-- [ ] **PAY-02**: User can manage subscription (view status, cancel, resume)
+- [x] **PAY-01**: User can subscribe to Pro tier via Stripe checkout
+- [x] **PAY-02**: User can manage subscription (view status, cancel, resume)
 - [ ] **PAY-03**: System enforces tier-based feature access
 
 ### Tier Features
@@ -97,8 +97,8 @@ Which phases cover which requirements. Updated by create-roadmap.
 | AUTH-01 | Phase 10 | Complete |
 | AUTH-02 | Phase 10 | Complete |
 | AUTH-03 | Phase 10 | Complete |
-| PAY-01 | Phase 11 | Pending |
-| PAY-02 | Phase 11 | Pending |
+| PAY-01 | Phase 11 | Complete |
+| PAY-02 | Phase 11 | Complete |
 | PAY-03 | Phase 12 | Pending |
 | TIER-01 | Phase 12 | Pending |
 | TIER-02 | Phase 12 | Pending |
