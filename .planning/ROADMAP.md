@@ -1,13 +1,14 @@
-# Roadmap: Ad Library Demographics Analyzer v1.1
+# Roadmap: Ad Library Demographics Analyzer
 
 ## Overview
 
-Polish and enhance the existing v1.0 MVP with improved error handling, ad previews, chart interactivity, export capabilities, and mobile responsiveness. This milestone focuses on user experience refinements rather than new core features.
+Transform the v1.0 MVP into a monetized SaaS product with user authentication and Stripe subscription payments. Free tier provides basic analysis, Pro tier unlocks deep analysis and premium features.
 
 ## Milestones
 
-- **v1.0 MVP** - Phases 1-4 (shipped 2026-01-25)
-- **v1.1 Polish & Preview** - Phases 5-9 (in progress)
+- ✅ **v1.0 MVP** - Phases 1-4 (shipped 2026-01-25)
+- ✅ **v1.1 Partial** - Phase 5 (shipped 2026-01-25, phases 6-9 deferred)
+- 🚧 **v2.0 Payments & Auth** - Phases 10-13 (in progress)
 
 ## Phases
 
@@ -18,7 +19,7 @@ Polish and enhance the existing v1.0 MVP with improved error handling, ad previe
 Decimal phases appear between their surrounding integers in numeric order.
 
 <details>
-<summary>v1.0 MVP (Phases 1-4) - SHIPPED 2026-01-25</summary>
+<summary>✅ v1.0 MVP (Phases 1-4) - SHIPPED 2026-01-25</summary>
 
 ### Phase 1: Foundation
 **Goal**: Project setup and API integration
@@ -38,98 +39,94 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 </details>
 
-### v1.1 Polish & Preview (In Progress)
+<details>
+<summary>✅ v1.1 Partial (Phase 5) - SHIPPED 2026-01-25</summary>
 
-**Milestone Goal:** Improve user experience with better error handling, ad previews, enhanced charts, export options, and mobile support.
+### Phase 5: Error Handling & Foundation
+**Goal**: Stable foundation with error handling and loading states
+**Status**: Complete
+**Note**: Phases 6-9 (Ad Preview, Charts, Export, Mobile) deferred to v2.1+
 
-- [x] **Phase 5: Error Handling & Foundation** - Stable foundation with shadcn/ui, error messages, retry, skeletons
-- [ ] **Phase 6: Ad Preview** - View ads on Facebook, creative text display, media type indicators
-- [ ] **Phase 7: Chart Improvements** - Rich tooltips, responsive sizing, click-to-filter
-- [ ] **Phase 8: Export Enhancement** - PDF export capability
-- [ ] **Phase 9: Mobile Polish** - Responsive layout, touch-friendly targets
+</details>
+
+### 🚧 v2.0 Payments & Auth (In Progress)
+
+**Milestone Goal:** Monetize with Stripe subscriptions and tiered access (Free + Pro).
+
+- [ ] **Phase 10: Auth Foundation** - OAuth login with Google/GitHub
+- [ ] **Phase 11: Stripe Integration** - Subscription payments and management
+- [ ] **Phase 12: Tier Enforcement** - Gate features by subscription status
+- [ ] **Phase 13: Pro Features** - Build gated Pro capabilities
 
 ## Phase Details
 
-### Phase 5: Error Handling & Foundation
-**Goal**: Stable foundation for feature work with proper error handling and loading states
-**Depends on**: Phase 4 (v1.0 complete)
-**Requirements**: ERRH-01, ERRH-02, ERRH-03, UIUX-01
+### Phase 10: Auth Foundation
+**Goal**: OAuth login with Google/GitHub
+**Depends on**: Phase 5 (v1.1 complete)
+**Requirements**: AUTH-01, AUTH-02, AUTH-03
 **Success Criteria** (what must be TRUE):
-  1. User sees skeleton loading states while data fetches
-  2. User sees clear, non-technical error messages when API fails
-  3. User can click "Retry" to re-attempt failed requests
-  4. User gets real-time validation feedback on URL input
-**Plans**: 4 plans
-
-Plans:
-- [x] 05-01-PLAN.md — Install shadcn/ui components and npm packages
-- [x] 05-02-PLAN.md — Create error utilities and validation schema
-- [x] 05-03-PLAN.md — Create skeleton components and mount Toaster
-- [x] 05-04-PLAN.md — Integrate all error handling into page.tsx
-
-### Phase 6: Ad Preview
-**Goal**: Enable users to view ad creatives and access Facebook ad pages
-**Depends on**: Phase 5
-**Requirements**: PREV-01, PREV-02, PREV-03
-**Success Criteria** (what must be TRUE):
-  1. User can click to view any ad on Facebook (opens new tab)
-  2. User can see ad creative text in results
-  3. User can distinguish video ads from image ads via visual indicators
-**Plans**: 2 plans
-
-Plans:
-- [ ] 06-01-PLAN.md — Create AdPreviewCard component with media type badges
-- [ ] 06-02-PLAN.md — Integrate AdPreviewCard into page.tsx results
-
-### Phase 7: Chart Improvements
-**Goal**: Enhanced chart interactivity and responsiveness
-**Depends on**: Phase 5
-**Requirements**: CHRT-01, CHRT-02, CHRT-03
-**Success Criteria** (what must be TRUE):
-  1. User sees rich context in chart tooltips on hover
-  2. Charts resize properly when container changes
-  3. User can click chart element to filter related data
+  1. User can click "Sign in with Google" and be authenticated
+  2. User can click "Sign in with GitHub" and be authenticated
+  3. User sees their logged-in state (name/avatar) in UI
+  4. User can log out from any page
 **Plans**: TBD
 
 Plans:
-- [ ] 07-01: TBD
+- [ ] 10-01: TBD
 
-### Phase 8: Export Enhancement
-**Goal**: PDF export capability for analysis results
-**Depends on**: Phase 7 (charts finalized)
-**Requirements**: EXPT-01
+### Phase 11: Stripe Integration
+**Goal**: Subscription payments and management
+**Depends on**: Phase 10
+**Requirements**: PAY-01, PAY-02
 **Success Criteria** (what must be TRUE):
-  1. User can download analysis results as PDF
+  1. User can click "Upgrade to Pro" and complete Stripe checkout
+  2. User can view their current subscription status
+  3. User can cancel their subscription
+  4. User can resume a cancelled subscription
 **Plans**: TBD
 
 Plans:
-- [ ] 08-01: TBD
+- [ ] 11-01: TBD
 
-### Phase 9: Mobile Polish
-**Goal**: Responsive layout and touch-friendly interactions
-**Depends on**: Phase 8 (all features stable)
-**Requirements**: MOBL-01, MOBL-02
+### Phase 12: Tier Enforcement
+**Goal**: Gate features by subscription status
+**Depends on**: Phase 11
+**Requirements**: PAY-03, TIER-01, TIER-02
 **Success Criteria** (what must be TRUE):
-  1. App displays properly on mobile devices with responsive layout
-  2. All interactive elements have touch-friendly targets (48x48px minimum)
+  1. Free user sees analysis limited to 100 ads
+  2. Pro user can select 500 or 1000 ad depth
+  3. Free user sees "Pro feature" badges on locked features
+  4. System correctly reflects subscription changes in real-time
 **Plans**: TBD
 
 Plans:
-- [ ] 09-01: TBD
+- [ ] 12-01: TBD
+
+### Phase 13: Pro Features
+**Goal**: Build gated Pro capabilities
+**Depends on**: Phase 12
+**Requirements**: TIER-03, TIER-04, TIER-05
+**Success Criteria** (what must be TRUE):
+  1. Pro user sees ad previews (images, videos, creative text)
+  2. Pro user sees enhanced charts with better labels
+  3. Pro user can export analysis results
+  4. Free user sees these features as locked/teased
+**Plans**: TBD
+
+Plans:
+- [ ] 13-01: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9
+Phases execute in numeric order: 10 → 11 → 12 → 13
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Foundation | v1.0 | - | Complete | 2026-01-25 |
-| 2. Data Extraction | v1.0 | - | Complete | 2026-01-25 |
-| 3. Aggregation | v1.0 | - | Complete | 2026-01-25 |
-| 4. Display | v1.0 | - | Complete | 2026-01-25 |
-| 5. Error Handling & Foundation | v1.1 | 4/4 | Complete | 2026-01-25 |
-| 6. Ad Preview | v1.1 | 0/2 | Planned | - |
-| 7. Chart Improvements | v1.1 | 0/TBD | Not started | - |
-| 8. Export Enhancement | v1.1 | 0/TBD | Not started | - |
-| 9. Mobile Polish | v1.1 | 0/TBD | Not started | - |
+| 1-4 | v1.0 | - | Complete | 2026-01-25 |
+| 5 | v1.1 | 4/4 | Complete | 2026-01-25 |
+| 6-9 | v1.1 | - | Deferred | - |
+| 10. Auth Foundation | v2.0 | 0/TBD | Not started | - |
+| 11. Stripe Integration | v2.0 | 0/TBD | Not started | - |
+| 12. Tier Enforcement | v2.0 | 0/TBD | Not started | - |
+| 13. Pro Features | v2.0 | 0/TBD | Not started | - |

@@ -1,85 +1,92 @@
-# Requirements: Ad Library Demographics Analyzer v1.1
+# Requirements: Ad Library Demographics Analyzer v2.0
 
-**Defined:** 2026-01-25
+**Defined:** 2026-01-26
 **Core Value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
 
-## v1.1 Requirements
+## v2.0 Requirements
 
-Requirements for this milestone. Each maps to roadmap phases.
+Requirements for Payments & Auth milestone. Each maps to roadmap phases.
 
-### UI/UX Polish
+### Authentication
 
-- [ ] **UIUX-01**: User sees skeleton loading states while data fetches
+- [ ] **AUTH-01**: User can log in with Google OAuth
+- [ ] **AUTH-02**: User can log in with GitHub OAuth
+- [ ] **AUTH-03**: User can log out from any page
 
-### Mobile/Responsive
+### Payments
 
-- [ ] **MOBL-01**: App displays properly on mobile devices with responsive layout
-- [ ] **MOBL-02**: All interactive elements have touch-friendly targets (48x48px minimum)
+- [ ] **PAY-01**: User can subscribe to Pro tier via Stripe checkout
+- [ ] **PAY-02**: User can manage subscription (view status, cancel, resume)
+- [ ] **PAY-03**: System enforces tier-based feature access
 
-### Ad Preview
+### Tier Features
 
-- [ ] **PREV-01**: User can click to view ad on Facebook (opens in new tab)
-- [ ] **PREV-02**: User can see ad creative text in the results
-- [ ] **PREV-03**: User can distinguish video ads from image ads via indicators
+- [ ] **TIER-01**: Free users get basic analysis (100 ads max)
+- [ ] **TIER-02**: Pro users get deep analysis (500-1000 ads)
+- [ ] **TIER-03**: Pro users see ad previews (images, videos, creative text)
+- [ ] **TIER-04**: Pro users get enhanced charts (more types, better labels)
+- [ ] **TIER-05**: Pro users can export analysis results
 
-### Charts
+## Completed (Previous Milestones)
 
-- [ ] **CHRT-01**: User sees rich context in chart tooltips on hover
-- [ ] **CHRT-02**: Charts resize properly within their containers
-- [ ] **CHRT-03**: User can click a chart element to filter related data
+### v1.0 MVP (Shipped 2026-01-25)
 
-### Export
+- [x] Ad Library URL input and validation
+- [x] Ad discovery from Ad Library pages
+- [x] Basic results display with Tailwind styling
+- [x] Extract age group breakdown per ad
+- [x] Extract gender breakdown per ad
+- [x] Extract country/region breakdown per ad
+- [x] Extract reach/impressions data per ad
+- [x] Weight demographics by reach
+- [x] Aggregate demographics into summary view
+- [x] Display aggregated demographics in UI
+- [x] Visual charts for age/gender and country distribution
+- [x] Loading states during analysis
+- [x] Configurable analysis depth (100/250/500/1000 ads)
 
-- [ ] **EXPT-01**: User can export analysis results as PDF
+### v1.1 Partial (Shipped 2026-01-25)
 
-### Error Handling
+- [x] **UIUX-01**: Skeleton loading states while data fetches
+- [x] **ERRH-01**: Clear, non-technical error messages
+- [x] **ERRH-02**: Retry mechanism for failed API requests
+- [x] **ERRH-03**: Real-time validation feedback on inputs
 
-- [ ] **ERRH-01**: User sees clear, non-technical error messages when operations fail
-- [ ] **ERRH-02**: User can retry failed API requests
-- [ ] **ERRH-03**: User receives real-time validation feedback on inputs
+## Deferred (v2.1+)
 
-## v2 Requirements
+v1.1 features paused for v2.0 monetization. Will revisit after payments ship.
 
-Deferred to future release. Tracked but not in current roadmap.
+### Ad Preview (from v1.1)
 
-### UI/UX Polish
+- **PREV-01**: User can click to view ad on Facebook
+- **PREV-02**: User can see ad creative text in results
+- **PREV-03**: User can distinguish video ads from image ads
 
-- **UIUX-02**: Empty states with helpful messaging
-- **UIUX-03**: Microinteractions (hover states, transitions)
-- **UIUX-04**: Dark mode toggle
+### Charts (from v1.1)
 
-### Mobile/Responsive
+- **CHRT-01**: Rich context in chart tooltips on hover
+- **CHRT-02**: Charts resize properly within containers
+- **CHRT-03**: Click chart element to filter related data
 
-- **MOBL-03**: Gesture-based interactions (swipe, pinch)
+### Export (from v1.1)
 
-### Ad Preview
+- **EXPT-01**: Export analysis results as PDF
 
-- **PREV-04**: Thumbnail gallery with click-to-expand
-- **PREV-05**: Video click-to-play modal
+### Mobile (from v1.1)
 
-### Charts
-
-- **CHRT-04**: Cross-chart filtering (click one chart filters all)
-- **CHRT-05**: Animated chart transitions
-- **CHRT-06**: Export chart as image (PNG)
-
-### Export
-
-- **EXPT-02**: CSV export verification (existing)
-- **EXPT-03**: Excel (XLSX) export
+- **MOBL-01**: Responsive layout on mobile devices
+- **MOBL-02**: Touch-friendly targets (48x48px minimum)
 
 ## Out of Scope
 
-Explicitly excluded. Documented to prevent scope creep.
-
 | Feature | Reason |
 |---------|--------|
-| Inline ad thumbnails | Facebook blocks embedding (X-Frame-Options: DENY); requires server-side screenshot proxy |
-| Video hover autoplay | Browser restrictions; complex to implement reliably |
-| Carousel ad preview | High complexity; rare ad format |
-| Deep drill-down (3+ levels) | Complexity exceeds value for v1.1 |
-| Real-time live updates | Overkill for ad analysis; manual refresh sufficient |
-| User accounts/auth | Scope creep; not needed for single-user tool |
+| Email/password authentication | Social OAuth only for simplicity |
+| Enterprise tier | Keep it simple with Free + Pro |
+| Team/organization accounts | Single user accounts only for v2.0 |
+| Mobile app | Web responsive only |
+| Per-ad demographic breakdown | Aggregated summary only |
+| Historical tracking | Point-in-time analysis only |
 
 ## Traceability
 
@@ -87,25 +94,23 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UIUX-01 | Phase 5 | Complete |
-| ERRH-01 | Phase 5 | Complete |
-| ERRH-02 | Phase 5 | Complete |
-| ERRH-03 | Phase 5 | Complete |
-| PREV-01 | Phase 6 | Pending |
-| PREV-02 | Phase 6 | Pending |
-| PREV-03 | Phase 6 | Pending |
-| CHRT-01 | Phase 7 | Pending |
-| CHRT-02 | Phase 7 | Pending |
-| CHRT-03 | Phase 7 | Pending |
-| EXPT-01 | Phase 8 | Pending |
-| MOBL-01 | Phase 9 | Pending |
-| MOBL-02 | Phase 9 | Pending |
+| AUTH-01 | Phase 10 | Pending |
+| AUTH-02 | Phase 10 | Pending |
+| AUTH-03 | Phase 10 | Pending |
+| PAY-01 | Phase 11 | Pending |
+| PAY-02 | Phase 11 | Pending |
+| PAY-03 | Phase 12 | Pending |
+| TIER-01 | Phase 12 | Pending |
+| TIER-02 | Phase 12 | Pending |
+| TIER-03 | Phase 13 | Pending |
+| TIER-04 | Phase 13 | Pending |
+| TIER-05 | Phase 13 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 13 total
-- Mapped to phases: 13 ✓
+- v2.0 requirements: 11 total
+- Mapped to phases: 11 ✓
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-01-25*
-*Last updated: 2026-01-25 after roadmap created*
+*Requirements defined: 2026-01-26*
+*Previous milestone: v1.1 Phase 5 complete, Phases 6-9 deferred*
