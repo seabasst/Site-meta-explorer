@@ -21,12 +21,18 @@ const DEMO_USER = {
   image: null,
 }
 
+// Check if Google OAuth is configured
+const isGoogleConfigured = !!(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET)
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-    }),
+    // Only add Google provider if credentials are configured
+    ...(isGoogleConfigured ? [
+      Google({
+        clientId: process.env.AUTH_GOOGLE_ID!,
+        clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+      }),
+    ] : []),
     Credentials({
       name: "Email",
       credentials: {

@@ -2,12 +2,26 @@
 
 import { signIn } from "next-auth/react"
 import Link from "next/link"
+import { useState, useEffect } from "react"
 
 interface SignInButtonProps {
   provider: "google" | "email"
 }
 
 export function SignInButton({ provider }: SignInButtonProps) {
+  const [isGoogleAvailable, setIsGoogleAvailable] = useState<boolean | null>(null)
+
+  // Check if Google is configured
+  useEffect(() => {
+    if (provider === "google") {
+      fetch("/api/auth/providers")
+        .then(res => res.json())
+        .then(data => setIsGoogleAvailable(data.google))
+        .catch(() => setIsGoogleAvailable(false))
+    }
+  }, [provider])
+
+  // Email sign-in button - always available
   if (provider === "email") {
     return (
       <Link
@@ -23,6 +37,19 @@ export function SignInButton({ provider }: SignInButtonProps) {
     )
   }
 
+  // Google sign-in button - loading state
+  if (isGoogleAvailable === null) {
+    return (
+      <div className="w-[165px] h-[38px] rounded-lg bg-gray-100 animate-pulse" />
+    )
+  }
+
+  // Google not configured - don't render button
+  if (!isGoogleAvailable) {
+    return null
+  }
+
+  // Google sign-in button
   return (
     <button
       onClick={() => signIn("google", { redirectTo: "/" })}
