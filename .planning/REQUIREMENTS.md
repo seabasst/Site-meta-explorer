@@ -9,9 +9,9 @@ Requirements for Payments & Auth milestone. Each maps to roadmap phases.
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can log in with Google OAuth
-- [ ] **AUTH-02**: User can log in with GitHub OAuth
-- [ ] **AUTH-03**: User can log out from any page
+- [x] **AUTH-01**: User can log in with Google OAuth
+- [x] **AUTH-02**: User can log in with email/password *(changed from GitHub per user request)*
+- [x] **AUTH-03**: User can log out from any page
 
 ### Payments
 
@@ -81,7 +81,7 @@ v1.1 features paused for v2.0 monetization. Will revisit after payments ship.
 
 | Feature | Reason |
 |---------|--------|
-| Email/password authentication | Social OAuth only for simplicity |
+| GitHub OAuth | Simplified to Google + email only |
 | Enterprise tier | Keep it simple with Free + Pro |
 | Team/organization accounts | Single user accounts only for v2.0 |
 | Mobile app | Web responsive only |
@@ -94,9 +94,9 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 10 | Pending |
-| AUTH-02 | Phase 10 | Pending |
-| AUTH-03 | Phase 10 | Pending |
+| AUTH-01 | Phase 10 | Complete |
+| AUTH-02 | Phase 10 | Complete |
+| AUTH-03 | Phase 10 | Complete |
 | PAY-01 | Phase 11 | Pending |
 | PAY-02 | Phase 11 | Pending |
 | PAY-03 | Phase 12 | Pending |
