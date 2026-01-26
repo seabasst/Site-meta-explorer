@@ -73,3 +73,29 @@ export async function createCheckoutSession() {
 
   redirect(checkoutSession.url);
 }
+
+export async function createPortalSession() {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    throw new Error('Must be logged in to manage subscription');
+  }
+
+  // Find user in database
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { stripeCustomerId: true },
+  });
+
+  if (!user?.stripeCustomerId) {
+    throw new Error('No active subscription found');
+  }
+
+  // Create billing portal session
+  const portalSession = await stripe.billingPortal.sessions.create({
+    customer: user.stripeCustomerId,
+    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/`,
+  });
+
+  redirect(portalSession.url);
+}
