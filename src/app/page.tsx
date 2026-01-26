@@ -182,6 +182,9 @@ export default function Home() {
   // Active status filter: 'ACTIVE' shows only running ads, 'ALL' shows all ads including inactive
   const [activeStatus, setActiveStatus] = useState<'ACTIVE' | 'ALL'>('ACTIVE');
 
+  // Region filter: 'global' shows all ads, 'eu' shows only EU ads (with full demographic data)
+  const [regionFilter, setRegionFilter] = useState<'global' | 'eu'>('eu');
+
   // Analysis depth - number of ads to analyze (tiered: Free=100, Pro=250, Business=500/1000)
   const [analysisLimit, setAnalysisLimit] = useState<100 | 250 | 500 | 1000>(100);
 
@@ -233,13 +236,14 @@ export default function Home() {
     setApiResult(null);
     setTimelineAds(null);
 
-    // Major global markets + all EU countries for comprehensive ad coverage
-    const globalCountries = [
-      // Major non-EU markets
-      'US', 'GB', 'CA', 'AU', 'NZ', 'NO', 'CH',
-      // EU countries
-      'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'
-    ];
+    // EU countries (full demographic data available via DSA transparency)
+    const euCountries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'];
+
+    // Global = major non-EU markets + EU countries
+    const globalCountries = ['US', 'GB', 'CA', 'AU', 'NZ', 'NO', 'CH', ...euCountries];
+
+    // Use selected region's country list
+    const selectedCountries = regionFilter === 'eu' ? euCountries : globalCountries;
 
     try {
       // Fetch main results and timeline data in parallel
@@ -250,7 +254,7 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             adLibraryUrl: adLibraryUrl.trim(),
-            countries: globalCountries,
+            countries: selectedCountries,
             limit: analysisLimit,
             activeStatus,
           }),
@@ -262,7 +266,7 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             adLibraryUrl: adLibraryUrl.trim(),
-            countries: globalCountries,
+            countries: selectedCountries,
             limit: 500, // Higher limit for timeline to include historical/inactive ads
             activeStatus: 'ALL',
           }),
@@ -423,6 +427,47 @@ export default function Home() {
                   >
                     All Ads
                   </button>
+                </div>
+
+                <div className="w-px h-6 bg-[var(--border-subtle)]" />
+
+                <span className="text-xs text-[var(--text-muted)]">Region:</span>
+                <div className="relative group/region">
+                  <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-1 border border-[var(--border-subtle)]">
+                    <button
+                      type="button"
+                      onClick={() => setRegionFilter('eu')}
+                      disabled={isLoadingAds}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        regionFilter === 'eu'
+                          ? 'bg-[var(--accent-green)] text-white'
+                          : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
+                      }`}
+                    >
+                      EU Only
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRegionFilter('global')}
+                      disabled={isLoadingAds}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        regionFilter === 'global'
+                          ? 'bg-[var(--accent-green)] text-white'
+                          : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
+                      }`}
+                    >
+                      Global
+                    </button>
+                  </div>
+                  {/* Region info tooltip */}
+                  <div className="absolute left-0 top-full mt-1 w-64 p-3 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover/region:opacity-100 group-hover/region:visible transition-all z-50">
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      <span className="font-medium text-[var(--accent-green-light)]">EU Only:</span> Shows ads targeting EU countries with full demographic data (age, gender, location) via DSA transparency laws.
+                    </p>
+                    <p className="text-xs text-[var(--text-secondary)] mt-2">
+                      <span className="font-medium text-[var(--text-primary)]">Global:</span> Shows all ads including US, UK, etc. Demographics only available for EU-targeted ads.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="w-px h-6 bg-[var(--border-subtle)]" />
