@@ -26,6 +26,7 @@ import { useSession } from 'next-auth/react';
 import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
 import { UpgradeButton } from '@/components/subscription/upgrade-button';
+import { SubscriptionStatus } from '@/components/subscription/subscription-status';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
@@ -387,7 +388,7 @@ export default function Home() {
                 </div>
               ) : session ? (
                 <div className="flex items-center gap-4">
-                  <UpgradeButton />
+                  <SubscriptionStatus />
                   <UserMenu />
                 </div>
               ) : (

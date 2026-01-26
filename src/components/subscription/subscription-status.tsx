@@ -1,21 +1,62 @@
-import { auth } from '@/auth';
-import { getSubscriptionStatus, type SubscriptionStatus as Status } from '@/lib/subscription';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import type { SubscriptionStatus as Status } from '@/lib/subscription';
 import { UpgradeButton } from './upgrade-button';
 import { ManageSubscriptionButton } from './manage-subscription-button';
 
-export async function SubscriptionStatus() {
-  const session = await auth();
+export function SubscriptionStatus() {
+  const { data: session, status: authStatus } = useSession();
+  const [subscriptionStatus, setSubscriptionStatus] = useState<Status | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!session?.user?.email) {
+  useEffect(() => {
+    if (authStatus === 'loading') return;
+
+    if (!session?.user?.email) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Fetch subscription status from API
+    fetch('/api/subscription/status')
+      .then((res) => res.json())
+      .then((data) => {
+        setSubscriptionStatus(data.status);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setSubscriptionStatus('free');
+        setIsLoading(false);
+      });
+  }, [session?.user?.email, authStatus]);
+
+  // Don't render if not logged in or still loading auth
+  if (authStatus === 'loading' || !session) {
     return null;
   }
 
-  const status = await getSubscriptionStatus(session.user.email);
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-3">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-400 animate-pulse">
+          Loading...
+        </span>
+      </div>
+    );
+  }
+
+  // Not subscribed status check
+  if (!subscriptionStatus) {
+    return null;
+  }
 
   return (
     <div className="flex items-center gap-3">
-      <StatusBadge status={status} />
-      <StatusAction status={status} />
+      <StatusBadge status={subscriptionStatus} />
+      <StatusAction status={subscriptionStatus} />
     </div>
   );
 }
@@ -55,10 +96,9 @@ function StatusAction({ status }: { status: Status }) {
     case 'past_due':
       return <ManageSubscriptionButton />;
     case 'cancelled':
-      // User can resubscribe via upgrade button
-      return <UpgradeButton />;
+    case 'free':
     default:
-      // Free users see upgrade button (handled by UpgradeButton in header)
-      return null;
+      // Free/cancelled users see upgrade button
+      return <UpgradeButton />;
   }
 }
