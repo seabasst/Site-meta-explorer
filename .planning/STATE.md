@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 ## Current Position
 
 Phase: 10 of 13 (Auth Foundation)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-01-26 — v2.0 roadmap created (4 phases, 11 requirements)
+Plan: 01 of 02 complete
+Status: In progress
+Last activity: 2026-01-26 — Completed 10-01-PLAN.md (Auth Infrastructure)
 
-Progress: ██████████░░░░░░░░░░ 50% (v1.0 shipped, v1.1 partial, v2.0 ready)
+Progress: ██████████░░░░░░░░░░ 52% (v1.0 shipped, v1.1 partial, v2.0 plan 1 done)
 
 ## Milestones
 
@@ -27,7 +27,7 @@ Progress: ██████████░░░░░░░░░░ 50% (v1.0
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: —
 - Total execution time: —
 
@@ -36,7 +36,8 @@ Progress: ██████████░░░░░░░░░░ 50% (v1.0
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 5 (v1.1) | 4 | — | — |
-| 10-13 (v2.0) | 0 | TBD | — |
+| 10 (Auth Foundation) | 1 | 4min | 4min |
+| 11-13 (v2.0) | 0 | TBD | — |
 
 ## Accumulated Context
 
@@ -50,6 +51,10 @@ Recent decisions affecting current work:
 - v2.0: Stripe for payments
 - v2.0: Gate features by tier (depth + feature access)
 
+**From 10-01:**
+- JWT session strategy (no database needed for auth)
+- Type augmentation to expose user.id in session
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -60,12 +65,12 @@ None.
 
 ### Blockers/Concerns
 
-- Auth provider selection and setup needed
+- ~~Auth provider selection and setup needed~~ (Auth.js v5 installed, OAuth config pending user setup)
 - Stripe account/keys required for payment integration
 - Database needed for user accounts and subscriptions
 
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: v2.0 roadmap created — ready to plan Phase 10
+Stopped at: Completed 10-01-PLAN.md (Auth Infrastructure)
 Resume file: None
