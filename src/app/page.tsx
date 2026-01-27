@@ -25,6 +25,7 @@ import { validateAdLibraryUrl } from '@/lib/validation';
 import { getUserFriendlyMessage } from '@/lib/errors';
 import { AdPreviewCard } from '@/components/ads/ad-preview-card';
 import { BrandAnalysis } from '@/components/analytics/brand-analysis';
+import { AccountSummary } from '@/components/summary/account-summary';
 import { Play, Image as ImageIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { SignInButton } from '@/components/auth/sign-in-button';
@@ -32,6 +33,8 @@ import { UserMenu } from '@/components/auth/user-menu';
 import { SubscriptionStatus } from '@/components/subscription/subscription-status';
 import { DepthSelector } from '@/components/tier/depth-selector';
 import { FeatureGate } from '@/components/tier/feature-gate';
+import { KiriMediaPopup } from '@/components/promo/kiri-media-popup';
+import { FeedbackPopup } from '@/components/feedback/feedback-popup';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
@@ -214,6 +217,10 @@ export default function Home() {
       <div className="gradient-mesh" />
       <div className="noise-overlay" />
 
+      {/* Kiri Media Popup - appears after 60 seconds */}
+      <KiriMediaPopup />
+      <FeedbackPopup />
+
       <main className="min-h-screen">
         <div className="max-w-7xl mx-auto px-6 py-16">
           {/* Header */}
@@ -379,7 +386,7 @@ export default function Home() {
                 />
 
                 {/* How it works info dropdown */}
-                <div className="relative group">
+                <div className="relative group z-[100]">
                   <button
                     type="button"
                     className="flex items-center gap-1 px-2 py-1.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
@@ -389,7 +396,7 @@ export default function Home() {
                     </svg>
                     <span>How it works</span>
                   </button>
-                  <div className="absolute left-0 top-full mt-1 w-80 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                  <div className="absolute left-0 top-full mt-1 w-80 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[100]">
                     <h4 className="font-medium text-[var(--text-primary)] mb-2">Which ads are analysed?</h4>
                     <div className="space-y-2 text-xs text-[var(--text-secondary)]">
                       <p>
@@ -536,29 +543,17 @@ export default function Home() {
           {(apiResult || isLoadingAds) && (
             <div className="animate-fade-in mb-8">
               <div id="analysis-results" className="glass rounded-2xl p-6">
-                <div className="flex items-start justify-between gap-4 mb-4">
+                <div className="flex items-start justify-between gap-4 mb-6">
                   <div>
-                    <h2 className="font-serif text-xl text-[var(--text-primary)] mb-1">
-                      Facebook Ad Library <span className="italic text-[var(--accent-green-light)]">Analysis</span>
+                    <h2 className="font-serif text-2xl text-[var(--text-primary)] mb-1">
+                      {apiResult?.pageName || 'Analysing'}
                     </h2>
-                    <p className="text-sm text-[var(--text-secondary)]">
-                      Cross-reference with active Facebook ads to see which pages are being promoted
+                    <p className="text-sm text-[var(--text-muted)]">
+                      Facebook Ad Library Analysis
                     </p>
                   </div>
                   {apiResult && (
-                    <div className="flex items-center gap-4 text-right">
-                          <div>
-                            <div className="text-2xl font-bold text-[var(--accent-yellow)]">
-                              {apiResult.ads.reduce((sum, ad) => sum + ad.euTotalReach, 0).toLocaleString()}
-                            </div>
-                            <div className="text-xs text-[var(--text-muted)]">Total EU Reach</div>
-                          </div>
-                          <div>
-                            <div className="text-2xl font-bold text-[var(--text-primary)]">
-                              {apiResult.totalAdsFound}
-                            </div>
-                            <div className="text-xs text-[var(--text-muted)]">Ads Analysed</div>
-                          </div>
+                    <div className="flex items-center gap-2">
                           {/* Export Dropdown */}
                           <div className="relative group">
                             <button
@@ -691,9 +686,14 @@ export default function Home() {
                   )}
                 </div>
 
+                {/* Account Summary - Key metrics at a glance */}
+                {apiResult && (
+                  <AccountSummary result={apiResult} />
+                )}
+
                 {/* Tab Navigation */}
                 {apiResult && (
-                  <div className="mt-4 flex items-center gap-1 p-1 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] w-fit">
+                  <div className="flex items-center gap-1 p-1 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] w-fit mb-6">
                     <button
                       onClick={() => setResultsTab('overview')}
                       className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
@@ -737,24 +737,17 @@ export default function Home() {
                 {/* OVERVIEW TAB CONTENT */}
                 {resultsTab === 'overview' && apiResult && (
                   <>
-                    {/* Ad Library Results Summary - API Result */}
-                    <div className="mt-4 p-4 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
-                      <div className="flex items-center gap-2 mb-3">
-                      <svg className="w-4 h-4 text-[var(--cat-landing)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="font-medium text-[var(--text-primary)]">
-                        {apiResult.pageName || `Page ${apiResult.pageId}`}
-                      </span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--accent-green)] text-[#1c1c0d]">
-                        via API
-                      </span>
-                    </div>
+                    {/* Top Ads by Reach - Featured ad previews */}
                     {apiResult.ads.length > 0 && (
                       <FeatureGate feature="adPreviews">
-                        <div className="text-sm text-[var(--text-secondary)]">
-                          <p className="mb-2 font-medium text-[var(--text-primary)]">Top Ads by Reach</p>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
+                        <div className="glass rounded-xl p-5 mb-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                              Top <span className="italic text-[var(--accent-green-light)]">Performers</span>
+                            </h3>
+                            <span className="text-xs text-[var(--text-muted)]">By EU reach</span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {[...apiResult.ads]
                               .sort((a, b) => b.euTotalReach - a.euTotalReach)
                               .slice(0, 6)
@@ -762,18 +755,9 @@ export default function Home() {
                                 <AdPreviewCard key={ad.adArchiveId || index} ad={ad} />
                               ))}
                           </div>
-                          {apiResult.ads.length > 6 && (
-                            <p className="text-center text-xs text-[var(--text-muted)] mt-4">
-                              +{apiResult.ads.length - 6} more ads (expand &quot;View all&quot; below)
-                            </p>
-                          )}
                         </div>
                       </FeatureGate>
                     )}
-                    <div className="mt-3 text-xs text-[var(--text-muted)]">
-                      Countries: {apiResult.metadata.countries.join(', ')} • Fetched: {new Date(apiResult.metadata.fetchedAt).toLocaleTimeString()}
-                    </div>
-                  </div>
 
                 {/* All Active Ads - expandable list */}
                 {apiResult.ads.length > 0 && (
