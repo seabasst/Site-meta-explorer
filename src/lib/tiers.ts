@@ -13,16 +13,24 @@ export interface TierConfig {
   };
 }
 
+// Free access period - all features unlocked until this date
+const FREE_ACCESS_UNTIL = new Date('2026-03-01T00:00:00Z');
+
+// Check if we're in the free access period
+export function isInFreeAccessPeriod(): boolean {
+  return new Date() < FREE_ACCESS_UNTIL;
+}
+
 export const TIERS: Record<TierName, TierConfig> = {
   free: {
     name: 'free',
     label: 'Free',
-    maxAds: 100,
-    availableDepths: [100] as const,
+    maxAds: 1000, // Unlocked during free period
+    availableDepths: [100, 500, 1000] as const, // All depths available
     features: {
-      deepAnalysis: false,
-      export: false,
-      adPreviews: false,
+      deepAnalysis: true, // Unlocked during free period
+      export: true,       // Unlocked during free period
+      adPreviews: true,   // Unlocked during free period
     },
   },
   pro: {
@@ -42,6 +50,8 @@ export const TIERS: Record<TierName, TierConfig> = {
 export function getTierFromStatus(
   status: 'free' | 'pro' | 'past_due' | 'cancelled' | 'unauthenticated'
 ): TierName {
+  // During free access period, everyone gets pro features
+  // (The free tier config already has all features enabled)
   // Pro access for active subscriptions only
   // past_due gets grace period (treat as pro for now)
   return status === 'pro' || status === 'past_due' ? 'pro' : 'free';

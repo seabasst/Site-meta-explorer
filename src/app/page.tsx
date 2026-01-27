@@ -15,9 +15,6 @@ import { FavoritesPanel } from '@/components/favorites/favorites-panel';
 import { useFavorites, FavoriteBrand } from '@/hooks/use-favorites';
 import { exportAdsToCSV, exportDemographicsToCSV, exportFullReportToCSV } from '@/lib/export-utils';
 import { exportToPDF } from '@/lib/pdf-export';
-import { useTierAccess } from '@/hooks/use-tier-access';
-import { ProBadge } from '@/components/tier/pro-badge';
-import { createCheckoutSession } from '@/app/actions/stripe';
 import { extractPageIdFromUrl } from '@/lib/facebook-api';
 import { ResultsSkeleton } from '@/components/loading/results-skeleton';
 import { ApiErrorAlert } from '@/components/error/api-error-alert';
@@ -66,8 +63,6 @@ export default function Home() {
   // Auth state
   const { data: session, status: authStatus } = useSession();
 
-  // Tier access for feature gating
-  const { config: tierConfig, isLoading: tierLoading } = useTierAccess();
 
   // Ad Library state
   const [adLibraryUrl, setAdLibraryUrl] = useState('');
@@ -566,46 +561,27 @@ export default function Home() {
                               Export
                             </button>
                             <div className="absolute right-0 top-full mt-1 w-48 py-1 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                              {/* PDF Export - Pro only */}
-                              {tierConfig.features.export ? (
-                                <button
-                                  onClick={async () => {
-                                    if (isPdfExporting) return;
-                                    setIsPdfExporting(true);
-                                    try {
-                                      await exportToPDF(apiResult, 'analysis-results');
-                                      toast.success('PDF exported successfully');
-                                    } catch (error) {
-                                      toast.error('Failed to export PDF', {
-                                        description: error instanceof Error ? error.message : 'Unknown error',
-                                      });
-                                    } finally {
-                                      setIsPdfExporting(false);
-                                    }
-                                  }}
-                                  disabled={isPdfExporting}
-                                  className="w-full px-4 py-2 text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors disabled:opacity-50"
-                                >
-                                  {isPdfExporting ? 'Exporting...' : 'Full Report (PDF)'}
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={async () => {
-                                    if (!session) {
-                                      // Not signed in - redirect to sign in
-                                      const { signIn } = await import('next-auth/react');
-                                      signIn();
-                                    } else {
-                                      // Signed in but free tier - go to checkout
-                                      await createCheckoutSession();
-                                    }
-                                  }}
-                                  className="w-full px-4 py-2 text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors flex items-center justify-between"
-                                >
-                                  <span>Full Report (PDF)</span>
-                                  <ProBadge size="sm" />
-                                </button>
-                              )}
+                              {/* PDF Export */}
+                              <button
+                                onClick={async () => {
+                                  if (isPdfExporting) return;
+                                  setIsPdfExporting(true);
+                                  try {
+                                    await exportToPDF(apiResult, 'analysis-results');
+                                    toast.success('PDF exported successfully');
+                                  } catch (error) {
+                                    toast.error('Failed to export PDF', {
+                                      description: error instanceof Error ? error.message : 'Unknown error',
+                                    });
+                                  } finally {
+                                    setIsPdfExporting(false);
+                                  }
+                                }}
+                                disabled={isPdfExporting}
+                                className="w-full px-4 py-2 text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors disabled:opacity-50"
+                              >
+                                {isPdfExporting ? 'Exporting...' : 'Full Report (PDF)'}
+                              </button>
                               <div className="border-t border-[var(--border-subtle)] my-1" />
                               <button
                                 onClick={() => exportFullReportToCSV(apiResult)}
