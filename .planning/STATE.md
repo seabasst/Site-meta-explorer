@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 ## Current Position
 
 Phase: 12 of 13 (Tier Enforcement)
-Plan: 01 of 03 complete
+Plan: 02 of 03 complete
 Status: In progress
-Last activity: 2026-01-27 — Completed 12-01-PLAN.md (Tier Configuration Foundation)
+Last activity: 2026-01-27 — Completed 12-02-PLAN.md (Facebook Ads API Tier Enforcement)
 
-Progress: █████████████████░░░ 85% (v1.0 shipped, v1.1 partial, v2.0 Phases 10-11 complete, 12 in progress)
+Progress: █████████████████░░░ 87% (v1.0 shipped, v1.1 partial, v2.0 Phases 10-11 complete, 12 in progress)
 
 ## Milestones
 
@@ -90,6 +90,12 @@ Recent decisions affecting current work:
 - Unauthenticated users get free tier info (not 401)
 - useTierAccess hook for client-side tier checking
 
+**From 12-02:**
+- Server-side tier enforcement in /api/facebook-ads route
+- Graceful degradation: cap requests instead of rejecting
+- Logging with [Tier] prefix for debugging
+- Both POST and GET handlers enforce limits
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -110,6 +116,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 12-01-PLAN.md (Tier Configuration Foundation)
+Stopped at: Completed 12-02-PLAN.md (Facebook Ads API Tier Enforcement)
 Resume file: None
-Next: 12-02-PLAN.md — Tier-aware depth selector and Pro badges
+Next: 12-03-PLAN.md — Tier-aware UI components (depth selector, Pro badges)
