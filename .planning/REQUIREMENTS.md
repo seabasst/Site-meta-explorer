@@ -23,9 +23,9 @@ Requirements for Payments & Auth milestone. Each maps to roadmap phases.
 
 - [x] **TIER-01**: Free users get basic analysis (100 ads max)
 - [x] **TIER-02**: Pro users get deep analysis (500-1000 ads)
-- [ ] **TIER-03**: Pro users see ad previews (images, videos, creative text)
-- [ ] **TIER-04**: Pro users get enhanced charts (more types, better labels)
-- [ ] **TIER-05**: Pro users can export analysis results
+- [x] **TIER-03**: Pro users see ad previews (images, videos, creative text)
+- [x] **TIER-04**: Pro users get enhanced charts (more types, better labels)
+- [x] **TIER-05**: Pro users can export analysis results
 
 ## Completed (Previous Milestones)
 
@@ -102,9 +102,9 @@ Which phases cover which requirements. Updated by create-roadmap.
 | PAY-03 | Phase 12 | Complete |
 | TIER-01 | Phase 12 | Complete |
 | TIER-02 | Phase 12 | Complete |
-| TIER-03 | Phase 13 | Pending |
-| TIER-04 | Phase 13 | Pending |
-| TIER-05 | Phase 13 | Pending |
+| TIER-03 | Phase 13 | Complete |
+| TIER-04 | Phase 13 | Complete |
+| TIER-05 | Phase 13 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 11 total

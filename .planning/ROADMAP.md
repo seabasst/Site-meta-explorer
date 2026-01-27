@@ -8,7 +8,7 @@ Transform the v1.0 MVP into a monetized SaaS product with user authentication an
 
 - ✅ **v1.0 MVP** - Phases 1-4 (shipped 2026-01-25)
 - ✅ **v1.1 Partial** - Phase 5 (shipped 2026-01-25, phases 6-9 deferred)
-- 🚧 **v2.0 Payments & Auth** - Phases 10-13 (in progress)
+- ✅ **v2.0 Payments & Auth** - Phases 10-13 (shipped 2026-01-27)
 
 ## Phases
 
@@ -49,14 +49,14 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 </details>
 
-### 🚧 v2.0 Payments & Auth (In Progress)
+### ✅ v2.0 Payments & Auth (Complete)
 
 **Milestone Goal:** Monetize with Stripe subscriptions and tiered access (Free + Pro).
 
 - [x] **Phase 10: Auth Foundation** - OAuth login with Google + email (completed 2026-01-26)
 - [x] **Phase 11: Stripe Integration** - Subscription payments and management (completed 2026-01-26)
 - [x] **Phase 12: Tier Enforcement** - Gate features by subscription status (completed 2026-01-27)
-- [ ] **Phase 13: Pro Features** - Build gated Pro capabilities
+- [x] **Phase 13: Pro Features** - Build gated Pro capabilities (completed 2026-01-27)
 
 ## Phase Details
 
@@ -111,21 +111,22 @@ Plans:
 - [x] 12-02-PLAN.md — Server-side tier enforcement (API limit capping, logging)
 - [x] 12-03-PLAN.md — Tier UI components (ProBadge, DepthSelector, page integration)
 
-### Phase 13: Pro Features
+### Phase 13: Pro Features ✓
 **Goal**: Build gated Pro capabilities
 **Depends on**: Phase 12
 **Requirements**: TIER-03, TIER-04, TIER-05
+**Status**: Complete (2026-01-27)
 **Success Criteria** (what must be TRUE):
-  1. Pro user sees ad previews (images, videos, creative text)
-  2. Pro user sees enhanced charts with better labels
-  3. Pro user can export analysis results
-  4. Free user sees these features as locked/teased
+  1. Pro user sees ad previews (images, videos, creative text) ✓
+  2. Pro user sees enhanced charts with better labels ✓
+  3. Pro user can export analysis results ✓
+  4. Free user sees these features as locked/teased ✓
 **Plans**: 3 plans in 1 wave
 
 Plans:
-- [ ] 13-01-PLAN.md — FeatureGate component and ad preview gating (TIER-03)
-- [ ] 13-02-PLAN.md — Enhanced chart tooltips and labels (TIER-04)
-- [ ] 13-03-PLAN.md — PDF export with tier gating (TIER-05)
+- [x] 13-01-PLAN.md — FeatureGate component and ad preview gating (TIER-03)
+- [x] 13-02-PLAN.md — Enhanced chart tooltips and labels (TIER-04)
+- [x] 13-03-PLAN.md — PDF export with tier gating (TIER-05)
 
 ## Progress
 
@@ -140,4 +141,4 @@ Phases execute in numeric order: 10 → 11 → 12 → 13
 | 10. Auth Foundation | v2.0 | 2/2 | Complete | 2026-01-26 |
 | 11. Stripe Integration | v2.0 | 4/4 | Complete | 2026-01-26 |
 | 12. Tier Enforcement | v2.0 | 3/3 | Complete | 2026-01-27 |
-| 13. Pro Features | v2.0 | 0/3 | Not started | - |
+| 13. Pro Features | v2.0 | 3/3 | Complete | 2026-01-27 |
