@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 ## Current Position
 
 Phase: 13 of 13 (Pro Features)
-Plan: 01 of 03 complete
+Plan: 02 of 03 complete
 Status: In progress
-Last activity: 2026-01-27 — Completed 13-01-PLAN.md (Feature Gating - Ad Previews)
+Last activity: 2026-01-27 — Completed 13-02-PLAN.md (Enhanced Chart Tooltips)
 
-Progress: ██████████████████░░ 93% (v1.0 shipped, v1.1 partial, v2.0 Phases 10-12 complete, 13 in progress)
+Progress: ██████████████████░░ 95% (v1.0 shipped, v1.1 partial, v2.0 Phases 10-12 complete, 13 in progress)
 
 ## Milestones
 
@@ -39,7 +39,7 @@ Progress: ██████████████████░░ 93% (v1.0
 | 10 (Auth Foundation) | 2 | ~19min | ~10min |
 | 11 (Stripe Integration) | 4 | 22min | ~5.5min |
 | 12 (Tier Enforcement) | 3 | ~9min | ~3min |
-| 13 (Pro Features) | 1/3 | 2min | 2min |
+| 13 (Pro Features) | 2/3 | 8min | 4min |
 
 ## Accumulated Context
 
@@ -109,6 +109,13 @@ Recent decisions affecting current work:
 - Blur+lock overlay pattern for locked Pro content
 - Ad preview section gated with FeatureGate
 
+**From 13-02:**
+- Enhanced age/gender chart with hover tooltips showing Male/Female/Total breakdown
+- Enhanced country chart with ranking position and country names
+- Dominant segment callout for demographics insights
+- useState for controlled hover tracking pattern
+- Scale transform (1.02) for hover visual feedback
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -129,6 +136,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 13-01-PLAN.md (Feature Gating - Ad Previews)
+Stopped at: Completed 13-02-PLAN.md (Enhanced Chart Tooltips)
 Resume file: None
-Next: Phase 13 Plan 02 — Export gating (or 13-03 Enhanced Charts)
+Next: Phase 13 Plan 03 — Export Features (PDF export gating)
