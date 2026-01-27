@@ -120,10 +120,12 @@ Plans:
   2. Pro user sees enhanced charts with better labels
   3. Pro user can export analysis results
   4. Free user sees these features as locked/teased
-**Plans**: TBD
+**Plans**: 3 plans in 1 wave
 
 Plans:
-- [ ] 13-01: TBD
+- [ ] 13-01-PLAN.md — FeatureGate component and ad preview gating (TIER-03)
+- [ ] 13-02-PLAN.md — Enhanced chart tooltips and labels (TIER-04)
+- [ ] 13-03-PLAN.md — PDF export with tier gating (TIER-05)
 
 ## Progress
 
@@ -138,4 +140,4 @@ Phases execute in numeric order: 10 → 11 → 12 → 13
 | 10. Auth Foundation | v2.0 | 2/2 | Complete | 2026-01-26 |
 | 11. Stripe Integration | v2.0 | 4/4 | Complete | 2026-01-26 |
 | 12. Tier Enforcement | v2.0 | 3/3 | Complete | 2026-01-27 |
-| 13. Pro Features | v2.0 | 0/TBD | Not started | - |
+| 13. Pro Features | v2.0 | 0/3 | Not started | - |
