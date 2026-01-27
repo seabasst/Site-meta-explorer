@@ -105,7 +105,23 @@ export async function GET(request: NextRequest) {
   const pageId = searchParams.get('pageId');
   const searchTerms = searchParams.get('searchTerms') || searchParams.get('q');
   const countries = searchParams.get('countries')?.split(',') || ['NL'];
-  const limit = parseInt(searchParams.get('limit') || '25', 10);
+  let limit = parseInt(searchParams.get('limit') || '25', 10);
+
+  // --- TIER ENFORCEMENT ---
+  const session = await auth();
+  let tier: TierName = 'free';
+
+  if (session?.user?.email) {
+    const status = await getSubscriptionStatus(session.user.email);
+    tier = getTierFromStatus(status);
+  }
+
+  const maxAllowed = getMaxDepth(tier);
+  if (limit > maxAllowed) {
+    console.log(`[Tier] GET: Capped limit from ${limit} to ${maxAllowed} for ${tier} tier`);
+    limit = maxAllowed;
+  }
+  // --- END TIER ENFORCEMENT ---
 
   const accessToken = process.env.FACEBOOK_ACCESS_TOKEN;
 
