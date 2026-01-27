@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-26)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 12 complete — Tier Enforcement done
+**Current focus:** Phase 13 in progress — Pro Features (feature gating)
 
 ## Current Position
 
-Phase: 12 of 13 (Tier Enforcement)
-Plan: 03 of 03 complete
-Status: Phase 12 complete
-Last activity: 2026-01-27 — Completed 12-03-PLAN.md (Tier UI Components)
+Phase: 13 of 13 (Pro Features)
+Plan: 01 of 03 complete
+Status: In progress
+Last activity: 2026-01-27 — Completed 13-01-PLAN.md (Feature Gating - Ad Previews)
 
-Progress: █████████████████░░░ 90% (v1.0 shipped, v1.1 partial, v2.0 Phases 10-12 complete, 13 remaining)
+Progress: ██████████████████░░ 93% (v1.0 shipped, v1.1 partial, v2.0 Phases 10-12 complete, 13 in progress)
 
 ## Milestones
 
@@ -22,12 +22,12 @@ Progress: █████████████████░░░ 90% (v1.0
 |---------|--------|---------|
 | v1.0 MVP | Complete | 2026-01-25 |
 | v1.1 Polish | Partial (Phase 5 shipped, 6-9 deferred) | 2026-01-25 |
-| v2.0 Payments & Auth | In Progress (Phase 10-12 complete, 13 remaining) | - |
+| v2.0 Payments & Auth | In Progress (Phase 10-12 complete, 13 in progress) | - |
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
+- Total plans completed: 16
 - Average duration: —
 - Total execution time: —
 
@@ -39,7 +39,7 @@ Progress: █████████████████░░░ 90% (v1.0
 | 10 (Auth Foundation) | 2 | ~19min | ~10min |
 | 11 (Stripe Integration) | 4 | 22min | ~5.5min |
 | 12 (Tier Enforcement) | 3 | ~9min | ~3min |
-| 13 (Feature Gating) | 0 | TBD | — |
+| 13 (Pro Features) | 1/3 | 2min | 2min |
 
 ## Accumulated Context
 
@@ -103,6 +103,12 @@ Recent decisions affecting current work:
 - Three depth options: 100 (free), 500/1000 (pro)
 - Locked options trigger sign-in or checkout flow
 
+**From 13-01:**
+- FeatureGate component for reusable tier-based content gating
+- showTeaser=true by default to show blurred teaser (encourages upgrades)
+- Blur+lock overlay pattern for locked Pro content
+- Ad preview section gated with FeatureGate
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -123,6 +129,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed Phase 12 (Tier Enforcement)
+Stopped at: Completed 13-01-PLAN.md (Feature Gating - Ad Previews)
 Resume file: None
-Next: Phase 13 — Pro Features (ad previews, enhanced charts, export)
+Next: Phase 13 Plan 02 — Export gating (or 13-03 Enhanced Charts)
