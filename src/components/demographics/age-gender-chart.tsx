@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 interface AgeGenderChartProps {
   data: { age: string; gender: string; percentage: number }[];
@@ -10,6 +10,8 @@ interface AgeGenderChartProps {
 const AGE_ORDER = ['13-17', '18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
 
 export function AgeGenderChart({ data }: AgeGenderChartProps) {
+  const [hoveredAge, setHoveredAge] = useState<string | null>(null);
+
   const groupedData = useMemo(() => {
     if (!data?.length) return [];
 
@@ -32,6 +34,27 @@ export function AgeGenderChart({ data }: AgeGenderChartProps) {
 
   const maxValue = useMemo(() => {
     return Math.max(...groupedData.flatMap(d => [d.male, d.female, d.unknown]), 1);
+  }, [groupedData]);
+
+  // Find the dominant segment (highest single gender+age combo)
+  const dominantSegment = useMemo((): { age: string; gender: string; percentage: number } | null => {
+    if (!groupedData.length) return null;
+
+    let maxPct = 0;
+    let dominant: { age: string; gender: string; percentage: number } | null = null;
+
+    groupedData.forEach(group => {
+      if (group.male > maxPct) {
+        maxPct = group.male;
+        dominant = { age: group.age, gender: 'Male', percentage: group.male };
+      }
+      if (group.female > maxPct) {
+        maxPct = group.female;
+        dominant = { age: group.age, gender: 'Female', percentage: group.female };
+      }
+    });
+
+    return dominant;
   }, [groupedData]);
 
   if (!data?.length) {
@@ -69,65 +92,107 @@ export function AgeGenderChart({ data }: AgeGenderChartProps) {
 
       {/* Chart */}
       <div className="space-y-4">
-        {groupedData.map((group, index) => (
-          <div
-            key={group.age}
-            className="group"
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            {/* Age label */}
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
-                {group.age}
-              </span>
-              <span className="text-xs text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity">
-                {(group.male + group.female + group.unknown).toFixed(1)}% total
-              </span>
-            </div>
+        {groupedData.map((group, index) => {
+          const total = group.male + group.female + group.unknown;
+          const isHovered = hoveredAge === group.age;
 
-            {/* Bars container */}
-            <div className="flex gap-1.5 h-8">
-              {/* Male bar */}
-              <div className="relative flex-1 bg-[var(--bg-tertiary)] rounded overflow-hidden">
-                <div
-                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-blue-400 rounded transition-all duration-700 ease-out group-hover:brightness-110"
-                  style={{
-                    width: `${(group.male / maxValue) * 100}%`,
-                    boxShadow: group.male > 5 ? '0 0 20px rgba(59, 130, 246, 0.3)' : 'none'
-                  }}
-                />
-                {group.male > 3 && (
-                  <span className="absolute inset-y-0 left-2 flex items-center text-xs font-bold text-white drop-shadow-sm">
-                    {group.male.toFixed(1)}%
-                  </span>
-                )}
+          return (
+            <div
+              key={group.age}
+              className="group relative"
+              style={{ animationDelay: `${index * 50}ms` }}
+              onMouseEnter={() => setHoveredAge(group.age)}
+              onMouseLeave={() => setHoveredAge(null)}
+            >
+              {/* Age label */}
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
+                  {group.age}
+                </span>
+                {/* Enhanced tooltip with breakdown */}
+                <div className={`text-xs transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+                  <span className="text-blue-400">M: {group.male.toFixed(1)}%</span>
+                  <span className="text-[var(--text-muted)] mx-1">|</span>
+                  <span className="text-rose-400">F: {group.female.toFixed(1)}%</span>
+                  <span className="text-[var(--text-muted)] mx-1">|</span>
+                  <span className="text-[var(--text-secondary)] font-medium">{total.toFixed(1)}%</span>
+                </div>
               </div>
 
-              {/* Female bar */}
-              <div className="relative flex-1 bg-[var(--bg-tertiary)] rounded overflow-hidden">
-                <div
-                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-rose-500 to-rose-400 rounded transition-all duration-700 ease-out group-hover:brightness-110"
-                  style={{
-                    width: `${(group.female / maxValue) * 100}%`,
-                    boxShadow: group.female > 5 ? '0 0 20px rgba(244, 63, 94, 0.3)' : 'none'
-                  }}
-                />
-                {group.female > 3 && (
-                  <span className="absolute inset-y-0 left-2 flex items-center text-xs font-bold text-white drop-shadow-sm">
-                    {group.female.toFixed(1)}%
-                  </span>
-                )}
+              {/* Bars container with hover scale */}
+              <div className={`flex gap-1.5 h-8 transition-transform duration-200 ${isHovered ? 'scale-[1.02]' : ''}`}>
+                {/* Male bar */}
+                <div className="relative flex-1 bg-[var(--bg-tertiary)] rounded overflow-hidden">
+                  <div
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-blue-400 rounded transition-all duration-700 ease-out group-hover:brightness-110"
+                    style={{
+                      width: `${(group.male / maxValue) * 100}%`,
+                      boxShadow: group.male > 5 ? '0 0 20px rgba(59, 130, 246, 0.3)' : 'none'
+                    }}
+                  />
+                  {group.male > 3 && (
+                    <span className="absolute inset-y-0 left-2 flex items-center text-xs font-bold text-white drop-shadow-sm">
+                      {group.male.toFixed(1)}%
+                    </span>
+                  )}
+                  {/* Floating tooltip for small values */}
+                  {group.male <= 3 && group.male > 0 && isHovered && (
+                    <span
+                      className="absolute top-1/2 -translate-y-1/2 px-1.5 py-0.5 bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[10px] font-medium text-blue-400 shadow-lg z-10"
+                      style={{ left: `calc(${(group.male / maxValue) * 100}% + 4px)` }}
+                    >
+                      {group.male.toFixed(1)}%
+                    </span>
+                  )}
+                </div>
+
+                {/* Female bar */}
+                <div className="relative flex-1 bg-[var(--bg-tertiary)] rounded overflow-hidden">
+                  <div
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-rose-500 to-rose-400 rounded transition-all duration-700 ease-out group-hover:brightness-110"
+                    style={{
+                      width: `${(group.female / maxValue) * 100}%`,
+                      boxShadow: group.female > 5 ? '0 0 20px rgba(244, 63, 94, 0.3)' : 'none'
+                    }}
+                  />
+                  {group.female > 3 && (
+                    <span className="absolute inset-y-0 left-2 flex items-center text-xs font-bold text-white drop-shadow-sm">
+                      {group.female.toFixed(1)}%
+                    </span>
+                  )}
+                  {/* Floating tooltip for small values */}
+                  {group.female <= 3 && group.female > 0 && isHovered && (
+                    <span
+                      className="absolute top-1/2 -translate-y-1/2 px-1.5 py-0.5 bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded text-[10px] font-medium text-rose-400 shadow-lg z-10"
+                      style={{ left: `calc(${(group.female / maxValue) * 100}% + 4px)` }}
+                    >
+                      {group.female.toFixed(1)}%
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Summary insight */}
+      {/* Summary insight with dominant segment */}
       <div className="pt-4 border-t border-[var(--border-subtle)]">
-        <p className="text-xs text-[var(--text-muted)] text-center">
-          Hover over age groups to see combined percentages
-        </p>
+        {dominantSegment ? (
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-xs text-[var(--text-muted)]">Top segment:</span>
+            <span className={`text-xs font-semibold ${dominantSegment.gender === 'Male' ? 'text-blue-400' : 'text-rose-400'}`}>
+              {dominantSegment.gender} {dominantSegment.age}
+            </span>
+            <span className="text-xs text-[var(--text-secondary)]">
+              ({dominantSegment.percentage.toFixed(1)}%)
+            </span>
+          </div>
+        ) : (
+          <p className="text-xs text-[var(--text-muted)] text-center">
+            Hover over age groups to see breakdown
+          </p>
+        )}
       </div>
     </div>
   );
