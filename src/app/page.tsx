@@ -27,6 +27,7 @@ import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
 import { SubscriptionStatus } from '@/components/subscription/subscription-status';
 import { DepthSelector } from '@/components/tier/depth-selector';
+import { FeatureGate } from '@/components/tier/feature-gate';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
@@ -699,22 +700,24 @@ export default function Home() {
                       </span>
                     </div>
                     {apiResult.ads.length > 0 && (
-                      <div className="text-sm text-[var(--text-secondary)]">
-                        <p className="mb-2 font-medium text-[var(--text-primary)]">Top Ads by Reach</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
-                          {[...apiResult.ads]
-                            .sort((a, b) => b.euTotalReach - a.euTotalReach)
-                            .slice(0, 6)
-                            .map((ad, index) => (
-                              <AdPreviewCard key={ad.adArchiveId || index} ad={ad} />
-                            ))}
+                      <FeatureGate feature="adPreviews">
+                        <div className="text-sm text-[var(--text-secondary)]">
+                          <p className="mb-2 font-medium text-[var(--text-primary)]">Top Ads by Reach</p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
+                            {[...apiResult.ads]
+                              .sort((a, b) => b.euTotalReach - a.euTotalReach)
+                              .slice(0, 6)
+                              .map((ad, index) => (
+                                <AdPreviewCard key={ad.adArchiveId || index} ad={ad} />
+                              ))}
+                          </div>
+                          {apiResult.ads.length > 6 && (
+                            <p className="text-center text-xs text-[var(--text-muted)] mt-4">
+                              +{apiResult.ads.length - 6} more ads (expand &quot;View all&quot; below)
+                            </p>
+                          )}
                         </div>
-                        {apiResult.ads.length > 6 && (
-                          <p className="text-center text-xs text-[var(--text-muted)] mt-4">
-                            +{apiResult.ads.length - 6} more ads (expand &quot;View all&quot; below)
-                          </p>
-                        )}
-                      </div>
+                      </FeatureGate>
                     )}
                     <div className="mt-3 text-xs text-[var(--text-muted)]">
                       Countries: {apiResult.metadata.countries.join(', ')} • Fetched: {new Date(apiResult.metadata.fetchedAt).toLocaleTimeString()}
