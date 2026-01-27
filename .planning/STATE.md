@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-26)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 11 complete — Stripe Integration done
+**Current focus:** Phase 12 in progress — Tier Enforcement
 
 ## Current Position
 
-Phase: 11 of 13 (Stripe Integration)
-Plan: 04 of 04 complete
-Status: Phase complete
-Last activity: 2026-01-26 — Completed 11-04-PLAN.md (Subscription Status Display)
+Phase: 12 of 13 (Tier Enforcement)
+Plan: 01 of 03 complete
+Status: In progress
+Last activity: 2026-01-27 — Completed 12-01-PLAN.md (Tier Configuration Foundation)
 
-Progress: ████████████████░░░░ 80% (v1.0 shipped, v1.1 partial, v2.0 Phases 10-11 complete)
+Progress: █████████████████░░░ 85% (v1.0 shipped, v1.1 partial, v2.0 Phases 10-11 complete, 12 in progress)
 
 ## Milestones
 
@@ -84,6 +84,12 @@ Recent decisions affecting current work:
 - SubscriptionStatus is self-contained (badge + action in one component)
 - Customer Portal used for subscription management (cancel, resume, payment update)
 
+**From 12-01:**
+- Centralized tier configuration in src/lib/tiers.ts
+- past_due users get grace period (treated as pro)
+- Unauthenticated users get free tier info (not 401)
+- useTierAccess hook for client-side tier checking
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -103,7 +109,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-26
-Stopped at: Completed 11-04-PLAN.md (Subscription Status Display)
+Last session: 2026-01-27
+Stopped at: Completed 12-01-PLAN.md (Tier Configuration Foundation)
 Resume file: None
-Next: Phase 12 — Tier gating (features locked by subscription status)
+Next: 12-02-PLAN.md — Tier-aware depth selector and Pro badges
