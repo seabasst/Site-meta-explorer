@@ -25,8 +25,8 @@ import { Play, Image as ImageIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
-import { UpgradeButton } from '@/components/subscription/upgrade-button';
 import { SubscriptionStatus } from '@/components/subscription/subscription-status';
+import { DepthSelector } from '@/components/tier/depth-selector';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
@@ -40,163 +40,6 @@ function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 
   return (
     <div className={`${sizeClasses[size]} rounded-full border-[var(--border-medium)] border-t-[var(--accent-green-light)] animate-spin`} />
-  );
-}
-
-// Pricing tiers configuration
-const PRICING_TIERS = {
-  250: {
-    name: 'Starter',
-    price: 9,
-    ads: 250,
-    features: [
-      'Analyse up to 250 ads',
-      'Full demographic breakdowns',
-      'Ad copy analysis',
-      'Priority support',
-    ],
-  },
-  500: {
-    name: 'Pro',
-    price: 19,
-    ads: 500,
-    features: [
-      'Analyse up to 500 ads',
-      'Full demographic breakdowns',
-      'Ad copy analysis',
-      'Advanced competitive insights',
-      'Priority support',
-    ],
-  },
-  1000: {
-    name: 'Business',
-    price: 29,
-    ads: 1000,
-    isEnterprise: false,
-    features: [
-      'Analyse up to 1,000 ads',
-      'Full demographic breakdowns',
-      'Ad copy analysis',
-      'Advanced competitive insights',
-      'Monthly reports (coming soon)',
-      'API access (coming soon)',
-      'Priority support',
-    ],
-  },
-  'enterprise': {
-    name: 'Enterprise',
-    price: null,
-    ads: '1000+',
-    isEnterprise: true,
-    contactEmail: 'sebastian@kirimedia.co',
-    features: [
-      'Analyse unlimited ads',
-      'Full demographic breakdowns',
-      'Ad copy analysis',
-      'Advanced competitive insights',
-      'Custom monthly reports',
-      'Full API access',
-      'Dedicated support',
-      'Custom integrations',
-    ],
-  },
-} as const;
-
-function PricingModal({
-  tier,
-  onClose,
-}: {
-  tier: 250 | 500 | 1000 | 'enterprise';
-  onClose: () => void;
-}) {
-  const pricing = PRICING_TIERS[tier];
-  const isEnterprise = tier === 'enterprise';
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative glass rounded-2xl p-8 max-w-md w-full animate-fade-in glow-gold">
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-yellow)]/20 text-[var(--accent-yellow)] text-xs font-medium mb-4">
-            {pricing.name} Plan
-          </div>
-          <h2 className="font-serif text-2xl text-[var(--text-primary)] mb-2">
-            Unlock <span className="italic text-[var(--accent-green-light)]">{pricing.ads} Ads</span> Analysis
-          </h2>
-          <p className="text-[var(--text-secondary)] text-sm">
-            Get deeper insights into your competitors&apos; advertising strategies
-          </p>
-        </div>
-
-        {/* Price */}
-        <div className="text-center mb-6">
-          {isEnterprise ? (
-            <div className="text-[var(--text-primary)]">
-              <span className="text-2xl font-bold">Custom Pricing</span>
-            </div>
-          ) : (
-            <div className="flex items-baseline justify-center gap-1">
-              <span className="text-4xl font-bold text-[var(--text-primary)]">${pricing.price}</span>
-              <span className="text-[var(--text-muted)]">/month</span>
-            </div>
-          )}
-        </div>
-
-        {/* Features */}
-        <ul className="space-y-3 mb-8">
-          {pricing.features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-3 text-sm">
-              <svg className="w-5 h-5 text-[var(--accent-green-light)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-[var(--text-secondary)]">{feature}</span>
-            </li>
-          ))}
-        </ul>
-
-        {/* CTA */}
-        {isEnterprise ? (
-          <a
-            href="mailto:sebastian@kirimedia.co?subject=Enterprise%20Plan%20Inquiry"
-            className="block w-full py-3 text-base font-semibold rounded-lg bg-[var(--accent-green)] text-white text-center hover:bg-[var(--accent-green-light)] transition-colors"
-          >
-            Contact Us
-          </a>
-        ) : (
-          <button
-            disabled
-            className="w-full py-3 text-base font-semibold rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-muted)] cursor-not-allowed"
-          >
-            Coming Soon
-          </button>
-        )}
-
-        <p className="text-center text-xs text-[var(--text-muted)] mt-4">
-          {isEnterprise ? (
-            <>Get in touch at <a href="mailto:sebastian@kirimedia.co" className="text-[var(--accent-green-light)] hover:underline">sebastian@kirimedia.co</a></>
-          ) : (
-            'Paid plans launching soon. Stay tuned!'
-          )}
-        </p>
-      </div>
-    </div>
   );
 }
 
@@ -227,12 +70,8 @@ export default function Home() {
   // Region filter: 'global' shows all ads, 'eu' shows only EU ads (with full demographic data)
   const [regionFilter, setRegionFilter] = useState<'global' | 'eu'>('eu');
 
-  // Analysis depth - number of ads to analyze (tiered: Free=100, Starter=$9/250, Pro=$19/500, Business=$29/1000, Enterprise=1000+)
-  const [analysisLimit, setAnalysisLimit] = useState<100 | 250 | 500 | 1000>(100);
-
-  // Pricing modal state
-  const [showPricingModal, setShowPricingModal] = useState(false);
-  const [selectedPricingTier, setSelectedPricingTier] = useState<250 | 500 | 1000 | 'enterprise' | null>(null);
+  // Analysis depth - number of ads to analyze (tier-gated via DepthSelector)
+  const [analysisLimit, setAnalysisLimit] = useState<number>(100);
 
   // Facebook API result
   const [apiResult, setApiResult] = useState<FacebookApiResult | null>(null);
@@ -360,17 +199,6 @@ export default function Home() {
 
   return (
     <>
-      {/* Pricing Modal */}
-      {showPricingModal && selectedPricingTier && (
-        <PricingModal
-          tier={selectedPricingTier}
-          onClose={() => {
-            setShowPricingModal(false);
-            setSelectedPricingTier(null);
-          }}
-        />
-      )}
-
       {/* Background effects */}
       <div className="gradient-mesh" />
       <div className="noise-overlay" />
@@ -533,52 +361,11 @@ export default function Home() {
                 <div className="w-px h-6 bg-[var(--border-subtle)]" />
 
                 <span className="text-xs text-[var(--text-muted)]">Depth:</span>
-                <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-1 border border-[var(--border-subtle)]">
-                  {([100, 250, 500, 1000] as const).map((limit) => {
-                    const isPaid = limit > 100;
-                    const tierLabels: Record<number, string> = {
-                      100: 'Free',
-                      250: '$9',
-                      500: '$19',
-                      1000: '$29',
-                    };
-                    return (
-                      <button
-                        key={limit}
-                        type="button"
-                        onClick={() => {
-                          if (isPaid) {
-                            setSelectedPricingTier(limit as 250 | 500 | 1000);
-                            setShowPricingModal(true);
-                          } else {
-                            setAnalysisLimit(limit);
-                          }
-                        }}
-                        disabled={isLoadingAds}
-                        className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                          analysisLimit === limit
-                            ? 'bg-[var(--accent-green)] text-white'
-                            : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
-                        }`}
-                      >
-                        {limit === 1000 ? '1K' : limit}
-                        <span className="ml-1 opacity-60">{tierLabels[limit]}</span>
-                      </button>
-                    );
-                  })}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedPricingTier('enterprise');
-                      setShowPricingModal(true);
-                    }}
-                    disabled={isLoadingAds}
-                    className="px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]"
-                  >
-                    1K+
-                    <span className="ml-1 opacity-60">Enterprise</span>
-                  </button>
-                </div>
+                <DepthSelector
+                  value={analysisLimit}
+                  onChange={setAnalysisLimit}
+                  disabled={isLoadingAds}
+                />
 
                 {/* How it works info dropdown */}
                 <div className="relative group">
