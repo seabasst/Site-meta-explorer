@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 ## Current Position
 
 Phase: 12 of 13 (Tier Enforcement)
-Plan: 02 of 03 complete
-Status: In progress
-Last activity: 2026-01-27 — Completed 12-02-PLAN.md (Facebook Ads API Tier Enforcement)
+Plan: 03 of 03 complete
+Status: Phase 12 complete
+Last activity: 2026-01-27 — Completed 12-03-PLAN.md (Tier UI Components)
 
-Progress: █████████████████░░░ 87% (v1.0 shipped, v1.1 partial, v2.0 Phases 10-11 complete, 12 in progress)
+Progress: █████████████████░░░ 90% (v1.0 shipped, v1.1 partial, v2.0 Phases 10-12 complete, 13 remaining)
 
 ## Milestones
 
@@ -22,12 +22,12 @@ Progress: █████████████████░░░ 87% (v1.0
 |---------|--------|---------|
 | v1.0 MVP | Complete | 2026-01-25 |
 | v1.1 Polish | Partial (Phase 5 shipped, 6-9 deferred) | 2026-01-25 |
-| v2.0 Payments & Auth | In Progress (Phase 10-11 complete, 12-13 remaining) | - |
+| v2.0 Payments & Auth | In Progress (Phase 10-12 complete, 13 remaining) | - |
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 15
 - Average duration: —
 - Total execution time: —
 
@@ -38,7 +38,8 @@ Progress: █████████████████░░░ 87% (v1.0
 | 5 (v1.1) | 4 | — | — |
 | 10 (Auth Foundation) | 2 | ~19min | ~10min |
 | 11 (Stripe Integration) | 4 | 22min | ~5.5min |
-| 12-13 (v2.0) | 0 | TBD | — |
+| 12 (Tier Enforcement) | 3 | ~9min | ~3min |
+| 13 (Feature Gating) | 0 | TBD | — |
 
 ## Accumulated Context
 
@@ -96,6 +97,12 @@ Recent decisions affecting current work:
 - Logging with [Tier] prefix for debugging
 - Both POST and GET handlers enforce limits
 
+**From 12-03:**
+- ProBadge component for tier indication (gradient, sm/md sizes)
+- DepthSelector replaces old PricingModal approach
+- Three depth options: 100 (free), 500/1000 (pro)
+- Locked options trigger sign-in or checkout flow
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -116,6 +123,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 12-02-PLAN.md (Facebook Ads API Tier Enforcement)
+Stopped at: Completed 12-03-PLAN.md (Tier UI Components)
 Resume file: None
-Next: 12-03-PLAN.md — Tier-aware UI components (depth selector, Pro badges)
+Next: Phase 13 — Feature Gating (export, previews, deep analysis)
