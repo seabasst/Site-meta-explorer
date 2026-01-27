@@ -17,12 +17,12 @@ Requirements for Payments & Auth milestone. Each maps to roadmap phases.
 
 - [x] **PAY-01**: User can subscribe to Pro tier via Stripe checkout
 - [x] **PAY-02**: User can manage subscription (view status, cancel, resume)
-- [ ] **PAY-03**: System enforces tier-based feature access
+- [x] **PAY-03**: System enforces tier-based feature access
 
 ### Tier Features
 
-- [ ] **TIER-01**: Free users get basic analysis (100 ads max)
-- [ ] **TIER-02**: Pro users get deep analysis (500-1000 ads)
+- [x] **TIER-01**: Free users get basic analysis (100 ads max)
+- [x] **TIER-02**: Pro users get deep analysis (500-1000 ads)
 - [ ] **TIER-03**: Pro users see ad previews (images, videos, creative text)
 - [ ] **TIER-04**: Pro users get enhanced charts (more types, better labels)
 - [ ] **TIER-05**: Pro users can export analysis results
@@ -99,9 +99,9 @@ Which phases cover which requirements. Updated by create-roadmap.
 | AUTH-03 | Phase 10 | Complete |
 | PAY-01 | Phase 11 | Complete |
 | PAY-02 | Phase 11 | Complete |
-| PAY-03 | Phase 12 | Pending |
-| TIER-01 | Phase 12 | Pending |
-| TIER-02 | Phase 12 | Pending |
+| PAY-03 | Phase 12 | Complete |
+| TIER-01 | Phase 12 | Complete |
+| TIER-02 | Phase 12 | Complete |
 | TIER-03 | Phase 13 | Pending |
 | TIER-04 | Phase 13 | Pending |
 | TIER-05 | Phase 13 | Pending |

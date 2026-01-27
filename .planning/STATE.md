@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-01-26)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 12 in progress — Tier Enforcement
+**Current focus:** Phase 12 complete — Tier Enforcement done
 
 ## Current Position
 
@@ -123,6 +123,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 12-03-PLAN.md (Tier UI Components)
+Stopped at: Completed Phase 12 (Tier Enforcement)
 Resume file: None
-Next: Phase 13 — Feature Gating (export, previews, deep analysis)
+Next: Phase 13 — Pro Features (ad previews, enhanced charts, export)

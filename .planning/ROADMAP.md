@@ -55,7 +55,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 10: Auth Foundation** - OAuth login with Google + email (completed 2026-01-26)
 - [x] **Phase 11: Stripe Integration** - Subscription payments and management (completed 2026-01-26)
-- [ ] **Phase 12: Tier Enforcement** - Gate features by subscription status
+- [x] **Phase 12: Tier Enforcement** - Gate features by subscription status (completed 2026-01-27)
 - [ ] **Phase 13: Pro Features** - Build gated Pro capabilities
 
 ## Phase Details
@@ -94,11 +94,11 @@ Plans:
 - [x] 11-03-PLAN.md — Webhook handler & subscription sync (signature verification, status updates)
 - [x] 11-04-PLAN.md — Subscription UI (status display, Customer Portal access)
 
-### Phase 12: Tier Enforcement
+### Phase 12: Tier Enforcement ✓
 **Goal**: Gate features by subscription status
 **Depends on**: Phase 11
 **Requirements**: PAY-03, TIER-01, TIER-02
-**Status**: Not started
+**Status**: Complete (2026-01-27)
 **Success Criteria** (what must be TRUE):
   1. Free user sees analysis limited to 100 ads
   2. Pro user can select 500 or 1000 ad depth
@@ -107,9 +107,9 @@ Plans:
 **Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 12-01-PLAN.md — Tier configuration foundation (tier constants, useTierAccess hook, API enhancement)
-- [ ] 12-02-PLAN.md — Server-side tier enforcement (API limit capping, logging)
-- [ ] 12-03-PLAN.md — Tier UI components (ProBadge, DepthSelector, page integration)
+- [x] 12-01-PLAN.md — Tier configuration foundation (tier constants, useTierAccess hook, API enhancement)
+- [x] 12-02-PLAN.md — Server-side tier enforcement (API limit capping, logging)
+- [x] 12-03-PLAN.md — Tier UI components (ProBadge, DepthSelector, page integration)
 
 ### Phase 13: Pro Features
 **Goal**: Build gated Pro capabilities
@@ -137,5 +137,5 @@ Phases execute in numeric order: 10 → 11 → 12 → 13
 | 6-9 | v1.1 | - | Deferred | - |
 | 10. Auth Foundation | v2.0 | 2/2 | Complete | 2026-01-26 |
 | 11. Stripe Integration | v2.0 | 4/4 | Complete | 2026-01-26 |
-| 12. Tier Enforcement | v2.0 | 0/3 | Not started | - |
+| 12. Tier Enforcement | v2.0 | 3/3 | Complete | 2026-01-27 |
 | 13. Pro Features | v2.0 | 0/TBD | Not started | - |
