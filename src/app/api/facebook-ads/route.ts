@@ -4,20 +4,41 @@ import {
   fetchAdsByPageUrl,
   extractPageIdFromUrl,
 } from '@/lib/facebook-api';
+import { auth } from '@/auth';
+import { getSubscriptionStatus } from '@/lib/subscription';
+import { getTierFromStatus, getMaxDepth, type TierName } from '@/lib/tiers';
 
 export const maxDuration = 60; // Increased for fetching more ads
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
+    let {
       adLibraryUrl,
       pageId,
       searchTerms,
       countries = ['NL'],
-      limit = 1000,
+      limit = 100,  // Default to free tier limit
       activeStatus = 'ACTIVE',
     } = body;
+
+    // --- TIER ENFORCEMENT ---
+    // Get user's tier from session
+    const session = await auth();
+    let tier: TierName = 'free';
+
+    if (session?.user?.email) {
+      const status = await getSubscriptionStatus(session.user.email);
+      tier = getTierFromStatus(status);
+    }
+
+    // Cap limit to tier maximum
+    const maxAllowed = getMaxDepth(tier);
+    if (limit > maxAllowed) {
+      console.log(`[Tier] Capped limit from ${limit} to ${maxAllowed} for ${tier} tier`);
+      limit = maxAllowed;
+    }
+    // --- END TIER ENFORCEMENT ---
 
     // Get access token from environment or request
     const accessToken = body.accessToken || process.env.FACEBOOK_ACCESS_TOKEN;
