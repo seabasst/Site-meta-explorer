@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-// Notion database ID for feedback
-const NOTION_DATABASE_ID = '24e5d527-8100-42ea-baf8-261a87600025';
+// Notion database ID for feedback (from https://www.notion.so/bae574e6118243008ed7a555defacd05)
+const NOTION_DATABASE_ID = 'bae574e6-1182-4300-8ed7-a555defacd05';
 
 interface FeedbackRequest {
   type: 'Feature Request' | 'Bug Report' | 'General Feedback' | 'Question';
@@ -72,10 +72,10 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('Notion API error:', error);
+      const errorText = await response.text();
+      console.error('Notion API error:', response.status, errorText);
       return NextResponse.json(
-        { error: 'Failed to save feedback' },
+        { error: 'Failed to save feedback', details: errorText },
         { status: 500 }
       );
     }
