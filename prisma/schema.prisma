@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model User {
@@ -19,4 +19,72 @@ model User {
   subscriptionId     String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+
+  ownBrand    TrackedBrand?  @relation("OwnBrand")
+  competitors TrackedBrand[] @relation("Competitors")
+  snapshots   BrandSnapshot[]
+}
+
+model TrackedBrand {
+  id             String   @id @default(cuid())
+  facebookPageId String
+  pageName       String
+  adLibraryUrl   String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Owner relation (1:1) — this is the user's own brand
+  ownerId String? @unique
+  owner   User?   @relation("OwnBrand", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Tracker relation (1:many) — this is a competitor being tracked
+  trackerId String?
+  tracker   User?   @relation("Competitors", fields: [trackerId], references: [id], onDelete: Cascade)
+
+  snapshots BrandSnapshot[]
+
+  @@unique([trackerId, facebookPageId])
+}
+
+model BrandSnapshot {
+  id             String   @id @default(cuid())
+  snapshotDate   DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  // Scalar metrics
+  totalAdsFound    Int
+  activeAdsCount   Int
+  totalReach       BigInt
+  avgReachPerAd    Float
+  estimatedSpendUsd Float
+  videoCount       Int
+  imageCount       Int
+  videoPercentage  Float
+  imagePercentage  Float
+  avgAdAgeDays     Float
+  dominantGender   String?
+  dominantGenderPct Float?
+  dominantAgeRange String?
+  dominantAgePct   Float?
+
+  // Top 3 countries
+  topCountry1Code String?
+  topCountry1Pct  Float?
+  topCountry2Code String?
+  topCountry2Pct  Float?
+  topCountry3Code String?
+  topCountry3Pct  Float?
+
+  // JSON fields for full breakdowns
+  demographicsJson   Json?
+  spendByCountryJson Json?
+
+  // Relations
+  trackedBrandId String
+  trackedBrand   TrackedBrand @relation(fields: [trackedBrandId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([trackedBrandId, snapshotDate])
 }

@@ -84,10 +84,10 @@ export function BrandComparison({ brands, onRemoveBrand }: BrandComparisonProps)
     };
   });
 
-  // Find max values for bar scaling
-  const maxReach = Math.max(...brandStats.map(b => b.totalReach));
-  const maxAds = Math.max(...brandStats.map(b => b.totalAds));
-  const maxAvgReach = Math.max(...brandStats.map(b => b.avgReach));
+  // Find max values for bar scaling (use 1 as minimum to avoid division by zero)
+  const maxReach = Math.max(...brandStats.map(b => b.totalReach), 1);
+  const maxAds = Math.max(...brandStats.map(b => b.totalAds), 1);
+  const maxAvgReach = Math.max(...brandStats.map(b => b.avgReach), 1);
 
   return (
     <div className="space-y-6">

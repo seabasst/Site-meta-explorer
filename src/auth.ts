@@ -1,6 +1,7 @@
 import NextAuth, { type DefaultSession } from "next-auth"
 import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
+import { prisma } from "@/lib/prisma"
 
 // Extend session types to include user.id
 declare module "next-auth" {
@@ -62,9 +63,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/auth/signin", // Custom sign-in page for credentials
   },
   callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
+    async jwt({ token, user, account }) {
+      if (user && user.email) {
+        // Upsert user in DB on every sign-in so Google users get a row
+        try {
+          const dbUser = await prisma.user.upsert({
+            where: { email: user.email },
+            update: {
+              name: user.name ?? undefined,
+              image: user.image ?? undefined,
+            },
+            create: {
+              email: user.email,
+              name: user.name ?? null,
+              image: user.image ?? null,
+            },
+          })
+          token.id = dbUser.id
+        } catch (error) {
+          // Fallback to the provider-given id if DB is unavailable
+          console.error("[Auth] Failed to upsert user:", error)
+          token.id = user.id
+        }
       }
       return token
     },

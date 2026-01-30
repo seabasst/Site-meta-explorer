@@ -1,0 +1,842 @@
+{
+  "metadata": {
+    "created": "2026-01-28",
+    "description": "European D2C (Direct-to-Consumer) brands database",
+    "total_brands": 120,
+    "sources": [
+      "RetailX Top500 D2C Europe",
+      "1800dtc.com",
+      "BigBlue Blog",
+      "ClickPost",
+      "ReloApp"
+    ]
+  },
+  "brands": [
+    {
+      "name": "Gymshark",
+      "website": "https://www.gymshark.com",
+      "country": "UK",
+      "category": "Fitness Apparel",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=gymshark&search_type=keyword_unordered"
+    },
+    {
+      "name": "ASOS",
+      "website": "https://www.asos.com",
+      "country": "UK",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=asos&search_type=keyword_unordered"
+    },
+    {
+      "name": "Huel",
+      "website": "https://www.huel.com",
+      "country": "UK",
+      "category": "Food & Nutrition",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=huel&search_type=keyword_unordered"
+    },
+    {
+      "name": "Bloom & Wild",
+      "website": "https://www.bloomandwild.com",
+      "country": "UK",
+      "category": "Flowers & Gifts",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=bloom%20and%20wild&search_type=keyword_unordered"
+    },
+    {
+      "name": "Grind",
+      "website": "https://grind.co.uk",
+      "country": "UK",
+      "category": "Coffee",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=grind%20coffee&search_type=keyword_unordered"
+    },
+    {
+      "name": "Elvie",
+      "website": "https://www.elvie.com",
+      "country": "UK",
+      "category": "Women's Health Tech",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=elvie&search_type=keyword_unordered"
+    },
+    {
+      "name": "Pip & Nut",
+      "website": "https://www.pipandnut.com",
+      "country": "UK",
+      "category": "Food",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=pip%20and%20nut&search_type=keyword_unordered"
+    },
+    {
+      "name": "Pasta Evangelists",
+      "website": "https://www.pastaevangelists.com",
+      "country": "UK",
+      "category": "Food",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=pasta%20evangelists&search_type=keyword_unordered"
+    },
+    {
+      "name": "AllPlants",
+      "website": "https://www.allplants.com",
+      "country": "UK",
+      "category": "Food",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=allplants&search_type=keyword_unordered"
+    },
+    {
+      "name": "Graze",
+      "website": "https://www.graze.com",
+      "country": "UK",
+      "category": "Snacks",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=graze%20snacks&search_type=keyword_unordered"
+    },
+    {
+      "name": "Candy Kittens",
+      "website": "https://www.candykittens.co.uk",
+      "country": "UK",
+      "category": "Confectionery",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=candy%20kittens&search_type=keyword_unordered"
+    },
+    {
+      "name": "Love Raw",
+      "website": "https://www.eatloveraw.com",
+      "country": "UK",
+      "category": "Vegan Chocolate",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=loveraw&search_type=keyword_unordered"
+    },
+    {
+      "name": "Love Cocoa",
+      "website": "https://www.lovecocoa.com",
+      "country": "UK",
+      "category": "Chocolate",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=love%20cocoa&search_type=keyword_unordered"
+    },
+    {
+      "name": "DASH Water",
+      "website": "https://www.dash-water.com",
+      "country": "UK",
+      "category": "Beverages",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=dash%20water&search_type=keyword_unordered"
+    },
+    {
+      "name": "Minor Figures",
+      "website": "https://www.minorfigures.com",
+      "country": "UK",
+      "category": "Oat Milk",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=minor%20figures&search_type=keyword_unordered"
+    },
+    {
+      "name": "TRIP",
+      "website": "https://www.drink-trip.com",
+      "country": "UK",
+      "category": "CBD Drinks",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=trip%20cbd&search_type=keyword_unordered"
+    },
+    {
+      "name": "The Turmeric Co",
+      "website": "https://www.theturmeric.co",
+      "country": "UK",
+      "category": "Health Shots",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=the%20turmeric%20co&search_type=keyword_unordered"
+    },
+    {
+      "name": "Beavertown Brewery",
+      "website": "https://www.beavertownbrewery.co.uk",
+      "country": "UK",
+      "category": "Craft Beer",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=beavertown%20brewery&search_type=keyword_unordered"
+    },
+    {
+      "name": "Days Brewing",
+      "website": "https://www.daysbrewing.com",
+      "country": "UK",
+      "category": "Alcohol-Free Beer",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=days%20brewing&search_type=keyword_unordered"
+    },
+    {
+      "name": "Origin Coffee",
+      "website": "https://www.origincoffee.co.uk",
+      "country": "UK",
+      "category": "Coffee",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=origin%20coffee&search_type=keyword_unordered"
+    },
+    {
+      "name": "Ozone Coffee",
+      "website": "https://www.ozonecoffee.co.uk",
+      "country": "UK",
+      "category": "Coffee",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=ozone%20coffee&search_type=keyword_unordered"
+    },
+    {
+      "name": "Rave Coffee",
+      "website": "https://www.ravecoffee.co.uk",
+      "country": "UK",
+      "category": "Coffee",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=rave%20coffee&search_type=keyword_unordered"
+    },
+    {
+      "name": "Iconic London",
+      "website": "https://www.iconiclondoninc.com",
+      "country": "UK",
+      "category": "Beauty",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=iconic%20london&search_type=keyword_unordered"
+    },
+    {
+      "name": "Absolute Collagen",
+      "website": "https://www.absolutecollagen.com",
+      "country": "UK",
+      "category": "Supplements",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=absolute%20collagen&search_type=keyword_unordered"
+    },
+    {
+      "name": "Pixi Beauty",
+      "website": "https://www.pixibeauty.com",
+      "country": "UK",
+      "category": "Beauty",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=pixi%20beauty&search_type=keyword_unordered"
+    },
+    {
+      "name": "War Paint for Men",
+      "website": "https://www.warpaintformen.com",
+      "country": "UK",
+      "category": "Men's Makeup",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=war%20paint%20for%20men&search_type=keyword_unordered"
+    },
+    {
+      "name": "Evolve Beauty",
+      "website": "https://www.evolvebeauty.co.uk",
+      "country": "UK",
+      "category": "Skincare",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=evolve%20beauty&search_type=keyword_unordered"
+    },
+    {
+      "name": "UpCircle",
+      "website": "https://www.upcirclebeauty.com",
+      "country": "UK",
+      "category": "Skincare",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=upcircle&search_type=keyword_unordered"
+    },
+    {
+      "name": "Fussy",
+      "website": "https://www.getfussy.com",
+      "country": "UK",
+      "category": "Deodorant",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=fussy%20deodorant&search_type=keyword_unordered"
+    },
+    {
+      "name": "Here We Flo",
+      "website": "https://www.hereweflo.co",
+      "country": "UK",
+      "category": "Period Products",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=here%20we%20flo&search_type=keyword_unordered"
+    },
+    {
+      "name": "Zooki",
+      "website": "https://www.yourzooki.com",
+      "country": "UK",
+      "category": "Supplements",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=zooki&search_type=keyword_unordered"
+    },
+    {
+      "name": "Lumity",
+      "website": "https://www.lumitylife.co.uk",
+      "country": "UK",
+      "category": "Vitamins",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=lumity&search_type=keyword_unordered"
+    },
+    {
+      "name": "Bare Biology",
+      "website": "https://www.barebiology.com",
+      "country": "UK",
+      "category": "Marine Supplements",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=bare%20biology&search_type=keyword_unordered"
+    },
+    {
+      "name": "Veloforte",
+      "website": "https://www.veloforte.com",
+      "country": "UK",
+      "category": "Sports Nutrition",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=veloforte&search_type=keyword_unordered"
+    },
+    {
+      "name": "Pooch & Mutt",
+      "website": "https://www.poochandmutt.co.uk",
+      "country": "UK",
+      "category": "Pet Food",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=pooch%20and%20mutt&search_type=keyword_unordered"
+    },
+    {
+      "name": "Papier",
+      "website": "https://www.papier.com",
+      "country": "UK",
+      "category": "Stationery",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=papier&search_type=keyword_unordered"
+    },
+    {
+      "name": "Serious Tissues",
+      "website": "https://www.serioustissues.com",
+      "country": "UK",
+      "category": "Household",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=serious%20tissues&search_type=keyword_unordered"
+    },
+    {
+      "name": "Clothes Doctor",
+      "website": "https://www.clothes-doctor.com",
+      "country": "UK",
+      "category": "Clothing Care",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=clothes%20doctor&search_type=keyword_unordered"
+    },
+    {
+      "name": "Sézane",
+      "website": "https://www.sezane.com",
+      "country": "France",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=sezane&search_type=keyword_unordered"
+    },
+    {
+      "name": "Rouje Paris",
+      "website": "https://www.rouje.com",
+      "country": "France",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=rouje%20paris&search_type=keyword_unordered"
+    },
+    {
+      "name": "Le Slip Français",
+      "website": "https://www.leslipfrancais.fr",
+      "country": "France",
+      "category": "Underwear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=le%20slip%20francais&search_type=keyword_unordered"
+    },
+    {
+      "name": "Horace",
+      "website": "https://www.horace.co",
+      "country": "France",
+      "category": "Men's Skincare",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=horace%20skincare&search_type=keyword_unordered"
+    },
+    {
+      "name": "Cabaïa",
+      "website": "https://www.cabaia.fr",
+      "country": "France",
+      "category": "Accessories",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=cabaia&search_type=keyword_unordered"
+    },
+    {
+      "name": "Unbottled",
+      "website": "https://www.unbottled.co",
+      "country": "France",
+      "category": "Solid Cosmetics",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=unbottled&search_type=keyword_unordered"
+    },
+    {
+      "name": "Respire",
+      "website": "https://www.respire.co",
+      "country": "France",
+      "category": "Natural Cosmetics",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=respire%20cosmetics&search_type=keyword_unordered"
+    },
+    {
+      "name": "Asphalte",
+      "website": "https://www.asphalte.com",
+      "country": "France",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=asphalte&search_type=keyword_unordered"
+    },
+    {
+      "name": "Maison Kitsuné",
+      "website": "https://www.maisonkitsune.com",
+      "country": "France",
+      "category": "Fashion & Lifestyle",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=maison%20kitsune&search_type=keyword_unordered"
+    },
+    {
+      "name": "Oh My Cream",
+      "website": "https://www.ohmycream.com",
+      "country": "France",
+      "category": "Beauty",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=oh%20my%20cream&search_type=keyword_unordered"
+    },
+    {
+      "name": "Tediber",
+      "website": "https://www.tediber.com",
+      "country": "France",
+      "category": "Mattresses",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=tediber&search_type=keyword_unordered"
+    },
+    {
+      "name": "Loom",
+      "website": "https://www.lfrm.com",
+      "country": "France",
+      "category": "Sustainable Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=loom%20fashion&search_type=keyword_unordered"
+    },
+    {
+      "name": "Helssy Hair",
+      "website": "https://www.helssyhair.com",
+      "country": "France",
+      "category": "Hair Care",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=helssy%20hair&search_type=keyword_unordered"
+    },
+    {
+      "name": "Hydratis",
+      "website": "https://www.hydratis.com",
+      "country": "France",
+      "category": "Health",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=hydratis&search_type=keyword_unordered"
+    },
+    {
+      "name": "HelloFresh",
+      "website": "https://www.hellofresh.com",
+      "country": "Germany",
+      "category": "Meal Kits",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=hellofresh&search_type=keyword_unordered"
+    },
+    {
+      "name": "About You",
+      "website": "https://www.aboutyou.de",
+      "country": "Germany",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=about%20you&search_type=keyword_unordered"
+    },
+    {
+      "name": "Foodspring",
+      "website": "https://www.foodspring.de",
+      "country": "Germany",
+      "category": "Fitness Nutrition",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=foodspring&search_type=keyword_unordered"
+    },
+    {
+      "name": "YFood",
+      "website": "https://www.yfood.eu",
+      "country": "Germany",
+      "category": "Meal Replacement",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=yfood&search_type=keyword_unordered"
+    },
+    {
+      "name": "Flaconi",
+      "website": "https://www.flaconi.de",
+      "country": "Germany",
+      "category": "Beauty",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=flaconi&search_type=keyword_unordered"
+    },
+    {
+      "name": "Zalando",
+      "website": "https://www.zalando.com",
+      "country": "Germany",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=zalando&search_type=keyword_unordered"
+    },
+    {
+      "name": "Westwing",
+      "website": "https://www.westwing.com",
+      "country": "Germany",
+      "category": "Home & Living",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=westwing&search_type=keyword_unordered"
+    },
+    {
+      "name": "Koro",
+      "website": "https://www.korodrogerie.de",
+      "country": "Germany",
+      "category": "Food & Snacks",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=koro&search_type=keyword_unordered"
+    },
+    {
+      "name": "Vaay",
+      "website": "https://www.vaay.com",
+      "country": "Germany",
+      "category": "CBD",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=vaay%20cbd&search_type=keyword_unordered"
+    },
+    {
+      "name": "Moruga Cacao",
+      "website": "https://www.morugacacao.de",
+      "country": "Germany",
+      "category": "Cacao Products",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=moruga%20cacao&search_type=keyword_unordered"
+    },
+    {
+      "name": "The Better Cat",
+      "website": "https://www.thebettercat.de",
+      "country": "Germany",
+      "category": "Pet Food",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=the%20better%20cat&search_type=keyword_unordered"
+    },
+    {
+      "name": "Snocks",
+      "website": "https://www.snocks.com",
+      "country": "Germany",
+      "category": "Underwear & Socks",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=snocks&search_type=keyword_unordered"
+    },
+    {
+      "name": "Purelei",
+      "website": "https://www.purelei.com",
+      "country": "Germany",
+      "category": "Jewelry",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=purelei&search_type=keyword_unordered"
+    },
+    {
+      "name": "Kapten & Son",
+      "website": "https://www.kapten-son.com",
+      "country": "Germany",
+      "category": "Watches & Accessories",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=kapten%20son&search_type=keyword_unordered"
+    },
+    {
+      "name": "NA-KD",
+      "website": "https://www.na-kd.com",
+      "country": "Sweden",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=na-kd&search_type=keyword_unordered"
+    },
+    {
+      "name": "Björn Borg",
+      "website": "https://www.bjornborg.com",
+      "country": "Sweden",
+      "category": "Underwear & Sportswear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=bjorn%20borg&search_type=keyword_unordered"
+    },
+    {
+      "name": "Our Legacy",
+      "website": "https://www.ourlegacy.com",
+      "country": "Sweden",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=our%20legacy&search_type=keyword_unordered"
+    },
+    {
+      "name": "Sandqvist",
+      "website": "https://www.sandqvist.com",
+      "country": "Sweden",
+      "category": "Bags & Accessories",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=sandqvist&search_type=keyword_unordered"
+    },
+    {
+      "name": "Lisa Yang",
+      "website": "https://www.lisayang.com",
+      "country": "Sweden",
+      "category": "Luxury Knitwear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=lisa%20yang&search_type=keyword_unordered"
+    },
+    {
+      "name": "Happy Socks",
+      "website": "https://www.happysocks.com",
+      "country": "Sweden",
+      "category": "Socks & Underwear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=happy%20socks&search_type=keyword_unordered"
+    },
+    {
+      "name": "Daniel Wellington",
+      "website": "https://www.danielwellington.com",
+      "country": "Sweden",
+      "category": "Watches",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=daniel%20wellington&search_type=keyword_unordered"
+    },
+    {
+      "name": "Stronger",
+      "website": "https://www.strongerlabel.com",
+      "country": "Sweden",
+      "category": "Activewear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=stronger%20label&search_type=keyword_unordered"
+    },
+    {
+      "name": "CDLP",
+      "website": "https://www.cdlp.com",
+      "country": "Sweden",
+      "category": "Men's Underwear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=cdlp&search_type=keyword_unordered"
+    },
+    {
+      "name": "Oura",
+      "website": "https://www.ouraring.com",
+      "country": "Finland",
+      "category": "Health Tech",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=oura%20ring&search_type=keyword_unordered"
+    },
+    {
+      "name": "Marimekko",
+      "website": "https://www.marimekko.com",
+      "country": "Finland",
+      "category": "Fashion & Home",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=marimekko&search_type=keyword_unordered"
+    },
+    {
+      "name": "Boozt",
+      "website": "https://www.boozt.com",
+      "country": "Denmark",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=boozt&search_type=keyword_unordered"
+    },
+    {
+      "name": "Ganni",
+      "website": "https://www.ganni.com",
+      "country": "Denmark",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=ganni&search_type=keyword_unordered"
+    },
+    {
+      "name": "By Malene Birger",
+      "website": "https://www.bymalenebirger.com",
+      "country": "Denmark",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=malene%20birger&search_type=keyword_unordered"
+    },
+    {
+      "name": "Filippa K",
+      "website": "https://www.filippa-k.com",
+      "country": "Sweden",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=filippa%20k&search_type=keyword_unordered"
+    },
+    {
+      "name": "Acne Studios",
+      "website": "https://www.acnestudios.com",
+      "country": "Sweden",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=acne%20studios&search_type=keyword_unordered"
+    },
+    {
+      "name": "Saye",
+      "website": "https://www.sayebrand.com",
+      "country": "Spain",
+      "category": "Sustainable Footwear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=saye%20shoes&search_type=keyword_unordered"
+    },
+    {
+      "name": "Zapato Feroz",
+      "website": "https://www.zapatoferoz.com",
+      "country": "Spain",
+      "category": "Children's Footwear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=zapato%20feroz&search_type=keyword_unordered"
+    },
+    {
+      "name": "Scuffers",
+      "website": "https://www.scuffers.com",
+      "country": "Spain",
+      "category": "Streetwear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=scuffers&search_type=keyword_unordered"
+    },
+    {
+      "name": "Pompeii",
+      "website": "https://www.pompeiibrand.com",
+      "country": "Spain",
+      "category": "Sneakers",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=pompeii%20brand&search_type=keyword_unordered"
+    },
+    {
+      "name": "Hawkers",
+      "website": "https://www.hawkersco.com",
+      "country": "Spain",
+      "category": "Eyewear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=hawkers&search_type=keyword_unordered"
+    },
+    {
+      "name": "Minimalism Brand",
+      "website": "https://www.minimalismbrand.com",
+      "country": "Spain",
+      "category": "Sustainable Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=minimalism%20brand&search_type=keyword_unordered"
+    },
+    {
+      "name": "Off-White",
+      "website": "https://www.off---white.com",
+      "country": "Italy",
+      "category": "Luxury Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=off%20white&search_type=keyword_unordered"
+    },
+    {
+      "name": "Golden Goose",
+      "website": "https://www.goldengoose.com",
+      "country": "Italy",
+      "category": "Luxury Sneakers",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=golden%20goose&search_type=keyword_unordered"
+    },
+    {
+      "name": "Velasca",
+      "website": "https://www.velasca.com",
+      "country": "Italy",
+      "category": "Footwear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=velasca&search_type=keyword_unordered"
+    },
+    {
+      "name": "Lanieri",
+      "website": "https://www.lanieri.com",
+      "country": "Italy",
+      "category": "Made-to-Measure Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=lanieri&search_type=keyword_unordered"
+    },
+    {
+      "name": "Rifle Paper Co Europe",
+      "website": "https://www.riflepaperco.com",
+      "country": "Netherlands",
+      "category": "Stationery",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=rifle%20paper%20co&search_type=keyword_unordered"
+    },
+    {
+      "name": "Ace & Tate",
+      "website": "https://www.aceandtate.com",
+      "country": "Netherlands",
+      "category": "Eyewear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=ace%20and%20tate&search_type=keyword_unordered"
+    },
+    {
+      "name": "Suitsupply",
+      "website": "https://www.suitsupply.com",
+      "country": "Netherlands",
+      "category": "Men's Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=suitsupply&search_type=keyword_unordered"
+    },
+    {
+      "name": "Rituals",
+      "website": "https://www.rituals.com",
+      "country": "Netherlands",
+      "category": "Beauty & Wellness",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=rituals%20cosmetics&search_type=keyword_unordered"
+    },
+    {
+      "name": "Scotch & Soda",
+      "website": "https://www.scotch-soda.com",
+      "country": "Netherlands",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=scotch%20and%20soda&search_type=keyword_unordered"
+    },
+    {
+      "name": "Tenswall",
+      "website": "https://www.tenswall.com",
+      "country": "Netherlands",
+      "category": "Home Tech",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=tenswall&search_type=keyword_unordered"
+    },
+    {
+      "name": "Vanmoof",
+      "website": "https://www.vanmoof.com",
+      "country": "Netherlands",
+      "category": "E-Bikes",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=vanmoof&search_type=keyword_unordered"
+    },
+    {
+      "name": "Omoda",
+      "website": "https://www.omoda.com",
+      "country": "Netherlands",
+      "category": "Footwear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=omoda&search_type=keyword_unordered"
+    },
+    {
+      "name": "Odette Lunettes",
+      "website": "https://www.odettelunettes.com",
+      "country": "Belgium",
+      "category": "Eyewear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=odette%20lunettes&search_type=keyword_unordered"
+    },
+    {
+      "name": "Mosaert",
+      "website": "https://www.mosaert.com",
+      "country": "Belgium",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=mosaert&search_type=keyword_unordered"
+    },
+    {
+      "name": "Faguo",
+      "website": "https://www.faguo-store.com",
+      "country": "France",
+      "category": "Sustainable Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=faguo&search_type=keyword_unordered"
+    },
+    {
+      "name": "Balzac Paris",
+      "website": "https://www.balzac-paris.fr",
+      "country": "France",
+      "category": "Fashion",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=balzac%20paris&search_type=keyword_unordered"
+    },
+    {
+      "name": "Merci Handy",
+      "website": "https://www.mercihandy.com",
+      "country": "France",
+      "category": "Personal Care",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=merci%20handy&search_type=keyword_unordered"
+    },
+    {
+      "name": "Typology",
+      "website": "https://www.typology.com",
+      "country": "France",
+      "category": "Skincare",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=typology&search_type=keyword_unordered"
+    },
+    {
+      "name": "Shanty Biscuits",
+      "website": "https://www.shantybiscuits.com",
+      "country": "France",
+      "category": "Food",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=shanty%20biscuits&search_type=keyword_unordered"
+    },
+    {
+      "name": "Feed",
+      "website": "https://www.feed.co",
+      "country": "France",
+      "category": "Meal Replacement",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=feed%20smart%20food&search_type=keyword_unordered"
+    },
+    {
+      "name": "Jimmy Fairly",
+      "website": "https://www.jimmyfairly.com",
+      "country": "France",
+      "category": "Eyewear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=jimmy%20fairly&search_type=keyword_unordered"
+    },
+    {
+      "name": "Emma Matelas",
+      "website": "https://www.emma.fr",
+      "country": "Germany",
+      "category": "Mattresses",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=emma%20matelas&search_type=keyword_unordered"
+    },
+    {
+      "name": "Rosefield",
+      "website": "https://www.rosefieldwatches.com",
+      "country": "Netherlands",
+      "category": "Watches",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=rosefield%20watches&search_type=keyword_unordered"
+    },
+    {
+      "name": "Meller",
+      "website": "https://www.mellerco.com",
+      "country": "Spain",
+      "category": "Watches & Eyewear",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=meller&search_type=keyword_unordered"
+    },
+    {
+      "name": "Cluse",
+      "website": "https://www.cluse.com",
+      "country": "Netherlands",
+      "category": "Watches",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=cluse%20watches&search_type=keyword_unordered"
+    },
+    {
+      "name": "Paul Valentine",
+      "website": "https://www.paul-valentine.com",
+      "country": "Germany",
+      "category": "Watches & Jewelry",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=paul%20valentine&search_type=keyword_unordered"
+    },
+    {
+      "name": "Nordic Nest",
+      "website": "https://www.nordicnest.com",
+      "country": "Sweden",
+      "category": "Home & Design",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=nordic%20nest&search_type=keyword_unordered"
+    },
+    {
+      "name": "Muuto",
+      "website": "https://www.muuto.com",
+      "country": "Denmark",
+      "category": "Furniture & Design",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=muuto&search_type=keyword_unordered"
+    },
+    {
+      "name": "HAY",
+      "website": "https://www.hay.dk",
+      "country": "Denmark",
+      "category": "Furniture & Design",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=hay%20design&search_type=keyword_unordered"
+    },
+    {
+      "name": "Menu",
+      "website": "https://www.menu.as",
+      "country": "Denmark",
+      "category": "Furniture & Design",
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=menu%20design&search_type=keyword_unordered"
+    }
+  ]
+}

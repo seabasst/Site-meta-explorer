@@ -80,6 +80,10 @@ export default function Home() {
   // Analysis depth - number of ads to analyze (tier-gated via DepthSelector)
   const [analysisLimit, setAnalysisLimit] = useState<number>(100);
 
+  // Date range filter
+  const [dateStart, setDateStart] = useState<string | null>(null);
+  const [dateEnd, setDateEnd] = useState<string | null>(null);
+
   // Facebook API result
   const [apiResult, setApiResult] = useState<FacebookApiResult | null>(null);
 
@@ -101,7 +105,38 @@ export default function Home() {
   // Favorites
   const { favorites, isLoaded: favoritesLoaded, addFavorite, removeFavorite, isFavorite, toggleFavorite } = useFavorites();
 
+  // Dashboard tracking state
+  const [trackingAction, setTrackingAction] = useState<string | null>(null);
+
   // URL validation on blur
+  // Track brand on dashboard
+  const handleTrackBrand = async (mode: 'own' | 'competitor') => {
+    if (!apiResult || !session) return;
+    setTrackingAction(mode);
+    try {
+      const endpoint = mode === 'own' ? '/api/dashboard/own-brand' : '/api/dashboard/competitors';
+      const method = mode === 'own' ? 'PUT' : 'POST';
+      const res = await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          facebookPageId: apiResult.pageId,
+          pageName: apiResult.pageName || `Page ${apiResult.pageId}`,
+          adLibraryUrl,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed');
+      }
+      toast.success(mode === 'own' ? 'Set as your brand!' : 'Added to competitors!');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to track brand');
+    } finally {
+      setTrackingAction(null);
+    }
+  };
+
   const handleUrlBlur = () => {
     if (!adLibraryUrl.trim()) {
       setUrlError(null); // Don't show error for empty field
@@ -150,6 +185,8 @@ export default function Home() {
             countries: selectedCountries,
             limit: analysisLimit,
             activeStatus,
+            ...(dateStart && { dateMin: dateStart }),
+            ...(dateEnd && { dateMax: dateEnd }),
           }),
         }),
         // Only fetch timeline separately if activeStatus is not already 'ALL'
@@ -162,6 +199,8 @@ export default function Home() {
             countries: selectedCountries,
             limit: 500, // Higher limit for timeline to include historical/inactive ads
             activeStatus: 'ALL',
+            ...(dateStart && { dateMin: dateStart }),
+            ...(dateEnd && { dateMax: dateEnd }),
           }),
         }),
       ]);
@@ -320,21 +359,14 @@ export default function Home() {
               </a>
             </div>
 
-            {/* Right - Auth UI */}
+            {/* Right - Coming Soon CTA */}
             <div className="flex items-center gap-3">
-              {authStatus === 'loading' ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-[var(--bg-tertiary)] animate-pulse" />
-                  <div className="w-20 h-4 rounded bg-[var(--bg-tertiary)] animate-pulse" />
-                </div>
-              ) : session ? (
-                <div className="flex items-center gap-4">
-                  <SubscriptionStatus />
-                  <UserMenu />
-                </div>
-              ) : (
-                <SignInButton provider="email" />
-              )}
+              <a
+                href="/coming-soon"
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-[var(--accent-green)] text-white hover:bg-[var(--accent-green-light)] transition-colors"
+              >
+                Pro — Coming Soon
+              </a>
 
               {/* Mobile menu button */}
               <button
@@ -522,6 +554,27 @@ export default function Home() {
                   value={analysisLimit}
                   onChange={setAnalysisLimit}
                   disabled={isLoadingAds}
+                />
+
+                <div className="w-px h-6 bg-[var(--border-subtle)]" />
+
+                <span className="text-xs text-[var(--text-muted)]">Date range:</span>
+                <input
+                  type="date"
+                  value={dateStart || ''}
+                  onChange={(e) => setDateStart(e.target.value || null)}
+                  disabled={isLoadingAds}
+                  className="px-2 py-1.5 text-xs rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] focus:outline-none focus:border-[var(--accent-green)]"
+                  placeholder="Start"
+                />
+                <span className="text-xs text-[var(--text-muted)]">to</span>
+                <input
+                  type="date"
+                  value={dateEnd || ''}
+                  onChange={(e) => setDateEnd(e.target.value || null)}
+                  disabled={isLoadingAds}
+                  className="px-2 py-1.5 text-xs rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] focus:outline-none focus:border-[var(--accent-green)]"
+                  placeholder="End"
                 />
 
               </div>
@@ -838,6 +891,7 @@ export default function Home() {
                               <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                             </svg>
                           </button>
+                          {/* Dashboard tracking buttons - hidden until Pro launch */}
                     </div>
                   )}
                 </div>

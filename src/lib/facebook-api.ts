@@ -498,8 +498,10 @@ async function fetchAdsForCountry(options: {
   limit: number;
   adType: string;
   activeStatus: 'ACTIVE' | 'INACTIVE' | 'ALL';
+  dateMin?: string;
+  dateMax?: string;
 }): Promise<FacebookAdData[]> {
-  const { accessToken, pageId, country, limit, adType, activeStatus } = options;
+  const { accessToken, pageId, country, limit, adType, activeStatus, dateMin, dateMax } = options;
 
   const fields = [
     'id',
@@ -533,6 +535,13 @@ async function fetchAdsForCountry(options: {
     search_page_ids: pageId,
   });
 
+  if (dateMin) {
+    params.set('ad_delivery_date_min', dateMin);
+  }
+  if (dateMax) {
+    params.set('ad_delivery_date_max', dateMax);
+  }
+
   try {
     const res = await fetch(`${API_BASE}/${API_VERSION}/ads_archive?${params}`);
     const data = await res.json() as FacebookApiResponse | { error: { message: string } };
@@ -560,6 +569,8 @@ export async function fetchFacebookAds(options: {
   limit?: number;
   adType?: 'ALL' | 'POLITICAL_AND_ISSUE_ADS';
   activeStatus?: 'ACTIVE' | 'INACTIVE' | 'ALL';
+  dateMin?: string;
+  dateMax?: string;
 }): Promise<FacebookApiResponse2> {
   const {
     accessToken,
@@ -569,6 +580,8 @@ export async function fetchFacebookAds(options: {
     limit = 1000,
     adType = 'ALL',
     activeStatus = 'ACTIVE',
+    dateMin,
+    dateMax,
   } = options;
 
   if (!pageId && !searchTerms) {
@@ -606,6 +619,8 @@ export async function fetchFacebookAds(options: {
               limit: adsPerCountry,
               adType,
               activeStatus,
+              dateMin,
+              dateMax,
             })
           )
         );
@@ -638,6 +653,8 @@ export async function fetchFacebookAds(options: {
         'ad_creative_link_titles',
         'ad_creative_link_descriptions',
         'ad_creative_link_captions',
+        'ad_creative_link_urls',
+        'ad_snapshot_url',
         'eu_total_reach',
         'age_country_gender_reach_breakdown',
         'beneficiary_payers',
@@ -662,6 +679,12 @@ export async function fetchFacebookAds(options: {
       }
       if (searchTerms) {
         params.set('search_terms', searchTerms);
+      }
+      if (dateMin) {
+        params.set('ad_delivery_date_min', dateMin);
+      }
+      if (dateMax) {
+        params.set('ad_delivery_date_max', dateMax);
       }
 
       let currentUrl: string | null = `${API_BASE}/${API_VERSION}/ads_archive?${params}`;
@@ -815,6 +838,8 @@ export async function fetchAdsByPageUrl(
     countries?: string[];
     limit?: number;
     activeStatus?: 'ACTIVE' | 'INACTIVE' | 'ALL';
+    dateMin?: string;
+    dateMax?: string;
   }
 ): Promise<FacebookApiResponse2> {
   const pageId = extractPageIdFromUrl(adLibraryUrl);
@@ -832,5 +857,7 @@ export async function fetchAdsByPageUrl(
     countries: options?.countries,
     limit: options?.limit,
     activeStatus: options?.activeStatus,
+    dateMin: options?.dateMin,
+    dateMax: options?.dateMax,
   });
 }

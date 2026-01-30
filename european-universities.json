@@ -1,0 +1,714 @@
+{
+  "metadata": {
+    "created": "2026-01-28",
+    "description": "European Universities database with Facebook Ad Library links for tracking recruitment and branding campaigns",
+    "total_universities": 100,
+    "sources": [
+      "QS World University Rankings",
+      "Times Higher Education",
+      "uniRank"
+    ]
+  },
+  "universities": [
+    {
+      "name": "University of Oxford",
+      "website": "https://www.ox.ac.uk",
+      "country": "UK",
+      "ranking": 1,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20oxford&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Cambridge",
+      "website": "https://www.cam.ac.uk",
+      "country": "UK",
+      "ranking": 2,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20cambridge&search_type=keyword_unordered"
+    },
+    {
+      "name": "Imperial College London",
+      "website": "https://www.imperial.ac.uk",
+      "country": "UK",
+      "ranking": 3,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=imperial%20college%20london&search_type=keyword_unordered"
+    },
+    {
+      "name": "UCL (University College London)",
+      "website": "https://www.ucl.ac.uk",
+      "country": "UK",
+      "ranking": 4,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=ucl&search_type=keyword_unordered"
+    },
+    {
+      "name": "ETH Zurich",
+      "website": "https://ethz.ch",
+      "country": "Switzerland",
+      "ranking": 5,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=eth%20zurich&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Edinburgh",
+      "website": "https://www.ed.ac.uk",
+      "country": "UK",
+      "ranking": 6,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20edinburgh&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Manchester",
+      "website": "https://www.manchester.ac.uk",
+      "country": "UK",
+      "ranking": 7,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20manchester&search_type=keyword_unordered"
+    },
+    {
+      "name": "King's College London",
+      "website": "https://www.kcl.ac.uk",
+      "country": "UK",
+      "ranking": 8,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=kings%20college%20london&search_type=keyword_unordered"
+    },
+    {
+      "name": "London School of Economics",
+      "website": "https://www.lse.ac.uk",
+      "country": "UK",
+      "ranking": 9,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=lse&search_type=keyword_unordered"
+    },
+    {
+      "name": "EPFL (École Polytechnique Fédérale de Lausanne)",
+      "website": "https://www.epfl.ch",
+      "country": "Switzerland",
+      "ranking": 10,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=epfl&search_type=keyword_unordered"
+    },
+    {
+      "name": "Université PSL (Paris Sciences et Lettres)",
+      "website": "https://www.psl.eu",
+      "country": "France",
+      "ranking": 11,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=psl%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "Technical University of Munich",
+      "website": "https://www.tum.de",
+      "country": "Germany",
+      "ranking": 12,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=tu%20munich&search_type=keyword_unordered"
+    },
+    {
+      "name": "Ludwig Maximilian University of Munich",
+      "website": "https://www.lmu.de",
+      "country": "Germany",
+      "ranking": 13,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=lmu%20munich&search_type=keyword_unordered"
+    },
+    {
+      "name": "KU Leuven",
+      "website": "https://www.kuleuven.be",
+      "country": "Belgium",
+      "ranking": 14,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=ku%20leuven&search_type=keyword_unordered"
+    },
+    {
+      "name": "Sorbonne University",
+      "website": "https://www.sorbonne-universite.fr",
+      "country": "France",
+      "ranking": 15,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=sorbonne%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Amsterdam",
+      "website": "https://www.uva.nl",
+      "country": "Netherlands",
+      "ranking": 16,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20amsterdam&search_type=keyword_unordered"
+    },
+    {
+      "name": "Delft University of Technology",
+      "website": "https://www.tudelft.nl",
+      "country": "Netherlands",
+      "ranking": 17,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=tu%20delft&search_type=keyword_unordered"
+    },
+    {
+      "name": "Heidelberg University",
+      "website": "https://www.uni-heidelberg.de",
+      "country": "Germany",
+      "ranking": 18,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=heidelberg%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Bristol",
+      "website": "https://www.bristol.ac.uk",
+      "country": "UK",
+      "ranking": 19,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20bristol&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Zurich",
+      "website": "https://www.uzh.ch",
+      "country": "Switzerland",
+      "ranking": 20,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20zurich&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Warwick",
+      "website": "https://warwick.ac.uk",
+      "country": "UK",
+      "ranking": 21,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20warwick&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Glasgow",
+      "website": "https://www.gla.ac.uk",
+      "country": "UK",
+      "ranking": 22,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20glasgow&search_type=keyword_unordered"
+    },
+    {
+      "name": "Trinity College Dublin",
+      "website": "https://www.tcd.ie",
+      "country": "Ireland",
+      "ranking": 23,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=trinity%20college%20dublin&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Southampton",
+      "website": "https://www.southampton.ac.uk",
+      "country": "UK",
+      "ranking": 24,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20southampton&search_type=keyword_unordered"
+    },
+    {
+      "name": "Utrecht University",
+      "website": "https://www.uu.nl",
+      "country": "Netherlands",
+      "ranking": 25,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=utrecht%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Birmingham",
+      "website": "https://www.birmingham.ac.uk",
+      "country": "UK",
+      "ranking": 26,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20birmingham&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Leeds",
+      "website": "https://www.leeds.ac.uk",
+      "country": "UK",
+      "ranking": 27,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20leeds&search_type=keyword_unordered"
+    },
+    {
+      "name": "Freie Universität Berlin",
+      "website": "https://www.fu-berlin.de",
+      "country": "Germany",
+      "ranking": 28,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=freie%20universitat%20berlin&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Copenhagen",
+      "website": "https://www.ku.dk",
+      "country": "Denmark",
+      "ranking": 29,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20copenhagen&search_type=keyword_unordered"
+    },
+    {
+      "name": "RWTH Aachen University",
+      "website": "https://www.rwth-aachen.de",
+      "country": "Germany",
+      "ranking": 30,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=rwth%20aachen&search_type=keyword_unordered"
+    },
+    {
+      "name": "Lund University",
+      "website": "https://www.lu.se",
+      "country": "Sweden",
+      "ranking": 31,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=lund%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Helsinki",
+      "website": "https://www.helsinki.fi",
+      "country": "Finland",
+      "ranking": 32,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20helsinki&search_type=keyword_unordered"
+    },
+    {
+      "name": "Aalto University",
+      "website": "https://www.aalto.fi",
+      "country": "Finland",
+      "ranking": 33,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=aalto%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "Durham University",
+      "website": "https://www.dur.ac.uk",
+      "country": "UK",
+      "ranking": 34,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=durham%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Oslo",
+      "website": "https://www.uio.no",
+      "country": "Norway",
+      "ranking": 35,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20oslo&search_type=keyword_unordered"
+    },
+    {
+      "name": "KTH Royal Institute of Technology",
+      "website": "https://www.kth.se",
+      "country": "Sweden",
+      "ranking": 36,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=kth%20stockholm&search_type=keyword_unordered"
+    },
+    {
+      "name": "Technical University of Denmark",
+      "website": "https://www.dtu.dk",
+      "country": "Denmark",
+      "ranking": 37,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=dtu%20denmark&search_type=keyword_unordered"
+    },
+    {
+      "name": "Uppsala University",
+      "website": "https://www.uu.se",
+      "country": "Sweden",
+      "ranking": 38,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=uppsala%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "Leiden University",
+      "website": "https://www.universiteitleiden.nl",
+      "country": "Netherlands",
+      "ranking": 39,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=leiden%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "Politecnico di Milano",
+      "website": "https://www.polimi.it",
+      "country": "Italy",
+      "ranking": 40,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=politecnico%20di%20milano&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Nottingham",
+      "website": "https://www.nottingham.ac.uk",
+      "country": "UK",
+      "ranking": 41,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20nottingham&search_type=keyword_unordered"
+    },
+    {
+      "name": "Aarhus University",
+      "website": "https://www.au.dk",
+      "country": "Denmark",
+      "ranking": 42,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=aarhus%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Vienna",
+      "website": "https://www.univie.ac.at",
+      "country": "Austria",
+      "ranking": 43,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20vienna&search_type=keyword_unordered"
+    },
+    {
+      "name": "Eindhoven University of Technology",
+      "website": "https://www.tue.nl",
+      "country": "Netherlands",
+      "ranking": 44,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=tu%20eindhoven&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Sheffield",
+      "website": "https://www.sheffield.ac.uk",
+      "country": "UK",
+      "ranking": 45,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20sheffield&search_type=keyword_unordered"
+    },
+    {
+      "name": "Newcastle University",
+      "website": "https://www.ncl.ac.uk",
+      "country": "UK",
+      "ranking": 46,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=newcastle%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "Stockholm University",
+      "website": "https://www.su.se",
+      "country": "Sweden",
+      "ranking": 47,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=stockholm%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "Ghent University",
+      "website": "https://www.ugent.be",
+      "country": "Belgium",
+      "ranking": 48,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=ghent%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of St Andrews",
+      "website": "https://www.st-andrews.ac.uk",
+      "country": "UK",
+      "ranking": 49,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20st%20andrews&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Groningen",
+      "website": "https://www.rug.nl",
+      "country": "Netherlands",
+      "ranking": 50,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20groningen&search_type=keyword_unordered"
+    },
+    {
+      "name": "Sapienza University of Rome",
+      "website": "https://www.uniroma1.it",
+      "country": "Italy",
+      "ranking": 51,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=sapienza%20roma&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Bologna",
+      "website": "https://www.unibo.it",
+      "country": "Italy",
+      "ranking": 52,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20bologna&search_type=keyword_unordered"
+    },
+    {
+      "name": "Technische Universität Berlin",
+      "website": "https://www.tu-berlin.de",
+      "country": "Germany",
+      "ranking": 53,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=tu%20berlin&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Exeter",
+      "website": "https://www.exeter.ac.uk",
+      "country": "UK",
+      "ranking": 54,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20exeter&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of York",
+      "website": "https://www.york.ac.uk",
+      "country": "UK",
+      "ranking": 55,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20york&search_type=keyword_unordered"
+    },
+    {
+      "name": "Université Paris-Saclay",
+      "website": "https://www.universite-paris-saclay.fr",
+      "country": "France",
+      "ranking": 56,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=paris%20saclay&search_type=keyword_unordered"
+    },
+    {
+      "name": "Chalmers University of Technology",
+      "website": "https://www.chalmers.se",
+      "country": "Sweden",
+      "ranking": 57,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=chalmers%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "Lancaster University",
+      "website": "https://www.lancaster.ac.uk",
+      "country": "UK",
+      "ranking": 58,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=lancaster%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Liverpool",
+      "website": "https://www.liverpool.ac.uk",
+      "country": "UK",
+      "ranking": 59,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20liverpool&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Padua",
+      "website": "https://www.unipd.it",
+      "country": "Italy",
+      "ranking": 60,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universita%20padova&search_type=keyword_unordered"
+    },
+    {
+      "name": "Vrije Universiteit Amsterdam",
+      "website": "https://www.vu.nl",
+      "country": "Netherlands",
+      "ranking": 61,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=vu%20amsterdam&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Hamburg",
+      "website": "https://www.uni-hamburg.de",
+      "country": "Germany",
+      "ranking": 62,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universitat%20hamburg&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Barcelona",
+      "website": "https://www.ub.edu",
+      "country": "Spain",
+      "ranking": 63,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universitat%20barcelona&search_type=keyword_unordered"
+    },
+    {
+      "name": "Universitat Autònoma de Barcelona",
+      "website": "https://www.uab.cat",
+      "country": "Spain",
+      "ranking": 64,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=uab%20barcelona&search_type=keyword_unordered"
+    },
+    {
+      "name": "University College Dublin",
+      "website": "https://www.ucd.ie",
+      "country": "Ireland",
+      "ranking": 65,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20college%20dublin&search_type=keyword_unordered"
+    },
+    {
+      "name": "Queen Mary University of London",
+      "website": "https://www.qmul.ac.uk",
+      "country": "UK",
+      "ranking": 66,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=queen%20mary%20london&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Geneva",
+      "website": "https://www.unige.ch",
+      "country": "Switzerland",
+      "ranking": 67,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20geneva&search_type=keyword_unordered"
+    },
+    {
+      "name": "TU Wien",
+      "website": "https://www.tuwien.at",
+      "country": "Austria",
+      "ranking": 68,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=tu%20wien&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Bern",
+      "website": "https://www.unibe.ch",
+      "country": "Switzerland",
+      "ranking": 69,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20bern&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Basel",
+      "website": "https://www.unibas.ch",
+      "country": "Switzerland",
+      "ranking": 70,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20basel&search_type=keyword_unordered"
+    },
+    {
+      "name": "Complutense University of Madrid",
+      "website": "https://www.ucm.es",
+      "country": "Spain",
+      "ranking": 71,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universidad%20complutense%20madrid&search_type=keyword_unordered"
+    },
+    {
+      "name": "Universidad Autónoma de Madrid",
+      "website": "https://www.uam.es",
+      "country": "Spain",
+      "ranking": 72,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=uam%20madrid&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Göttingen",
+      "website": "https://www.uni-goettingen.de",
+      "country": "Germany",
+      "ranking": 73,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universitat%20gottingen&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Cologne",
+      "website": "https://www.uni-koeln.de",
+      "country": "Germany",
+      "ranking": 74,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universitat%20koln&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Bonn",
+      "website": "https://www.uni-bonn.de",
+      "country": "Germany",
+      "ranking": 75,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universitat%20bonn&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Freiburg",
+      "website": "https://www.uni-freiburg.de",
+      "country": "Germany",
+      "ranking": 76,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universitat%20freiburg&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Tübingen",
+      "website": "https://www.uni-tuebingen.de",
+      "country": "Germany",
+      "ranking": 77,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universitat%20tubingen&search_type=keyword_unordered"
+    },
+    {
+      "name": "Humboldt University of Berlin",
+      "website": "https://www.hu-berlin.de",
+      "country": "Germany",
+      "ranking": 78,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=humboldt%20universitat%20berlin&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Milan",
+      "website": "https://www.unimi.it",
+      "country": "Italy",
+      "ranking": 79,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universita%20milano&search_type=keyword_unordered"
+    },
+    {
+      "name": "Politecnico di Torino",
+      "website": "https://www.polito.it",
+      "country": "Italy",
+      "ranking": 80,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=politecnico%20torino&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Turin",
+      "website": "https://www.unito.it",
+      "country": "Italy",
+      "ranking": 81,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universita%20torino&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Pisa",
+      "website": "https://www.unipi.it",
+      "country": "Italy",
+      "ranking": 82,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universita%20pisa&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Florence",
+      "website": "https://www.unifi.it",
+      "country": "Italy",
+      "ranking": 83,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universita%20firenze&search_type=keyword_unordered"
+    },
+    {
+      "name": "Karolinska Institute",
+      "website": "https://ki.se",
+      "country": "Sweden",
+      "ranking": 84,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=karolinska%20institute&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Bergen",
+      "website": "https://www.uib.no",
+      "country": "Norway",
+      "ranking": 85,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20bergen&search_type=keyword_unordered"
+    },
+    {
+      "name": "Norwegian University of Science and Technology (NTNU)",
+      "website": "https://www.ntnu.no",
+      "country": "Norway",
+      "ranking": 86,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=ntnu%20norway&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Lisbon",
+      "website": "https://www.ulisboa.pt",
+      "country": "Portugal",
+      "ranking": 87,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universidade%20lisboa&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Porto",
+      "website": "https://www.up.pt",
+      "country": "Portugal",
+      "ranking": 88,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universidade%20porto&search_type=keyword_unordered"
+    },
+    {
+      "name": "Charles University",
+      "website": "https://cuni.cz",
+      "country": "Czech Republic",
+      "ranking": 89,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=charles%20university%20prague&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Warsaw",
+      "website": "https://www.uw.edu.pl",
+      "country": "Poland",
+      "ranking": 90,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=university%20of%20warsaw&search_type=keyword_unordered"
+    },
+    {
+      "name": "University of Valencia",
+      "website": "https://www.uv.es",
+      "country": "Spain",
+      "ranking": 91,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=universitat%20valencia&search_type=keyword_unordered"
+    },
+    {
+      "name": "Pompeu Fabra University",
+      "website": "https://www.upf.edu",
+      "country": "Spain",
+      "ranking": 92,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=pompeu%20fabra&search_type=keyword_unordered"
+    },
+    {
+      "name": "IE University",
+      "website": "https://www.ie.edu",
+      "country": "Spain",
+      "ranking": 93,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=ie%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "ESADE Business School",
+      "website": "https://www.esade.edu",
+      "country": "Spain",
+      "ranking": 94,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=esade&search_type=keyword_unordered"
+    },
+    {
+      "name": "IESE Business School",
+      "website": "https://www.iese.edu",
+      "country": "Spain",
+      "ranking": 95,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=iese%20business%20school&search_type=keyword_unordered"
+    },
+    {
+      "name": "HEC Paris",
+      "website": "https://www.hec.edu",
+      "country": "France",
+      "ranking": 96,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=hec%20paris&search_type=keyword_unordered"
+    },
+    {
+      "name": "INSEAD",
+      "website": "https://www.insead.edu",
+      "country": "France",
+      "ranking": 97,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=insead&search_type=keyword_unordered"
+    },
+    {
+      "name": "Sciences Po",
+      "website": "https://www.sciencespo.fr",
+      "country": "France",
+      "ranking": 98,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=sciences%20po&search_type=keyword_unordered"
+    },
+    {
+      "name": "Bocconi University",
+      "website": "https://www.unibocconi.eu",
+      "country": "Italy",
+      "ranking": 99,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=bocconi%20university&search_type=keyword_unordered"
+    },
+    {
+      "name": "London Business School",
+      "website": "https://www.london.edu",
+      "country": "UK",
+      "ranking": 100,
+      "facebook_ad_library": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=london%20business%20school&search_type=keyword_unordered"
+    }
+  ]
+}

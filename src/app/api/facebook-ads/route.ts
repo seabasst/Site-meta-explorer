@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
       limit = 100,  // Default to free tier limit
       activeStatus = 'ACTIVE',
     } = body;
+    const { dateMin, dateMax } = body;
 
     // --- TIER ENFORCEMENT ---
     // Get user's tier from session
@@ -72,6 +73,8 @@ export async function POST(request: NextRequest) {
         countries,
         limit,
         activeStatus,
+        dateMin,
+        dateMax,
       });
     } else {
       // Direct API call with pageId or searchTerms
@@ -82,6 +85,8 @@ export async function POST(request: NextRequest) {
         countries,
         limit,
         activeStatus,
+        dateMin,
+        dateMax,
       });
     }
 
