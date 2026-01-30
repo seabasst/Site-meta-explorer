@@ -23,7 +23,7 @@ import { getUserFriendlyMessage } from '@/lib/errors';
 import { AdPreviewCard } from '@/components/ads/ad-preview-card';
 import { BrandAnalysis } from '@/components/analytics/brand-analysis';
 import { AccountSummary } from '@/components/summary/account-summary';
-import { Play, Image as ImageIcon } from 'lucide-react';
+import { Play, Image as ImageIcon, Menu, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
@@ -57,6 +57,7 @@ const EXAMPLE_BRANDS = [
   { name: 'Stronger', domain: 'strongerlabel.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=1836637016477201' },
   { name: 'Aimn', domain: 'aimn.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=527417557349551' },
   { name: 'Burga', domain: 'burga.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=347221038990658' },
+  { name: 'Dope Snow', domain: 'dopesnow.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=159906574695624' },
 ];
 
 export default function Home() {
@@ -88,9 +89,11 @@ export default function Home() {
   // Brand comparison mode
   const [comparisonBrands, setComparisonBrands] = useState<FacebookApiResult[]>([]);
   const [showComparison, setShowComparison] = useState(false);
+  const [comparisonUrl, setComparisonUrl] = useState('');
+  const [isLoadingComparison, setIsLoadingComparison] = useState(false);
 
-  // Results view tab: 'overview' shows ads/demographics, 'expert' shows brand analysis
-  const [resultsTab, setResultsTab] = useState<'overview' | 'expert'>('overview');
+  // Results view tab: 'audience' shows demographics, 'ads' shows ad-related data, 'expert' shows brand analysis
+  const [resultsTab, setResultsTab] = useState<'audience' | 'ads' | 'expert'>('audience');
 
   // PDF export loading state
   const [isPdfExporting, setIsPdfExporting] = useState(false);
@@ -206,6 +209,57 @@ export default function Home() {
     handleAdLibrarySubmit({ preventDefault: () => {} } as React.FormEvent);
   };
 
+  // Add brand to comparison by URL
+  const handleAddToComparison = async (url: string) => {
+    if (!url.trim() || comparisonBrands.length >= 3) return;
+
+    const validation = validateAdLibraryUrl(url.trim());
+    if (!validation.valid) {
+      toast.error('Invalid URL', { description: validation.error || 'Please paste a valid Ad Library URL' });
+      return;
+    }
+
+    // Check if already added
+    const pageId = extractPageIdFromUrl(url.trim());
+    if (pageId && comparisonBrands.some(b => b.pageId === pageId)) {
+      toast.error('Brand already added');
+      return;
+    }
+
+    setIsLoadingComparison(true);
+
+    const euCountries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'];
+
+    try {
+      const res = await fetch('/api/facebook-ads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adLibraryUrl: url.trim(),
+          countries: euCountries,
+          limit: 100,
+          activeStatus: 'ACTIVE',
+        }),
+      });
+
+      const response = await res.json();
+
+      if (response.success) {
+        setComparisonBrands(prev => [...prev, response]);
+        setComparisonUrl('');
+        toast.success(`Added ${response.pageName || 'brand'} to comparison`);
+      } else {
+        toast.error('Failed to fetch brand', { description: response.error });
+      }
+    } catch (error) {
+      toast.error('Failed to fetch brand', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } finally {
+      setIsLoadingComparison(false);
+    }
+  };
+
   return (
     <>
       {/* Background effects */}
@@ -217,11 +271,57 @@ export default function Home() {
       <FeedbackPopup />
 
       <main className="min-h-screen">
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          {/* Header */}
-          <header className="text-center mb-16 animate-fade-in-up relative">
-            {/* Auth UI - top right */}
-            <div className="absolute top-0 right-0">
+        {/* Top Navigation Bar */}
+        <nav className="border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/80 backdrop-blur-sm sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+            {/* Left - Logo / Brand */}
+            <a href="/" className="text-sm font-semibold text-[var(--text-primary)] tracking-tight">
+              Ad Analyser
+            </a>
+
+            {/* Center - Nav Links (desktop) */}
+            <div className="hidden md:flex items-center gap-1">
+              {/* How it works - dropdown */}
+              <div className="relative group">
+                <button
+                  type="button"
+                  className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]"
+                >
+                  How it works
+                </button>
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-80 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[100]">
+                  <h4 className="font-medium text-[var(--text-primary)] mb-2">Which ads are analysed?</h4>
+                  <div className="space-y-2 text-xs text-[var(--text-secondary)]">
+                    <p>
+                      We fetch the <span className="text-[var(--accent-green-light)] font-medium">newest ads</span> from the brand&apos;s Facebook Ad Library, sorted by start date (most recent first).
+                    </p>
+                    <p>
+                      The depth setting controls how many ads to analyse. With 100 ads, you get the 100 most recently launched campaigns.
+                    </p>
+                    <p className="pt-2 border-t border-[var(--border-subtle)]">
+                      <span className="font-medium text-[var(--text-primary)]">Why newest first?</span><br />
+                      Recent ads reflect current strategy, messaging, and targeting. They show what&apos;s working <em>now</em> for the brand.
+                    </p>
+                    <p className="pt-2 border-t border-[var(--border-subtle)]">
+                      <span className="font-medium text-[var(--text-primary)]">Data source</span><br />
+                      Demographics come from Facebook&apos;s EU DSA transparency data, which includes reach by age, gender, and country.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <a href="/about" className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]">
+                About us
+              </a>
+              <a href="/contact" className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]">
+                Contact us
+              </a>
+              <a href="/feedback" className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]">
+                Feedback
+              </a>
+            </div>
+
+            {/* Right - Auth UI */}
+            <div className="flex items-center gap-3">
               {authStatus === 'loading' ? (
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-[var(--bg-tertiary)] animate-pulse" />
@@ -235,9 +335,38 @@ export default function Home() {
               ) : (
                 <SignInButton provider="email" />
               )}
-            </div>
 
-            {/* Existing header content */}
+              {/* Mobile menu button */}
+              <button
+                type="button"
+                className="md:hidden p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                onClick={() => {
+                  const menu = document.getElementById('mobile-nav-menu');
+                  menu?.classList.toggle('hidden');
+                }}
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Nav Menu */}
+          <div id="mobile-nav-menu" className="hidden md:hidden border-t border-[var(--border-subtle)] px-6 py-3 space-y-1">
+            <a href="/about" className="block px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)]">
+              About us
+            </a>
+            <a href="/contact" className="block px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)]">
+              Contact us
+            </a>
+            <a href="/feedback" className="block px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)]">
+              Feedback
+            </a>
+          </div>
+        </nav>
+
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          {/* Header */}
+          <header className="text-center mb-16 animate-fade-in-up">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] mb-6">
               <span className="w-2 h-2 rounded-full bg-[var(--accent-yellow)] animate-pulse-subtle" />
               Competitive Intelligence Tool
@@ -252,10 +381,25 @@ export default function Home() {
 
           {/* Main Ad Library Form */}
           <form onSubmit={handleAdLibrarySubmit} className="mb-8 animate-fade-in-up stagger-1">
-            <div className="glass rounded-2xl p-6 glow-gold">
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
+            <div className="relative z-10 glass rounded-2xl p-6 glow-gold">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 Enter a Facebook Ad Library URL
               </label>
+              <p className="text-xs text-[var(--text-muted)] mb-3">
+                First, search for a brand on{' '}
+                <a
+                  href="https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&media_type=all"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--accent-gold)] hover:underline font-medium inline-flex items-center gap-1"
+                >
+                  Facebook Ad Library
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+                , then copy the URL and paste it here.
+              </p>
               <div className="flex gap-3">
                 <input
                   type="text"
@@ -380,37 +524,6 @@ export default function Home() {
                   disabled={isLoadingAds}
                 />
 
-                {/* How it works info dropdown */}
-                <div className="relative group z-[100]">
-                  <button
-                    type="button"
-                    className="flex items-center gap-1 px-2 py-1.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>How it works</span>
-                  </button>
-                  <div className="absolute left-0 top-full mt-1 w-80 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[100]">
-                    <h4 className="font-medium text-[var(--text-primary)] mb-2">Which ads are analysed?</h4>
-                    <div className="space-y-2 text-xs text-[var(--text-secondary)]">
-                      <p>
-                        We fetch the <span className="text-[var(--accent-green-light)] font-medium">newest ads</span> from the brand&apos;s Facebook Ad Library, sorted by start date (most recent first).
-                      </p>
-                      <p>
-                        The depth setting controls how many ads to analyse. With 100 ads, you get the 100 most recently launched campaigns.
-                      </p>
-                      <p className="pt-2 border-t border-[var(--border-subtle)]">
-                        <span className="font-medium text-[var(--text-primary)]">Why newest first?</span><br />
-                        Recent ads reflect current strategy, messaging, and targeting. They show what&apos;s working <em>now</em> for the brand.
-                      </p>
-                      <p className="pt-2 border-t border-[var(--border-subtle)]">
-                        <span className="font-medium text-[var(--text-primary)]">Data source</span><br />
-                        Demographics come from Facebook&apos;s EU DSA transparency data, which includes reach by age, gender, and country.
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Quick start examples - always visible for easy brand switching */}
@@ -489,7 +602,7 @@ export default function Home() {
                 <div className="flex flex-wrap gap-2 mb-4">
                   {comparisonBrands.map((brand, index) => (
                     <div
-                      key={brand.pageId}
+                      key={brand.pageId || `brand-${index}`}
                       className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
                         index === 0 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' :
                         index === 1 ? 'bg-blue-500/20 text-blue-400 border border-blue-500/50' :
@@ -507,15 +620,82 @@ export default function Home() {
                       </button>
                     </div>
                   ))}
-                  {comparisonBrands.length < 3 && (
-                    <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs text-[var(--text-muted)] border border-dashed border-[var(--border-subtle)]">
+                  {comparisonBrands.length < 3 && !isLoadingComparison && (
+                    <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs text-[var(--text-muted)] border border-dashed border-[var(--border-subtle)] animate-pulse-subtle">
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
-                      Add brand above
+                      {3 - comparisonBrands.length} slot{comparisonBrands.length < 2 ? 's' : ''} remaining
+                    </div>
+                  )}
+                  {isLoadingComparison && (
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[var(--text-muted)] border border-dashed border-[var(--border-subtle)]">
+                      <LoadingSpinner size="sm" />
+                      Loading brand...
                     </div>
                   )}
                 </div>
+
+                {/* Add Brand Input */}
+                {comparisonBrands.length < 3 && (
+                  <div className="p-4 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
+                    <div className="flex gap-2 mb-3">
+                      <input
+                        type="text"
+                        value={comparisonUrl}
+                        onChange={(e) => setComparisonUrl(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddToComparison(comparisonUrl);
+                          }
+                        }}
+                        placeholder="Paste a Facebook Ad Library URL..."
+                        className="input-field flex-1 text-sm"
+                        disabled={isLoadingComparison}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAddToComparison(comparisonUrl)}
+                        disabled={isLoadingComparison || !comparisonUrl.trim()}
+                        className="btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs whitespace-nowrap"
+                      >
+                        {isLoadingComparison ? (
+                          <>
+                            <LoadingSpinner size="sm" />
+                            Adding...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Add Brand
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs text-[var(--text-muted)]">Quick add:</span>
+                      {EXAMPLE_BRANDS
+                        .filter(brand => {
+                          const brandPageId = extractPageIdFromUrl(brand.adLibrary);
+                          return !comparisonBrands.some(b => b.pageId === brandPageId);
+                        })
+                        .map((brand) => (
+                          <button
+                            key={brand.domain}
+                            type="button"
+                            onClick={() => handleAddToComparison(brand.adLibrary)}
+                            disabled={isLoadingComparison}
+                            className="text-xs px-2.5 py-1 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent-green)] hover:border-[var(--accent-green)] transition-colors disabled:opacity-50"
+                          >
+                            {brand.name}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Comparison View */}
                 {showComparison && comparisonBrands.length >= 2 && (
@@ -671,14 +851,30 @@ export default function Home() {
                 {apiResult && (
                   <div className="flex items-center gap-1 p-1 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] w-fit mb-6">
                     <button
-                      onClick={() => setResultsTab('overview')}
-                      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                        resultsTab === 'overview'
+                      onClick={() => setResultsTab('audience')}
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
+                        resultsTab === 'audience'
                           ? 'bg-[var(--accent-green)] text-white'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]'
                       }`}
                     >
-                      Overview
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      Audience Overview
+                    </button>
+                    <button
+                      onClick={() => setResultsTab('ads')}
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
+                        resultsTab === 'ads'
+                          ? 'bg-[var(--accent-green)] text-white'
+                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]'
+                      }`}
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                      Ad Overview
                     </button>
                     <button
                       onClick={() => setResultsTab('expert')}
@@ -710,13 +906,119 @@ export default function Home() {
                   />
                 )}
 
-                {/* OVERVIEW TAB CONTENT */}
-                {resultsTab === 'overview' && apiResult && (
+                {/* AUDIENCE OVERVIEW TAB CONTENT */}
+                {resultsTab === 'audience' && apiResult && (
+                  <>
+                    {/* Demographics Results */}
+                    {apiResult.aggregatedDemographics && (
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                            Audience <span className="italic text-[var(--accent-green-light)]">Demographics</span>
+                          </h3>
+                          <div className="text-xs text-[var(--text-muted)]">
+                            {apiResult.aggregatedDemographics.adsWithDemographics} ads with demographic data
+                          </div>
+                        </div>
+
+                        {/* Summary */}
+                        <div className="glass rounded-xl p-5">
+                          <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
+                            Key Insights
+                          </h4>
+                          <DemographicsSummary
+                            demographics={apiResult.aggregatedDemographics}
+                          />
+                        </div>
+
+                        {/* Charts */}
+                        <div className="space-y-3">
+                          {/* Age/Gender Chart */}
+                          <details className="group glass rounded-xl overflow-hidden" open>
+                            <summary className="cursor-pointer list-none p-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors">
+                              <div className="flex items-center gap-3">
+                                <svg className="w-4 h-4 text-[var(--text-muted)] transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                                <h4 className="text-sm font-medium text-[var(--text-primary)]">Age & Gender Breakdown</h4>
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                                {(() => {
+                                  const topSegment = apiResult.aggregatedDemographics.ageGenderBreakdown[0];
+                                  return topSegment ? (
+                                    <span>Top: <span className="text-[var(--accent-green-light)]">{topSegment.gender} {topSegment.age}</span> ({topSegment.percentage.toFixed(1)}%)</span>
+                                  ) : null;
+                                })()}
+                              </div>
+                            </summary>
+                            <div className="px-5 pb-5">
+                              <AgeGenderChart
+                                data={apiResult.aggregatedDemographics.ageGenderBreakdown}
+                              />
+                            </div>
+                          </details>
+
+                          {/* Country Chart */}
+                          <details className="group glass rounded-xl overflow-hidden" open>
+                            <summary className="cursor-pointer list-none p-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors">
+                              <div className="flex items-center gap-3">
+                                <svg className="w-4 h-4 text-[var(--text-muted)] transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                                <h4 className="text-sm font-medium text-[var(--text-primary)]">Geographic Distribution</h4>
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                                {(() => {
+                                  const topCountries = apiResult.aggregatedDemographics.regionBreakdown.slice(0, 3);
+                                  return topCountries.length > 0 ? (
+                                    <span>Top: <span className="text-[var(--accent-green-light)]">{topCountries.map(c => c.region).join(', ')}</span></span>
+                                  ) : null;
+                                })()}
+                              </div>
+                            </summary>
+                            <div className="px-5 pb-5">
+                              <CountryChart
+                                data={apiResult.aggregatedDemographics.regionBreakdown}
+                              />
+                            </div>
+                          </details>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* No demographics available */}
+                    {!apiResult.aggregatedDemographics && (
+                      <div className="glass rounded-xl p-8 text-center">
+                        <svg className="w-12 h-12 mx-auto text-[var(--text-muted)] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">No Demographic Data Available</h3>
+                        <p className="text-sm text-[var(--text-muted)] max-w-md mx-auto">
+                          Demographics are only available for ads targeting EU countries due to DSA transparency requirements.
+                          Try selecting "EU Only" in the region filter for demographic insights.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Info about data source */}
+                    <div className="mt-6 flex gap-2 text-xs text-[var(--text-muted)]">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>
+                        Demographics based on EU DSA transparency requirements. Data shows reach by age, gender, and country for EU-targeted ads.
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {/* AD OVERVIEW TAB CONTENT */}
+                {resultsTab === 'ads' && apiResult && (
                   <>
                     {/* Top Ads by Reach - Featured ad previews */}
                     {apiResult.ads.length > 0 && (
                       <FeatureGate feature="adPreviews">
-                        <div className="glass rounded-xl p-5 mb-4">
+                        <div className="glass rounded-xl p-5 mb-6">
                           <div className="flex items-center justify-between mb-4">
                             <h3 className="font-serif text-lg text-[var(--text-primary)]">
                               Top <span className="italic text-[var(--accent-green-light)]">Performers</span>
@@ -735,265 +1037,279 @@ export default function Home() {
                       </FeatureGate>
                     )}
 
-                {/* All Active Ads - expandable list */}
-                {apiResult.ads.length > 0 && (
-                  <div className="mt-4">
-                    <details className="group">
-                      <summary className="cursor-pointer list-none flex items-center gap-2 text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent-green-light)] transition-colors">
-                        <svg className="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                        View all {apiResult.totalAdsFound} ads
-                      </summary>
-                      <div className="mt-3 max-h-[400px] overflow-y-auto rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
-                        <table className="w-full text-sm">
-                          <thead className="sticky top-0 bg-[var(--bg-tertiary)] border-b border-[var(--border-subtle)]">
-                            <tr>
-                              <th className="px-4 py-2 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Ad Content</th>
-                              <th className="px-4 py-2 text-center text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-16">Type</th>
-                              <th className="px-4 py-2 text-center text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-24">EU Reach</th>
-                              <th className="px-4 py-2 text-center text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-24">Targeting</th>
-                              <th className="px-4 py-2 text-right text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-20">View</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-[var(--border-subtle)]">
-                            {apiResult.ads.map((ad, index) => (
-                              <tr key={index} className="hover:bg-[var(--bg-elevated)] transition-colors">
-                                <td className="px-4 py-3">
-                                  <div className="max-w-[300px]">
-                                    <div className="text-[var(--text-primary)] font-medium truncate">
-                                      {ad.linkTitle || 'No title'}
-                                    </div>
-                                    <div className="text-xs text-[var(--text-muted)] truncate mt-0.5">
-                                      {ad.creativeBody?.slice(0, 60) || 'No description'}...
-                                    </div>
-                                    <div className="text-xs text-[var(--text-muted)] mt-1">
-                                      Started: {ad.startedRunning || 'Unknown'}
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                  {ad.mediaType === 'video' && (
-                                    <span className="inline-flex items-center gap-1 text-purple-500" title="Video">
-                                      <Play className="w-4 h-4" />
-                                    </span>
-                                  )}
-                                  {ad.mediaType === 'image' && (
-                                    <span className="inline-flex items-center gap-1 text-blue-500" title="Image">
-                                      <ImageIcon className="w-4 h-4" />
-                                    </span>
-                                  )}
-                                  {ad.mediaType === 'unknown' && (
-                                    <span className="text-[var(--text-muted)]">-</span>
-                                  )}
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                  <span className="inline-flex items-center justify-center min-w-[28px] px-2 py-1 text-xs font-bold rounded-lg bg-[var(--accent-yellow)] text-[#1c1c0d]">
-                                    {ad.euTotalReach.toLocaleString()}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                  <div className="text-xs text-[var(--text-secondary)]">
-                                    <div>{ad.targeting.gender}</div>
-                                    <div>{ad.targeting.ageMin}-{ad.targeting.ageMax}</div>
-                                  </div>
-                                </td>
-                                <td className="px-4 py-3 text-right">
-                                  <a
-                                    href={`https://www.facebook.com/ads/library/?id=${ad.adArchiveId}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-[var(--bg-elevated)] text-[var(--accent-green-light)] hover:bg-[var(--border-subtle)] transition-colors"
-                                  >
-                                    View
-                                  </a>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </details>
-                  </div>
-                )}
-
-                {/* Info about API data source */}
-                {apiResult && (
-                  <div className="mt-4 flex gap-2 text-xs text-[var(--text-muted)]">
-                    <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>
-                      Data fetched via official Facebook API. Demographics based on EU DSA transparency requirements.
-                      Reach numbers represent people reached in selected EU countries.
-                    </span>
-                  </div>
-                )}
-
-                {/* Demographics Results - API */}
-                {apiResult && apiResult.aggregatedDemographics && (
-                  <div className="mt-6 space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                        Audience <span className="italic text-[var(--accent-green-light)]">Demographics</span>
-                      </h3>
-                      <div className="text-xs text-[var(--text-muted)]">
-                        {apiResult.aggregatedDemographics.adsWithDemographics} ads with demographic data
-                      </div>
-                    </div>
-
-                    {/* Summary */}
-                    <div className="glass rounded-xl p-5">
-                      <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
-                        Key Insights
-                      </h4>
-                      <DemographicsSummary
-                        demographics={apiResult.aggregatedDemographics}
-                      />
-                    </div>
-
-                    {/* Charts - collapsible */}
-                    <div className="space-y-3">
-                      {/* Age/Gender Chart - Collapsible */}
-                      <details className="group glass rounded-xl overflow-hidden">
-                        <summary className="cursor-pointer list-none p-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors">
-                          <div className="flex items-center gap-3">
-                            <svg className="w-4 h-4 text-[var(--text-muted)] transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                            <h4 className="text-sm font-medium text-[var(--text-primary)]">Age & Gender Breakdown</h4>
+                    {/* Time Trends - Activity Timeline */}
+                    {timelineAds && timelineAds.length > 0 && (
+                      <div className="space-y-4 mb-6">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                            Activity <span className="italic text-[var(--accent-green-light)]">Timeline</span>
+                          </h3>
+                          <div className="text-xs text-[var(--text-muted)]">
+                            {activeStatus === 'ACTIVE' && timelineAds.length !== apiResult.ads.length && (
+                              <span className="text-[var(--accent-yellow)] mr-2">Includes inactive ads</span>
+                            )}
+                            Advertising intensity over time
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
-                            {(() => {
-                              const topSegment = apiResult.aggregatedDemographics.ageGenderBreakdown[0];
-                              return topSegment ? (
-                                <span>Top: <span className="text-[var(--accent-green-light)]">{topSegment.gender} {topSegment.age}</span> ({topSegment.percentage.toFixed(1)}%)</span>
-                              ) : null;
-                            })()}
+                        </div>
+                        <div className="glass rounded-xl p-5">
+                          <TimeTrends ads={timelineAds} />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Ad Types - Media breakdown */}
+                    {apiResult.mediaTypeBreakdown && (
+                      <div className="space-y-4 mb-6">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                            Ad <span className="italic text-[var(--accent-green-light)]">Types</span>
+                          </h3>
+                          <div className="text-xs text-[var(--text-muted)]">
+                            Media format distribution
                           </div>
-                        </summary>
-                        <div className="px-5 pb-5">
-                          <AgeGenderChart
-                            data={apiResult.aggregatedDemographics.ageGenderBreakdown}
+                        </div>
+                        <div className="glass rounded-xl p-5">
+                          <div className="flex items-center gap-8">
+                            {/* Video */}
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-500/20">
+                                <Play className="w-5 h-5 text-purple-400" />
+                              </div>
+                              <div>
+                                <div className="text-2xl font-bold text-[var(--text-primary)]">
+                                  {apiResult.mediaTypeBreakdown.video}
+                                </div>
+                                <div className="text-xs text-[var(--text-muted)]">Videos</div>
+                              </div>
+                              <div className="text-sm font-medium text-purple-400 ml-2">
+                                {apiResult.ads.length > 0
+                                  ? `${((apiResult.mediaTypeBreakdown.video / apiResult.ads.length) * 100).toFixed(0)}%`
+                                  : '0%'
+                                }
+                              </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="h-12 w-px bg-[var(--border-subtle)]" />
+
+                            {/* Image */}
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/20">
+                                <ImageIcon className="w-5 h-5 text-blue-400" />
+                              </div>
+                              <div>
+                                <div className="text-2xl font-bold text-[var(--text-primary)]">
+                                  {apiResult.mediaTypeBreakdown.image}
+                                </div>
+                                <div className="text-xs text-[var(--text-muted)]">Images</div>
+                              </div>
+                              <div className="text-sm font-medium text-blue-400 ml-2">
+                                {apiResult.ads.length > 0
+                                  ? `${((apiResult.mediaTypeBreakdown.image / apiResult.ads.length) * 100).toFixed(0)}%`
+                                  : '0%'
+                                }
+                              </div>
+                            </div>
+
+                            {/* Unknown (if any) */}
+                            {apiResult.mediaTypeBreakdown.unknown > 0 && (
+                              <>
+                                <div className="h-12 w-px bg-[var(--border-subtle)]" />
+                                <div className="flex items-center gap-3">
+                                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--bg-tertiary)]">
+                                    <svg className="w-5 h-5 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                  </div>
+                                  <div>
+                                    <div className="text-2xl font-bold text-[var(--text-primary)]">
+                                      {apiResult.mediaTypeBreakdown.unknown}
+                                    </div>
+                                    <div className="text-xs text-[var(--text-muted)]">Other</div>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+
+                          {/* Progress bar visualization */}
+                          <div className="mt-4 h-2 rounded-full bg-[var(--bg-tertiary)] overflow-hidden flex">
+                            <div
+                              className="bg-purple-500 transition-all"
+                              style={{ width: `${apiResult.ads.length > 0 ? (apiResult.mediaTypeBreakdown.video / apiResult.ads.length) * 100 : 0}%` }}
+                            />
+                            <div
+                              className="bg-blue-500 transition-all"
+                              style={{ width: `${apiResult.ads.length > 0 ? (apiResult.mediaTypeBreakdown.image / apiResult.ads.length) * 100 : 0}%` }}
+                            />
+                            <div
+                              className="bg-[var(--text-muted)] transition-all"
+                              style={{ width: `${apiResult.ads.length > 0 ? (apiResult.mediaTypeBreakdown.unknown / apiResult.ads.length) * 100 : 0}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Ad Copy Analysis */}
+                    {apiResult.ads.length > 0 && (
+                      <div className="space-y-4 mb-6">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                            Copy <span className="italic text-[var(--accent-green-light)]">Analysis</span>
+                          </h3>
+                          <div className="text-xs text-[var(--text-muted)]">
+                            Hooks, CTAs & messaging patterns
+                          </div>
+                        </div>
+                        <div className="glass rounded-xl p-5">
+                          <AdCopyAnalysis ads={apiResult.ads} />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Ad Longevity Analysis */}
+                    {apiResult.ads.length > 0 && (
+                      <div className="space-y-4 mb-6">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                            Ad <span className="italic text-[var(--accent-green-light)]">Longevity</span>
+                          </h3>
+                          <div className="text-xs text-[var(--text-muted)]">
+                            Identify evergreen winners
+                          </div>
+                        </div>
+                        <div className="glass rounded-xl p-5">
+                          <AdLongevity ads={apiResult.ads} />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Landing Page Analysis */}
+                    {apiResult.ads.length > 0 && (
+                      <div className="space-y-4 mb-6">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                            Landing <span className="italic text-[var(--accent-green-light)]">Pages</span>
+                          </h3>
+                          <div className="text-xs text-[var(--text-muted)]">
+                            Where ads drive traffic
+                          </div>
+                        </div>
+                        <div className="glass rounded-xl p-5">
+                          <LandingPageAnalysis
+                            apiAds={apiResult.ads}
                           />
                         </div>
-                      </details>
+                      </div>
+                    )}
 
-                      {/* Country Chart - Collapsible */}
-                      <details className="group glass rounded-xl overflow-hidden">
-                        <summary className="cursor-pointer list-none p-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors">
-                          <div className="flex items-center gap-3">
-                            <svg className="w-4 h-4 text-[var(--text-muted)] transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    {/* Product Market Analysis (if available) */}
+                    {apiResult.productAnalysis && apiResult.productAnalysis.products.length > 0 && (
+                      <div className="space-y-4 mb-6">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-serif text-lg text-[var(--text-primary)]">
+                            Product <span className="italic text-[var(--accent-green-light)]">Analysis</span>
+                          </h3>
+                          <div className="text-xs text-[var(--text-muted)]">
+                            {apiResult.productAnalysis.products.length} products across {apiResult.productAnalysis.allMarkets.length} markets
+                          </div>
+                        </div>
+                        <ProductMarketTable data={apiResult.productAnalysis} />
+                      </div>
+                    )}
+
+                    {/* All Active Ads - expandable list (at bottom) */}
+                    {apiResult.ads.length > 0 && (
+                      <div className="mt-6">
+                        <details className="group">
+                          <summary className="cursor-pointer list-none flex items-center gap-2 text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent-green-light)] transition-colors">
+                            <svg className="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
-                            <h4 className="text-sm font-medium text-[var(--text-primary)]">Geographic Distribution</h4>
+                            View all {apiResult.totalAdsFound} ads
+                          </summary>
+                          <div className="mt-3 max-h-[400px] overflow-y-auto rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
+                            <table className="w-full text-sm">
+                              <thead className="sticky top-0 bg-[var(--bg-tertiary)] border-b border-[var(--border-subtle)]">
+                                <tr>
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Ad Content</th>
+                                  <th className="px-4 py-2 text-center text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-16">Type</th>
+                                  <th className="px-4 py-2 text-center text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-24">EU Reach</th>
+                                  <th className="px-4 py-2 text-center text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-24">Targeting</th>
+                                  <th className="px-4 py-2 text-right text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide w-20">View</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-[var(--border-subtle)]">
+                                {apiResult.ads.map((ad, index) => (
+                                  <tr key={index} className="hover:bg-[var(--bg-elevated)] transition-colors">
+                                    <td className="px-4 py-3">
+                                      <div className="max-w-[300px]">
+                                        <div className="text-[var(--text-primary)] font-medium truncate">
+                                          {ad.linkTitle || 'No title'}
+                                        </div>
+                                        <div className="text-xs text-[var(--text-muted)] truncate mt-0.5">
+                                          {ad.creativeBody?.slice(0, 60) || 'No description'}...
+                                        </div>
+                                        <div className="text-xs text-[var(--text-muted)] mt-1">
+                                          Started: {ad.startedRunning || 'Unknown'}
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
+                                      {ad.mediaType === 'video' && (
+                                        <span className="inline-flex items-center gap-1 text-purple-500" title="Video">
+                                          <Play className="w-4 h-4" />
+                                        </span>
+                                      )}
+                                      {ad.mediaType === 'image' && (
+                                        <span className="inline-flex items-center gap-1 text-blue-500" title="Image">
+                                          <ImageIcon className="w-4 h-4" />
+                                        </span>
+                                      )}
+                                      {ad.mediaType === 'unknown' && (
+                                        <span className="text-[var(--text-muted)]">-</span>
+                                      )}
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
+                                      <span className="inline-flex items-center justify-center min-w-[28px] px-2 py-1 text-xs font-bold rounded-lg bg-[var(--accent-yellow)] text-[#1c1c0d]">
+                                        {ad.euTotalReach.toLocaleString()}
+                                      </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
+                                      <div className="text-xs text-[var(--text-secondary)]">
+                                        <div>{ad.targeting.gender}</div>
+                                        <div>{ad.targeting.ageMin}-{ad.targeting.ageMax}</div>
+                                      </div>
+                                    </td>
+                                    <td className="px-4 py-3 text-right">
+                                      <a
+                                        href={`https://www.facebook.com/ads/library/?id=${ad.adArchiveId}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-[var(--bg-elevated)] text-[var(--accent-green-light)] hover:bg-[var(--border-subtle)] transition-colors"
+                                      >
+                                        View
+                                      </a>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
-                            {(() => {
-                              const topCountries = apiResult.aggregatedDemographics.regionBreakdown.slice(0, 3);
-                              return topCountries.length > 0 ? (
-                                <span>Top: <span className="text-[var(--accent-green-light)]">{topCountries.map(c => c.region).join(', ')}</span></span>
-                              ) : null;
-                            })()}
-                          </div>
-                        </summary>
-                        <div className="px-5 pb-5">
-                          <CountryChart
-                            data={apiResult.aggregatedDemographics.regionBreakdown}
-                          />
-                        </div>
-                      </details>
-                    </div>
-                  </div>
-                )}
-
-                {/* Product Market Analysis - API */}
-                {apiResult && apiResult.productAnalysis && apiResult.productAnalysis.products.length > 0 && (
-                  <div className="mt-6 space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                        Product <span className="italic text-[var(--accent-green-light)]">Analysis</span>
-                      </h3>
-                      <div className="text-xs text-[var(--text-muted)]">
-                        {apiResult.productAnalysis.products.length} products across {apiResult.productAnalysis.allMarkets.length} markets
+                        </details>
                       </div>
-                    </div>
-                    <ProductMarketTable data={apiResult.productAnalysis} />
-                  </div>
-                )}
+                    )}
 
-                {/* Ad Longevity Analysis - API */}
-                {apiResult && apiResult.ads.length > 0 && (
-                  <div className="mt-6 space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                        Ad <span className="italic text-[var(--accent-green-light)]">Longevity</span>
-                      </h3>
-                      <div className="text-xs text-[var(--text-muted)]">
-                        Identify evergreen winners
-                      </div>
+                    {/* Info about API data source */}
+                    <div className="mt-6 flex gap-2 text-xs text-[var(--text-muted)]">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>
+                        Data fetched via official Facebook API. Reach numbers represent people reached in selected EU countries.
+                      </span>
                     </div>
-                    <div className="glass rounded-xl p-5">
-                      <AdLongevity ads={apiResult.ads} />
-                    </div>
-                  </div>
-                )}
-
-                {/* Ad Copy Analysis - API */}
-                {apiResult && apiResult.ads.length > 0 && (
-                  <div className="mt-6 space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                        Copy <span className="italic text-[var(--accent-green-light)]">Analysis</span>
-                      </h3>
-                      <div className="text-xs text-[var(--text-muted)]">
-                        Hooks, CTAs & messaging patterns
-                      </div>
-                    </div>
-                    <div className="glass rounded-xl p-5">
-                      <AdCopyAnalysis ads={apiResult.ads} />
-                    </div>
-                  </div>
-                )}
-
-                {/* Time Trends - API (uses ALL ads for complete historical view) */}
-                {apiResult && timelineAds && timelineAds.length > 0 && (
-                  <div className="mt-6 space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                        Activity <span className="italic text-[var(--accent-green-light)]">Timeline</span>
-                      </h3>
-                      <div className="text-xs text-[var(--text-muted)]">
-                        {activeStatus === 'ACTIVE' && timelineAds.length !== apiResult.ads.length && (
-                          <span className="text-[var(--accent-yellow)] mr-2">Includes inactive ads</span>
-                        )}
-                        Advertising intensity over time
-                      </div>
-                    </div>
-                    <div className="glass rounded-xl p-5">
-                      <TimeTrends ads={timelineAds} />
-                    </div>
-                  </div>
-                )}
-
-                {/* Landing Page Analysis - API */}
-                {apiResult && apiResult.ads.length > 0 && (
-                  <div className="mt-6 space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                        Landing <span className="italic text-[var(--accent-green-light)]">Pages</span>
-                      </h3>
-                      <div className="text-xs text-[var(--text-muted)]">
-                        Where ads drive traffic
-                      </div>
-                    </div>
-                    <div className="glass rounded-xl p-5">
-                      <LandingPageAnalysis
-                        apiAds={apiResult.ads}
-                      />
-                    </div>
-                  </div>
-                )}
                   </>
                 )}
 

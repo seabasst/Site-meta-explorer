@@ -20,7 +20,7 @@ export async function exportToPDF(
 ): Promise<void> {
   // Dynamically import jsPDF and html2canvas to avoid bundle bloat
   const jsPDF = (await import('jspdf')).default;
-  const html2canvas = (await import('html2canvas')).default;
+  const html2canvas = (await import('html2canvas-pro')).default;
 
   // Get the element to capture
   const element = document.getElementById(elementId);
