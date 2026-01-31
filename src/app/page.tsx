@@ -23,6 +23,7 @@ import { getUserFriendlyMessage } from '@/lib/errors';
 import { AdPreviewCard } from '@/components/ads/ad-preview-card';
 import { BrandAnalysis } from '@/components/analytics/brand-analysis';
 import { AccountSummary } from '@/components/summary/account-summary';
+import { SearchBar } from '@/components/search/search-bar';
 import { Play, Image as ImageIcon, Menu, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { SignInButton } from '@/components/auth/sign-in-button';
@@ -64,6 +65,12 @@ export default function Home() {
   // Auth state
   const { data: session, status: authStatus } = useSession();
 
+
+  // Input mode: search bar vs URL paste
+  const [inputMode, setInputMode] = useState<'search' | 'url'>('search');
+
+  // Selected page from search (before analysis is triggered)
+  const [selectedPage, setSelectedPage] = useState<{ pageId: string; pageName: string } | null>(null);
 
   // Ad Library state
   const [adLibraryUrl, setAdLibraryUrl] = useState('');
@@ -147,15 +154,21 @@ export default function Home() {
     setUrlError(result.valid ? null : result.error || null);
   };
 
-  const handleAdLibrarySubmit = async (e: React.FormEvent) => {
+  const handleAdLibrarySubmit = async (e: React.FormEvent, overrideUrl?: string) => {
     e.preventDefault();
-    if (!adLibraryUrl.trim()) return;
+    const urlToUse = overrideUrl || adLibraryUrl.trim();
+    if (!urlToUse) return;
 
     // Validate before submitting
-    const validation = validateAdLibraryUrl(adLibraryUrl.trim());
+    const validation = validateAdLibraryUrl(urlToUse);
     if (!validation.valid) {
       setUrlError(validation.error || 'Invalid URL');
       return;
+    }
+
+    // Sync the URL state if we used an override
+    if (overrideUrl) {
+      setAdLibraryUrl(overrideUrl);
     }
 
     setIsLoadingAds(true);
@@ -181,7 +194,7 @@ export default function Home() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            adLibraryUrl: adLibraryUrl.trim(),
+            adLibraryUrl: urlToUse,
             countries: selectedCountries,
             limit: analysisLimit,
             activeStatus,
@@ -195,7 +208,7 @@ export default function Home() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            adLibraryUrl: adLibraryUrl.trim(),
+            adLibraryUrl: urlToUse,
             countries: selectedCountries,
             limit: 500, // Higher limit for timeline to include historical/inactive ads
             activeStatus: 'ALL',
@@ -413,67 +426,139 @@ export default function Home() {
 
           {/* Main Ad Library Form */}
           <form onSubmit={handleAdLibrarySubmit} className="mb-8 animate-fade-in-up stagger-1">
-            <div className="relative z-10 glass rounded-2xl p-6 glow-gold">
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                Enter a Facebook Ad Library URL
-              </label>
-              <p className="text-xs text-[var(--text-muted)] mb-3">
-                First, search for a brand on{' '}
-                <a
-                  href="https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&media_type=all"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[var(--accent-gold)] hover:underline font-medium inline-flex items-center gap-1"
-                >
-                  Facebook Ad Library
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-                , then copy the URL and paste it here.
-              </p>
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={adLibraryUrl}
-                  onChange={(e) => {
-                    setAdLibraryUrl(e.target.value);
-                    if (urlError) setUrlError(null);
-                  }}
-                  onBlur={handleUrlBlur}
-                  placeholder="https://www.facebook.com/ads/library/?...&view_all_page_id=..."
-                  className={`input-field flex-1 ${urlError ? 'border-red-500 focus:ring-red-500' : ''}`}
-                  disabled={isLoadingAds}
-                  aria-invalid={!!urlError}
-                  aria-describedby={urlError ? 'url-error' : undefined}
-                />
-                <button
-                  type="submit"
-                  disabled={isLoadingAds || !adLibraryUrl.trim()}
-                  className="btn-primary flex items-center gap-2 whitespace-nowrap"
-                >
-                  {isLoadingAds ? (
-                    <>
-                      <LoadingSpinner size="sm" />
-                      <span>Analysing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                      <span>Analyse Ads</span>
-                    </>
+            <div className="relative z-20 glass rounded-2xl p-6 glow-gold">
+              {inputMode === 'search' ? (
+                <>
+                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                    Search for a brand
+                  </label>
+                  <p className="text-xs text-[var(--text-muted)] mb-3">
+                    Type a brand name to find their Facebook page and analyse their ads.
+                  </p>
+                  <div className="flex gap-3 items-start">
+                    <div className="flex-1">
+                      <SearchBar
+                        disabled={isLoadingAds}
+                        placeholder="Search for a brand (e.g. Nike, Adidas, Gymshark)..."
+                        onSelect={(pageId, pageName) => {
+                          setSelectedPage({ pageId, pageName });
+                        }}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      disabled={!selectedPage || isLoadingAds}
+                      onClick={() => {
+                        if (!selectedPage) return;
+                        const constructedUrl = `https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=${selectedPage.pageId}`;
+                        handleAdLibrarySubmit(
+                          { preventDefault: () => {} } as React.FormEvent,
+                          constructedUrl,
+                        );
+                      }}
+                      className="btn-primary flex items-center gap-2 whitespace-nowrap"
+                    >
+                      {isLoadingAds ? (
+                        <>
+                          <LoadingSpinner size="sm" />
+                          <span>Analysing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Analyse Ads</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {selectedPage && !isLoadingAds && (
+                    <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                      Selected: <span className="font-medium text-[var(--text-primary)]">{selectedPage.pageName}</span>
+                    </p>
                   )}
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => setInputMode('url')}
+                    className="mt-2 text-xs text-[var(--text-muted)] hover:text-[var(--accent-green-light)] transition-colors"
+                  >
+                    Or paste an Ad Library URL
+                  </button>
+                </>
+              ) : (
+                <>
+                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                    Enter a Facebook Ad Library URL
+                  </label>
+                  <p className="text-xs text-[var(--text-muted)] mb-3">
+                    First, search for a brand on{' '}
+                    <a
+                      href="https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&media_type=all"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[var(--accent-gold)] hover:underline font-medium inline-flex items-center gap-1"
+                    >
+                      Facebook Ad Library
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                    , then copy the URL and paste it here.
+                  </p>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={adLibraryUrl}
+                      onChange={(e) => {
+                        setAdLibraryUrl(e.target.value);
+                        if (urlError) setUrlError(null);
+                      }}
+                      onBlur={handleUrlBlur}
+                      placeholder="https://www.facebook.com/ads/library/?...&view_all_page_id=..."
+                      className={`input-field flex-1 ${urlError ? 'border-red-500 focus:ring-red-500' : ''}`}
+                      disabled={isLoadingAds}
+                      aria-invalid={!!urlError}
+                      aria-describedby={urlError ? 'url-error' : undefined}
+                    />
+                    <button
+                      type="submit"
+                      disabled={isLoadingAds || !adLibraryUrl.trim()}
+                      className="btn-primary flex items-center gap-2 whitespace-nowrap"
+                    >
+                      {isLoadingAds ? (
+                        <>
+                          <LoadingSpinner size="sm" />
+                          <span>Analysing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>Analyse Ads</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
 
-              {/* URL Validation Error */}
-              {urlError && (
-                <p id="url-error" className="mt-2 text-sm text-red-500" role="alert">
-                  {urlError}
-                </p>
+                  {/* URL Validation Error */}
+                  {urlError && (
+                    <p id="url-error" className="mt-2 text-sm text-red-500" role="alert">
+                      {urlError}
+                    </p>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setInputMode('search')}
+                    className="mt-2 text-xs text-[var(--text-muted)] hover:text-[var(--accent-green-light)] transition-colors"
+                  >
+                    Or search by brand name
+                  </button>
+                </>
               )}
 
               {/* Options */}
@@ -617,7 +702,7 @@ export default function Home() {
 
           {/* Brand Comparison Panel */}
           {comparisonBrands.length > 0 && (
-            <div className="mb-8 animate-fade-in">
+            <div className="relative z-10 mb-8 animate-fade-in">
               <div className="glass rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -769,7 +854,7 @@ export default function Home() {
 
           {/* Ad Library Results - Full Width */}
           {(apiResult || isLoadingAds) && (
-            <div className="animate-fade-in mb-8">
+            <div className="relative z-10 animate-fade-in mb-8">
               <div id="analysis-results" className="glass rounded-2xl p-6">
                 <div className="flex items-start justify-between gap-4 mb-6">
                   <div>
