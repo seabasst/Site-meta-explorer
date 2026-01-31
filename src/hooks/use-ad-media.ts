@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 
+type MediaType = 'image' | 'video' | 'snapshot';
+
 interface AdMediaResult {
   mediaUrl: string | null;
-  mediaType: 'image' | 'video' | null;
+  mediaType: MediaType | null;
   isLoading: boolean;
   error: boolean;
 }
@@ -12,7 +14,7 @@ interface AdMediaResult {
 // Module-level cache — persists across re-renders and tab switches
 const resolvedCache = new Map<
   string,
-  { mediaUrl: string; mediaType: 'image' | 'video' } | null
+  { mediaUrl: string; mediaType: MediaType } | null
 >();
 
 export function useAdMedia(
@@ -20,7 +22,7 @@ export function useAdMedia(
   snapshotUrl: string | null | undefined,
 ): AdMediaResult {
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
-  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
+  const [mediaType, setMediaType] = useState<MediaType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
 

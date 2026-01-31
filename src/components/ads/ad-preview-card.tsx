@@ -72,7 +72,15 @@ export function AdPreviewCard({ ad }: AdPreviewCardProps) {
         )}
 
         {/* Actual media */}
-        {showMedia && resolvedMediaType === 'video' ? (
+        {showMedia && resolvedMediaType === 'snapshot' ? (
+          <iframe
+            src={mediaUrl}
+            title={ad.linkTitle || 'Ad creative'}
+            className="absolute inset-0 w-full h-full border-0"
+            sandbox="allow-scripts allow-same-origin"
+            loading="lazy"
+          />
+        ) : showMedia && resolvedMediaType === 'video' ? (
           <video
             src={mediaUrl}
             className="absolute inset-0 w-full h-full object-cover"
