@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOrCacheMedia } from '@/lib/media-cache';
 
 const IS_VERCEL = !!process.env.VERCEL;
 
@@ -25,6 +24,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Dynamic import to avoid pulling in Puppeteer on Vercel
+    const { getOrCacheMedia } = await import('@/lib/media-cache');
     const entry = await getOrCacheMedia(adId, snapshotUrl);
 
     if (!entry) {
