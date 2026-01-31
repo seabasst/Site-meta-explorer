@@ -3,7 +3,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import { extractMediaFromSnapshot } from './media-extractor';
 
-const CACHE_DIR = path.join(process.cwd(), '.media-cache');
+const CACHE_DIR = process.env.VERCEL
+  ? path.join('/tmp', '.media-cache')
+  : path.join(process.cwd(), '.media-cache');
 const INDEX_FILE = path.join(CACHE_DIR, '_index.json');
 
 interface CacheEntry {

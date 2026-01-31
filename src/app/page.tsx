@@ -668,16 +668,26 @@ export default function Home() {
               {!isLoadingAds && (
                 <div className="mt-4 flex items-center gap-3 flex-wrap">
                   <span className="text-xs text-[var(--text-muted)]">Examples:</span>
-                  {EXAMPLE_BRANDS.map((brand) => (
-                    <button
-                      key={brand.domain}
-                      type="button"
-                      onClick={() => setAdLibraryUrl(brand.adLibrary)}
-                      className="text-xs px-3 py-1.5 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent-green)] hover:border-[var(--accent-green)] transition-colors"
-                    >
-                      {brand.name}
-                    </button>
-                  ))}
+                  {EXAMPLE_BRANDS.map((brand) => {
+                    const pageIdMatch = brand.adLibrary.match(/view_all_page_id=(\d+)/);
+                    return (
+                      <button
+                        key={brand.domain}
+                        type="button"
+                        onClick={() => {
+                          if (inputMode === 'search' && pageIdMatch) {
+                            setSelectedPage({ pageId: pageIdMatch[1], pageName: brand.name });
+                          } else {
+                            setAdLibraryUrl(brand.adLibrary);
+                            if (inputMode === 'search') setInputMode('url');
+                          }
+                        }}
+                        className="text-xs px-3 py-1.5 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent-green)] hover:border-[var(--accent-green)] transition-colors"
+                      >
+                        {brand.name}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 
@@ -692,7 +702,17 @@ export default function Home() {
                   </div>
                   <FavoritesPanel
                     favorites={favorites}
-                    onSelect={(brand) => setAdLibraryUrl(brand.adLibraryUrl)}
+                    onSelect={(brand) => {
+                      if (inputMode === 'search') {
+                        const match = brand.adLibraryUrl.match(/view_all_page_id=(\d+)/);
+                        if (match) {
+                          setSelectedPage({ pageId: match[1], pageName: brand.pageName });
+                          return;
+                        }
+                      }
+                      setAdLibraryUrl(brand.adLibraryUrl);
+                      if (inputMode === 'search') setInputMode('url');
+                    }}
                     onRemove={removeFavorite}
                   />
                 </div>
