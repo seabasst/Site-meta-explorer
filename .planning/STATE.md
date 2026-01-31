@@ -5,24 +5,26 @@
 See: .planning/PROJECT.md (updated 2026-01-26)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** v2.0 milestone complete — ready for audit or deployment
+**Current focus:** v2.1 Polish & UX — shipping deferred v1.1 items
 
 ## Current Position
 
-Phase: 13 of 13 (Pro Features)
-Plan: 03 of 03 complete
-Status: Phase 13 complete
-Last activity: 2026-01-27 — Completed 13-03-PLAN.md (PDF Export)
+Phase: 14 of 23 (Ad Preview)
+Plan: 0 of 1 — planned, ready for execution
+Status: Planned
+Last activity: 2026-01-31 — Planned Phase 14 (1 plan, 1 wave)
 
-Progress: ████████████████████ 100% (v1.0 shipped, v1.1 partial, v2.0 complete)
+Progress: ██████████████░░░░░░ 65% (v1.0-v2.0 shipped, v2.1+v3.0 ahead)
 
 ## Milestones
 
 | Version | Status | Shipped |
 |---------|--------|---------|
 | v1.0 MVP | Complete | 2026-01-25 |
-| v1.1 Polish | Partial (Phase 5 shipped, 6-9 deferred) | 2026-01-25 |
+| v1.1 Polish | Partial (Phase 5 shipped, 6-9 superseded by v2.1) | 2026-01-25 |
 | v2.0 Payments & Auth | Complete (Phases 10-13) | 2026-01-27 |
+| v2.1 Polish & UX | Not started (Phases 14-17) | - |
+| v3.0 Pro Platform | Not started (Phases 18-23) | - |
 
 ## Performance Metrics
 
@@ -127,6 +129,11 @@ Recent decisions affecting current work:
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
 
+### Roadmap Evolution
+
+- Phases 14-17 added (v2.1): Deferred v1.1 polish items — ad preview, charts, export, mobile
+- Phases 18-23 added (v3.0): Coming-soon pro platform features — brand tracking, competitor monitoring, comparison, tips, trends, dashboard
+
 ### Pending Todos
 
 None.
@@ -142,7 +149,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27
-Stopped at: Completed v2.0 milestone (Phase 13 verified)
+Last session: 2026-01-31
+Stopped at: Planned Phase 14 (Ad Preview) — 1 plan, 1 wave
 Resume file: None
-Next: Milestone audit or deploy
+Next: Execute Phase 14 (`/gsd:execute-phase 14`)
