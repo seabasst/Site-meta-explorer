@@ -1,7 +1,26 @@
 'use client';
 
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
+import type { TooltipContentProps } from 'recharts/types/component/Tooltip';
+import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import type { MediaTypeBreakdown } from '@/lib/facebook-api';
+
+function MediaTypeTooltip({ active, payload }: TooltipContentProps<ValueType, NameType>) {
+  if (!active || !payload?.length) return null;
+  const data = payload[0].payload;
+
+  return (
+    <div className="rounded-lg border bg-[var(--bg-secondary)] border-[var(--border-subtle)] px-3 py-2 shadow-md">
+      <div className="flex items-center gap-2 mb-1">
+        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: data.color }} />
+        <span className="font-medium text-[var(--text-primary)]">{data.name}</span>
+      </div>
+      <div className="text-sm text-[var(--text-secondary)]">
+        {data.count} ads ({data.percentage.toFixed(1)}%)
+      </div>
+    </div>
+  );
+}
 
 interface MediaTypeChartProps {
   data: MediaTypeBreakdown;
@@ -10,7 +29,7 @@ interface MediaTypeChartProps {
 export function MediaTypeChart({ data }: MediaTypeChartProps) {
   if (!data || (data.video === 0 && data.image === 0)) {
     return (
-      <div style={{ width: '100%', height: 200 }} className="flex items-center justify-center">
+      <div className="w-full h-[200px] flex items-center justify-center">
         <p className="text-[var(--text-muted)]">No media type data available</p>
       </div>
     );
@@ -68,17 +87,12 @@ export function MediaTypeChart({ data }: MediaTypeChartProps) {
       </div>
 
       {/* Bar chart */}
-      <div style={{ width: '100%', height: 150 }}>
-        <ResponsiveContainer>
+      <div className="w-full h-[150px]">
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical">
             <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12 }} tickFormatter={(v) => `${v}%`} />
             <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={60} />
-            <Tooltip
-              formatter={(value, name, props) => [
-                `${props.payload.count} ads (${Number(value).toFixed(1)}%)`,
-                props.payload.name
-              ]}
-            />
+            <Tooltip content={(props) => <MediaTypeTooltip {...props} />} />
             <Bar dataKey="percentage" radius={[0, 4, 4, 0]}>
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
