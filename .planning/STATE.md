@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 ## Current Position
 
 Phase: 15 of 23 (Chart Improvements) - In progress
-Plan: 1 of 3 — complete
+Plan: 2 of 3 — complete
 Status: In progress
-Last activity: 2026-02-01 — Completed 15-01-PLAN.md
+Last activity: 2026-02-01 — Completed 15-02-PLAN.md
 
-Progress: ████████████████░░░░ 72% (v1.0-v2.0 shipped, Phase 15 plan 1 done, v2.1 continues)
+Progress: ████████████████░░░░ 74% (v1.0-v2.0 shipped, Phase 15 plans 1-2 done, v2.1 continues)
 
 ## Milestones
 
@@ -29,7 +29,7 @@ Progress: ████████████████░░░░ 72% (v1.0
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: —
 - Total execution time: —
 
@@ -118,6 +118,13 @@ Recent decisions affecting current work:
 - useState for controlled hover tracking pattern
 - Scale transform (1.02) for hover visual feedback
 
+**From 15-02:**
+- Chart click-to-filter: chartFilter state with type/value/label, toggle behavior
+- filteredAds useMemo filters ad list by country region or media type
+- ActiveChartFilter clearable pill component with emerald accent
+- AgeGender click is visual-only (demographics are aggregated, don't map to individual ads)
+- Opacity dimming (opacity-40) for non-active chart segments
+
 **From 13-03:**
 - PDF export using jspdf + html2canvas with dynamic imports
 - Gated behind tier.features.export flag
@@ -150,6 +157,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 15-01-PLAN.md (Phase 15 plan 1 of 3)
+Stopped at: Completed 15-02-PLAN.md (Phase 15 plan 2 of 3)
 Resume file: None
-Next: Execute 15-02-PLAN.md
+Next: Execute 15-03-PLAN.md
