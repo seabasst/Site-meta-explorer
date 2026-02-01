@@ -131,6 +131,8 @@ export default function Home() {
 
   // PDF export loading state
   const [isPdfExporting, setIsPdfExporting] = useState(false);
+  const [pdfProgress, setPdfProgress] = useState<{ step: string; current: number; total: number } | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Favorites
   const { favorites, isLoaded: favoritesLoaded, addFavorite, removeFavorite, isFavorite, toggleFavorite } = useFavorites();
@@ -943,8 +945,19 @@ export default function Home() {
                                 onClick={async () => {
                                   if (isPdfExporting) return;
                                   setIsPdfExporting(true);
+                                  setPdfProgress(null);
                                   try {
-                                    await exportToPDF(apiResult, 'analysis-results');
+                                    await exportToPDF(apiResult, 'analysis-results', {
+                                      onProgress: (step, current, total) => {
+                                        setPdfProgress({ step, current, total });
+                                      },
+                                      showAllTabs: async () => {
+                                        setIsExporting(true);
+                                        // Wait for React to render all tab content
+                                        await new Promise(r => setTimeout(r, 100));
+                                        return () => setIsExporting(false);
+                                      },
+                                    });
                                     toast.success('PDF exported successfully');
                                   } catch (error) {
                                     toast.error('Failed to export PDF', {
@@ -952,12 +965,13 @@ export default function Home() {
                                     });
                                   } finally {
                                     setIsPdfExporting(false);
+                                    setPdfProgress(null);
                                   }
                                 }}
                                 disabled={isPdfExporting}
                                 className="w-full px-4 py-2 text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors disabled:opacity-50"
                               >
-                                {isPdfExporting ? 'Exporting...' : 'Full Report (PDF)'}
+                                {isPdfExporting && pdfProgress ? pdfProgress.step : isPdfExporting ? 'Exporting...' : 'Full Report (PDF)'}
                               </button>
                               <div className="border-t border-[var(--border-subtle)] my-1" />
                               <button
@@ -1108,7 +1122,7 @@ export default function Home() {
                 )}
 
                 {/* AUDIENCE OVERVIEW TAB CONTENT */}
-                {resultsTab === 'audience' && apiResult && (
+                {(resultsTab === 'audience' || isExporting) && apiResult && (
                   <>
                     {/* Demographics Results */}
                     {apiResult.aggregatedDemographics && (
@@ -1224,7 +1238,7 @@ export default function Home() {
                 )}
 
                 {/* AD OVERVIEW TAB CONTENT */}
-                {resultsTab === 'ads' && apiResult && (
+                {(resultsTab === 'ads' || isExporting) && apiResult && (
                   <>
                     {chartFilter && (
                       <div className="mb-4" data-pdf-hide>
@@ -1554,7 +1568,7 @@ export default function Home() {
                 )}
 
                 {/* EXPERT ANALYSIS TAB CONTENT */}
-                {resultsTab === 'expert' && apiResult && apiResult.ads.length > 0 && (
+                {(resultsTab === 'expert' || isExporting) && apiResult && apiResult.ads.length > 0 && (
                   <div className="mt-4" data-pdf-section="expert-analysis">
                     <BrandAnalysis
                       brandName={apiResult.pageName || `Page ${apiResult.pageId}`}

@@ -26,15 +26,38 @@ const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 const CONTENT_HEIGHT = CONTENT_BOTTOM - CONTENT_TOP;
 
 /**
+ * Options for PDF export customization.
+ */
+export interface PDFExportOptions {
+  /** Progress callback fired before each section capture */
+  onProgress?: (step: string, current: number, total: number) => void;
+  /** Renders all tab content into the DOM; returns a cleanup function */
+  showAllTabs?: () => Promise<() => void>;
+}
+
+/**
+ * Format a data-pdf-section attribute value into a human-readable label.
+ * e.g. "age-gender-chart" -> "Age Gender Chart"
+ */
+function formatSectionLabel(attr: string): string {
+  return attr
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
  * Export analysis results as a professional multi-page PDF report.
  *
  * @param result - The Facebook API result containing analysis data
  * @param elementId - The DOM element ID containing all sections
+ * @param options - Optional progress callback and multi-tab support
  * @throws Error if container element not found
  */
 export async function exportToPDF(
   result: FacebookApiResult,
-  elementId: string
+  elementId: string,
+  options?: PDFExportOptions
 ): Promise<void> {
   // Dynamically import jsPDF and html2canvas to avoid bundle bloat
   const jsPDF = (await import('jspdf')).default;
@@ -46,11 +69,23 @@ export async function exportToPDF(
     throw new Error(`Element with ID "${elementId}" not found`);
   }
 
+  // --- Show all tabs (multi-tab capture) ---
+  let cleanupTabs: (() => void) | undefined;
+  if (options?.showAllTabs) {
+    cleanupTabs = await options.showAllTabs();
+    // Wait for React to render all tab content and charts to animate
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  try {
   // Discover all capturable sections
   const sectionElements = container.querySelectorAll<HTMLElement>('[data-pdf-section]');
   if (sectionElements.length === 0) {
     throw new Error('No sections found with [data-pdf-section] attribute');
   }
+
+  const totalSections = sectionElements.length;
+  options?.onProgress?.('Preparing document...', 0, totalSections);
 
   // --- Pre-capture preparation ---
 
@@ -88,11 +123,16 @@ export async function exportToPDF(
     let currentY = CONTENT_TOP;
     let isFirstSection = true;
 
-    for (const section of Array.from(sectionElements)) {
+    for (const [index, section] of Array.from(sectionElements).entries()) {
       // Skip sections with zero height (hidden/empty)
       if (section.offsetHeight === 0 || section.offsetWidth === 0) {
         continue;
       }
+
+      // Report progress for this section
+      const sectionAttr = section.getAttribute('data-pdf-section') || 'section';
+      const sectionLabel = formatSectionLabel(sectionAttr);
+      options?.onProgress?.(`Capturing ${sectionLabel}...`, index + 1, totalSections);
 
       // Capture section with html2canvas
       const canvas = await html2canvas(section, {
@@ -162,6 +202,9 @@ export async function exportToPDF(
       isFirstSection = false;
     }
 
+    // Report finalizing progress
+    options?.onProgress?.('Finalizing PDF...', totalSections, totalSections);
+
     // --- Headers and footers on all content pages ---
     const totalPages = pdf.getNumberOfPages();
     const brandName = result.pageName || 'Analysis';
@@ -214,6 +257,10 @@ export async function exportToPDF(
     detailsElements.forEach((el, i) => {
       el.open = detailsOriginalOpen[i];
     });
+  }
+  } finally {
+    // --- Restore tab state ---
+    cleanupTabs?.();
   }
 }
 
