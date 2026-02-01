@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 
 ## Current Position
 
-Phase: 14 of 23 (Ad Preview) - COMPLETE
-Plan: 1 of 1 — complete
-Status: Phase complete
-Last activity: 2026-02-01 — Completed 14-01-PLAN.md
+Phase: 15 of 23 (Chart Improvements) - In progress
+Plan: 1 of 3 — complete
+Status: In progress
+Last activity: 2026-02-01 — Completed 15-01-PLAN.md
 
-Progress: ███████████████░░░░░ 68% (v1.0-v2.0 shipped, Phase 14 done, v2.1 continues)
+Progress: ████████████████░░░░ 72% (v1.0-v2.0 shipped, Phase 15 plan 1 done, v2.1 continues)
 
 ## Milestones
 
@@ -23,7 +23,7 @@ Progress: ███████████████░░░░░ 68% (v1.0
 | v1.0 MVP | Complete | 2026-01-25 |
 | v1.1 Polish | Partial (Phase 5 shipped, 6-9 superseded by v2.1) | 2026-01-25 |
 | v2.0 Payments & Auth | Complete (Phases 10-13) | 2026-01-27 |
-| v2.1 Polish & UX | Not started (Phases 14-17) | - |
+| v2.1 Polish & UX | In progress (Phases 14-17) | - |
 | v3.0 Pro Platform | Not started (Phases 18-23) | - |
 
 ## Performance Metrics
@@ -150,6 +150,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 14-01-PLAN.md (Phase 14 complete)
+Stopped at: Completed 15-01-PLAN.md (Phase 15 plan 1 of 3)
 Resume file: None
-Next: Execute Phase 15
+Next: Execute 15-02-PLAN.md
