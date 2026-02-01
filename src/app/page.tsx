@@ -954,7 +954,7 @@ export default function Home() {
                               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                               </svg>
-                              Export
+                              {isPdfExporting && pdfProgress ? pdfProgress.step : isPdfExporting ? 'Exporting...' : 'Export'}
                             </button>
                             <div className={`absolute right-0 top-full mt-1 w-48 py-1 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl transition-all z-10 ${exportOpen ? 'opacity-100 visible' : 'opacity-0 invisible'} group-hover:opacity-100 group-hover:visible`}>
                               {/* PDF Export */}
@@ -1497,7 +1497,7 @@ export default function Home() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                             View all {apiResult.totalAdsFound} ads
-                            {chartFilter && filteredAds.length !== apiResult.ads.length && (
+                            {chartFilter && !isExporting && filteredAds.length !== apiResult.ads.length && (
                               <span className="text-xs text-emerald-400 font-normal ml-1">(showing {filteredAds.length})</span>
                             )}
                           </summary>
@@ -1514,7 +1514,7 @@ export default function Home() {
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-[var(--border-subtle)]">
-                                {filteredAds.map((ad, index) => (
+                                {(isExporting ? apiResult.ads : filteredAds).map((ad, index) => (
                                   <tr key={index} className="hover:bg-[var(--bg-elevated)] transition-colors">
                                     <td className="px-4 py-3">
                                       <div className="max-w-[300px]">
