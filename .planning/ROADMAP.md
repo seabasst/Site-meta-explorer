@@ -71,7 +71,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 15: Chart Improvements** - Rich tooltips, responsive charts, click-to-filter (completed 2026-02-01)
 - [x] **Phase 16: Export Enhancement** - Improved PDF export experience (completed 2026-02-01)
 - [x] **Phase 17: Mobile Polish** - Responsive layout, touch-friendly targets (completed 2026-02-01)
-- [ ] **Phase 17.1: Export & Filter Fix** - INSERTED — Fix filtered PDF output, mobile export progress, tooltip overflow
+- [x] **Phase 17.1: Export & Filter Fix** - INSERTED — Fix filtered PDF output, mobile export progress, tooltip overflow (completed 2026-02-01)
 - [ ] **Phase 17.2: Dead Code Cleanup** - INSERTED — Remove orphaned MediaTypeChart and ResultsTable components
 
 ### ○ v3.0 Pro Platform
@@ -220,15 +220,15 @@ Plans:
 **Depends on**: Phase 17
 **Requirements**: None (integration/tech debt fixes from audit)
 **Gap Closure**: Closes gaps from v2.1-MILESTONE-AUDIT.md
-**Status**: Planned
+**Status**: Complete (2026-02-01)
 **Success Criteria** (what must be TRUE):
-  1. PDF export uses unfiltered ad data regardless of active chart filter
-  2. Mobile users see export progress feedback (not trapped in closed dropdown)
-  3. Country chart tooltip doesn't overflow on 375px mobile viewports
+  1. PDF export uses unfiltered ad data regardless of active chart filter ✓
+  2. Mobile users see export progress feedback (not trapped in closed dropdown) ✓
+  3. Country chart tooltip doesn't overflow on 375px mobile viewports ✓
 **Plans**: 1 plan
 
 Plans:
-- [ ] 17.1-01-PLAN.md — Fix filtered PDF ads, mobile export progress, and tooltip overflow
+- [x] 17.1-01-PLAN.md — Fix filtered PDF ads, mobile export progress, and tooltip overflow
 
 ### Phase 17.2: Dead Code Cleanup (INSERTED)
 **Goal**: Remove orphaned components that are exported but never imported
@@ -348,7 +348,7 @@ Plans:
 | 15. Chart Improvements | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 16. Export Enhancement | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 17. Mobile Polish | v2.1 | 2/2 | Complete | 2026-02-01 |
-| 17.1 Export & Filter Fix | v2.1 | 0/1 | Planned | - |
+| 17.1 Export & Filter Fix | v2.1 | 1/1 | Complete | 2026-02-01 |
 | 17.2 Dead Code Cleanup | v2.1 | 0/0 | Not planned | - |
 | 18. Brand Tracking | v3.0 | 0/0 | Not planned | - |
 | 19. Competitor Monitoring | v3.0 | 0/0 | Not planned | - |

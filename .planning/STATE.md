@@ -23,7 +23,7 @@ Progress: █████████████████░░░ 85% (v1.0
 | v1.0 MVP | Complete | 2026-01-25 |
 | v1.1 Polish | Partial (Phase 5 shipped, 6-9 superseded by v2.1) | 2026-01-25 |
 | v2.0 Payments & Auth | Complete (Phases 10-13) | 2026-01-27 |
-| v2.1 Polish & UX | Gap closure (Phases 14-17 complete, 17.1-17.2 pending) | 2026-02-01 |
+| v2.1 Polish & UX | Gap closure (Phases 14-17.1 complete, 17.2 pending) | 2026-02-01 |
 | v3.0 Pro Platform | Not started (Phases 18-23) | - |
 
 ## Performance Metrics
