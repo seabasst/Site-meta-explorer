@@ -64,9 +64,9 @@ v1.1 features paused for v2.0 monetization. Will revisit after payments ship.
 
 ### Charts (from v1.1)
 
-- **CHRT-01**: Rich context in chart tooltips on hover
-- **CHRT-02**: Charts resize properly within containers
-- **CHRT-03**: Click chart element to filter related data
+- [x] **CHRT-01**: Rich context in chart tooltips on hover
+- [x] **CHRT-02**: Charts resize properly within containers
+- [x] **CHRT-03**: Click chart element to filter related data
 
 ### Export (from v1.1)
 
@@ -108,10 +108,13 @@ Which phases cover which requirements. Updated by create-roadmap.
 | PREV-01 | Phase 14 | Complete |
 | PREV-02 | Phase 14 | Complete |
 | PREV-03 | Phase 14 | Complete |
+| CHRT-01 | Phase 15 | Complete |
+| CHRT-02 | Phase 15 | Complete |
+| CHRT-03 | Phase 15 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 11 total, all complete ✓
-- v2.1 requirements: 3/8 complete (PREV-01, PREV-02, PREV-03)
+- v2.1 requirements: 6/8 complete (PREV-01–03, CHRT-01–03)
 
 ---
 *Requirements defined: 2026-01-26*

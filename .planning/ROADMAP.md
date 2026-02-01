@@ -68,7 +68,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Milestone Goal:** Ship the deferred v1.1 polish items — ad previews, chart interactions, export improvements, and mobile responsiveness.
 
 - [x] **Phase 14: Ad Preview** - Click-to-view, creative text display, video/image distinction (completed 2026-02-01)
-- [ ] **Phase 15: Chart Improvements** - Rich tooltips, responsive charts, click-to-filter
+- [x] **Phase 15: Chart Improvements** - Rich tooltips, responsive charts, click-to-filter (completed 2026-02-01)
 - [ ] **Phase 16: Export Enhancement** - Improved PDF export experience
 - [ ] **Phase 17: Mobile Polish** - Responsive layout, touch-friendly targets
 
@@ -171,16 +171,16 @@ Plans:
 **Goal**: Interactive charts with rich tooltips, responsive sizing, and click-to-filter
 **Depends on**: Phase 13
 **Requirements**: CHRT-01, CHRT-02, CHRT-03
-**Status**: Planned
+**Status**: Complete (2026-02-01)
 **Success Criteria** (what must be TRUE):
-  1. Charts show rich context in tooltips on hover
-  2. Charts resize properly within containers
-  3. User can click chart element to filter related data
+  1. Charts show rich context in tooltips on hover ✓
+  2. Charts resize properly within containers ✓
+  3. User can click chart element to filter related data ✓
 **Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 15-01-PLAN.md — Rich tooltips and responsive sizing for Recharts charts (MediaTypeChart, TimeTrends)
-- [ ] 15-02-PLAN.md — Click-to-filter interactivity for CountryChart, AgeGenderChart, and MediaTypeChart
+- [x] 15-01-PLAN.md — Rich tooltips and responsive sizing for Recharts charts (MediaTypeChart, TimeTrends)
+- [x] 15-02-PLAN.md — Click-to-filter interactivity for CountryChart, AgeGenderChart, and MediaTypeChart
 
 ### Phase 16: Export Enhancement
 **Goal**: Improved PDF export with better formatting and layout
@@ -309,7 +309,7 @@ Plans:
 | 12. Tier Enforcement | v2.0 | 3/3 | Complete | 2026-01-27 |
 | 13. Pro Features | v2.0 | 3/3 | Complete | 2026-01-27 |
 | 14. Ad Preview | v2.1 | 1/1 | Complete | 2026-02-01 |
-| 15. Chart Improvements | v2.1 | 0/2 | Planned | - |
+| 15. Chart Improvements | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 16. Export Enhancement | v2.1 | 0/0 | Not planned | - |
 | 17. Mobile Polish | v2.1 | 0/0 | Not planned | - |
 | 18. Brand Tracking | v3.0 | 0/0 | Not planned | - |
