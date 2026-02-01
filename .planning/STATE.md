@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 
 ## Current Position
 
-Phase: 17.1 of 23 (Export & Filter Fix) - Not planned
-Plan: 0 of 0
-Status: Gap closure phases created from audit
-Last activity: 2026-02-01 — Created gap closure phases 17.1, 17.2
+Phase: 17.1 of 23 (Export & Filter Fix) - Complete
+Plan: 1 of 1
+Status: Phase 17.1 complete, 17.2 pending
+Last activity: 2026-02-01 — Completed 17.1-01-PLAN.md
 
-Progress: █████████████████░░░ 83% (v1.0-v2.0 shipped, v2.1 gap closure in progress)
+Progress: █████████████████░░░ 85% (v1.0-v2.0 shipped, v2.1 gap closure: 17.1 done, 17.2 pending)
 
 ## Milestones
 
@@ -29,7 +29,7 @@ Progress: █████████████████░░░ 83% (v1.0
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
+- Total plans completed: 23
 - Average duration: —
 - Total execution time: —
 
@@ -157,6 +157,11 @@ Recent decisions affecting current work:
 - Country chart labels narrowed on mobile (w-20 sm:w-36)
 - Horizontal scroll tables with min-w-[640px] for mobile
 
+**From 17.1-01:**
+- Export data source pattern: isExporting ? apiResult.ads : filteredAds (unfiltered PDF)
+- Mobile export progress shown on button element (not just dropdown)
+- Responsive tooltip positioning: left-20 sm:left-36 matching label column widths
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -182,6 +187,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Gap closure phases created from v2.1 audit
+Stopped at: Completed 17.1-01-PLAN.md (Export & Filter Fix)
 Resume file: None
-Next: Plan phase 17.1 (/gsd:plan-phase 17.1)
+Next: Phase 17.2 (Dashboard Cleanup) if planned
