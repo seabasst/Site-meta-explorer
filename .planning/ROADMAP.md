@@ -9,7 +9,7 @@ Transform the v1.0 MVP into a monetized SaaS product with user authentication an
 - ✅ **v1.0 MVP** - Phases 1-4 (shipped 2026-01-25)
 - ✅ **v1.1 Partial** - Phase 5 (shipped 2026-01-25, phases 6-9 deferred)
 - ✅ **v2.0 Payments & Auth** - Phases 10-13 (shipped 2026-01-27)
-- ✅ **v2.1 Polish & UX** - Phases 14-17.2 (shipped 2026-02-01, gap closure in progress)
+- ✅ **v2.1 Polish & UX** - Phases 14-17.2 (shipped 2026-02-01)
 - ○ **v3.0 Pro Platform** - Phases 18-23 (coming-soon features)
 
 ## Phases
@@ -72,7 +72,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 16: Export Enhancement** - Improved PDF export experience (completed 2026-02-01)
 - [x] **Phase 17: Mobile Polish** - Responsive layout, touch-friendly targets (completed 2026-02-01)
 - [x] **Phase 17.1: Export & Filter Fix** - INSERTED — Fix filtered PDF output, mobile export progress, tooltip overflow (completed 2026-02-01)
-- [ ] **Phase 17.2: Dead Code Cleanup** - INSERTED — Remove orphaned MediaTypeChart and ResultsTable components
+- [x] **Phase 17.2: Dead Code Cleanup** - INSERTED — Remove orphaned MediaTypeChart and ResultsTable components (completed 2026-02-01)
 
 ### ○ v3.0 Pro Platform
 
@@ -235,15 +235,15 @@ Plans:
 **Depends on**: Phase 17.1
 **Requirements**: None (tech debt cleanup from audit)
 **Gap Closure**: Closes gaps from v2.1-MILESTONE-AUDIT.md
-**Status**: Planned
+**Status**: Complete (2026-02-01)
 **Success Criteria** (what must be TRUE):
-  1. MediaTypeChart component is either removed or wired into the page
-  2. ResultsTable component is either removed or wired into the page
-  3. No orphaned exports remain from Phase 15/17 work
+  1. MediaTypeChart component is either removed or wired into the page ✓
+  2. ResultsTable component is either removed or wired into the page ✓
+  3. No orphaned exports remain from Phase 15/17 work ✓
 **Plans**: 1 plan
 
 Plans:
-- [ ] 17.2-01-PLAN.md — Delete orphaned MediaTypeChart and ResultsTable components
+- [x] 17.2-01-PLAN.md — Delete orphaned MediaTypeChart and ResultsTable components
 
 ### Phase 18: Brand Tracking
 **Goal**: Users can set their own brand as a baseline and get automated snapshots with trend tracking
@@ -349,7 +349,7 @@ Plans:
 | 16. Export Enhancement | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 17. Mobile Polish | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 17.1 Export & Filter Fix | v2.1 | 1/1 | Complete | 2026-02-01 |
-| 17.2 Dead Code Cleanup | v2.1 | 0/1 | Planned | - |
+| 17.2 Dead Code Cleanup | v2.1 | 1/1 | Complete | 2026-02-01 |
 | 18. Brand Tracking | v3.0 | 0/0 | Not planned | - |
 | 19. Competitor Monitoring | v3.0 | 0/0 | Not planned | - |
 | 20. Side-by-Side Comparison | v3.0 | 0/0 | Not planned | - |
