@@ -2,29 +2,19 @@
 
 ## What This Is
 
-A competitor analysis tool that extracts demographic and reach data from Facebook Ad Library. Users enter an Ad Library page URL, and the app fetches ad data via Facebook's Graph API to show aggregated audience breakdowns — countries, age groups, gender splits, and reach metrics.
+A competitor analysis SaaS tool that extracts demographic and reach data from Facebook Ad Library. Users enter an Ad Library page URL, and the app fetches ad data via Facebook's Graph API to show aggregated audience breakdowns — countries, age groups, gender splits, and reach metrics. Features tiered access (Free + Pro) with Stripe subscription payments, interactive charts with click-to-filter, professional PDF export, and full mobile responsiveness.
 
 ## Core Value
 
 Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
 
-## Current Milestone: v2.0 Payments & Auth
-
-**Goal:** Monetize the tool with Stripe subscriptions and tiered access, gating premium features behind a Pro plan.
-
-**Target features:**
-- User authentication (Google/GitHub OAuth)
-- Stripe subscription payments (Free + Pro tiers)
-- Tiered feature access (depth limits, feature gating)
-- Pro features: ad previews, enhanced charts, export, deeper analysis (500-1000 ads)
-
 ## Requirements
 
 ### Validated
 
-- ✓ Ad Library URL input and validation — existing
-- ✓ Ad discovery from Ad Library pages — existing
-- ✓ Basic results display with Tailwind styling — existing
+- ✓ Ad Library URL input and validation — v1.0
+- ✓ Ad discovery from Ad Library pages — v1.0
+- ✓ Basic results display with Tailwind styling — v1.0
 - ✓ Extract age group breakdown per ad — v1.0
 - ✓ Extract gender breakdown per ad — v1.0
 - ✓ Extract country/region breakdown per ad — v1.0
@@ -35,55 +25,63 @@ Surface who competitors are reaching with their ads — demographics and geograp
 - ✓ Visual charts for age/gender and country distribution — v1.0
 - ✓ Loading states during analysis — v1.0
 - ✓ Configurable analysis depth (100/250/500/1000 ads) — v1.0
+- ✓ Skeleton loading states while data fetches — v1.1
+- ✓ Clear, non-technical error messages — v1.1
+- ✓ Retry mechanism for failed API requests — v1.1
+- ✓ Real-time validation feedback on inputs — v1.1
+- ✓ Google OAuth login — v2.0
+- ✓ Email/password login — v2.0
+- ✓ User can log out from any page — v2.0
+- ✓ Stripe subscription integration (checkout, manage, cancel, resume) — v2.0
+- ✓ Two tiers: Free (100 ads) and Pro (500-1000 ads) — v2.0
+- ✓ Tier enforcement (gate features by subscription status) — v2.0
+- ✓ Ad previews with resolved media type badges — v2.0 + v2.1
+- ✓ Enhanced charts with hover tooltips and demographic breakdowns — v2.0 + v2.1
+- ✓ PDF export with cover page, headers/footers, multi-tab content — v2.0 + v2.1
+- ✓ Click-to-filter interactivity across chart types — v2.1
+- ✓ Responsive layout on mobile (375px+) — v2.1
+- ✓ Touch-friendly targets (48px minimum) — v2.1
 
 ### Active
 
-**Authentication & Payments:**
-- [ ] Google OAuth login
-- [ ] GitHub OAuth login
-- [ ] Stripe subscription integration
-- [ ] Two tiers: Free and Pro
-- [ ] Tier enforcement (gate features by subscription status)
-
-**Pro-only features:**
-- [ ] Deep analysis (500-1000 ads) — Pro only
-- [ ] Ad preview display (images, videos, creative text) — Pro only
-- [ ] Enhanced charts (more types, hover/drill-down, better labels) — Pro only
-- [ ] Export/download analysis results — Pro only
-
-**All users:**
-- [ ] Basic analysis (100 ads)
-- [ ] Clear error feedback when operations fail
+(None — define requirements for v3.0 with `/gsd:define-requirements`)
 
 ### Out of Scope
 
 - Per-ad demographic breakdown — aggregated summary only
-- Historical tracking — point-in-time analysis only
+- Historical tracking — point-in-time analysis only (v3.0 will add this)
 - Puppeteer-based scraping — removed, using Facebook Graph API
-- Email/password authentication — social OAuth only for simplicity
 - Enterprise tier — keep it simple with Free + Pro
-- Team/organization accounts — single user accounts only for v2.0
+- Team/organization accounts — single user accounts only
 - Mobile app — web responsive only
 
 ## Context
 
 **Current State:**
-- Shipped v1.0 with ~7,700 LOC TypeScript
-- Tech stack: Next.js 16, React 19, Recharts, Tailwind CSS
+- Shipped v2.1 with ~13,846 LOC TypeScript
+- Tech stack: Next.js 16, React 19, Recharts, Tailwind CSS, Auth.js, Stripe, Prisma + SQLite
 - Uses Facebook Graph API with EU DSA transparency data
 - Deployed to Vercel
+- Full mobile responsiveness down to 375px
+- Professional PDF export with section-based capture
 
 **Architecture:**
-- `/api/facebook-ads` — Graph API integration
+- `/api/facebook-ads` — Graph API integration with tier enforcement
 - `facebook-api.ts` — API client with demographic aggregation
 - `demographic-aggregator.ts` — Weighted demographic combination
-- Recharts components for visualization
+- Recharts components with rich tooltips and click-to-filter
+- `pdf-export.ts` — Section-based PDF capture with multi-tab support
+- Auth.js for authentication (Google OAuth + email/password)
+- Stripe for subscription payments with webhook sync
+- Prisma + SQLite for user/subscription data
 
 ## Constraints
 
 - **API Rate Limits:** Facebook Graph API has rate limits
 - **EU Data Only:** Demographics only available for EU-targeted ads via DSA
 - **Tech stack:** Maintain existing Next.js architecture
+- **Google OAuth requires credentials:** User must configure in .env.local
+- **Stripe requires account:** Keys and webhook configuration needed
 
 ## Key Decisions
 
@@ -94,10 +92,16 @@ Surface who competitors are reaching with their ads — demographics and geograp
 | Aggregate summary over per-ad details | User need is competitor patterns, not individual ads | ✓ Good |
 | Recharts for visualization | Lightweight, good React integration | ✓ Good |
 | Tiered analysis depth (100-1000) | Balance speed vs completeness | ✓ Good |
-| Social OAuth only (Google/GitHub) | No password management, simpler UX | — Pending |
-| Two tiers (Free + Pro) | Simple pricing, clear value proposition | — Pending |
-| Stripe for payments | Industry standard, good Next.js integration | — Pending |
-| Gate features by tier (not just depth) | Multiple value levers for Pro tier | — Pending |
+| Google OAuth + email/password | Simpler than multi-provider OAuth, covers all users | ✓ Good |
+| Two tiers (Free + Pro) | Simple pricing, clear value proposition | ✓ Good |
+| Stripe for payments | Industry standard, good Next.js integration | ✓ Good |
+| Gate features by tier (not just depth) | Multiple value levers for Pro tier | ✓ Good |
+| JWT session strategy | No database needed for auth sessions | ✓ Good |
+| Prisma + SQLite | Simple local dev, easy migration to PostgreSQL later | ✓ Good |
+| Section-based PDF capture | Reliable rendering vs single-screenshot approach | ✓ Good |
+| Click-to-filter with toggle | Intuitive chart interaction pattern | ✓ Good |
+| min-h-[48px] touch targets | Mobile accessibility standard | ✓ Good |
+| resolvedMediaType for badges | API returns 'unknown', useAdMedia resolves actual type | ✓ Good |
 
 ---
-*Last updated: 2026-01-26 after v2.0 milestone started*
+*Last updated: 2026-02-01 after v2.1 milestone*
