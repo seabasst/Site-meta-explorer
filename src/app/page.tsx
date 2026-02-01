@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { toast } from 'sonner';
 import { DemographicsSummary } from '@/components/demographics/demographics-summary';
 import { AgeGenderChart } from '@/components/demographics/age-gender-chart';
@@ -46,6 +46,22 @@ function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 
   return (
     <div className={`${sizeClasses[size]} rounded-full border-[var(--border-medium)] border-t-[var(--accent-green-light)] animate-spin`} />
+  );
+}
+
+function ActiveChartFilter({ label, onClear }: { label: string; onClear: () => void }) {
+  return (
+    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-tertiary)] border border-emerald-500/50 text-sm">
+      <span className="text-[var(--text-secondary)]">Filtered by:</span>
+      <span className="font-medium text-emerald-400">{label}</span>
+      <button
+        onClick={onClear}
+        className="ml-1 p-0.5 rounded-full hover:bg-[var(--bg-elevated)] transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+        aria-label="Clear filter"
+      >
+        <X className="w-3.5 h-3.5" />
+      </button>
+    </div>
   );
 }
 
@@ -106,6 +122,13 @@ export default function Home() {
   // Results view tab: 'audience' shows demographics, 'ads' shows ad-related data, 'expert' shows brand analysis
   const [resultsTab, setResultsTab] = useState<'audience' | 'ads' | 'expert'>('audience');
 
+  // Chart filter state (click-to-filter from charts)
+  const [chartFilter, setChartFilter] = useState<{
+    type: 'country' | 'mediaType' | 'ageGender';
+    value: string;
+    label: string;
+  } | null>(null);
+
   // PDF export loading state
   const [isPdfExporting, setIsPdfExporting] = useState(false);
 
@@ -114,6 +137,21 @@ export default function Home() {
 
   // Dashboard tracking state
   const [trackingAction, setTrackingAction] = useState<string | null>(null);
+
+  // Filtered ads based on chart filter
+  const filteredAds = useMemo(() => {
+    if (!chartFilter || !apiResult) return apiResult?.ads ?? [];
+    switch (chartFilter.type) {
+      case 'country':
+        return apiResult.ads.filter(ad =>
+          ad.demographics?.regionBreakdown?.some(d => d.region === chartFilter.value)
+        );
+      case 'mediaType':
+        return apiResult.ads.filter(ad => ad.mediaType === chartFilter.value.toLowerCase());
+      default:
+        return apiResult.ads;
+    }
+  }, [chartFilter, apiResult]);
 
   // URL validation on blur
   // Track brand on dashboard
@@ -176,6 +214,7 @@ export default function Home() {
     setUrlError(null);
     setApiResult(null);
     setTimelineAds(null);
+    setChartFilter(null);
 
     // EU countries (full demographic data available via DSA transparency)
     const euCountries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'];
@@ -1080,6 +1119,10 @@ export default function Home() {
                           </div>
                         </div>
 
+                        {chartFilter && (
+                          <ActiveChartFilter label={chartFilter.label} onClear={() => setChartFilter(null)} />
+                        )}
+
                         {/* Summary */}
                         <div className="glass rounded-xl p-5">
                           <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
@@ -1113,6 +1156,8 @@ export default function Home() {
                             <div className="px-5 pb-5">
                               <AgeGenderChart
                                 data={apiResult.aggregatedDemographics.ageGenderBreakdown}
+                                onSegmentClick={(filter) => setChartFilter(prev => prev?.value === filter.value && prev?.type === filter.type ? null : filter)}
+                                activeFilter={chartFilter}
                               />
                             </div>
                           </details>
@@ -1138,6 +1183,8 @@ export default function Home() {
                             <div className="px-5 pb-5">
                               <CountryChart
                                 data={apiResult.aggregatedDemographics.regionBreakdown}
+                                onSegmentClick={(filter) => setChartFilter(prev => prev?.value === filter.value && prev?.type === filter.type ? null : filter)}
+                                activeFilter={chartFilter}
                               />
                             </div>
                           </details>
@@ -1174,6 +1221,12 @@ export default function Home() {
                 {/* AD OVERVIEW TAB CONTENT */}
                 {resultsTab === 'ads' && apiResult && (
                   <>
+                    {chartFilter && (
+                      <div className="mb-4">
+                        <ActiveChartFilter label={chartFilter.label} onClear={() => setChartFilter(null)} />
+                      </div>
+                    )}
+
                     {/* Top Ads by Reach - Featured ad previews */}
                     {apiResult.ads.length > 0 && (
                       <FeatureGate feature="adPreviews">
@@ -1230,11 +1283,21 @@ export default function Home() {
                         <div className="glass rounded-xl p-5">
                           <div className="flex items-center gap-8">
                             {/* Video */}
-                            <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setChartFilter(prev => prev?.value === 'video' && prev?.type === 'mediaType' ? null : { type: 'mediaType', value: 'video', label: 'Video Ads' })}
+                              className={`flex items-center gap-3 cursor-pointer transition-all duration-200 rounded-lg px-3 py-2 -mx-3 -my-2 ${
+                                chartFilter?.type === 'mediaType' && chartFilter.value === 'video'
+                                  ? 'ring-2 ring-purple-500/50 bg-purple-500/10'
+                                  : chartFilter?.type === 'mediaType' && chartFilter.value !== 'video'
+                                    ? 'opacity-40'
+                                    : 'hover:bg-[var(--bg-tertiary)]'
+                              }`}
+                            >
                               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-purple-500/20">
                                 <Play className="w-5 h-5 text-purple-400" />
                               </div>
-                              <div>
+                              <div className="text-left">
                                 <div className="text-2xl font-bold text-[var(--text-primary)]">
                                   {apiResult.mediaTypeBreakdown.video}
                                 </div>
@@ -1246,17 +1309,27 @@ export default function Home() {
                                   : '0%'
                                 }
                               </div>
-                            </div>
+                            </button>
 
                             {/* Divider */}
                             <div className="h-12 w-px bg-[var(--border-subtle)]" />
 
                             {/* Image */}
-                            <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setChartFilter(prev => prev?.value === 'image' && prev?.type === 'mediaType' ? null : { type: 'mediaType', value: 'image', label: 'Image Ads' })}
+                              className={`flex items-center gap-3 cursor-pointer transition-all duration-200 rounded-lg px-3 py-2 -mx-3 -my-2 ${
+                                chartFilter?.type === 'mediaType' && chartFilter.value === 'image'
+                                  ? 'ring-2 ring-blue-500/50 bg-blue-500/10'
+                                  : chartFilter?.type === 'mediaType' && chartFilter.value !== 'image'
+                                    ? 'opacity-40'
+                                    : 'hover:bg-[var(--bg-tertiary)]'
+                              }`}
+                            >
                               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/20">
                                 <ImageIcon className="w-5 h-5 text-blue-400" />
                               </div>
-                              <div>
+                              <div className="text-left">
                                 <div className="text-2xl font-bold text-[var(--text-primary)]">
                                   {apiResult.mediaTypeBreakdown.image}
                                 </div>
@@ -1268,7 +1341,7 @@ export default function Home() {
                                   : '0%'
                                 }
                               </div>
-                            </div>
+                            </button>
 
                             {/* Unknown (if any) */}
                             {apiResult.mediaTypeBreakdown.unknown > 0 && (
@@ -1387,6 +1460,9 @@ export default function Home() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                             View all {apiResult.totalAdsFound} ads
+                            {chartFilter && filteredAds.length !== apiResult.ads.length && (
+                              <span className="text-xs text-emerald-400 font-normal ml-1">(showing {filteredAds.length})</span>
+                            )}
                           </summary>
                           <div className="mt-3 max-h-[400px] overflow-y-auto rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
                             <table className="w-full text-sm">
@@ -1400,7 +1476,7 @@ export default function Home() {
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-[var(--border-subtle)]">
-                                {apiResult.ads.map((ad, index) => (
+                                {filteredAds.map((ad, index) => (
                                   <tr key={index} className="hover:bg-[var(--bg-elevated)] transition-colors">
                                     <td className="px-4 py-3">
                                       <div className="max-w-[300px]">
