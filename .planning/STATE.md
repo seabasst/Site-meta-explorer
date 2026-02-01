@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 
 ## Current Position
 
-Phase: 14 of 23 (Ad Preview)
-Plan: 0 of 1 — planned, ready for execution
-Status: Planned
-Last activity: 2026-01-31 — Planned Phase 14 (1 plan, 1 wave)
+Phase: 14 of 23 (Ad Preview) - COMPLETE
+Plan: 1 of 1 — complete
+Status: Phase complete
+Last activity: 2026-02-01 — Completed 14-01-PLAN.md
 
-Progress: ██████████████░░░░░░ 65% (v1.0-v2.0 shipped, v2.1+v3.0 ahead)
+Progress: ███████████████░░░░░ 68% (v1.0-v2.0 shipped, Phase 14 done, v2.1 continues)
 
 ## Milestones
 
@@ -149,7 +149,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-31
-Stopped at: Planned Phase 14 (Ad Preview) — 1 plan, 1 wave
+Last session: 2026-02-01
+Stopped at: Completed 14-01-PLAN.md (Phase 14 complete)
 Resume file: None
-Next: Execute Phase 14 (`/gsd:execute-phase 14`)
+Next: Execute Phase 15
