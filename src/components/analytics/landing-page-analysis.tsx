@@ -144,7 +144,7 @@ export function LandingPageAnalysis({ apiAds, sitemapUrls }: LandingPageAnalysis
   return (
     <div className="space-y-6">
       {/* Summary Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
           <div className="text-xs text-[var(--text-muted)] mb-1">Landing Pages</div>
           <div className="text-2xl font-bold text-[var(--text-primary)]">

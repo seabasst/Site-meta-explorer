@@ -269,7 +269,7 @@ export function ProductMarketTable({ data }: ProductMarketTableProps) {
   return (
     <div className="space-y-6">
       {/* Summary stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="relative p-5 rounded-2xl bg-gradient-to-br from-[var(--bg-tertiary)] to-[var(--bg-elevated)] border border-[var(--border-subtle)] overflow-hidden group hover:border-[var(--accent-yellow)]/30 transition-all">
           <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-[var(--accent-yellow)]/5 group-hover:bg-[var(--accent-yellow)]/10 transition-colors" />
           <div className="relative">

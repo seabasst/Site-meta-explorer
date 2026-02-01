@@ -85,7 +85,7 @@ export function AdLongevity({ ads }: AdLongevityProps) {
   return (
     <div className="space-y-6">
       {/* Key Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="text-center p-4 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
           <div className="text-2xl font-bold text-[var(--accent-yellow)]">
             {analysis.evergreenAds.length}

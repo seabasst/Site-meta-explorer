@@ -160,7 +160,7 @@ export function AdCopyAnalysis({ ads }: AdCopyAnalysisProps) {
       {/* Hook Patterns */}
       <div>
         <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-3">Hook Patterns Used</h4>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           {[
             { label: 'Questions', value: analysis.hooks.questions, icon: '?' },
             { label: 'Emojis', value: analysis.hooks.emojis, icon: '😀' },

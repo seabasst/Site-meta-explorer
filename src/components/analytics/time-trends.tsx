@@ -156,7 +156,7 @@ export function TimeTrends({ ads }: TimeTrendsProps) {
   return (
     <div className="space-y-6">
       {/* Trend Summary */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
           <div className="text-xs text-[var(--text-muted)] mb-1">Ad Activity Trend</div>
           <div className={`text-lg font-bold flex items-center gap-2 ${
