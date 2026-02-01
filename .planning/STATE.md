@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 
 ## Current Position
 
-Phase: 15 of 23 (Chart Improvements) - COMPLETE
-Plan: 2 of 2 — complete
-Status: Phase complete
-Last activity: 2026-02-01 — Phase 15 verified and complete
+Phase: 16 of 23 (Export Enhancement) - In progress
+Plan: 1 of 1 — complete
+Status: In progress
+Last activity: 2026-02-01 — Completed 16-01-PLAN.md
 
-Progress: ████████████████░░░░ 76% (v1.0-v2.0 shipped, Phases 14-15 done, v2.1 continues)
+Progress: ████████████████░░░░ 78% (v1.0-v2.0 shipped, Phases 14-16 in progress, v2.1 continues)
 
 ## Milestones
 
@@ -29,7 +29,7 @@ Progress: ████████████████░░░░ 76% (v1.0
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: —
 - Total execution time: —
 
@@ -129,8 +129,15 @@ Recent decisions affecting current work:
 - PDF export using jspdf + html2canvas with dynamic imports
 - Gated behind tier.features.export flag
 - Multi-page support for tall content
-- Dark theme background matching for screenshots
+- ~~Dark theme background matching for screenshots~~ (Changed to white in 16-01)
 - Export dropdown shows PDF (Pro) with ProBadge for free users
+
+**From 16-01:**
+- Section-based PDF capture via data-pdf-section attributes (replaces single-screenshot approach)
+- Cover page with brand name, key stats, generation date
+- Headers (brand + date) and footers (page numbers) on every content page
+- White background (#ffffff) for print-friendly output
+- data-pdf-hide elements hidden during capture, details forced open
 
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
@@ -157,6 +164,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Phase 15 complete and verified
+Stopped at: Completed 16-01-PLAN.md (section-based PDF export)
 Resume file: None
-Next: Plan Phase 16 (Export Enhancement)
+Next: Verify Phase 16 complete or continue with remaining plans
