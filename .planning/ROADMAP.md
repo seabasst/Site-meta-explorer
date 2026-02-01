@@ -183,17 +183,20 @@ Plans:
 - [x] 15-02-PLAN.md — Click-to-filter interactivity for CountryChart, AgeGenderChart, and MediaTypeChart
 
 ### Phase 16: Export Enhancement
-**Goal**: Improved PDF export with better formatting and layout
+**Goal**: Professional PDF export with section-based capture, cover page, headers/footers, multi-tab content, and progress feedback
 **Depends on**: Phase 13
 **Requirements**: EXPT-01
-**Status**: Not planned
+**Status**: Planned
 **Success Criteria** (what must be TRUE):
-  1. PDF export produces well-formatted, professional output
-  2. Charts and data render cleanly in exported PDF
-**Plans**: 0 plans
+  1. PDF export produces well-formatted, professional output with cover page
+  2. Charts and data render cleanly without splitting across page boundaries
+  3. PDF includes content from all three tabs (audience, ads, expert)
+  4. User sees progress feedback during export
+**Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 16 to break down)
+- [ ] 16-01-PLAN.md — Section tagging and section-based PDF capture with cover page and headers/footers
+- [ ] 16-02-PLAN.md — Multi-tab content capture, DOM preparation, and export progress UI
 
 ### Phase 17: Mobile Polish
 **Goal**: Responsive layout and touch-friendly interaction on mobile devices
@@ -310,7 +313,7 @@ Plans:
 | 13. Pro Features | v2.0 | 3/3 | Complete | 2026-01-27 |
 | 14. Ad Preview | v2.1 | 1/1 | Complete | 2026-02-01 |
 | 15. Chart Improvements | v2.1 | 2/2 | Complete | 2026-02-01 |
-| 16. Export Enhancement | v2.1 | 0/0 | Not planned | - |
+| 16. Export Enhancement | v2.1 | 0/2 | Planned | - |
 | 17. Mobile Polish | v2.1 | 0/0 | Not planned | - |
 | 18. Brand Tracking | v3.0 | 0/0 | Not planned | - |
 | 19. Competitor Monitoring | v3.0 | 0/0 | Not planned | - |
