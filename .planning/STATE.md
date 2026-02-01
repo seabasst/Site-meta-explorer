@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 
 ## Current Position
 
-Phase: 17 of 23 (Mobile Polish) - In progress
-Plan: 2 of 2 — complete
-Status: In progress
-Last activity: 2026-02-01 — Completed 17-02-PLAN.md
+Phase: 17 of 23 (Mobile Polish) - Complete
+Plan: 2 of 2 — all complete
+Status: Phase complete
+Last activity: 2026-02-01 — Completed 17-01-PLAN.md and 17-02-PLAN.md
 
-Progress: █████████████████░░░ 82% (v1.0-v2.0 shipped, Phase 17 plan 2 complete, v2.1 continues)
+Progress: █████████████████░░░ 83% (v1.0-v2.0 shipped, Phase 17 complete, v2.1 wrapping up)
 
 ## Milestones
 
@@ -29,7 +29,7 @@ Progress: █████████████████░░░ 82% (v1.0
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 22
 - Average duration: —
 - Total execution time: —
 
@@ -144,6 +144,12 @@ Recent decisions affecting current work:
 - onProgress callback pattern: pdf-export.ts fires progress per section, page.tsx shows in button text
 - showAllTabs option with cleanup function keeps exporter framework-agnostic
 
+**From 17-01:**
+- Hidden dividers on mobile (hidden sm:block) to avoid broken flex-wrap appearance
+- Dual hover+tap for export dropdown: group-hover for desktop, exportOpen state for mobile
+- Tab icons hidden on mobile (hidden sm:block) to fit 375px; text-only tabs
+- min-h-[48px] touch target pattern for all interactive elements
+
 **From 17-02:**
 - Responsive grids via Tailwind breakpoints (grid-cols-1/2 base, sm/lg for larger)
 - Touch-friendly copy buttons: p-3 sm:p-2 pattern for mobile-first touch targets
@@ -176,6 +182,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 17-02-PLAN.md (component responsive polish)
+Stopped at: Phase 17 complete (17-01 + 17-02)
 Resume file: None
-Next: Remaining Phase 17 plans (if any) or Phase 18
+Next: Phase 18 (v3.0 Pro Platform)
