@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 
 ## Current Position
 
-Phase: 16 of 23 (Export Enhancement) - Complete
+Phase: 17 of 23 (Mobile Polish) - In progress
 Plan: 2 of 2 — complete
-Status: Phase complete
-Last activity: 2026-02-01 — Phase 16 verified and complete
+Status: In progress
+Last activity: 2026-02-01 — Completed 17-02-PLAN.md
 
-Progress: █████████████████░░░ 80% (v1.0-v2.0 shipped, Phase 16 complete, v2.1 continues)
+Progress: █████████████████░░░ 82% (v1.0-v2.0 shipped, Phase 17 plan 2 complete, v2.1 continues)
 
 ## Milestones
 
@@ -29,7 +29,7 @@ Progress: █████████████████░░░ 80% (v1.0
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
+- Total plans completed: 21
 - Average duration: —
 - Total execution time: —
 
@@ -144,6 +144,13 @@ Recent decisions affecting current work:
 - onProgress callback pattern: pdf-export.ts fires progress per section, page.tsx shows in button text
 - showAllTabs option with cleanup function keeps exporter framework-agnostic
 
+**From 17-02:**
+- Responsive grids via Tailwind breakpoints (grid-cols-1/2 base, sm/lg for larger)
+- Touch-friendly copy buttons: p-3 sm:p-2 pattern for mobile-first touch targets
+- Click toggles hover state on charts for touch device accessibility
+- Country chart labels narrowed on mobile (w-20 sm:w-36)
+- Horizontal scroll tables with min-w-[640px] for mobile
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -169,6 +176,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Phase 16 complete and verified
+Stopped at: Completed 17-02-PLAN.md (component responsive polish)
 Resume file: None
-Next: Plan Phase 17 (Mobile Polish)
+Next: Remaining Phase 17 plans (if any) or Phase 18
