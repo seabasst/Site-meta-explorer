@@ -56,7 +56,7 @@ function ActiveChartFilter({ label, onClear }: { label: string; onClear: () => v
       <span className="font-medium text-emerald-400">{label}</span>
       <button
         onClick={onClear}
-        className="ml-1 p-0.5 rounded-full hover:bg-[var(--bg-elevated)] transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+        className="ml-1 p-2.5 -m-2 rounded-full hover:bg-[var(--bg-elevated)] transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
         aria-label="Clear filter"
       >
         <X className="w-3.5 h-3.5" />
@@ -632,7 +632,7 @@ export default function Home() {
                   </button>
                 </div>
 
-                <div className="w-px h-6 bg-[var(--border-subtle)]" />
+                <div className="w-px h-6 bg-[var(--border-subtle)] hidden sm:block" />
 
                 <span className="text-xs text-[var(--text-muted)]">Region:</span>
                 <div className="relative group/region">
@@ -673,7 +673,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="w-px h-6 bg-[var(--border-subtle)]" />
+                <div className="w-px h-6 bg-[var(--border-subtle)] hidden sm:block" />
 
                 <span className="text-xs text-[var(--text-muted)]">Depth:</span>
                 <DepthSelector
@@ -682,7 +682,7 @@ export default function Home() {
                   disabled={isLoadingAds}
                 />
 
-                <div className="w-px h-6 bg-[var(--border-subtle)]" />
+                <div className="w-px h-6 bg-[var(--border-subtle)] hidden sm:block" />
 
                 <span className="text-xs text-[var(--text-muted)]">Date range:</span>
                 <input
@@ -723,7 +723,7 @@ export default function Home() {
                             if (inputMode === 'search') setInputMode('url');
                           }
                         }}
-                        className="text-xs px-3 py-1.5 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent-green)] hover:border-[var(--accent-green)] transition-colors"
+                        className="text-xs px-3 py-3 min-h-[48px] rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent-green)] hover:border-[var(--accent-green)] transition-colors"
                       >
                         {brand.name}
                       </button>
@@ -1064,42 +1064,42 @@ export default function Home() {
 
                 {/* Tab Navigation */}
                 {apiResult && (
-                  <div className="flex items-center gap-1 p-1 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] w-fit mb-6" data-pdf-hide>
+                  <div className="flex items-center gap-1 p-1 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] w-fit max-w-full overflow-x-auto mb-6" data-pdf-hide>
                     <button
                       onClick={() => setResultsTab('audience')}
-                      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
+                      className={`px-3 sm:px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 whitespace-nowrap ${
                         resultsTab === 'audience'
                           ? 'bg-[var(--accent-green)] text-white'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]'
                       }`}
                     >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
                       Audience Overview
                     </button>
                     <button
                       onClick={() => setResultsTab('ads')}
-                      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
+                      className={`px-3 sm:px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 whitespace-nowrap ${
                         resultsTab === 'ads'
                           ? 'bg-[var(--accent-green)] text-white'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]'
                       }`}
                     >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                       </svg>
                       Ad Overview
                     </button>
                     <button
                       onClick={() => setResultsTab('expert')}
-                      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
+                      className={`px-3 sm:px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 whitespace-nowrap ${
                         resultsTab === 'expert'
                           ? 'bg-[var(--accent-green)] text-white'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]'
                       }`}
                     >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
                       Expert Analysis
@@ -1300,12 +1300,12 @@ export default function Home() {
                           </div>
                         </div>
                         <div className="glass rounded-xl p-5">
-                          <div className="flex items-center gap-8">
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-8">
                             {/* Video */}
                             <button
                               type="button"
                               onClick={() => setChartFilter(prev => prev?.value === 'video' && prev?.type === 'mediaType' ? null : { type: 'mediaType', value: 'video', label: 'Video Ads' })}
-                              className={`flex items-center gap-3 cursor-pointer transition-all duration-200 rounded-lg px-3 py-2 -mx-3 -my-2 ${
+                              className={`flex items-center gap-3 cursor-pointer transition-all duration-200 rounded-lg px-3 py-2 -mx-3 -my-2 min-h-[48px] ${
                                 chartFilter?.type === 'mediaType' && chartFilter.value === 'video'
                                   ? 'ring-2 ring-purple-500/50 bg-purple-500/10'
                                   : chartFilter?.type === 'mediaType' && chartFilter.value !== 'video'
@@ -1331,13 +1331,13 @@ export default function Home() {
                             </button>
 
                             {/* Divider */}
-                            <div className="h-12 w-px bg-[var(--border-subtle)]" />
+                            <div className="h-px w-full sm:h-12 sm:w-px bg-[var(--border-subtle)]" />
 
                             {/* Image */}
                             <button
                               type="button"
                               onClick={() => setChartFilter(prev => prev?.value === 'image' && prev?.type === 'mediaType' ? null : { type: 'mediaType', value: 'image', label: 'Image Ads' })}
-                              className={`flex items-center gap-3 cursor-pointer transition-all duration-200 rounded-lg px-3 py-2 -mx-3 -my-2 ${
+                              className={`flex items-center gap-3 cursor-pointer transition-all duration-200 rounded-lg px-3 py-2 -mx-3 -my-2 min-h-[48px] ${
                                 chartFilter?.type === 'mediaType' && chartFilter.value === 'image'
                                   ? 'ring-2 ring-blue-500/50 bg-blue-500/10'
                                   : chartFilter?.type === 'mediaType' && chartFilter.value !== 'image'
@@ -1365,7 +1365,7 @@ export default function Home() {
                             {/* Unknown (if any) */}
                             {apiResult.mediaTypeBreakdown.unknown > 0 && (
                               <>
-                                <div className="h-12 w-px bg-[var(--border-subtle)]" />
+                                <div className="h-px w-full sm:h-12 sm:w-px bg-[var(--border-subtle)]" />
                                 <div className="flex items-center gap-3">
                                   <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--bg-tertiary)]">
                                     <svg className="w-5 h-5 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1483,8 +1483,9 @@ export default function Home() {
                               <span className="text-xs text-emerald-400 font-normal ml-1">(showing {filteredAds.length})</span>
                             )}
                           </summary>
-                          <div className="mt-3 max-h-[400px] overflow-y-auto rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
-                            <table className="w-full text-sm">
+                          <div className="mt-3 overflow-x-auto rounded-lg border border-[var(--border-subtle)]">
+                          <div className="max-h-[400px] overflow-y-auto bg-[var(--bg-tertiary)]">
+                            <table className="w-full text-sm min-w-[640px]">
                               <thead className="sticky top-0 bg-[var(--bg-tertiary)] border-b border-[var(--border-subtle)]">
                                 <tr>
                                   <th className="px-4 py-2 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Ad Content</th>
@@ -1550,6 +1551,7 @@ export default function Home() {
                                 ))}
                               </tbody>
                             </table>
+                          </div>
                           </div>
                         </details>
                       </div>
