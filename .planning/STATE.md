@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 
 ## Current Position
 
-Phase: 16 of 23 (Export Enhancement) - In progress
-Plan: 1 of 1 — complete
-Status: In progress
-Last activity: 2026-02-01 — Completed 16-01-PLAN.md
+Phase: 16 of 23 (Export Enhancement) - Complete
+Plan: 2 of 2 — complete
+Status: Phase complete
+Last activity: 2026-02-01 — Completed 16-02-PLAN.md
 
-Progress: ████████████████░░░░ 78% (v1.0-v2.0 shipped, Phases 14-16 in progress, v2.1 continues)
+Progress: █████████████████░░░ 80% (v1.0-v2.0 shipped, Phase 16 complete, v2.1 continues)
 
 ## Milestones
 
@@ -139,6 +139,11 @@ Recent decisions affecting current work:
 - White background (#ffffff) for print-friendly output
 - data-pdf-hide elements hidden during capture, details forced open
 
+**From 16-02:**
+- Multi-tab PDF capture: isExporting state renders all three tabs simultaneously during export
+- onProgress callback pattern: pdf-export.ts fires progress per section, page.tsx shows in button text
+- showAllTabs option with cleanup function keeps exporter framework-agnostic
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -164,6 +169,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 16-01-PLAN.md (section-based PDF export)
+Stopped at: Completed 16-02-PLAN.md (multi-tab PDF capture with progress)
 Resume file: None
-Next: Verify Phase 16 complete or continue with remaining plans
+Next: Phase 16 complete. Proceed to Phase 17 (Mobile/Responsive) or next priority.
