@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Planning next milestone (v3.0 Pro Platform)
+**Current focus:** v3.0 Brand Tracking & Dashboard
 
 ## Current Position
 
-Phase: Between milestones
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-01 — v2.1 milestone complete
+Phase: Not started (run /gsd:create-roadmap)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-01 — Milestone v3.0 started
 
-Progress: ████████████████████ 100% (v1.0-v2.1 shipped, v3.0 not started)
+Progress: ░░░░░░░░░░░░░░░░░░░░ 0% (v3.0 not started)
 
 ## Milestones
 
@@ -24,7 +24,7 @@ Progress: ████████████████████ 100% (v1.
 | v1.1 Polish | Partial (Phase 5 shipped, 6-9 superseded by v2.1) | 2026-01-25 |
 | v2.0 Payments & Auth | Complete (Phases 10-13) | 2026-01-27 |
 | v2.1 Polish & UX | Complete (Phases 14-17.2) | 2026-02-01 |
-| v3.0 Pro Platform | Not started (Phases 18-23) | - |
+| v3.0 Brand Tracking & Dashboard | In progress | - |
 
 ## Performance Metrics
 
@@ -39,6 +39,7 @@ Progress: ████████████████████ 100% (v1.
 
 Decisions are logged in PROJECT.md Key Decisions table.
 All v2.0 and v2.1 decisions marked as ✓ Good.
+v3.0 decisions pending validation.
 
 ### Roadmap Evolution
 
@@ -46,7 +47,7 @@ All v2.0 and v2.1 decisions marked as ✓ Good.
 - v1.1: Phase 5 (error handling); Phases 6-9 deferred
 - v2.0: Phases 10-13 (auth, stripe, tiers, pro features)
 - v2.1: Phases 14-17.2 (ad preview, charts, export, mobile, gap closure)
-- v3.0: Phases 18-23 planned (brand tracking, competitors, comparison, tips, trends, dashboard)
+- v3.0: TBD (brand tracking, dashboard — scoped down from original 18-23)
 
 ### Pending Todos
 
@@ -61,6 +62,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: v2.1 milestone completion
+Stopped at: v3.0 milestone initialized
 Resume file: None
-Next: `/gsd:discuss-milestone` → `/gsd:new-milestone` for v3.0
+Next: `/gsd:define-requirements` or `/gsd:research-project`

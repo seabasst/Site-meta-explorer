@@ -44,16 +44,34 @@ Surface who competitors are reaching with their ads — demographics and geograp
 
 ### Active
 
-(None — define requirements for v3.0 with `/gsd:define-requirements`)
+- [ ] Save brand after analysis (URL, name, demographic snapshot to database)
+- [ ] Dashboard with brand cards grid (key metrics, click to view full results)
+- [ ] Re-analyze saved brand with fresh demographic data
+- [ ] Delete saved brand from dashboard
 
 ### Out of Scope
 
 - Per-ad demographic breakdown — aggregated summary only
-- Historical tracking — point-in-time analysis only (v3.0 will add this)
+- Historical tracking — snapshot comparison over time (v3.1)
+- Brand comparisons side-by-side — deferred to v3.1
+- Trend analysis over time — deferred to v3.1
+- Actionable tips/insights — deferred to v3.1
 - Puppeteer-based scraping — removed, using Facebook Graph API
 - Enterprise tier — keep it simple with Free + Pro
 - Team/organization accounts — single user accounts only
 - Mobile app — web responsive only
+
+## Current Milestone: v3.0 Brand Tracking & Dashboard
+
+**Goal:** Enable users to save brands after analysis and manage them from a central dashboard.
+
+**Target features:**
+- Save Brand — post-analysis action storing URL, name, and demographic snapshot
+- Dashboard — brand cards grid with key metrics, click to view full results
+- Re-analyze — trigger fresh analysis on saved brands
+- Delete — remove saved brands
+
+**Constraints:** Pro-only feature, new `/dashboard` route, extends Prisma schema with Brand model.
 
 ## Context
 
@@ -102,6 +120,9 @@ Surface who competitors are reaching with their ads — demographics and geograp
 | Click-to-filter with toggle | Intuitive chart interaction pattern | ✓ Good |
 | min-h-[48px] touch targets | Mobile accessibility standard | ✓ Good |
 | resolvedMediaType for badges | API returns 'unknown', useAdMedia resolves actual type | ✓ Good |
+| Brand tracking as Pro-only | Core value-add for paid tier, builds foundation for comparisons | — Pending |
+| Card grid over table for dashboard | Visual, scannable, better for brand overview | — Pending |
+| Demographic snapshot storage | Store aggregated results, not raw ad data | — Pending |
 
 ---
-*Last updated: 2026-02-01 after v2.1 milestone*
+*Last updated: 2026-02-01 after v3.0 milestone started*
