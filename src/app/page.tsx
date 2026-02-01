@@ -927,7 +927,7 @@ export default function Home() {
                   {apiResult && (
                     <div className="flex items-center gap-2">
                           {/* Export Dropdown */}
-                          <div className="relative group">
+                          <div className="relative group" data-pdf-hide>
                             <button
                               type="button"
                               className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors"
@@ -985,6 +985,7 @@ export default function Home() {
                           {/* Save for Comparison */}
                           <button
                             type="button"
+                            data-pdf-hide
                             onClick={() => {
                               if (comparisonBrands.length < 3 && !comparisonBrands.find(b => b.pageId === apiResult.pageId)) {
                                 setComparisonBrands([...comparisonBrands, apiResult]);
@@ -1042,12 +1043,14 @@ export default function Home() {
 
                 {/* Account Summary - Key metrics at a glance */}
                 {apiResult && (
-                  <AccountSummary result={apiResult} />
+                  <div data-pdf-section="account-summary">
+                    <AccountSummary result={apiResult} />
+                  </div>
                 )}
 
                 {/* Tab Navigation */}
                 {apiResult && (
-                  <div className="flex items-center gap-1 p-1 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] w-fit mb-6">
+                  <div className="flex items-center gap-1 p-1 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] w-fit mb-6" data-pdf-hide>
                     <button
                       onClick={() => setResultsTab('audience')}
                       className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
@@ -1120,11 +1123,13 @@ export default function Home() {
                         </div>
 
                         {chartFilter && (
-                          <ActiveChartFilter label={chartFilter.label} onClear={() => setChartFilter(null)} />
+                          <div data-pdf-hide>
+                            <ActiveChartFilter label={chartFilter.label} onClear={() => setChartFilter(null)} />
+                          </div>
                         )}
 
                         {/* Summary */}
-                        <div className="glass rounded-xl p-5">
+                        <div className="glass rounded-xl p-5" data-pdf-section="key-insights">
                           <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
                             Key Insights
                           </h4>
@@ -1136,7 +1141,7 @@ export default function Home() {
                         {/* Charts */}
                         <div className="space-y-3">
                           {/* Age/Gender Chart */}
-                          <details className="group glass rounded-xl overflow-hidden" open>
+                          <details className="group glass rounded-xl overflow-hidden" data-pdf-section="age-gender-chart" open>
                             <summary className="cursor-pointer list-none p-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors">
                               <div className="flex items-center gap-3">
                                 <svg className="w-4 h-4 text-[var(--text-muted)] transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1163,7 +1168,7 @@ export default function Home() {
                           </details>
 
                           {/* Country Chart */}
-                          <details className="group glass rounded-xl overflow-hidden" open>
+                          <details className="group glass rounded-xl overflow-hidden" data-pdf-section="country-chart" open>
                             <summary className="cursor-pointer list-none p-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors">
                               <div className="flex items-center gap-3">
                                 <svg className="w-4 h-4 text-[var(--text-muted)] transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1222,7 +1227,7 @@ export default function Home() {
                 {resultsTab === 'ads' && apiResult && (
                   <>
                     {chartFilter && (
-                      <div className="mb-4">
+                      <div className="mb-4" data-pdf-hide>
                         <ActiveChartFilter label={chartFilter.label} onClear={() => setChartFilter(null)} />
                       </div>
                     )}
@@ -1230,7 +1235,7 @@ export default function Home() {
                     {/* Top Ads by Reach - Featured ad previews */}
                     {apiResult.ads.length > 0 && (
                       <FeatureGate feature="adPreviews">
-                        <div className="glass rounded-xl p-5 mb-6">
+                        <div className="glass rounded-xl p-5 mb-6" data-pdf-section="ad-previews">
                           <div className="flex items-center justify-between mb-4">
                             <h3 className="font-serif text-lg text-[var(--text-primary)]">
                               Top <span className="italic text-[var(--accent-green-light)]">Performers</span>
@@ -1251,7 +1256,7 @@ export default function Home() {
 
                     {/* Time Trends - Activity Timeline */}
                     {timelineAds && timelineAds.length > 0 && (
-                      <div className="space-y-4 mb-6">
+                      <div className="space-y-4 mb-6" data-pdf-section="time-trends">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
                             Activity <span className="italic text-[var(--accent-green-light)]">Timeline</span>
@@ -1271,7 +1276,7 @@ export default function Home() {
 
                     {/* Ad Types - Media breakdown */}
                     {apiResult.mediaTypeBreakdown && (
-                      <div className="space-y-4 mb-6">
+                      <div className="space-y-4 mb-6" data-pdf-section="media-breakdown">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
                             Ad <span className="italic text-[var(--accent-green-light)]">Types</span>
@@ -1385,7 +1390,7 @@ export default function Home() {
 
                     {/* Ad Copy Analysis */}
                     {apiResult.ads.length > 0 && (
-                      <div className="space-y-4 mb-6">
+                      <div className="space-y-4 mb-6" data-pdf-section="ad-copy-analysis">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
                             Copy <span className="italic text-[var(--accent-green-light)]">Analysis</span>
@@ -1402,7 +1407,7 @@ export default function Home() {
 
                     {/* Ad Longevity Analysis */}
                     {apiResult.ads.length > 0 && (
-                      <div className="space-y-4 mb-6">
+                      <div className="space-y-4 mb-6" data-pdf-section="ad-longevity">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
                             Ad <span className="italic text-[var(--accent-green-light)]">Longevity</span>
@@ -1419,7 +1424,7 @@ export default function Home() {
 
                     {/* Landing Page Analysis */}
                     {apiResult.ads.length > 0 && (
-                      <div className="space-y-4 mb-6">
+                      <div className="space-y-4 mb-6" data-pdf-section="landing-pages">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
                             Landing <span className="italic text-[var(--accent-green-light)]">Pages</span>
@@ -1438,7 +1443,7 @@ export default function Home() {
 
                     {/* Product Market Analysis (if available) */}
                     {apiResult.productAnalysis && apiResult.productAnalysis.products.length > 0 && (
-                      <div className="space-y-4 mb-6">
+                      <div className="space-y-4 mb-6" data-pdf-section="product-analysis">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
                             Product <span className="italic text-[var(--accent-green-light)]">Analysis</span>
@@ -1453,7 +1458,7 @@ export default function Home() {
 
                     {/* All Active Ads - expandable list (at bottom) */}
                     {apiResult.ads.length > 0 && (
-                      <div className="mt-6">
+                      <div className="mt-6" data-pdf-section="ad-table">
                         <details className="group">
                           <summary className="cursor-pointer list-none flex items-center gap-2 text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent-green-light)] transition-colors">
                             <svg className="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1550,7 +1555,7 @@ export default function Home() {
 
                 {/* EXPERT ANALYSIS TAB CONTENT */}
                 {resultsTab === 'expert' && apiResult && apiResult.ads.length > 0 && (
-                  <div className="mt-4">
+                  <div className="mt-4" data-pdf-section="expert-analysis">
                     <BrandAnalysis
                       brandName={apiResult.pageName || `Page ${apiResult.pageId}`}
                       ads={apiResult.ads}
