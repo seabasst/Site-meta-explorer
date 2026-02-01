@@ -4,12 +4,14 @@ import { useMemo, useState } from 'react';
 
 interface AgeGenderChartProps {
   data: { age: string; gender: string; percentage: number }[];
+  onSegmentClick?: (filter: { type: 'ageGender'; value: string; label: string }) => void;
+  activeFilter?: { type: string; value: string; label: string } | null;
 }
 
 // Age range order for sorting
 const AGE_ORDER = ['13-17', '18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
 
-export function AgeGenderChart({ data }: AgeGenderChartProps) {
+export function AgeGenderChart({ data, onSegmentClick, activeFilter }: AgeGenderChartProps) {
   const [hoveredAge, setHoveredAge] = useState<string | null>(null);
 
   const groupedData = useMemo(() => {
@@ -99,10 +101,13 @@ export function AgeGenderChart({ data }: AgeGenderChartProps) {
           return (
             <div
               key={group.age}
-              className="group relative"
+              className={`group relative cursor-pointer transition-opacity duration-200 ${
+                activeFilter?.type === 'ageGender' && activeFilter.value !== group.age ? 'opacity-40' : ''
+              }`}
               style={{ animationDelay: `${index * 50}ms` }}
               onMouseEnter={() => setHoveredAge(group.age)}
               onMouseLeave={() => setHoveredAge(null)}
+              onClick={() => onSegmentClick?.({ type: 'ageGender', value: group.age, label: `Age ${group.age}` })}
             >
               {/* Age label */}
               <div className="flex items-center justify-between mb-2">

@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 
 interface CountryChartProps {
   data: { region: string; percentage: number }[];
+  onSegmentClick?: (filter: { type: 'country'; value: string; label: string }) => void;
+  activeFilter?: { type: string; value: string; label: string } | null;
 }
 
 // Country flag emoji mapping for common countries
@@ -26,7 +28,7 @@ const COUNTRY_NAMES: Record<string, string> = {
   'US': 'United States', 'CA': 'Canada', 'AU': 'Australia'
 };
 
-export function CountryChart({ data }: CountryChartProps) {
+export function CountryChart({ data, onSegmentClick, activeFilter }: CountryChartProps) {
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
 
   // Helper to get full country name from code or name
@@ -103,10 +105,13 @@ export function CountryChart({ data }: CountryChartProps) {
         return (
           <div
             key={country.name}
-            className="group relative"
+            className={`group relative cursor-pointer transition-opacity duration-200 ${
+              activeFilter?.type === 'country' && activeFilter.value !== country.originalName ? 'opacity-40' : ''
+            }`}
             style={{ animationDelay: `${index * 60}ms` }}
             onMouseEnter={() => setHoveredCountry(country.name)}
             onMouseLeave={() => setHoveredCountry(null)}
+            onClick={() => onSegmentClick?.({ type: 'country', value: country.originalName, label: `${country.flag} ${country.name}` })}
           >
             {/* Country row */}
             <div className="flex items-center gap-3">

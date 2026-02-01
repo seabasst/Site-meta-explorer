@@ -24,9 +24,11 @@ function MediaTypeTooltip({ active, payload }: TooltipContentProps<ValueType, Na
 
 interface MediaTypeChartProps {
   data: MediaTypeBreakdown;
+  onSegmentClick?: (filter: { type: 'mediaType'; value: string; label: string }) => void;
+  activeFilter?: { type: string; value: string; label: string } | null;
 }
 
-export function MediaTypeChart({ data }: MediaTypeChartProps) {
+export function MediaTypeChart({ data, onSegmentClick, activeFilter }: MediaTypeChartProps) {
   if (!data || (data.video === 0 && data.image === 0)) {
     return (
       <div className="w-full h-[200px] flex items-center justify-center">
@@ -64,7 +66,17 @@ export function MediaTypeChart({ data }: MediaTypeChartProps) {
     <div className="space-y-4">
       {/* Summary stats */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
+        <button
+          type="button"
+          onClick={() => onSegmentClick?.({ type: 'mediaType', value: 'Video', label: 'Video Ads' })}
+          className={`p-3 rounded-lg bg-[var(--bg-tertiary)] border text-left cursor-pointer transition-all duration-200 ${
+            activeFilter?.type === 'mediaType' && activeFilter.value === 'Video'
+              ? 'border-purple-500/50 ring-2 ring-purple-500/30'
+              : activeFilter?.type === 'mediaType' && activeFilter.value !== 'Video'
+                ? 'border-[var(--border-subtle)] opacity-40'
+                : 'border-[var(--border-subtle)] hover:border-purple-500/30'
+          }`}
+        >
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-purple-500" />
             <span className="text-sm font-medium text-[var(--text-primary)]">Video Ads</span>
@@ -73,8 +85,18 @@ export function MediaTypeChart({ data }: MediaTypeChartProps) {
             <span className="text-2xl font-bold text-[var(--text-primary)]">{data.video}</span>
             <span className="text-sm text-[var(--text-muted)]">({data.videoPercentage.toFixed(1)}%)</span>
           </div>
-        </div>
-        <div className="p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
+        </button>
+        <button
+          type="button"
+          onClick={() => onSegmentClick?.({ type: 'mediaType', value: 'Image', label: 'Image Ads' })}
+          className={`p-3 rounded-lg bg-[var(--bg-tertiary)] border text-left cursor-pointer transition-all duration-200 ${
+            activeFilter?.type === 'mediaType' && activeFilter.value === 'Image'
+              ? 'border-blue-500/50 ring-2 ring-blue-500/30'
+              : activeFilter?.type === 'mediaType' && activeFilter.value !== 'Image'
+                ? 'border-[var(--border-subtle)] opacity-40'
+                : 'border-[var(--border-subtle)] hover:border-blue-500/30'
+          }`}
+        >
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-blue-500" />
             <span className="text-sm font-medium text-[var(--text-primary)]">Image Ads</span>
@@ -83,7 +105,7 @@ export function MediaTypeChart({ data }: MediaTypeChartProps) {
             <span className="text-2xl font-bold text-[var(--text-primary)]">{data.image}</span>
             <span className="text-sm text-[var(--text-muted)]">({data.imagePercentage.toFixed(1)}%)</span>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Bar chart */}
@@ -93,9 +115,20 @@ export function MediaTypeChart({ data }: MediaTypeChartProps) {
             <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12 }} tickFormatter={(v) => `${v}%`} />
             <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={60} />
             <Tooltip content={(props) => <MediaTypeTooltip {...props} />} />
-            <Bar dataKey="percentage" radius={[0, 4, 4, 0]}>
+            <Bar
+              dataKey="percentage"
+              radius={[0, 4, 4, 0]}
+              onClick={(data) => {
+                onSegmentClick?.({ type: 'mediaType', value: data.payload.name, label: data.payload.name });
+              }}
+              cursor="pointer"
+            >
               {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={entry.color}
+                  opacity={activeFilter?.type === 'mediaType' && activeFilter.value !== entry.name ? 0.3 : 1}
+                />
               ))}
             </Bar>
           </BarChart>
