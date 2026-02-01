@@ -67,7 +67,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Milestone Goal:** Ship the deferred v1.1 polish items — ad previews, chart interactions, export improvements, and mobile responsiveness.
 
-- [ ] **Phase 14: Ad Preview** - Click-to-view, creative text display, video/image distinction
+- [x] **Phase 14: Ad Preview** - Click-to-view, creative text display, video/image distinction (completed 2026-02-01)
 - [ ] **Phase 15: Chart Improvements** - Rich tooltips, responsive charts, click-to-filter
 - [ ] **Phase 16: Export Enhancement** - Improved PDF export experience
 - [ ] **Phase 17: Mobile Polish** - Responsive layout, touch-friendly targets
@@ -157,15 +157,15 @@ Plans:
 **Goal**: Fix ad preview gaps — media type badges use resolved type, creative text shows in full
 **Depends on**: Phase 13
 **Requirements**: PREV-01, PREV-02, PREV-03
-**Status**: Planned
+**Status**: Complete (2026-02-01)
 **Success Criteria** (what must be TRUE):
-  1. User can click to view ad on Facebook
-  2. User can see ad creative text in results
-  3. User can distinguish video ads from image ads
+  1. User can click to view ad on Facebook ✓
+  2. User can see ad creative text in results ✓
+  3. User can distinguish video ads from image ads ✓
 **Plans**: 1 plan
 
 Plans:
-- [ ] 14-01-PLAN.md — Fix media type badge and remove creative text truncation
+- [x] 14-01-PLAN.md — Fix media type badge and remove creative text truncation
 
 ### Phase 15: Chart Improvements
 **Goal**: Interactive charts with rich tooltips, responsive sizing, and click-to-filter
@@ -307,7 +307,7 @@ Plans:
 | 11. Stripe Integration | v2.0 | 4/4 | Complete | 2026-01-26 |
 | 12. Tier Enforcement | v2.0 | 3/3 | Complete | 2026-01-27 |
 | 13. Pro Features | v2.0 | 3/3 | Complete | 2026-01-27 |
-| 14. Ad Preview | v2.1 | 0/1 | Planned | - |
+| 14. Ad Preview | v2.1 | 1/1 | Complete | 2026-02-01 |
 | 15. Chart Improvements | v2.1 | 0/0 | Not planned | - |
 | 16. Export Enhancement | v2.1 | 0/0 | Not planned | - |
 | 17. Mobile Polish | v2.1 | 0/0 | Not planned | - |

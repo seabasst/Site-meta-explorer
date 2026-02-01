@@ -58,9 +58,9 @@ v1.1 features paused for v2.0 monetization. Will revisit after payments ship.
 
 ### Ad Preview (from v1.1)
 
-- **PREV-01**: User can click to view ad on Facebook
-- **PREV-02**: User can see ad creative text in results
-- **PREV-03**: User can distinguish video ads from image ads
+- [x] **PREV-01**: User can click to view ad on Facebook
+- [x] **PREV-02**: User can see ad creative text in results
+- [x] **PREV-03**: User can distinguish video ads from image ads
 
 ### Charts (from v1.1)
 
@@ -105,11 +105,13 @@ Which phases cover which requirements. Updated by create-roadmap.
 | TIER-03 | Phase 13 | Complete |
 | TIER-04 | Phase 13 | Complete |
 | TIER-05 | Phase 13 | Complete |
+| PREV-01 | Phase 14 | Complete |
+| PREV-02 | Phase 14 | Complete |
+| PREV-03 | Phase 14 | Complete |
 
 **Coverage:**
-- v2.0 requirements: 11 total
-- Mapped to phases: 11 ✓
-- Unmapped: 0
+- v2.0 requirements: 11 total, all complete ✓
+- v2.1 requirements: 3/8 complete (PREV-01, PREV-02, PREV-03)
 
 ---
 *Requirements defined: 2026-01-26*
