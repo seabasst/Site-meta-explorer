@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { DemographicsSummary } from '@/components/demographics/demographics-summary';
 import { AgeGenderChart } from '@/components/demographics/age-gender-chart';
@@ -134,11 +134,27 @@ export default function Home() {
   const [pdfProgress, setPdfProgress] = useState<{ step: string; current: number; total: number } | null>(null);
   const [isExporting, setIsExporting] = useState(false);
 
+  // Export dropdown tap-to-toggle (mobile support)
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
+
   // Favorites
   const { favorites, isLoaded: favoritesLoaded, addFavorite, removeFavorite, isFavorite, toggleFavorite } = useFavorites();
 
   // Dashboard tracking state
   const [trackingAction, setTrackingAction] = useState<string | null>(null);
+
+  // Close export dropdown on outside click
+  useEffect(() => {
+    if (!exportOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) {
+        setExportOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [exportOpen]);
 
   // Filtered ads based on chart filter
   const filteredAds = useMemo(() => {
@@ -929,20 +945,22 @@ export default function Home() {
                   {apiResult && (
                     <div className="flex items-center gap-2">
                           {/* Export Dropdown */}
-                          <div className="relative group" data-pdf-hide>
+                          <div className="relative group" data-pdf-hide ref={exportRef}>
                             <button
                               type="button"
-                              className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors"
+                              onClick={() => setExportOpen(prev => !prev)}
+                              className="flex items-center gap-1.5 px-3 py-2 min-h-[48px] text-xs font-medium rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors"
                             >
                               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                               </svg>
                               Export
                             </button>
-                            <div className="absolute right-0 top-full mt-1 w-48 py-1 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                            <div className={`absolute right-0 top-full mt-1 w-48 py-1 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl transition-all z-10 ${exportOpen ? 'opacity-100 visible' : 'opacity-0 invisible'} group-hover:opacity-100 group-hover:visible`}>
                               {/* PDF Export */}
                               <button
                                 onClick={async () => {
+                                  setExportOpen(false);
                                   if (isPdfExporting) return;
                                   setIsPdfExporting(true);
                                   setPdfProgress(null);
@@ -975,20 +993,20 @@ export default function Home() {
                               </button>
                               <div className="border-t border-[var(--border-subtle)] my-1" />
                               <button
-                                onClick={() => exportFullReportToCSV(apiResult)}
+                                onClick={() => { setExportOpen(false); exportFullReportToCSV(apiResult); }}
                                 className="w-full px-4 py-2 text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
                               >
                                 Full Report (CSV)
                               </button>
                               <button
-                                onClick={() => exportAdsToCSV(apiResult)}
+                                onClick={() => { setExportOpen(false); exportAdsToCSV(apiResult); }}
                                 className="w-full px-4 py-2 text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
                               >
                                 Ads Only (CSV)
                               </button>
                               {apiResult.aggregatedDemographics && (
                                 <button
-                                  onClick={() => exportDemographicsToCSV(apiResult)}
+                                  onClick={() => { setExportOpen(false); exportDemographicsToCSV(apiResult); }}
                                   className="w-full px-4 py-2 text-left text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
                                 >
                                   Demographics (CSV)
