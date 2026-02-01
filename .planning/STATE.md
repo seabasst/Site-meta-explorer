@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-26)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** v2.1 Polish & UX — gap closure phases 17.1-17.2
+**Current focus:** v2.1 complete. Next: v3.0 Pro Platform (Phases 18-23)
 
 ## Current Position
 
-Phase: 17.1 of 23 (Export & Filter Fix) - Complete
+Phase: 17.2 of 23 (Dead Code Cleanup) - Complete
 Plan: 1 of 1
-Status: Phase 17.1 complete, 17.2 pending
-Last activity: 2026-02-01 — Completed 17.1-01-PLAN.md
+Status: v2.1 gap closure complete (Phases 14-17.2 all done)
+Last activity: 2026-02-01 — Completed 17.2-01-PLAN.md
 
-Progress: █████████████████░░░ 85% (v1.0-v2.0 shipped, v2.1 gap closure: 17.1 done, 17.2 pending)
+Progress: █████████████████░░░ 87% (v1.0-v2.1 shipped, v3.0 not started)
 
 ## Milestones
 
@@ -23,13 +23,13 @@ Progress: █████████████████░░░ 85% (v1.0
 | v1.0 MVP | Complete | 2026-01-25 |
 | v1.1 Polish | Partial (Phase 5 shipped, 6-9 superseded by v2.1) | 2026-01-25 |
 | v2.0 Payments & Auth | Complete (Phases 10-13) | 2026-01-27 |
-| v2.1 Polish & UX | Gap closure (Phases 14-17.1 complete, 17.2 pending) | 2026-02-01 |
+| v2.1 Polish & UX | Complete (Phases 14-17.2) | 2026-02-01 |
 | v3.0 Pro Platform | Not started (Phases 18-23) | - |
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 23
+- Total plans completed: 24
 - Average duration: —
 - Total execution time: —
 
@@ -162,6 +162,10 @@ Recent decisions affecting current work:
 - Mobile export progress shown on button element (not just dropdown)
 - Responsive tooltip positioning: left-20 sm:left-36 matching label column widths
 
+**From 17.2-01:**
+- Deleted orphaned MediaTypeChart and ResultsTable components (597 lines of dead code)
+- Components were exported but never imported — Phase 15/17 work on them had zero user-visible effect
+
 **Carried from v1.1:**
 - shadcn/ui for component library (React 19 + Tailwind v4 compatible)
 - Link-out approach for ad previews (Facebook blocks embedding)
@@ -187,6 +191,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 17.1-01-PLAN.md (Export & Filter Fix)
+Stopped at: Completed 17.2-01-PLAN.md (Dead Code Cleanup)
 Resume file: None
-Next: Phase 17.2 (Dashboard Cleanup) if planned
+Next: v3.0 Pro Platform (Phases 18-23) when planned
