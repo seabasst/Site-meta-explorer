@@ -2,7 +2,24 @@
 
 import { useMemo } from 'react';
 import { CartesianGrid, Line, LineChart, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import type { TooltipContentProps } from 'recharts/types/component/Tooltip';
+import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import type { FacebookAdResult } from '@/lib/facebook-api';
+
+function WeeklyTooltip({ active, payload, label }: TooltipContentProps<ValueType, NameType>) {
+  if (!active || !payload?.length) return null;
+  const count = payload[0].value;
+
+  return (
+    <div className="rounded-lg border bg-[var(--bg-secondary)] border-[var(--border-subtle)] px-3 py-2 shadow-md">
+      <div className="font-medium text-[var(--text-primary)] mb-1">{label}</div>
+      <div className="flex items-center gap-2 text-sm">
+        <div className="h-2.5 w-2.5 rounded-full bg-lime-400" />
+        <span className="text-[var(--text-secondary)]">{count} ads launched</span>
+      </div>
+    </div>
+  );
+}
 
 interface TimeTrendsProps {
   ads: FacebookAdResult[];
@@ -229,16 +246,7 @@ export function TimeTrends({ ads }: TimeTrendsProps) {
                 allowDecimals={false}
                 width={30}
               />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'rgba(28, 28, 13, 0.95)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '8px',
-                  color: '#fff',
-                }}
-                formatter={(value) => [`${value ?? 0} ads`, 'Launched']}
-                labelStyle={{ color: '#888' }}
-              />
+              <Tooltip content={(props) => <WeeklyTooltip {...props} />} />
               <Line
                 dataKey="count"
                 type="monotone"
