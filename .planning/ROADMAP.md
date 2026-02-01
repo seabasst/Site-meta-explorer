@@ -235,15 +235,15 @@ Plans:
 **Depends on**: Phase 17.1
 **Requirements**: None (tech debt cleanup from audit)
 **Gap Closure**: Closes gaps from v2.1-MILESTONE-AUDIT.md
-**Status**: Not planned
+**Status**: Planned
 **Success Criteria** (what must be TRUE):
   1. MediaTypeChart component is either removed or wired into the page
   2. ResultsTable component is either removed or wired into the page
   3. No orphaned exports remain from Phase 15/17 work
-**Plans**: 0 plans
+**Plans**: 1 plan
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 17.2 to break down)
+- [ ] 17.2-01-PLAN.md — Delete orphaned MediaTypeChart and ResultsTable components
 
 ### Phase 18: Brand Tracking
 **Goal**: Users can set their own brand as a baseline and get automated snapshots with trend tracking
@@ -349,7 +349,7 @@ Plans:
 | 16. Export Enhancement | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 17. Mobile Polish | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 17.1 Export & Filter Fix | v2.1 | 1/1 | Complete | 2026-02-01 |
-| 17.2 Dead Code Cleanup | v2.1 | 0/0 | Not planned | - |
+| 17.2 Dead Code Cleanup | v2.1 | 0/1 | Planned | - |
 | 18. Brand Tracking | v3.0 | 0/0 | Not planned | - |
 | 19. Competitor Monitoring | v3.0 | 0/0 | Not planned | - |
 | 20. Side-by-Side Comparison | v3.0 | 0/0 | Not planned | - |
