@@ -170,7 +170,7 @@ export function CountryChart({ data, onSegmentClick, activeFilter }: CountryChar
 
             {/* Enhanced tooltip on hover */}
             {isHovered && (
-              <div className="absolute -top-12 left-36 z-20 px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-lg shadow-xl">
+              <div className="absolute -top-12 left-20 sm:left-36 z-20 px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-lg shadow-xl">
                 <div className="flex items-center gap-2 text-xs">
                   <span className="font-semibold text-[var(--text-primary)]">{country.name}</span>
                   <span className="text-[var(--text-muted)]">|</span>
