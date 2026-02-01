@@ -202,15 +202,16 @@ Plans:
 **Goal**: Responsive layout and touch-friendly interaction on mobile devices
 **Depends on**: Phase 14, 15
 **Requirements**: MOBL-01, MOBL-02
-**Status**: Not planned
+**Status**: Planned
 **Success Criteria** (what must be TRUE):
   1. Layout adapts properly to mobile screen sizes
   2. All interactive targets are at least 48x48px
   3. Charts and tables are usable on mobile
-**Plans**: 0 plans
+**Plans**: 2 plans in 1 wave
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 17 to break down)
+- [ ] 17-01-PLAN.md — Main page responsive fixes (options bar, media type, tabs, table, export dropdown, touch targets)
+- [ ] 17-02-PLAN.md — Component responsive fixes (analytics grids, results tables, chart touch interactions)
 
 ### Phase 18: Brand Tracking
 **Goal**: Users can set their own brand as a baseline and get automated snapshots with trend tracking
@@ -314,7 +315,7 @@ Plans:
 | 14. Ad Preview | v2.1 | 1/1 | Complete | 2026-02-01 |
 | 15. Chart Improvements | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 16. Export Enhancement | v2.1 | 2/2 | Complete | 2026-02-01 |
-| 17. Mobile Polish | v2.1 | 0/0 | Not planned | - |
+| 17. Mobile Polish | v2.1 | 0/2 | Planned | - |
 | 18. Brand Tracking | v3.0 | 0/0 | Not planned | - |
 | 19. Competitor Monitoring | v3.0 | 0/0 | Not planned | - |
 | 20. Side-by-Side Comparison | v3.0 | 0/0 | Not planned | - |
