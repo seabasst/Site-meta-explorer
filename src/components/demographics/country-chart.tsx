@@ -111,12 +111,15 @@ export function CountryChart({ data, onSegmentClick, activeFilter }: CountryChar
             style={{ animationDelay: `${index * 60}ms` }}
             onMouseEnter={() => setHoveredCountry(country.name)}
             onMouseLeave={() => setHoveredCountry(null)}
-            onClick={() => onSegmentClick?.({ type: 'country', value: country.originalName, label: `${country.flag} ${country.name}` })}
+            onClick={() => {
+              setHoveredCountry(country.name === hoveredCountry ? null : country.name);
+              onSegmentClick?.({ type: 'country', value: country.originalName, label: `${country.flag} ${country.name}` });
+            }}
           >
             {/* Country row */}
             <div className="flex items-center gap-3">
               {/* Flag & Name with rank badge for top 3 */}
-              <div className="flex items-center gap-2 w-36 flex-shrink-0">
+              <div className="flex items-center gap-2 w-20 sm:w-36 flex-shrink-0">
                 {isTopThree && country.name !== 'Other' && (
                   <span className={`w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold ${
                     index === 0 ? 'bg-amber-500/20 text-amber-400' :

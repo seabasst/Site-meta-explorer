@@ -274,8 +274,8 @@ export function ResultsTable({
               <p className="text-[var(--text-muted)]">No advertised URLs found</p>
             </div>
           ) : (
-            <div className="max-h-[600px] overflow-y-auto">
-              <table className="data-table">
+            <div className="max-h-[600px] overflow-auto">
+              <table className="data-table min-w-[640px]">
                 <thead>
                   <tr>
                     <th>Destination URL</th>
@@ -331,7 +331,7 @@ export function ResultsTable({
                       <td>
                         <button
                           onClick={() => copyToClipboard(ad.url)}
-                          className="p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all"
+                          className="p-3 sm:p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all"
                           title="Copy URL"
                         >
                           {copiedUrl === ad.url ? (
@@ -366,8 +366,8 @@ export function ResultsTable({
               <p className="text-[var(--text-muted)]">No URLs found in this category</p>
             </div>
           ) : (
-            <div className="max-h-[600px] overflow-y-auto">
-              <table className="data-table">
+            <div className="max-h-[600px] overflow-auto">
+              <table className="data-table min-w-[640px]">
                 <thead>
                   <tr>
                     <th>
@@ -426,7 +426,7 @@ export function ResultsTable({
                       <td>
                         <button
                           onClick={() => copyToClipboard(url.loc)}
-                          className="p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all"
+                          className="p-3 sm:p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all"
                           title="Copy URL"
                         >
                           {copiedUrl === url.loc ? (

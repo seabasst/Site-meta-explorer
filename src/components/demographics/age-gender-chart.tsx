@@ -107,7 +107,10 @@ export function AgeGenderChart({ data, onSegmentClick, activeFilter }: AgeGender
               style={{ animationDelay: `${index * 50}ms` }}
               onMouseEnter={() => setHoveredAge(group.age)}
               onMouseLeave={() => setHoveredAge(null)}
-              onClick={() => onSegmentClick?.({ type: 'ageGender', value: group.age, label: `Age ${group.age}` })}
+              onClick={() => {
+                setHoveredAge(group.age === hoveredAge ? null : group.age);
+                onSegmentClick?.({ type: 'ageGender', value: group.age, label: `Age ${group.age}` });
+              }}
             >
               {/* Age label */}
               <div className="flex items-center justify-between mb-2">
