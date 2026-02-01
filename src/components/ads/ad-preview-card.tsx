@@ -30,6 +30,12 @@ export function AdPreviewCard({ ad }: AdPreviewCardProps) {
   );
   const [imgError, setImgError] = useState(false);
 
+  // Derive badge type from resolved media type (ad.mediaType is always 'unknown' from API)
+  const badgeType = resolvedMediaType === 'video' ? 'video'
+    : resolvedMediaType === 'image' ? 'image'
+    : ad.mediaType !== 'unknown' ? ad.mediaType
+    : null;
+
   // Format date
   const formattedDate = ad.startedRunning
     ? new Date(ad.startedRunning).toLocaleDateString()
@@ -99,14 +105,14 @@ export function AdPreviewCard({ ad }: AdPreviewCardProps) {
         ) : !isLoading ? (
           /* Fallback placeholder */
           <div className="flex flex-col items-center gap-1.5 text-[var(--text-muted)] group-hover:text-[var(--accent-green-light)] transition-colors">
-            {ad.mediaType === 'video' ? (
+            {badgeType === 'video' ? (
               <Play className="w-8 h-8 opacity-50 group-hover:opacity-80 transition-opacity" />
             ) : (
               <ImageIcon className="w-8 h-8 opacity-50 group-hover:opacity-80 transition-opacity" />
             )}
             <div className="flex items-center gap-1 text-xs opacity-70 group-hover:opacity-100">
               <MousePointerClick className="w-3 h-3" />
-              <span>View {ad.mediaType === 'video' ? 'video' : 'ad'}</span>
+              <span>View {badgeType === 'video' ? 'video' : 'ad'}</span>
             </div>
           </div>
         ) : null}
@@ -125,13 +131,13 @@ export function AdPreviewCard({ ad }: AdPreviewCardProps) {
             {formattedReach} reach
           </span>
           {/* Media Type Badge */}
-          {ad.mediaType !== 'unknown' && (
+          {badgeType && (
             <span className={`px-2 py-0.5 rounded text-xs font-medium backdrop-blur-sm ${
-              ad.mediaType === 'video'
+              badgeType === 'video'
                 ? 'bg-purple-500/20 text-purple-400'
                 : 'bg-blue-500/20 text-blue-400'
             }`}>
-              {ad.mediaType === 'video' ? 'Video' : 'Image'}
+              {badgeType === 'video' ? 'Video' : 'Image'}
             </span>
           )}
         </div>
@@ -153,7 +159,7 @@ export function AdPreviewCard({ ad }: AdPreviewCardProps) {
 
         {/* Body text */}
         {ad.creativeBody && (
-          <p className="text-xs text-[var(--text-secondary)] line-clamp-2">
+          <p className="text-xs text-[var(--text-secondary)]">
             {ad.creativeBody}
           </p>
         )}
