@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-01-26)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** v2.1 Polish & UX — shipping deferred v1.1 items
+**Current focus:** v2.1 Polish & UX — complete (all phases shipped)
 
 ## Current Position
 
@@ -23,7 +23,7 @@ Progress: █████████████████░░░ 83% (v1.0
 | v1.0 MVP | Complete | 2026-01-25 |
 | v1.1 Polish | Partial (Phase 5 shipped, 6-9 superseded by v2.1) | 2026-01-25 |
 | v2.0 Payments & Auth | Complete (Phases 10-13) | 2026-01-27 |
-| v2.1 Polish & UX | In progress (Phases 14-17) | - |
+| v2.1 Polish & UX | Complete (Phases 14-17) | 2026-02-01 |
 | v3.0 Pro Platform | Not started (Phases 18-23) | - |
 
 ## Performance Metrics
@@ -184,4 +184,4 @@ None.
 Last session: 2026-02-01
 Stopped at: Phase 17 complete (17-01 + 17-02)
 Resume file: None
-Next: Phase 18 (v3.0 Pro Platform)
+Next: Audit v2.1 milestone or start v3.0

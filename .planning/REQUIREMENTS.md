@@ -74,8 +74,8 @@ v1.1 features paused for v2.0 monetization. Will revisit after payments ship.
 
 ### Mobile (from v1.1)
 
-- **MOBL-01**: Responsive layout on mobile devices
-- **MOBL-02**: Touch-friendly targets (48x48px minimum)
+- [x] **MOBL-01**: Responsive layout on mobile devices
+- [x] **MOBL-02**: Touch-friendly targets (48x48px minimum)
 
 ## Out of Scope
 

@@ -9,7 +9,7 @@ Transform the v1.0 MVP into a monetized SaaS product with user authentication an
 - ✅ **v1.0 MVP** - Phases 1-4 (shipped 2026-01-25)
 - ✅ **v1.1 Partial** - Phase 5 (shipped 2026-01-25, phases 6-9 deferred)
 - ✅ **v2.0 Payments & Auth** - Phases 10-13 (shipped 2026-01-27)
-- ○ **v2.1 Polish & UX** - Phases 14-17 (deferred v1.1 items)
+- ✅ **v2.1 Polish & UX** - Phases 14-17 (shipped 2026-02-01)
 - ○ **v3.0 Pro Platform** - Phases 18-23 (coming-soon features)
 
 ## Phases
@@ -63,14 +63,14 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 </details>
 
-### ○ v2.1 Polish & UX
+### ✅ v2.1 Polish & UX — SHIPPED 2026-02-01
 
 **Milestone Goal:** Ship the deferred v1.1 polish items — ad previews, chart interactions, export improvements, and mobile responsiveness.
 
 - [x] **Phase 14: Ad Preview** - Click-to-view, creative text display, video/image distinction (completed 2026-02-01)
 - [x] **Phase 15: Chart Improvements** - Rich tooltips, responsive charts, click-to-filter (completed 2026-02-01)
 - [x] **Phase 16: Export Enhancement** - Improved PDF export experience (completed 2026-02-01)
-- [ ] **Phase 17: Mobile Polish** - Responsive layout, touch-friendly targets
+- [x] **Phase 17: Mobile Polish** - Responsive layout, touch-friendly targets (completed 2026-02-01)
 
 ### ○ v3.0 Pro Platform
 
@@ -202,16 +202,16 @@ Plans:
 **Goal**: Responsive layout and touch-friendly interaction on mobile devices
 **Depends on**: Phase 14, 15
 **Requirements**: MOBL-01, MOBL-02
-**Status**: Planned
+**Status**: Complete (2026-02-01)
 **Success Criteria** (what must be TRUE):
-  1. Layout adapts properly to mobile screen sizes
-  2. All interactive targets are at least 48x48px
-  3. Charts and tables are usable on mobile
+  1. Layout adapts properly to mobile screen sizes ✓
+  2. All interactive targets are at least 48x48px ✓
+  3. Charts and tables are usable on mobile ✓
 **Plans**: 2 plans in 1 wave
 
 Plans:
-- [ ] 17-01-PLAN.md — Main page responsive fixes (options bar, media type, tabs, table, export dropdown, touch targets)
-- [ ] 17-02-PLAN.md — Component responsive fixes (analytics grids, results tables, chart touch interactions)
+- [x] 17-01-PLAN.md — Main page responsive fixes (options bar, media type, tabs, table, export dropdown, touch targets)
+- [x] 17-02-PLAN.md — Component responsive fixes (analytics grids, results tables, chart touch interactions)
 
 ### Phase 18: Brand Tracking
 **Goal**: Users can set their own brand as a baseline and get automated snapshots with trend tracking
@@ -315,7 +315,7 @@ Plans:
 | 14. Ad Preview | v2.1 | 1/1 | Complete | 2026-02-01 |
 | 15. Chart Improvements | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 16. Export Enhancement | v2.1 | 2/2 | Complete | 2026-02-01 |
-| 17. Mobile Polish | v2.1 | 0/2 | Planned | - |
+| 17. Mobile Polish | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 18. Brand Tracking | v3.0 | 0/0 | Not planned | - |
 | 19. Competitor Monitoring | v3.0 | 0/0 | Not planned | - |
 | 20. Side-by-Side Comparison | v3.0 | 0/0 | Not planned | - |
