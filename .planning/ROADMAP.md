@@ -9,7 +9,7 @@ Transform the v1.0 MVP into a monetized SaaS product with user authentication an
 - ✅ **v1.0 MVP** - Phases 1-4 (shipped 2026-01-25)
 - ✅ **v1.1 Partial** - Phase 5 (shipped 2026-01-25, phases 6-9 deferred)
 - ✅ **v2.0 Payments & Auth** - Phases 10-13 (shipped 2026-01-27)
-- ✅ **v2.1 Polish & UX** - Phases 14-17 (shipped 2026-02-01)
+- ✅ **v2.1 Polish & UX** - Phases 14-17.2 (shipped 2026-02-01, gap closure in progress)
 - ○ **v3.0 Pro Platform** - Phases 18-23 (coming-soon features)
 
 ## Phases
@@ -63,7 +63,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 </details>
 
-### ✅ v2.1 Polish & UX — SHIPPED 2026-02-01
+### v2.1 Polish & UX — Gap Closure
 
 **Milestone Goal:** Ship the deferred v1.1 polish items — ad previews, chart interactions, export improvements, and mobile responsiveness.
 
@@ -71,6 +71,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 15: Chart Improvements** - Rich tooltips, responsive charts, click-to-filter (completed 2026-02-01)
 - [x] **Phase 16: Export Enhancement** - Improved PDF export experience (completed 2026-02-01)
 - [x] **Phase 17: Mobile Polish** - Responsive layout, touch-friendly targets (completed 2026-02-01)
+- [ ] **Phase 17.1: Export & Filter Fix** - INSERTED — Fix filtered PDF output, mobile export progress, tooltip overflow
+- [ ] **Phase 17.2: Dead Code Cleanup** - INSERTED — Remove orphaned MediaTypeChart and ResultsTable components
 
 ### ○ v3.0 Pro Platform
 
@@ -213,6 +215,36 @@ Plans:
 - [x] 17-01-PLAN.md — Main page responsive fixes (options bar, media type, tabs, table, export dropdown, touch targets)
 - [x] 17-02-PLAN.md — Component responsive fixes (analytics grids, results tables, chart touch interactions)
 
+### Phase 17.1: Export & Filter Fix (INSERTED)
+**Goal**: Fix filtered PDF output, mobile export progress, and tooltip overflow
+**Depends on**: Phase 17
+**Requirements**: None (integration/tech debt fixes from audit)
+**Gap Closure**: Closes gaps from v2.1-MILESTONE-AUDIT.md
+**Status**: Not planned
+**Success Criteria** (what must be TRUE):
+  1. PDF export uses unfiltered ad data regardless of active chart filter
+  2. Mobile users see export progress feedback (not trapped in closed dropdown)
+  3. Country chart tooltip doesn't overflow on 375px mobile viewports
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 17.1 to break down)
+
+### Phase 17.2: Dead Code Cleanup (INSERTED)
+**Goal**: Remove orphaned components that are exported but never imported
+**Depends on**: Phase 17.1
+**Requirements**: None (tech debt cleanup from audit)
+**Gap Closure**: Closes gaps from v2.1-MILESTONE-AUDIT.md
+**Status**: Not planned
+**Success Criteria** (what must be TRUE):
+  1. MediaTypeChart component is either removed or wired into the page
+  2. ResultsTable component is either removed or wired into the page
+  3. No orphaned exports remain from Phase 15/17 work
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 17.2 to break down)
+
 ### Phase 18: Brand Tracking
 **Goal**: Users can set their own brand as a baseline and get automated snapshots with trend tracking
 **Depends on**: Phase 13
@@ -300,7 +332,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-- v2.1: Phases 14, 15 (parallel) → 16 → 17
+- v2.1: Phases 14, 15 (parallel) → 16 → 17 → 17.1 → 17.2
 - v3.0: Phase 18 → 19 → 20, 21, 22 (parallel) → 23
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -316,6 +348,8 @@ Plans:
 | 15. Chart Improvements | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 16. Export Enhancement | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 17. Mobile Polish | v2.1 | 2/2 | Complete | 2026-02-01 |
+| 17.1 Export & Filter Fix | v2.1 | 0/0 | Not planned | - |
+| 17.2 Dead Code Cleanup | v2.1 | 0/0 | Not planned | - |
 | 18. Brand Tracking | v3.0 | 0/0 | Not planned | - |
 | 19. Competitor Monitoring | v3.0 | 0/0 | Not planned | - |
 | 20. Side-by-Side Comparison | v3.0 | 0/0 | Not planned | - |

@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-26)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** v2.1 Polish & UX — complete (all phases shipped)
+**Current focus:** v2.1 Polish & UX — gap closure phases 17.1-17.2
 
 ## Current Position
 
-Phase: 17 of 23 (Mobile Polish) - Complete
-Plan: 2 of 2 — all complete
-Status: Phase complete
-Last activity: 2026-02-01 — Completed 17-01-PLAN.md and 17-02-PLAN.md
+Phase: 17.1 of 23 (Export & Filter Fix) - Not planned
+Plan: 0 of 0
+Status: Gap closure phases created from audit
+Last activity: 2026-02-01 — Created gap closure phases 17.1, 17.2
 
-Progress: █████████████████░░░ 83% (v1.0-v2.0 shipped, Phase 17 complete, v2.1 wrapping up)
+Progress: █████████████████░░░ 83% (v1.0-v2.0 shipped, v2.1 gap closure in progress)
 
 ## Milestones
 
@@ -23,7 +23,7 @@ Progress: █████████████████░░░ 83% (v1.0
 | v1.0 MVP | Complete | 2026-01-25 |
 | v1.1 Polish | Partial (Phase 5 shipped, 6-9 superseded by v2.1) | 2026-01-25 |
 | v2.0 Payments & Auth | Complete (Phases 10-13) | 2026-01-27 |
-| v2.1 Polish & UX | Complete (Phases 14-17) | 2026-02-01 |
+| v2.1 Polish & UX | Gap closure (Phases 14-17 complete, 17.1-17.2 pending) | 2026-02-01 |
 | v3.0 Pro Platform | Not started (Phases 18-23) | - |
 
 ## Performance Metrics
@@ -182,6 +182,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Phase 17 complete (17-01 + 17-02)
+Stopped at: Gap closure phases created from v2.1 audit
 Resume file: None
-Next: Audit v2.1 milestone or start v3.0
+Next: Plan phase 17.1 (/gsd:plan-phase 17.1)
