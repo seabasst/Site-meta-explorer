@@ -69,7 +69,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 14: Ad Preview** - Click-to-view, creative text display, video/image distinction (completed 2026-02-01)
 - [x] **Phase 15: Chart Improvements** - Rich tooltips, responsive charts, click-to-filter (completed 2026-02-01)
-- [ ] **Phase 16: Export Enhancement** - Improved PDF export experience
+- [x] **Phase 16: Export Enhancement** - Improved PDF export experience (completed 2026-02-01)
 - [ ] **Phase 17: Mobile Polish** - Responsive layout, touch-friendly targets
 
 ### ○ v3.0 Pro Platform
@@ -182,11 +182,11 @@ Plans:
 - [x] 15-01-PLAN.md — Rich tooltips and responsive sizing for Recharts charts (MediaTypeChart, TimeTrends)
 - [x] 15-02-PLAN.md — Click-to-filter interactivity for CountryChart, AgeGenderChart, and MediaTypeChart
 
-### Phase 16: Export Enhancement
+### Phase 16: Export Enhancement ✓
 **Goal**: Professional PDF export with section-based capture, cover page, headers/footers, multi-tab content, and progress feedback
 **Depends on**: Phase 13
 **Requirements**: EXPT-01
-**Status**: Planned
+**Status**: Complete (2026-02-01)
 **Success Criteria** (what must be TRUE):
   1. PDF export produces well-formatted, professional output with cover page
   2. Charts and data render cleanly without splitting across page boundaries
@@ -195,8 +195,8 @@ Plans:
 **Plans**: 2 plans in 2 waves
 
 Plans:
-- [ ] 16-01-PLAN.md — Section tagging and section-based PDF capture with cover page and headers/footers
-- [ ] 16-02-PLAN.md — Multi-tab content capture, DOM preparation, and export progress UI
+- [x] 16-01-PLAN.md — Section tagging and section-based PDF capture with cover page and headers/footers
+- [x] 16-02-PLAN.md — Multi-tab content capture, DOM preparation, and export progress UI
 
 ### Phase 17: Mobile Polish
 **Goal**: Responsive layout and touch-friendly interaction on mobile devices
@@ -313,7 +313,7 @@ Plans:
 | 13. Pro Features | v2.0 | 3/3 | Complete | 2026-01-27 |
 | 14. Ad Preview | v2.1 | 1/1 | Complete | 2026-02-01 |
 | 15. Chart Improvements | v2.1 | 2/2 | Complete | 2026-02-01 |
-| 16. Export Enhancement | v2.1 | 0/2 | Planned | - |
+| 16. Export Enhancement | v2.1 | 2/2 | Complete | 2026-02-01 |
 | 17. Mobile Polish | v2.1 | 0/0 | Not planned | - |
 | 18. Brand Tracking | v3.0 | 0/0 | Not planned | - |
 | 19. Competitor Monitoring | v3.0 | 0/0 | Not planned | - |

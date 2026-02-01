@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-26)
 Phase: 16 of 23 (Export Enhancement) - Complete
 Plan: 2 of 2 — complete
 Status: Phase complete
-Last activity: 2026-02-01 — Completed 16-02-PLAN.md
+Last activity: 2026-02-01 — Phase 16 verified and complete
 
 Progress: █████████████████░░░ 80% (v1.0-v2.0 shipped, Phase 16 complete, v2.1 continues)
 
@@ -169,6 +169,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 16-02-PLAN.md (multi-tab PDF capture with progress)
+Stopped at: Phase 16 complete and verified
 Resume file: None
-Next: Phase 16 complete. Proceed to Phase 17 (Mobile/Responsive) or next priority.
+Next: Plan Phase 17 (Mobile Polish)

@@ -70,7 +70,7 @@ v1.1 features paused for v2.0 monetization. Will revisit after payments ship.
 
 ### Export (from v1.1)
 
-- **EXPT-01**: Export analysis results as PDF
+- [x] **EXPT-01**: Export analysis results as PDF
 
 ### Mobile (from v1.1)
 
@@ -111,10 +111,11 @@ Which phases cover which requirements. Updated by create-roadmap.
 | CHRT-01 | Phase 15 | Complete |
 | CHRT-02 | Phase 15 | Complete |
 | CHRT-03 | Phase 15 | Complete |
+| EXPT-01 | Phase 16 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 11 total, all complete ✓
-- v2.1 requirements: 6/8 complete (PREV-01–03, CHRT-01–03)
+- v2.1 requirements: 7/8 complete (PREV-01–03, CHRT-01–03, EXPT-01)
 
 ---
 *Requirements defined: 2026-01-26*
