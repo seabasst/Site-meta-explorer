@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 30 complete — brand comparison feature verified and shipped
+**Current focus:** Phase 30 complete — ready for Phase 31
 
 ## Current Position
 
-Phase: 30 of 31 (Brand Comparison)
-Plan: 02 of 02 complete
-Status: Phase complete — human verification approved
-Last activity: 2026-02-02 — Phase 30 fully complete, checkpoint approved
+Phase: 30 of 31 (Brand Comparison) — ✓ Complete
+Plan: All plans complete, verified
+Status: Phase 30 verified, ready for Phase 31
+Last activity: 2026-02-02 — Phase 30 verified (5/5 must-haves passed)
 
-Progress: ███████████░░░░░░░░░ 54% (v3.1)
+Progress: ███████████████░░░░░ 75% (v3.1)
 
 ## Milestones
 
@@ -62,5 +62,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Phase 30 complete, checkpoint approved
+Stopped at: Phase 30 verified and complete, ready for Phase 31
 Resume file: None

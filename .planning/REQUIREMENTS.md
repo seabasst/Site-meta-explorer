@@ -10,11 +10,11 @@ Requirements for v3.1 release. Each maps to roadmap phases.
 
 ### Brand Comparison
 
-- [ ] **COMP-01**: User can select 2 saved brands for side-by-side comparison
-- [ ] **COMP-02**: User can view butterfly chart showing age-gender distribution for both brands (Brand A left, Brand B right)
-- [ ] **COMP-03**: User can view paired horizontal bar chart comparing country distribution for both brands
-- [ ] **COMP-04**: User can view summary metrics table with reach, ad count, and dominant demographic for both brands side by side
-- [ ] **COMP-05**: User sees empty state with guidance when fewer than 2 brands are saved
+- [x] **COMP-01**: User can select 2 saved brands for side-by-side comparison
+- [x] **COMP-02**: User can view butterfly chart showing age-gender distribution for both brands (Brand A left, Brand B right)
+- [x] **COMP-03**: User can view paired horizontal bar chart comparing country distribution for both brands
+- [x] **COMP-04**: User can view summary metrics table with reach, ad count, and dominant demographic for both brands side by side
+- [x] **COMP-05**: User sees empty state with guidance when fewer than 2 brands are saved
 
 ### Hook Extraction
 
@@ -77,11 +77,11 @@ Which phases cover which requirements. Updated by create-roadmap.
 | HOOK-04 | Phase 29 | Complete |
 | HOOK-05 | Phase 29 | Complete |
 | HOOK-06 | Phase 29 | Complete |
-| COMP-01 | Phase 30 | Pending |
-| COMP-02 | Phase 30 | Pending |
-| COMP-03 | Phase 30 | Pending |
-| COMP-04 | Phase 30 | Pending |
-| COMP-05 | Phase 30 | Pending |
+| COMP-01 | Phase 30 | Complete |
+| COMP-02 | Phase 30 | Complete |
+| COMP-03 | Phase 30 | Complete |
+| COMP-04 | Phase 30 | Complete |
+| COMP-05 | Phase 30 | Complete |
 | OBSV-01 | Phase 31 | Pending |
 | OBSV-02 | Phase 31 | Pending |
 | OBSV-03 | Phase 31 | Pending |
@@ -96,4 +96,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-02 after Phase 28 completion*
+*Last updated: 2026-02-02 after Phase 30 completion*

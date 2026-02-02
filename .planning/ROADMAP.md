@@ -17,7 +17,7 @@ v3.1 Competitive Intelligence adds four capabilities to the existing brand track
 
 - [x] **Phase 28: Hook Extraction Engine** - Extract, group, and persist ad creative hooks from analysis data
 - [x] **Phase 29: Hook Exploration UI** - Browse, search, and explore extracted hooks
-- [ ] **Phase 30: Brand Comparison** - Side-by-side demographic comparison of two saved brands
+- [x] **Phase 30: Brand Comparison** - Side-by-side demographic comparison of two saved brands
 - [ ] **Phase 31: Pattern Observations** - Auto-generated factual observations surfacing notable demographic patterns
 
 ## Phase Details
@@ -64,8 +64,8 @@ Plans:
 **Research**: Complete (30-RESEARCH.md)
 **Plans**: 2 plans
 Plans:
-- [ ] 30-01-PLAN.md — ButterflyChart, CountryComparison, and MetricsTable components
-- [ ] 30-02-PLAN.md — Comparison page, BrandSelector, empty state, and dashboard link
+- [x] 30-01-PLAN.md — ButterflyChart, CountryComparison, and MetricsTable components
+- [x] 30-02-PLAN.md — Comparison page, BrandSelector, empty state, and dashboard link
 
 ### Phase 31: Pattern Observations
 **Goal**: Auto-generate factual observations from demographic data, surfacing notable patterns without AI/LLM
@@ -87,5 +87,5 @@ Phases 28 → 29 → 30 → 31 (Phase 30 can run parallel with 29 if desired)
 |-------|---------------|--------|-----------|
 | 28. Hook Extraction Engine | 2/2 | ✓ Complete | 2026-02-02 |
 | 29. Hook Exploration UI | 2/2 | ✓ Complete | 2026-02-02 |
-| 30. Brand Comparison | 0/2 | Not started | - |
+| 30. Brand Comparison | 2/2 | ✓ Complete | 2026-02-02 |
 | 31. Pattern Observations | 0/TBD | Not started | - |
