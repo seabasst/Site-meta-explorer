@@ -86,5 +86,25 @@ model BrandSnapshot {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  hookGroups HookGroup[]
+
   @@index([trackedBrandId, snapshotDate])
+}
+
+model HookGroup {
+  id             String   @id @default(cuid())
+  hookText       String   // Original text of the hook (first occurrence)
+  normalizedText String   // Normalized version used for grouping
+  frequency      Int      // Number of ads with this hook
+  totalReach     BigInt   // Sum of euTotalReach across all ads
+  avgReachPerAd  Float    // totalReach / frequency
+  adIds          Json     // Array of ad IDs in this group (string[])
+  createdAt      DateTime @default(now())
+
+  // Relations
+  snapshotId     String
+  snapshot       BrandSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@index([snapshotId])
+  @@index([snapshotId, totalReach])
 }
