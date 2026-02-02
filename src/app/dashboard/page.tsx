@@ -13,13 +13,15 @@ import { DemographicsComparison } from '@/components/dashboard/demographics-comp
 import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
 import { SubscriptionStatus } from '@/components/subscription/subscription-status';
-import { Menu } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 
 export default function DashboardPage() {
   const { data: session, status: authStatus } = useSession();
   const { data, loading, refresh } = useTrackedBrands();
   const [modalMode, setModalMode] = useState<'own' | 'competitor' | null>(null);
   const [snapshotLoadingId, setSnapshotLoadingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'date'>('date');
 
   const handleSetOwnBrand = useCallback(async (brandData: { facebookPageId: string; pageName: string; adLibraryUrl: string }) => {
     const res = await fetch('/api/dashboard/own-brand', {
@@ -105,6 +107,15 @@ export default function DashboardPage() {
   const trendSnapshots = data?.trendSnapshots ?? [];
   const ownSnapshot = ownBrand?.snapshots[0] ?? null;
 
+  const filteredCompetitors = competitors
+    .filter(c => c.pageName.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === 'name') return a.pageName.localeCompare(b.pageName);
+      const dateA = a.snapshots[0]?.snapshotDate || a.createdAt;
+      const dateB = b.snapshots[0]?.snapshotDate || b.createdAt;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    });
+
   return (
     <>
       <div className="gradient-mesh" />
@@ -149,7 +160,7 @@ export default function DashboardPage() {
                   <h3 className="text-lg font-semibold text-[var(--text-primary)]">
                     Competitors
                     <span className="text-sm font-normal text-[var(--text-muted)] ml-2">
-                      ({competitors.length})
+                      ({filteredCompetitors.length}{searchQuery ? ` of ${competitors.length}` : ''})
                     </span>
                   </h3>
                   <button
@@ -163,13 +174,54 @@ export default function DashboardPage() {
                   </button>
                 </div>
 
+                {competitors.length > 0 && (
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <div className="relative w-full sm:w-64">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)]" />
+                      <input
+                        type="text"
+                        placeholder="Search brands..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] rounded-lg pl-9 pr-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-green)] w-full"
+                      />
+                    </div>
+                    <div className="flex gap-1 shrink-0">
+                      <button
+                        onClick={() => setSortBy('date')}
+                        className={`px-3 py-2 text-xs rounded-lg transition-colors ${
+                          sortBy === 'date'
+                            ? 'bg-[var(--accent-green)] text-white'
+                            : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)] border border-[var(--border-subtle)]'
+                        }`}
+                      >
+                        Date
+                      </button>
+                      <button
+                        onClick={() => setSortBy('name')}
+                        className={`px-3 py-2 text-xs rounded-lg transition-colors ${
+                          sortBy === 'name'
+                            ? 'bg-[var(--accent-green)] text-white'
+                            : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)] border border-[var(--border-subtle)]'
+                        }`}
+                      >
+                        Name
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {competitors.length === 0 ? (
                   <div className="text-center py-8 text-[var(--text-muted)] text-sm">
                     No competitors tracked yet. Add one to start comparing.
                   </div>
+                ) : filteredCompetitors.length === 0 ? (
+                  <div className="text-center py-8 text-[var(--text-muted)] text-sm">
+                    No brands match your search.
+                  </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {competitors.map(c => (
+                    {filteredCompetitors.map(c => (
                       <CompetitorCard
                         key={c.id}
                         competitor={c}
