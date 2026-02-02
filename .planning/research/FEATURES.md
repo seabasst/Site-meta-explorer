@@ -1,361 +1,198 @@
-# Feature Research
+# Feature Landscape: v3.1 Competitive Intelligence
 
-**Domain:** Data dashboard enhancement (v1.1) - Ad Library Demographics Analyzer
-**Researched:** 2026-01-25
-**Confidence:** HIGH (verified against multiple industry sources and current UX patterns)
+**Domain:** Ad Intelligence / Competitive Analysis SaaS
+**Researched:** 2026-02-02
+**Overall confidence:** MEDIUM-HIGH (features grounded in competitor analysis + existing codebase data model)
 
-## UI/UX Polish Features
+## Table Stakes
 
-### Table Stakes
+Features users expect from any ad intelligence tool offering competitive analysis. Missing = product feels incomplete or half-baked.
 
-Features users expect from a polished data dashboard. Missing these makes the product feel unfinished.
+### TS-1: Demographic Trend Charts (Time-Series)
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Visual hierarchy** | Users should find critical info in <5 seconds | Low | Top-down layout: KPIs at top, trends middle, details bottom |
-| **Consistent styling** | Reduces cognitive load, builds mental model | Low | Same colors, fonts, chart types across all views |
-| **Loading states** | Users need feedback during data fetches | Low | Skeleton screens for 1-3s waits; progress indicators for longer |
-| **Empty states** | Missing these feels "rackety" vs polished | Low | Meaningful messaging when no data available |
-| **Microinteractions** | Shows system is responsive | Low | Button hovers, chart tooltips, filter loading animations |
-| **Accessible colors** | 8% of males are colorblind | Low | Blues/oranges instead of red/green; don't rely on color alone |
-| **Responsive layout** | Mobile access is expected | Medium | Single-column on mobile, prioritize critical KPIs |
-| **Touch-friendly targets** | Mobile requires 48x48px minimum | Low | Buttons, chart interactions must be thumb-friendly |
-| **Clear typography** | Readability is baseline expectation | Low | Proper hierarchy with font weight/size, not just color |
+| Aspect | Detail |
+|--------|--------|
+| **Why Expected** | Pathmatics, SocialPeta, and Sensor Tower all show historical trend lines. Any tool with historical snapshots that does NOT show trends over time frustrates users -- they have the data, why can they not see it change? The app already stores multiple `BrandSnapshot` records per brand with `snapshotDate` and full `demographicsJson`. Not surfacing this as a chart is a missed obvious step. |
+| **Complexity** | Medium |
+| **What competitors do** | Pathmatics: line charts of spend/impressions over time with daily granularity. SocialPeta: advertiser ranking trend charts. Kantar: media mix trend overlays. All use line/area charts with selectable date ranges. |
+| **Expected UX** | Line chart (or stacked area chart) with X-axis = snapshot dates, Y-axis = percentage. Separate charts or tabs for: (1) age distribution over time, (2) gender split over time, (3) top countries over time. Users expect to select a brand, see its demographic shifts across all stored snapshots. Tooltip on hover showing exact values per snapshot. Date range selector if many snapshots exist. |
+| **Data dependency** | Requires 2+ snapshots for the same brand. Data already exists: `BrandSnapshot.demographicsJson` stores full age/gender/region breakdowns per snapshot, indexed by `[trackedBrandId, snapshotDate]`. No schema changes needed. |
+| **Key decisions** | (1) Chart type: line chart (cleaner for few snapshots) vs stacked area (better for composition). Recommend **line chart** with one line per age group / gender / country -- it works with as few as 2 data points. (2) Where to show: brand detail page `[brandId]/page.tsx`, new "Trends" tab or section below current snapshot view. |
+| **Risk** | LOW. Straightforward Recharts implementation over existing data. The main UX risk is brands with only 1 snapshot showing an empty/useless chart -- handle with "Re-analyze to track changes over time" prompt. |
 
-### Differentiators
+### TS-2: Side-by-Side Brand Comparison
 
-Features that elevate the experience above baseline expectations.
+| Aspect | Detail |
+|--------|--------|
+| **Why Expected** | Pathmatics lets users compare up to 20 advertisers side by side. Moat (before shutdown) offered competitive benchmarking with brand-vs-brand views. AdSpy/BigSpy offer comparison filters. Any brand tracking dashboard that shows multiple brands but cannot compare them side by side is missing the core value proposition of tracking competitors. |
+| **Complexity** | Medium |
+| **What competitors do** | Pathmatics: up to 20 brands in parallel columns, share-of-voice charts, spend comparison. SocialPeta: brand-vs-brand with audience overlap analysis. Moat: side-by-side creative and metric comparison. Most tools use paired/grouped bar charts or butterfly charts for demographic comparison. |
+| **Expected UX** | User selects exactly 2 brands from their saved brands (dropdown or card picker). View shows mirrored/paired charts: (1) **Butterfly chart** for age-gender distribution -- Brand A bars extend left, Brand B bars extend right, shared age-range axis in center. This is the gold standard for demographic comparison (population pyramid pattern). (2) Paired horizontal bars for country distribution. (3) Summary metrics table (total reach, ad count, spend, dominant demo) side by side. The existing `DemographicsComparison` component already renders stacked bars per brand -- this feature elevates it to a dedicated full-page comparison view with richer chart types. |
+| **Data dependency** | Requires 2+ saved brands with at least 1 snapshot each. Uses latest `BrandSnapshot.demographicsJson` for each brand. No schema changes. |
+| **Key decisions** | (1) Butterfly chart vs simple paired bars. Recommend **butterfly chart** -- it is the recognized pattern for demographic comparison (see Data Viz Project, Zoho Analytics, Qlik all support it). Recharts does not have a native butterfly chart, but it can be built with two stacked `BarChart` components or a single chart with negative values for Brand A. (2) Limit to 2 brands (butterfly) or support N brands (grouped bars). Recommend **start with 2** -- butterfly is cleaner and more impactful than N-way grouped bars. (3) Entry point: dedicated `/dashboard/compare` route with brand picker, or inline in dashboard. |
+| **Risk** | MEDIUM. Butterfly chart in Recharts requires custom implementation (negative value trick or dual chart layout). Not a standard Recharts component. Budget extra time for chart engineering. |
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **Dark mode** | Reduces eye strain, modern feel | Medium | Use CSS variables (already in place), respect system preference |
-| **Animated transitions** | Makes data changes feel fluid | Low | Recharts supports animation natively |
-| **Keyboard navigation** | Power user efficiency, accessibility | Medium | Tab through filters, arrow keys in charts |
-| **Gesture-based interactions** | Natural on mobile | Medium | Swipe to change time ranges, pinch to zoom charts |
-| **Contextual tooltips** | Self-documenting UI | Low | Explain what metrics mean on hover |
-| **Breadcrumb navigation** | Clear context when drilling down | Low | Show path back to overview |
+## Differentiators
 
-## Ad Preview Features
+Features that set the product apart. Not expected by users, but valued when present. These are competitive advantages.
 
-### Expected Behavior
+### DF-1: Ad Creative Hooks / Opening Lines Extraction
 
-How ad preview displays typically work based on Facebook Ad Library patterns and industry standards.
+| Aspect | Detail |
+|--------|--------|
+| **Value Proposition** | Foreplay's Spyder is the ONLY major tool that auto-extracts hooks from ad copy, and it charges $99-249/month for the privilege. This is a genuine differentiator in the market. Most ad spy tools (AdSpy, BigSpy, Minea) treat ad text as searchable but do not extract, group, or analyze the text patterns. Offering hook extraction on Facebook Ad Library data -- which is free and public -- is a strong competitive wedge. |
+| **Complexity** | Medium-High |
+| **What competitors do** | **Foreplay Spyder**: Dedicated "Hooks" tab, auto-transcribes video hooks, extracts opening lines, lets users browse hundreds of hooks, pin favorites, export to CSV. **Bestever**: Scores hook engagement, detects hook fatigue, compares hooks to top performers. **Everyone else**: Ad copy is shown raw; users must manually read and pattern-match. No grouping, no frequency analysis, no reach weighting. |
+| **Expected UX** | (1) **Extraction**: For each ad, extract the first sentence (or first N characters up to first sentence break) from `ad_creative_bodies[0]`. This is the "hook." (2) **Grouping**: Cluster similar hooks using fuzzy string matching or simple normalization (lowercase, strip emojis, collapse whitespace). Show groups ranked by frequency. (3) **Frequency weighted by reach**: Each hook group shows: count of ads using it, total reach of those ads, average reach per ad. This surfaces hooks that are not just common but effective. (4) **Display**: Card or list view, each hook group shows the canonical phrase, frequency badge, reach metric, and expandable list of actual ads using it. (5) **Filter/search**: Users should be able to search hooks or filter by reach threshold. |
+| **Data dependency** | `FacebookAdResult.creativeBody` (mapped from `ad_creative_bodies[0]`) is already fetched and available in the API result. However, it is NOT currently stored in `BrandSnapshot` -- the snapshot only stores aggregated demographic metrics. For hooks analysis to work on saved brands (not just live analysis), the raw ad texts would need to be stored. **Two options**: (A) store hooks at snapshot time (new `hooksJson` field on `BrandSnapshot`), or (B) only show hooks during live analysis (no persistence). Recommend (A) for saved brands. |
+| **Key decisions** | (1) NLP approach: simple first-sentence extraction (split on `.` `!` `?` or first 100 chars) vs LLM-based extraction. Recommend **simple extraction first** -- no AI dependency, deterministic, fast. LLM refinement can come later. (2) Grouping algorithm: exact match after normalization vs fuzzy matching (Levenshtein distance). Recommend **normalized exact match first** (lowercase, strip punctuation/emojis, trim) -- covers 80% of cases. Fuzzy can be a v3.2 enhancement. (3) Storage: new JSON field on BrandSnapshot vs separate HookGroup table. Recommend **JSON field** for simplicity -- `hooksJson` storing `Array<{ hook: string, count: number, totalReach: number, adIds: string[] }>`. |
+| **Risk** | MEDIUM. Quality of extraction depends heavily on ad copy structure. Some ads have no clear "hook" (single word, emoji-only, or very short text). Need graceful handling of edge cases. Grouping accuracy with simple normalization may be low for paraphrased hooks (e.g., "Stop doing X" vs "Why you should stop doing X"). Accept this limitation for v3.1 and flag fuzzy matching for v3.2. |
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Thumbnail gallery** | Visual overview of ad creative | Medium | Grid layout with uniform sizing; current ad highlighted |
-| **Full ad copy display** | Users need to read complete text | Low | Expandable/collapsible for long copy |
-| **Media type indicators** | Video vs image distinction | Low | Icons/badges showing content type |
-| **Click to expand** | See full-size creative | Medium | Modal or lightbox pattern |
-| **Link to Ad Library** | Reference back to source | Low | Already have `ad_library_links`, expose them |
+### DF-2: Rule-Based Pattern Observations (Auto-Generated Insights)
 
-### Media Handling
-
-Patterns for displaying images, videos, and text in ad previews.
-
-| Media Type | Expected Pattern | Complexity | Implementation Notes |
-|------------|------------------|------------|---------------------|
-| **Images** | Thumbnail with click-to-expand | Medium | Use `image_urls` from API; lazy load for performance |
-| **Videos** | Static thumbnail + play icon | Medium | Use `ad_snapshot_url` for thumbnail; click-to-play in modal |
-| **Video autoplay** | Hover-to-preview (muted) | High | Optional enhancement; must be muted by default (browser policy) |
-| **Text (creative body)** | Truncated with "show more" | Low | Use `ad_creative_bodies` from API |
-| **Link titles** | Display as headline | Low | Use `ad_creative_link_titles` from API |
-| **Carousel ads** | Swipeable card view | High | Multiple images in sequence; defer to v1.2 |
-
-### Video Preview Patterns
-
-Best practices for video ad previews based on OTT platform patterns (Netflix, Hulu, YouTube).
-
-| Pattern | Description | Recommendation |
-|---------|-------------|----------------|
-| **Hover-to-preview** | Video plays muted on hover | DEFER - High complexity, browser autoplay restrictions |
-| **Click-to-play** | Static thumbnail, modal opens with player | RECOMMEND - Simple, reliable, no autoplay issues |
-| **Play icon overlay** | Clear visual indicator video will play | REQUIRED - Users must know content is video |
-| **Muted by default** | Audio starts muted | REQUIRED - Browser policy; let user unmute |
-| **Loading state** | Show spinner while video loads | REQUIRED - Prevent confusion during buffering |
-
-### Ad Preview Layout Recommendations
-
-Based on Meta Ad Library patterns and UX research.
-
-```
-+------------------+------------------+
-|                  |  Ad Details      |
-|   Media Preview  |  - Page name     |
-|   (image/video)  |  - Start date    |
-|                  |  - Status        |
-+------------------+------------------+
-|  Creative Text (expandable)         |
-+-------------------------------------+
-|  [View in Ad Library] [Copy Link]   |
-+-------------------------------------+
-```
-
-## Chart Enhancement Features
-
-### Table Stakes
-
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Tooltips** | Show exact values on hover | Low | Recharts `<Tooltip>` component; already using |
-| **Legends** | Explain what colors mean | Low | Position consistently; make clickable to filter |
-| **Axis labels** | Context for data points | Low | Clear, readable, formatted numbers |
-| **Responsive sizing** | Charts must fit container | Low | Use `ResponsiveContainer` wrapper (Recharts) |
-| **Number formatting** | Locale-aware, readable | Low | Use Intl.NumberFormat; abbreviate large numbers (1.2M) |
-
-### Differentiators
-
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **Click-to-filter** | Drill down by clicking chart element | Medium | Click country bar to filter other charts |
-| **Cross-chart filtering** | Filter propagates to all visualizations | Medium | Unified filter state; all charts respond |
-| **Animated transitions** | Smooth data updates | Low | Recharts supports via `animationDuration` prop |
-| **Custom tooltips** | Richer context on hover | Low | Custom React component in `content` prop |
-| **Export chart as image** | Save/share visualizations | Medium | Canvas-based screenshot (html2canvas) |
-| **Drill-down navigation** | Country -> Region -> City | High | Requires hierarchical data; defer to v1.2 |
-| **Comparison mode** | Side-by-side brand comparison | High | Already have brand-comparison.tsx; enhance |
-
-### Chart Type Recommendations
-
-Based on data types in the current application.
-
-| Data | Current | Recommendation | Why |
-|------|---------|----------------|-----|
-| Age/Gender | Custom bar chart | Keep custom OR Recharts BarChart | Current implementation is solid |
-| Country distribution | Bar chart | Horizontal bar chart | Easier to read country names |
-| Time trends | LineChart | Keep LineChart, add area fill | Already using Recharts |
-| Media type breakdown | None visible | PieChart or DonutChart | Percentage-based data |
-| Ad count over time | LineChart | Keep, add tooltips | Already implemented |
-
-## Export Features
-
-### Table Stakes
-
-| Format | Why Expected | Complexity | Notes |
-|--------|--------------|------------|-------|
-| **CSV** | Universal, spreadsheet-compatible | Low | Already have `export-utils.ts`; verify it works |
-| **PDF** | Printable, shareable reports | Medium | Use browser print or html2pdf library |
-
-### Differentiators
-
-| Format | Value Proposition | Complexity | Notes |
-|--------|-------------------|------------|-------|
-| **Excel (XLSX)** | Preserves formatting, multiple sheets | Medium | Use SheetJS library |
-| **PNG/JPG (charts)** | Visual sharing | Medium | html2canvas for chart screenshots |
-| **Scheduled exports** | Automation | High | Requires backend; defer |
-
-### Export UX Patterns
-
-| Pattern | Description | Recommendation |
-|---------|-------------|----------------|
-| **Export button placement** | Consistent location | Top-right of data section |
-| **Format selector** | Dropdown or button group | Dropdown if 3+ formats; buttons if 2 |
-| **Download feedback** | User knows export started | Toast notification; disable button during generation |
-| **Filename convention** | Predictable, descriptive | `{brand}-demographics-{date}.{ext}` |
-| **Include filters** | Export shows applied filters | Metadata row in CSV; header in PDF |
-
-## Error Handling UX
-
-### Table Stakes
-
-| Scenario | Pattern | Complexity | Notes |
-|----------|---------|------------|-------|
-| **API failure** | Clear error message + retry option | Low | Red accent, alert icon, non-technical language |
-| **Invalid input** | Inline validation with suggestions | Low | Real-time feedback, not just on submit |
-| **Empty results** | Meaningful empty state | Low | Explain why, suggest actions |
-| **Network timeout** | Retry with exponential backoff | Medium | Show progress, offer cancel |
-| **Rate limiting** | Explain and suggest wait time | Low | Facebook API returns specific error codes |
-
-### Error Message Best Practices
-
-| Instead of | Use | Why |
-|------------|-----|-----|
-| "Error 500" | "Something went wrong. Please try again." | Non-technical, actionable |
-| "Invalid input" | "Page ID should be numbers only" | Specific, helpful |
-| "Network error" | "Couldn't connect. Check your internet." | Actionable |
-| "No data" | "No active ads found for this page" | Explains situation |
-
-### Loading State Guidelines
-
-| Duration | Feedback Type | Example |
-|----------|---------------|---------|
-| <100ms | None needed | Instant response |
-| 100ms-1s | Inline spinner, disable input | Button spinner (already implemented) |
-| 1-3s | Skeleton screen | Gray placeholders for charts |
-| 3s+ | Progress indicator + cancel option | "Fetching ads... 45%" |
+| Aspect | Detail |
+|--------|--------|
+| **Value Proposition** | Most ad intelligence tools present data but leave interpretation to the user. AI-powered insight tools (Improvado, Adverity, Polymer) charge enterprise prices ($500+/month) for automated pattern detection. Offering rule-based factual observations (not AI-generated) is a lightweight alternative that adds significant perceived value. Phrases like "Skews 25-34 male" or "Top country shifted DE to FR since last analysis" make users feel the tool is doing analytical work for them. |
+| **Complexity** | Medium |
+| **What competitors do** | **Pathmatics/Sensor Tower**: AI-powered insights with natural language summaries of trends. **Improvado**: Conversational AI agent for data querying. **Polymer**: Statistically significant pattern highlighting. **PowerAdSpy**: AI audience analysis recommendations. These are all AI/ML-heavy. **No one in this tier** (sub-$50/month) offers even rule-based observations. This is a blue ocean at the lower price point. |
+| **Expected UX** | (1) **Observation cards**: Small, scannable text blocks displayed alongside demographic charts. Each observation is a single factual statement derived from the data. (2) **Types of observations**: - **Dominant skew**: "Audience skews 25-34 male (42% of reach)" - **Gender imbalance**: "67% female audience -- significantly above platform average" - **Geographic concentration**: "80% of reach concentrated in top 2 countries (DE, FR)" - **Temporal shift** (requires 2+ snapshots): "Top country shifted from DE to FR since [date]" - **Age shift**: "25-34 age group grew from 30% to 45% over last 3 analyses" - **Hook pattern**: "Most common hook pattern used in 12 of 47 ads" (3) **Confidence/strength indicator**: Simple visual indicator (strong/moderate/weak pattern) based on data volume and magnitude of observation. (4) **Placement**: Summary section at top of brand detail page, before charts. Users see insights first, then can drill into charts. |
+| **Data dependency** | All observations derived from existing `BrandSnapshot` fields. Single-snapshot observations use current snapshot data. Temporal observations require 2+ snapshots and compare latest vs previous (or latest vs oldest). Hook observations require DF-1 to be implemented first. |
+| **Key decisions** | (1) Rule engine approach: hardcoded rules in TypeScript vs configurable rule definitions. Recommend **hardcoded rules** for v3.1 -- there will be at most 8-12 rules, not worth abstracting. (2) Threshold values: what counts as "skewed"? Recommend >60% for gender skew, >35% for age group dominance, >50% for geographic concentration. These can be tuned. (3) Temporal comparison: compare latest snapshot to immediately previous vs to first snapshot. Recommend **latest vs previous** -- more actionable for "what changed recently." (4) Observation limit: show all applicable or cap at top N. Recommend **top 5 most interesting** ranked by magnitude of the signal. |
+| **Risk** | LOW-MEDIUM. Risk is not technical but editorial: observations that state the obvious ("Your brand runs ads in Germany" for a German brand) feel dumb. Need threshold tuning to ensure observations are genuinely insightful. Build in a minimum significance threshold. |
 
 ## Anti-Features
 
-Features to deliberately NOT build in v1.1.
+Features to explicitly NOT build for v3.1. Common mistakes in this domain.
+
+### AF-1: AI/LLM-Powered Natural Language Insights
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| **AI chatbot interface** | 2025 trend but adds massive complexity; not core value | Focus on traditional UI polish first |
-| **Real-time live updates** | Overkill for ad analysis; adds complexity | Manual refresh is sufficient |
-| **Complex customizable dashboards** | Drag-and-drop widgets adds complexity; low value for this use case | Provide sensible defaults |
-| **Social sharing buttons** | Privacy concerns with ad data; low value | Copy link to clipboard instead |
-| **User accounts/auth** | Scope creep; not needed for single-user tool | Keep stateless |
-| **Carousel/multi-image preview** | High complexity; rare ad format | Show first image only; link to Ad Library for full view |
-| **Video hover autoplay** | Browser restrictions; performance issues | Click-to-play only |
-| **Deep drill-down (3+ levels)** | Adds complexity; data may not support | Single-level drill-down max |
-| **Offline mode** | Requires service worker complexity; low value | Online-only is fine |
-| **Notification system** | No async operations need it | Show inline feedback |
+| Using GPT/Claude API to generate natural language analysis of demographics | Adds API cost per analysis, latency, unpredictable output quality, hallucination risk for factual claims about data. Enterprise tools charge $500+/month partly because of this cost. At sub-$50/month pricing, LLM inference cost could exceed revenue per user. Also creates a dependency on external AI API availability. | Rule-based observations (DF-2) that are deterministic, free to compute, instant, and guaranteed factual. If a rule says "skews 25-34 male," it is verifiably true from the data. LLM output cannot make this guarantee. |
+
+### AF-2: Fuzzy/Semantic Hook Clustering
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Using embeddings or NLP to cluster semantically similar hooks (e.g., grouping "Stop using X" with "Why you should quit X") | Significant engineering complexity (embedding model, vector similarity, clustering algorithm). Unclear ROI -- most ad hooks within a single brand are either identical or very different. Semantic clustering adds value primarily across thousands of brands, not within a single brand's 20-100 ads. | Simple normalized string matching for v3.1. Group hooks that are textually identical after lowercasing and punctuation stripping. Flag semantic clustering as a v3.2+ enhancement once user feedback confirms demand. |
+
+### AF-3: Real-Time Competitor Monitoring / Alerts
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Background jobs that automatically re-analyze saved brands on a schedule and send email/push alerts when demographics change | Requires background job infrastructure (cron, queue), significantly increases API usage against Facebook (rate limits: 200 calls/hour), needs notification system (email/push), and ongoing compute costs. This is a major infrastructure investment for a feature that is better suited to v4.0+. | Manual re-analysis (already built in v3.0) with the new temporal observations (DF-2) surfacing what changed since last analysis. Users trigger re-analysis when they want fresh data. |
+
+### AF-4: N-Way Brand Comparison (3+ Brands)
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Supporting comparison of 3, 4, or more brands simultaneously | Butterfly charts only work with 2 datasets. Grouped bar charts for 4+ brands become visually cluttered and hard to read. Pathmatics supports 20-brand comparison but has a dedicated enterprise UX team. The engineering cost of making N-way comparison usable does not justify the value for v3.1. | 2-brand comparison (TS-2) with butterfly charts. Clean, focused, immediately useful. If users request N-way, consider grouped bar charts in v3.2. |
+
+### AF-5: Video Hook Transcription
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Transcribing video ad audio to extract spoken hooks (like Foreplay Spyder does) | Requires speech-to-text API (Whisper, etc.), video download infrastructure, significant compute cost, and the Facebook Ad Library API provides `ad_snapshot_url` but not direct video file URLs. Downloading and transcribing videos at scale is a fundamentally different infrastructure problem. | Extract hooks from `ad_creative_bodies` text only. This is the ad copy text that Facebook already provides via the API. Most Facebook ads have text hooks in the creative body, even if the video has a different spoken hook. |
 
 ## Feature Dependencies
 
 ```
-                    +------------------+
-                    |   Mobile Layout  |
-                    +--------+---------+
-                             |
-              +--------------+--------------+
-              |                             |
-    +---------v---------+         +---------v---------+
-    | Touch Targets     |         | Responsive Charts |
-    | (48px minimum)    |         | (ResponsiveContainer)|
-    +-------------------+         +-------------------+
-              |
-              v
-    +-------------------+
-    | Gesture Support   |
-    | (swipe, pinch)    |
-    +-------------------+
-
-    +------------------+
-    |   Ad Preview     |
-    +--------+---------+
-             |
-    +--------v---------+
-    | Image Loading    |<---- Requires: lazy loading, error states
-    | (image_urls)     |
-    +--------+---------+
-             |
-    +--------v---------+
-    | Video Preview    |<---- Requires: snapshot_url, click-to-play modal
-    | (optional)       |
-    +--------+---------+
-
-    +------------------+
-    |   Chart Polish   |
-    +--------+---------+
-             |
-    +--------v---------+
-    | Tooltips/Legends |<---- Already using Recharts
-    +--------+---------+
-             |
-    +--------v---------+
-    | Click-to-Filter  |<---- Requires: unified filter state
-    +--------+---------+
-             |
-    +--------v---------+
-    | Cross-Chart      |<---- Requires: click-to-filter working first
-    | Filtering        |
-    +--------+---------+
-
-    +------------------+
-    |   Export         |
-    +--------+---------+
-             |
-    +--------v---------+
-    | CSV Export       |<---- Already have export-utils.ts
-    +--------+---------+
-             |
-    +--------v---------+
-    | PDF Export       |<---- Requires: html2pdf or similar
-    +--------+---------+
-
-    +------------------+
-    |   Error Handling |
-    +--------+---------+
-             |
-    +--------v---------+
-    | Error Messages   |<---- Low dependency, can do anytime
-    +--------+---------+
-             |
-    +--------v---------+
-    | Loading States   |<---- Already have spinner; add skeletons
-    +--------+---------+
+TS-1: Trend Charts ──────────────────────┐
+  (standalone, uses existing snapshots)   │
+                                          ├──> DF-2: Pattern Observations
+TS-2: Brand Comparison                    │    (uses trends for temporal observations,
+  (standalone, uses existing snapshots)   │     uses hooks for hook observations)
+                                          │
+DF-1: Hook Extraction ───────────────────┘
+  (standalone for live analysis,
+   needs schema change for persistence)
 ```
 
-## MVP vs Post-MVP Recommendation
+**Dependency details:**
+- **TS-1 (Trends)** and **TS-2 (Comparison)** are fully independent of each other and of DF-1. They use existing `BrandSnapshot` data with no schema changes.
+- **DF-1 (Hooks)** is independent for live analysis (data already in API result). Requires a new `hooksJson` field on `BrandSnapshot` if hooks should persist for saved brands.
+- **DF-2 (Observations)** depends on the data from TS-1 (temporal observations compare snapshots over time) and optionally DF-1 (hook pattern observations). However, DF-2 can ship with a subset of rules that only use single-snapshot data, making it partially independent.
 
-### v1.1 MVP (This Milestone)
+**Recommended build order:**
+1. TS-1 (Trend Charts) -- immediate value, no schema changes
+2. TS-2 (Brand Comparison) -- immediate value, no schema changes
+3. DF-1 (Hook Extraction) -- schema migration needed, medium-high complexity
+4. DF-2 (Pattern Observations) -- depends on others being available for full rule set
 
-**UI/UX Polish:**
-1. Loading states (skeleton screens) - Low complexity, high impact
-2. Empty states - Low complexity, polishes feel
-3. Mobile responsive layout - Medium complexity, expected feature
-4. Touch-friendly targets - Low complexity, required for mobile
-5. Microinteractions (hover states, transitions) - Low complexity, high polish
+## MVP Recommendation
 
-**Ad Preview:**
-1. Image thumbnail gallery - Medium complexity, core feature
-2. Click-to-expand modal - Medium complexity, expected
-3. Full creative text display - Low complexity, already have data
-4. Media type indicators - Low complexity, visual clarity
+For v3.1 MVP, implement all 4 features but phase them:
 
-**Charts:**
-1. Custom tooltips with rich content - Low complexity, Recharts native
-2. Responsive sizing - Low complexity, wrap in ResponsiveContainer
-3. Click-to-filter (single chart) - Medium complexity, good ROI
+**Phase A (foundations, highest ROI):**
+1. **TS-1: Trend Charts** -- lowest complexity, uses existing data, biggest "wow" factor for users who have re-analyzed brands
+2. **TS-2: Brand Comparison** -- expected feature for any competitive intelligence tool, butterfly chart is visually impressive
 
-**Export:**
-1. CSV export (verify working) - Already implemented
-2. PDF export - Medium complexity, expected for reports
+**Phase B (differentiation):**
+3. **DF-1: Hook Extraction** -- unique in the free/low-cost tier, requires schema migration
+4. **DF-2: Pattern Observations** -- ties everything together with auto-generated insights
 
-**Error Handling:**
-1. Clear error messages - Low complexity, high impact
-2. Inline validation - Low complexity, prevents frustration
-3. Retry mechanisms - Low complexity, essential for API calls
+**Defer to post-v3.1:**
+- Fuzzy hook clustering (AF-2): Wait for user feedback on simple grouping
+- N-way comparison (AF-4): Start with 2-brand, expand based on demand
+- Video transcription (AF-5): Fundamentally different infrastructure
+- Real-time monitoring (AF-3): Major infrastructure investment
 
-### Defer to v1.2
+## UX Pattern Reference
 
-- Video hover autoplay
-- Carousel ad preview
-- Cross-chart filtering
-- Deep drill-down navigation
-- Excel export
-- Chart image export
-- Gesture-based interactions (swipe, pinch)
-- Dark mode toggle (keep system preference only)
+### Trend Charts (TS-1)
+- **Chart type:** Multi-line chart (Recharts `LineChart` with multiple `Line` elements)
+- **Interaction:** Hover tooltips, clickable legend to toggle series
+- **Layout:** Tabbed sections (Age | Gender | Country) on brand detail page
+- **Empty state:** "Re-analyze this brand to track changes over time" with CTA button
+- **Precedent:** Google Analytics audience reports, Pathmatics spend trend charts
+
+### Brand Comparison (TS-2)
+- **Chart type:** Butterfly/population pyramid chart (negative-value bar trick in Recharts)
+- **Interaction:** Brand picker (2 dropdowns or cards), charts update on selection
+- **Layout:** Dedicated `/dashboard/compare` page or modal. Brand A on left, Brand B on right. Shared axis labels in center.
+- **Empty state:** "Save 2+ brands to compare them" with link to analysis page
+- **Precedent:** Population pyramids (UN, census.gov), Pathmatics brand comparison
+
+### Hook Extraction (DF-1)
+- **Display:** Card list, each card = one hook group. Shows: hook text, frequency badge, reach metric bar
+- **Interaction:** Click to expand and see all ads using that hook. Search/filter bar at top.
+- **Layout:** New "Hooks" tab on brand detail page (alongside Demographics, Trends)
+- **Empty state:** "No text hooks found in ads" (some ads are image-only with no creative body)
+- **Precedent:** Foreplay Spyder Hooks tab, tag cloud visualizations
+
+### Pattern Observations (DF-2)
+- **Display:** Compact insight cards with icon + single sentence + optional metric badge
+- **Interaction:** Non-interactive (read-only observations). Optional: click to scroll to relevant chart section.
+- **Layout:** Summary row at top of brand detail page, above charts. Horizontally scrollable card strip on mobile.
+- **Empty state:** Hidden entirely when no significant patterns detected (do not show "No insights found")
+- **Precedent:** Google Analytics Intelligence alerts, Polymer highlights, Apple Health summaries
+
+## Complexity Summary
+
+| Feature | Complexity | Schema Change | New Routes | New Components | Estimated Effort |
+|---------|-----------|---------------|------------|----------------|-----------------|
+| TS-1: Trend Charts | Medium | None | GET snapshots history (exists) | TrendChart, TrendTabs | 2-3 tasks |
+| TS-2: Brand Comparison | Medium | None | None (client-side) | ComparisonView, ButterflyChart, BrandPicker | 2-3 tasks |
+| DF-1: Hook Extraction | Medium-High | `hooksJson` on BrandSnapshot | None (computed at analysis time) | HooksList, HookCard, HookExtractor (lib) | 3-4 tasks |
+| DF-2: Pattern Observations | Medium | None | None (computed client-side) | ObservationCard, ObservationEngine (lib) | 2-3 tasks |
 
 ## Sources
 
-### Dashboard UX Best Practices
-- [20 Best Dashboard UI/UX Design Principles 2025 - Medium](https://medium.com/@allclonescript/20-best-dashboard-ui-ux-design-principles-you-need-in-2025-30b661f2f795)
-- [Dashboard Design UX Patterns - Pencil & Paper](https://www.pencilandpaper.io/articles/ux-pattern-analysis-data-dashboards)
-- [Effective Dashboard Design Principles 2025 - UXPin](https://www.uxpin.com/studio/blog/dashboard-design-principles/)
-- [Top Dashboard Design Trends 2025 - Fuselab Creative](https://fuselabcreative.com/top-dashboard-design-trends-2025/)
+- [Pathmatics by Sensor Tower - Features](https://sensortower.com/product/digital-advertising/pathmatics) (MEDIUM confidence - marketing page, feature claims)
+- [Foreplay Spyder Ad Spy - Hook Extraction](https://www.foreplay.co/spyder-ad-spy) (HIGH confidence - product page with feature details)
+- [Foreplay Spyder 2.0 - Auto Hook Extraction](https://www.foreplay.co/post/spyder-2-0) (HIGH confidence - product announcement)
+- [SocialPeta Features](https://socialpeta.com/features) (MEDIUM confidence - marketing page)
+- [Butterfly Chart - Data Viz Project](https://datavizproject.com/data-type/butterfly-chart/) (HIGH confidence - reference documentation)
+- [Butterfly Chart - ChartExpo](https://chartexpo.com/blog/butterfly-chart) (HIGH confidence - visualization guide)
+- [NN/g Comparison Tables](https://www.nngroup.com/articles/comparison-tables/) (HIGH confidence - UX research authority)
+- [NN/g Choosing Chart Types](https://www.nngroup.com/articles/choosing-chart-types/) (HIGH confidence - UX research authority)
+- [Moat Alternatives - Bestever](https://www.bestever.ai/post/moat-ads) (MEDIUM confidence - competitor blog)
+- [Facebook Ad Library API Guide](https://admanage.ai/blog/facebook-ads-library-api) (MEDIUM confidence - third-party guide)
+- [Improvado AI Reporting Tools](https://improvado.io/blog/top-ai-reporting-tools) (MEDIUM confidence - vendor content)
+- [Ad Intelligence Tools - SuperAds](https://www.superads.ai/blog/ad-intelligence-tools) (LOW confidence - vendor listicle)
+- [Ad Intelligence Tools - Madgicx](https://madgicx.com/blog/ad-intelligence-tools) (LOW confidence - vendor listicle)
 
-### Thumbnail & Gallery Patterns
-- [Always Use Thumbnails for Product Images - Baymard](https://baymard.com/blog/always-use-thumbnails-additional-images)
-- [Gallery UI Design Best Practices - Mobbin](https://mobbin.com/glossary/gallery)
-- [List Thumbnails on Mobile - NN/g](https://www.nngroup.com/articles/mobile-list-thumbnail/)
+---
 
-### Video Preview UX
-- [React Hover Video Player](https://react-hover-video-player.dev/)
-- [Video Previews Increase Engagement - Diagnal](https://www.diagnal.com/video-previews-increase-engagement-on-your-ott-platform/)
-- [Best UX for Video - FlowMapp](https://www.flowmapp.com/blog/qa/how-to-provide-the-best-ux-for-video)
-
-### Export Functionality
-- [Dashboard Export Formats - MicroStrategy](https://www2.microstrategy.com/producthelp/Current/Workstation/en-us/Content/disable_dashboard_exports.htm)
-- [Export Dashboard to PDF, Image, Excel - Bold BI](https://help.boldbi.com/working-with-dashboards/preview-dashboard/dashboard-settings/)
-
-### Error Handling & Loading States
-- [Error Message UX Patterns - Pencil & Paper](https://www.pencilandpaper.io/articles/ux-pattern-analysis-error-feedback)
-- [UX Design Patterns for Loading - Pencil & Paper](https://www.pencilandpaper.io/articles/ux-pattern-analysis-loading-feedback)
-- [Designing Effective Error States 2025 - Medium](https://medium.com/design-bootcamp/designing-effective-error-states-turning-frustration-into-opportunity-in-2025-ux-998e5dc204fc)
-
-### Chart Interactivity
-- [Interactive Data Visualization Guide - GoodData](https://www.gooddata.com/blog/interactive-data-visualization/)
-- [5 Interactive Features You Should Know - Bold BI](https://www.boldbi.com/blog/5-interactive-data-visualization-features-you-should-know/)
-- [Recharts Tooltip API](https://recharts.github.io/en-US/api/Tooltip/)
-
-### Mobile Dashboard Design
-- [Mobile Dashboard UI Best Practices - Toptal](https://www.toptal.com/designers/dashboard-design/mobile-dashboard-ui)
-- [10 Tips for Mobile-Friendly Dashboards - Lightning Ventures](https://www.lightningventures.com.au/blogs/10-tips-for-mobile-friendly-dashboards)
-- [Effective Mobile Dashboard Design - ANODA](https://www.anoda.mobi/ux-blog/effective-mobile-dashboard-design-tips)
-
-### Facebook Ad Library
-- [How to Use Facebook Ad Library - Shopify](https://www.shopify.com/blog/ad-library-facebook)
-- [Facebook Ads Library Guide 2025 - Foreplay](https://www.foreplay.co/post/facebook-ads-library)
+*Research completed: 2026-02-02*
+*Researcher: Claude (gsd-research-project)*
