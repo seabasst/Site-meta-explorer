@@ -15,10 +15,10 @@ Requirements for v3.0 milestone (Brand Tracking & Dashboard). Pro-only feature.
 
 ### Dashboard
 
-- [ ] **DASH-01**: User can view a grid of saved brand cards with key metrics
-- [ ] **DASH-02**: User can click a brand card to view full demographic results
-- [ ] **DASH-03**: User can sort brands by date or name, and filter by metrics
-- [ ] **DASH-04**: User can search saved brands by name
+- [x] **DASH-01**: User can view a grid of saved brand cards with key metrics
+- [x] **DASH-02**: User can click a brand card to view full demographic results
+- [x] **DASH-03**: User can sort brands by date or name, and filter by metrics
+- [x] **DASH-04**: User can search saved brands by name
 
 ### Re-analysis
 
@@ -62,10 +62,10 @@ Which phases cover which requirements. Updated by create-roadmap.
 | BRAND-01 | Phase 24 | Complete |
 | BRAND-02 | Phase 24 | Complete |
 | BRAND-03 | Phase 24 | Complete |
-| DASH-01 | Phase 25 | Pending |
-| DASH-02 | Phase 25 | Pending |
-| DASH-03 | Phase 25 | Pending |
-| DASH-04 | Phase 25 | Pending |
+| DASH-01 | Phase 25 | Complete |
+| DASH-02 | Phase 25 | Complete |
+| DASH-03 | Phase 25 | Complete |
+| DASH-04 | Phase 25 | Complete |
 | REANA-01 | Phase 26 | Pending |
 | REANA-02 | Phase 26 | Pending |
 | REANA-03 | Phase 26 | Pending |
