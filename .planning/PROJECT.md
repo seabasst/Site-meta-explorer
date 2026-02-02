@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A competitor analysis SaaS tool that extracts demographic and reach data from Facebook Ad Library. Users enter an Ad Library page URL, and the app fetches ad data via Facebook's Graph API to show aggregated audience breakdowns — countries, age groups, gender splits, and reach metrics. Features tiered access (Free + Pro) with Stripe subscription payments, interactive charts with click-to-filter, professional PDF export, and full mobile responsiveness.
+A competitor analysis SaaS tool that extracts demographic and reach data from Facebook Ad Library. Users enter an Ad Library page URL, and the app fetches ad data via Facebook's Graph API to show aggregated audience breakdowns — countries, age groups, gender splits, and reach metrics. Features tiered access (Free + Pro) with Stripe subscription payments, interactive charts with click-to-filter, professional PDF export, full mobile responsiveness, and a brand tracking dashboard for saving and managing analyzed brands over time.
 
 ## Core Value
 
@@ -41,57 +41,50 @@ Surface who competitors are reaching with their ads — demographics and geograp
 - ✓ Click-to-filter interactivity across chart types — v2.1
 - ✓ Responsive layout on mobile (375px+) — v2.1
 - ✓ Touch-friendly targets (48px minimum) — v2.1
+- ✓ Save brand after analysis (URL, name, demographic snapshot) — v3.0
+- ✓ Dashboard with brand cards grid (key metrics, click to view full results) — v3.0
+- ✓ Re-analyze saved brand with fresh demographic data — v3.0
+- ✓ Delete saved brand from dashboard — v3.0
 
 ### Active
 
-- [ ] Save brand after analysis (URL, name, demographic snapshot to database)
-- [ ] Dashboard with brand cards grid (key metrics, click to view full results)
-- [ ] Re-analyze saved brand with fresh demographic data
-- [ ] Delete saved brand from dashboard
+(None yet — define requirements for next milestone)
 
 ### Out of Scope
 
 - Per-ad demographic breakdown — aggregated summary only
-- Historical tracking — snapshot comparison over time (v3.1)
+- Historical trend charts — snapshot comparison over time (v3.1)
 - Brand comparisons side-by-side — deferred to v3.1
-- Trend analysis over time — deferred to v3.1
-- Actionable tips/insights — deferred to v3.1
+- Scheduled re-analysis — requires background jobs, too complex for now
+- Actionable tips/insights — deferred to future milestone
 - Puppeteer-based scraping — removed, using Facebook Graph API
 - Enterprise tier — keep it simple with Free + Pro
 - Team/organization accounts — single user accounts only
 - Mobile app — web responsive only
 
-## Current Milestone: v3.0 Brand Tracking & Dashboard
-
-**Goal:** Enable users to save brands after analysis and manage them from a central dashboard.
-
-**Target features:**
-- Save Brand — post-analysis action storing URL, name, and demographic snapshot
-- Dashboard — brand cards grid with key metrics, click to view full results
-- Re-analyze — trigger fresh analysis on saved brands
-- Delete — remove saved brands
-
-**Constraints:** Pro-only feature, new `/dashboard` route, extends Prisma schema with Brand model.
-
 ## Context
 
 **Current State:**
-- Shipped v2.1 with ~13,846 LOC TypeScript
+- Shipped v3.0 with ~14,926 LOC TypeScript
 - Tech stack: Next.js 16, React 19, Recharts, Tailwind CSS, Auth.js, Stripe, Prisma + SQLite
 - Uses Facebook Graph API with EU DSA transparency data
 - Deployed to Vercel
 - Full mobile responsiveness down to 375px
 - Professional PDF export with section-based capture
+- Brand tracking dashboard with save, re-analyze, delete, search/sort
 
 **Architecture:**
 - `/api/facebook-ads` — Graph API integration with tier enforcement
+- `/api/brands/save` — Save brand with demographic snapshot
+- `/api/dashboard/*` — Overview, snapshots, competitors, own-brand endpoints
 - `facebook-api.ts` — API client with demographic aggregation
 - `demographic-aggregator.ts` — Weighted demographic combination
+- `snapshot-builder.ts` — Builds aggregated demographic snapshots for storage
 - Recharts components with rich tooltips and click-to-filter
 - `pdf-export.ts` — Section-based PDF capture with multi-tab support
 - Auth.js for authentication (Google OAuth + email/password)
 - Stripe for subscription payments with webhook sync
-- Prisma + SQLite for user/subscription data
+- Prisma + SQLite for user/subscription/brand data
 
 ## Constraints
 
@@ -120,9 +113,13 @@ Surface who competitors are reaching with their ads — demographics and geograp
 | Click-to-filter with toggle | Intuitive chart interaction pattern | ✓ Good |
 | min-h-[48px] touch targets | Mobile accessibility standard | ✓ Good |
 | resolvedMediaType for badges | API returns 'unknown', useAdMedia resolves actual type | ✓ Good |
-| Brand tracking as Pro-only | Core value-add for paid tier, builds foundation for comparisons | — Pending |
-| Card grid over table for dashboard | Visual, scannable, better for brand overview | — Pending |
-| Demographic snapshot storage | Store aggregated results, not raw ad data | — Pending |
+| Brand tracking as Pro-only | Core value-add for paid tier, builds foundation for comparisons | ✓ Good |
+| Card grid over table for dashboard | Visual, scannable, better for brand overview | ✓ Good |
+| Demographic snapshot storage | Store aggregated results, not raw ad data | ✓ Good |
+| trackerId for brand ownership | Composite unique constraint, supports 1:many brands per user | ✓ Good |
+| shadcn AlertDialog for deletions | Accessible, keyboard-navigable confirmation dialogs | ✓ Good |
+| Bulk delete via comma-separated query param | Simple API, no request body needed for DELETE | ✓ Good |
+| Snapshot history with limit=10 | Sufficient history without unbounded growth | ✓ Good |
 
 ---
-*Last updated: 2026-02-01 after v3.0 milestone started*
+*Last updated: 2026-02-02 after v3.0 milestone*

@@ -1,5 +1,32 @@
 # Project Milestones: Ad Library Demographics Analyzer
 
+## v3.0 Brand Tracking & Dashboard (Shipped: 2026-02-02)
+
+**Delivered:** Added brand tracking and dashboard — Pro users can save brands after analysis, view them in a card grid with key metrics, re-analyze with fresh data, and delete brands with confirmation dialogs.
+
+**Phases completed:** 24-27 (4 plans total)
+
+**Key accomplishments:**
+
+- Brand save flow with transactional Prisma writes, auto-detected name, and demographic snapshot storage
+- Dashboard with brand card grid, search/sort controls, and clickable detail pages
+- Full demographic breakdowns on brand detail page (gender, age, country bars)
+- Re-analysis triggering fresh Facebook API calls with snapshot history timeline
+- Brand deletion with reusable AlertDialog confirmation, single and bulk delete with selection mode
+
+**Stats:**
+
+- 27 files created/modified, +3,076 lines
+- ~14,926 total lines of TypeScript
+- 4 phases, 4 plans
+- 1 day (2026-02-02)
+
+**Git range:** `927ff42` → `daba1d6`
+
+**What's next:** TBD — discuss next milestone
+
+---
+
 ## v2.1 Polish & UX (Shipped: 2026-02-01)
 
 **Delivered:** Completed all deferred v1.1 polish items — ad preview fixes, interactive charts with click-to-filter, professional PDF export with cover pages, and full mobile responsiveness.
