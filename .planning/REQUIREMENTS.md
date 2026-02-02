@@ -59,26 +59,26 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BRAND-01 | — | Pending |
-| BRAND-02 | — | Pending |
-| BRAND-03 | — | Pending |
-| DASH-01 | — | Pending |
-| DASH-02 | — | Pending |
-| DASH-03 | — | Pending |
-| DASH-04 | — | Pending |
-| REANA-01 | — | Pending |
-| REANA-02 | — | Pending |
-| REANA-03 | — | Pending |
-| REANA-04 | — | Pending |
-| DEL-01 | — | Pending |
-| DEL-02 | — | Pending |
-| DEL-03 | — | Pending |
+| BRAND-01 | Phase 24 | Pending |
+| BRAND-02 | Phase 24 | Pending |
+| BRAND-03 | Phase 24 | Pending |
+| DASH-01 | Phase 25 | Pending |
+| DASH-02 | Phase 25 | Pending |
+| DASH-03 | Phase 25 | Pending |
+| DASH-04 | Phase 25 | Pending |
+| REANA-01 | Phase 26 | Pending |
+| REANA-02 | Phase 26 | Pending |
+| REANA-03 | Phase 26 | Pending |
+| REANA-04 | Phase 26 | Pending |
+| DEL-01 | Phase 27 | Pending |
+| DEL-02 | Phase 27 | Pending |
+| DEL-03 | Phase 27 | Pending |
 
 **Coverage:**
 - v1 requirements: 14 total
-- Mapped to phases: 0
-- Unmapped: 14 ⚠️
+- Mapped to phases: 14 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 after initial definition*
+*Last updated: 2026-02-02 after roadmap creation*
