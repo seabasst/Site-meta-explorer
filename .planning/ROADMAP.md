@@ -71,7 +71,9 @@ Plans:
   2. Confirmation dialog prevents accidental deletion
   3. User can select and delete multiple brands at once
 **Research**: Unlikely — standard CRUD delete with UI confirmation
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 27-01-PLAN.md — Confirmation dialogs, delete buttons, bulk selection mode
 
 ## Progress
 
@@ -83,4 +85,4 @@ Phases execute in numeric order: 24 → 25 → 26 → 27
 | 24. Brand Data Model & Storage | 1/1 | Complete | 2026-02-02 |
 | 25. Dashboard | 1/1 | Complete | 2026-02-02 |
 | 26. Re-analysis & History | 1/1 | Complete | 2026-02-02 |
-| 27. Brand Deletion | 0/TBD | Not started | - |
+| 27. Brand Deletion | 0/1 | Not started | - |
