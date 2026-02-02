@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 24 — Brand Data Model & Storage
+**Current focus:** Phase 25 — Dashboard
 
 ## Current Position
 
-Phase: 24 of 27 (Brand Data Model & Storage)
-Plan: 01 of ? (Save Brand Endpoint + Button) complete
-Status: In progress
-Last activity: 2026-02-02 — Completed 24-01-PLAN.md
+Phase: 25 of 27 (Dashboard)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-02-02 — Phase 24 complete (verified)
 
-Progress: █░░░░░░░░░░░░░░░░░░░ ~5% (v3.0)
+Progress: █████░░░░░░░░░░░░░░░ 25% (v3.0)
 
 ## Milestones
 
@@ -60,5 +60,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 24-01-PLAN.md (Save Brand Endpoint + Button)
+Stopped at: Phase 24 complete, ready to plan Phase 25
 Resume file: None

@@ -9,9 +9,9 @@ Requirements for v3.0 milestone (Brand Tracking & Dashboard). Pro-only feature.
 
 ### Brand Storage
 
-- [ ] **BRAND-01**: User can save a brand after completing analysis (stores URL, name, demographic snapshot)
-- [ ] **BRAND-02**: System stores aggregated demographic snapshot (age, gender, country, reach) — not raw ad data
-- [ ] **BRAND-03**: Brand name is auto-detected from the Facebook page name
+- [x] **BRAND-01**: User can save a brand after completing analysis (stores URL, name, demographic snapshot)
+- [x] **BRAND-02**: System stores aggregated demographic snapshot (age, gender, country, reach) — not raw ad data
+- [x] **BRAND-03**: Brand name is auto-detected from the Facebook page name
 
 ### Dashboard
 
@@ -59,9 +59,9 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BRAND-01 | Phase 24 | Pending |
-| BRAND-02 | Phase 24 | Pending |
-| BRAND-03 | Phase 24 | Pending |
+| BRAND-01 | Phase 24 | Complete |
+| BRAND-02 | Phase 24 | Complete |
+| BRAND-03 | Phase 24 | Complete |
 | DASH-01 | Phase 25 | Pending |
 | DASH-02 | Phase 25 | Pending |
 | DASH-03 | Phase 25 | Pending |

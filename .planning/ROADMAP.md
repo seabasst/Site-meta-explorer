@@ -14,7 +14,7 @@ v3.0 adds brand tracking and a dashboard to the Ad Library Demographics Analyzer
 
 ## Phases
 
-- [ ] **Phase 24: Brand Data Model & Storage** - Prisma schema + save brand after analysis
+- [x] **Phase 24: Brand Data Model & Storage** - Prisma schema + save brand after analysis
 - [ ] **Phase 25: Dashboard** - Brand cards grid with metrics and navigation
 - [ ] **Phase 26: Re-analysis & History** - Fresh analysis on saved brands with snapshot history
 - [ ] **Phase 27: Brand Deletion** - Delete brands with confirmation and bulk actions
@@ -32,7 +32,7 @@ v3.0 adds brand tracking and a dashboard to the Ad Library Demographics Analyzer
 **Research**: Complete (24-RESEARCH.md)
 **Plans**: 1 plan
 Plans:
-- [ ] 24-01-PLAN.md — Save Brand API endpoint + button in results header
+- [x] 24-01-PLAN.md — Save Brand API endpoint + button in results header
 
 ### Phase 25: Dashboard
 **Goal**: Users can view saved brands in a card grid, see key metrics at a glance, click through to full results, and search/sort brands
@@ -76,7 +76,7 @@ Phases execute in numeric order: 24 → 25 → 26 → 27
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 24. Brand Data Model & Storage | 0/1 | Planning complete | - |
+| 24. Brand Data Model & Storage | 1/1 | Complete | 2026-02-02 |
 | 25. Dashboard | 0/TBD | Not started | - |
 | 26. Re-analysis & History | 0/TBD | Not started | - |
 | 27. Brand Deletion | 0/TBD | Not started | - |
