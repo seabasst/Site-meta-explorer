@@ -70,30 +70,30 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| COMP-01 | TBD | Pending |
-| COMP-02 | TBD | Pending |
-| COMP-03 | TBD | Pending |
-| COMP-04 | TBD | Pending |
-| COMP-05 | TBD | Pending |
-| HOOK-01 | TBD | Pending |
-| HOOK-02 | TBD | Pending |
-| HOOK-03 | TBD | Pending |
-| HOOK-04 | TBD | Pending |
-| HOOK-05 | TBD | Pending |
-| HOOK-06 | TBD | Pending |
-| HOOK-07 | TBD | Pending |
-| OBSV-01 | TBD | Pending |
-| OBSV-02 | TBD | Pending |
-| OBSV-03 | TBD | Pending |
-| OBSV-04 | TBD | Pending |
-| OBSV-05 | TBD | Pending |
-| OBSV-06 | TBD | Pending |
+| HOOK-01 | Phase 28 | Pending |
+| HOOK-02 | Phase 28 | Pending |
+| HOOK-03 | Phase 28 | Pending |
+| HOOK-07 | Phase 28 | Pending |
+| HOOK-04 | Phase 29 | Pending |
+| HOOK-05 | Phase 29 | Pending |
+| HOOK-06 | Phase 29 | Pending |
+| COMP-01 | Phase 30 | Pending |
+| COMP-02 | Phase 30 | Pending |
+| COMP-03 | Phase 30 | Pending |
+| COMP-04 | Phase 30 | Pending |
+| COMP-05 | Phase 30 | Pending |
+| OBSV-01 | Phase 31 | Pending |
+| OBSV-02 | Phase 31 | Pending |
+| OBSV-03 | Phase 31 | Pending |
+| OBSV-04 | Phase 31 | Pending |
+| OBSV-05 | Phase 31 | Pending |
+| OBSV-06 | Phase 31 | Pending |
 
 **Coverage:**
 - v1 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18 (pending roadmap creation)
+- Mapped to phases: 18 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-02 after initial definition*
+*Last updated: 2026-02-02 after roadmap creation*

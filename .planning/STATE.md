@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** v3.1 Competitive Intelligence
+**Current focus:** Phase 28 — Hook Extraction Engine
 
 ## Current Position
 
-Phase: Not started (run /gsd:create-roadmap)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-02 — Milestone v3.1 started
+Phase: 28 of 31 (Hook Extraction Engine)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-02-02 — Roadmap created (4 phases, 18 requirements)
 
 Progress: ░░░░░░░░░░░░░░░░░░░░ 0% (v3.1)
 
@@ -24,8 +24,8 @@ Progress: ░░░░░░░░░░░░░░░░░░░░ 0% (v3.1)
 | v1.1 Polish | Partial (Phase 5 shipped, 6-9 superseded by v2.1) | 2026-01-25 |
 | v2.0 Payments & Auth | Complete (Phases 10-13) | 2026-01-27 |
 | v2.1 Polish & UX | Complete (Phases 14-17.2) | 2026-02-01 |
-| v3.0 Brand Tracking & Dashboard | Complete (Phases 24-27) | 2026-02-02 |
-| v3.1 Competitive Intelligence | In Progress | — |
+| v3.0 Brand Tracking | Complete (Phases 24-27) | 2026-02-02 |
+| v3.1 Competitive Intelligence | In Progress (Phases 28-31) | — |
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ All v3.0 decisions confirmed as ✓ Good.
 - v2.0: Phases 10-13 (auth, stripe, tiers, pro features)
 - v2.1: Phases 14-17.2 (ad preview, charts, export, mobile, gap closure)
 - v3.0: Phases 24-27 (brand storage, dashboard, re-analysis, deletion)
+- v3.1: Phases 28-31 (hooks, hook UI, comparison, observations)
 
 ### Pending Todos
 
@@ -61,5 +62,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: v3.1 milestone initialized
+Stopped at: Roadmap created, ready to plan Phase 28
 Resume file: None
