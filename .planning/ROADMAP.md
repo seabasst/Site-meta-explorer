@@ -44,7 +44,9 @@ Plans:
   3. User can click a card to view full demographic results
   4. User can sort by date/name and search brands by name
 **Research**: Unlikely — standard Next.js page with card components
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 25-01-PLAN.md — Enhance cards with metrics, add brand detail page, add search/sort controls
 
 ### Phase 26: Re-analysis & History
 **Goal**: Users can trigger fresh Facebook API analysis on saved brands, with historical snapshots preserved
@@ -77,6 +79,6 @@ Phases execute in numeric order: 24 → 25 → 26 → 27
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 24. Brand Data Model & Storage | 1/1 | Complete | 2026-02-02 |
-| 25. Dashboard | 0/TBD | Not started | - |
+| 25. Dashboard | 0/1 | Not started | - |
 | 26. Re-analysis & History | 0/TBD | Not started | - |
 | 27. Brand Deletion | 0/TBD | Not started | - |
