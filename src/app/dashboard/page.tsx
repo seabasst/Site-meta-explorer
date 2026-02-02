@@ -14,7 +14,8 @@ import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
 import { SubscriptionStatus } from '@/components/subscription/subscription-status';
 import { DeleteBrandDialog } from '@/components/dashboard/delete-brand-dialog';
-import { Menu, Search } from 'lucide-react';
+import { Menu, Search, Scale } from 'lucide-react';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const { data: session, status: authStatus } = useSession();
@@ -326,6 +327,25 @@ export default function DashboardPage() {
 
               {/* 3. Comparison Table */}
               <ComparisonTable ownBrand={ownBrand} competitors={competitors} />
+
+              {/* Compare Brands link - show when 2+ brands have snapshots */}
+              {(() => {
+                const eligibleCount = [
+                  ...(ownBrand ? [ownBrand] : []),
+                  ...competitors,
+                ].filter((b) => b.snapshots.length > 0).length;
+                return eligibleCount >= 2 ? (
+                  <div className="flex justify-center">
+                    <Link
+                      href="/dashboard/compare"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent-green)] transition-colors"
+                    >
+                      <Scale className="w-4 h-4" />
+                      Compare Brands
+                    </Link>
+                  </div>
+                ) : null;
+              })()}
 
               {/* 4. Trend Charts */}
               <TrendChart
