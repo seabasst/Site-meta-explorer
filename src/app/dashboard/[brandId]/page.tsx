@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 import { useTrackedBrands } from '@/hooks/use-tracked-brands';
 import type { TrackedBrand, TrackedBrandSnapshot } from '@/hooks/use-tracked-brands';
 import { DeleteBrandDialog } from '@/components/dashboard/delete-brand-dialog';
+import { HookExplorer } from '@/components/dashboard/hook-explorer';
+import type { HookGroupDisplay } from '@/components/dashboard/hook-explorer';
 
 export default function BrandDetailPage({ params }: { params: Promise<{ brandId: string }> }) {
   const { brandId } = React.use(params);
@@ -16,6 +18,8 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
   const [history, setHistory] = useState<TrackedBrandSnapshot[]>([]);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [hookGroups, setHookGroups] = useState<HookGroupDisplay[]>([]);
+  const [hooksLoading, setHooksLoading] = useState(false);
 
   const fetchHistory = useCallback(async (id: string) => {
     try {
@@ -26,6 +30,21 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
       }
     } catch {
       // silently fail — history is non-critical
+    }
+  }, []);
+
+  const fetchHooks = useCallback(async (snapshotId: string) => {
+    setHooksLoading(true);
+    try {
+      const res = await fetch(`/api/dashboard/hooks?snapshotId=${snapshotId}`);
+      if (res.ok) {
+        const json = await res.json();
+        setHookGroups(json.hookGroups ?? []);
+      }
+    } catch {
+      // silently fail -- hooks are non-critical
+    } finally {
+      setHooksLoading(false);
     }
   }, []);
 
@@ -100,6 +119,12 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
       return null;
     }
   }, [snapshot]);
+
+  useEffect(() => {
+    if (snapshot?.id) {
+      fetchHooks(snapshot.id);
+    }
+  }, [snapshot?.id, fetchHooks]);
 
   // Loading state
   if (loading) {
@@ -289,6 +314,9 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
                 </div>
               </div>
             )}
+
+            {/* Opening Hooks */}
+            <HookExplorer hookGroups={hookGroups} loading={hooksLoading} />
           </div>
         )}
 
