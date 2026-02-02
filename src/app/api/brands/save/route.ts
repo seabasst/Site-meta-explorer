@@ -11,11 +11,19 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { facebookPageId, pageName, adLibraryUrl, snapshot } = body as {
+  const { facebookPageId, pageName, adLibraryUrl, snapshot, hookGroups } = body as {
     facebookPageId: string;
     pageName: string;
     adLibraryUrl: string;
     snapshot?: Record<string, unknown>;
+    hookGroups?: Array<{
+      hookText: string;
+      normalizedText: string;
+      frequency: number;
+      totalReach: number;
+      avgReachPerAd: number;
+      adIds: string[];
+    }>;
   };
 
   if (!facebookPageId || !pageName || !adLibraryUrl) {
@@ -63,7 +71,7 @@ export async function POST(req: Request) {
     });
 
     if (snapshot) {
-      await tx.brandSnapshot.create({
+      const createdSnapshot = await tx.brandSnapshot.create({
         data: {
           totalAdsFound: snapshot.totalAdsFound as number,
           activeAdsCount: snapshot.activeAdsCount as number,
@@ -91,6 +99,20 @@ export async function POST(req: Request) {
           userId: session.user!.id!,
         },
       });
+
+      if (hookGroups && hookGroups.length > 0) {
+        await tx.hookGroup.createMany({
+          data: hookGroups.map(g => ({
+            hookText: g.hookText,
+            normalizedText: g.normalizedText,
+            frequency: g.frequency,
+            totalReach: BigInt(g.totalReach),
+            avgReachPerAd: g.avgReachPerAd,
+            adIds: g.adIds,
+            snapshotId: createdSnapshot.id,
+          })),
+        });
+      }
     }
 
     return newBrand;

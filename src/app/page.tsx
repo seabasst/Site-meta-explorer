@@ -37,6 +37,7 @@ import { FeedbackPopup } from '@/components/feedback/feedback-popup';
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
 import { buildSnapshotFromApiResult } from '@/lib/snapshot-builder';
+import { extractHooksFromAds } from '@/lib/hook-extractor';
 
 function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   const sizeClasses = {
@@ -211,6 +212,7 @@ export default function Home() {
     setSaving(true);
     try {
       const snapshotData = buildSnapshotFromApiResult(apiResult);
+      const hookGroups = extractHooksFromAds(apiResult.rawAdBodies || []);
       const res = await fetch('/api/brands/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -222,6 +224,14 @@ export default function Home() {
             ...snapshotData,
             totalReach: Number(snapshotData.totalReach), // BigInt -> Number for JSON serialization
           },
+          hookGroups: hookGroups.map(g => ({
+            hookText: g.hookText,
+            normalizedText: g.normalizedText,
+            frequency: g.frequency,
+            totalReach: g.totalReach,
+            avgReachPerAd: g.avgReachPerAd,
+            adIds: g.adIds,
+          })),
         }),
       });
       if (!res.ok) {
