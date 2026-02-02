@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 25 of 27 (Dashboard)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-02 — Phase 24 complete (verified)
+Plan: 01 of 01 complete
+Status: Phase 25 complete
+Last activity: 2026-02-02 — Completed 25-01-PLAN.md
 
-Progress: █████░░░░░░░░░░░░░░░ 25% (v3.0)
+Progress: ██████████░░░░░░░░░░ 50% (v3.0)
 
 ## Milestones
 
@@ -29,7 +29,7 @@ Progress: █████░░░░░░░░░░░░░░░ 25% (v3.0
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 34
+- Total plans completed: 35
 - Average duration: —
 - Total execution time: —
 
@@ -39,6 +39,7 @@ Progress: █████░░░░░░░░░░░░░░░ 25% (v3.0
 
 Decisions are logged in PROJECT.md Key Decisions table.
 v3.0 pending decisions: Pro-only, card grid, snapshot storage.
+Phase 25: Card links use Next.js Link with stopPropagation on buttons; brand detail is client component reusing useTrackedBrands; demographics shown as horizontal bars.
 
 ### Roadmap Evolution
 
@@ -60,5 +61,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Phase 24 complete, ready to plan Phase 25
+Stopped at: Completed 25-01-PLAN.md (Phase 25 complete)
 Resume file: None
