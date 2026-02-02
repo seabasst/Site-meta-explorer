@@ -145,6 +145,7 @@ export interface FacebookApiResult {
   pageId: string;
   pageName: string | null;
   ads: FacebookAdResult[];
+  rawAdBodies: Array<{ id: string; ad_creative_bodies: string[]; eu_total_reach: number }>;
   totalAdsFound: number;
   aggregatedDemographics: AggregatedDemographics | null;
   mediaTypeBreakdown: MediaTypeBreakdown | null;
@@ -721,6 +722,13 @@ export async function fetchFacebookAds(options: {
       }
     }
 
+    // Extract raw ad bodies for hook extraction (parallel data path)
+    const rawAdBodies = allAds.map(ad => ({
+      id: ad.id,
+      ad_creative_bodies: ad.ad_creative_bodies || [],
+      eu_total_reach: ad.eu_total_reach || 0,
+    }));
+
     // Convert to our format
     const ads: FacebookAdResult[] = allAds.map(ad => {
       const demographics = convertDemographics(
@@ -809,6 +817,7 @@ export async function fetchFacebookAds(options: {
       pageId: fetchedPageId || '',
       pageName,
       ads,
+      rawAdBodies,
       totalAdsFound: ads.length,
       aggregatedDemographics,
       mediaTypeBreakdown,

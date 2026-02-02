@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { fetchFacebookAds } from '@/lib/facebook-api';
 import { buildSnapshotFromApiResult } from '@/lib/snapshot-builder';
+import { extractHooksFromAds } from '@/lib/hook-extractor';
 
 // POST — create a snapshot for a tracked brand
 export async function POST(req: Request) {
@@ -53,33 +54,55 @@ export async function POST(req: Request) {
 
   const snapshotData = buildSnapshotFromApiResult(result);
 
-  const snapshot = await prisma.brandSnapshot.create({
-    data: {
-      totalAdsFound: snapshotData.totalAdsFound,
-      activeAdsCount: snapshotData.activeAdsCount,
-      totalReach: snapshotData.totalReach,
-      avgReachPerAd: snapshotData.avgReachPerAd,
-      estimatedSpendUsd: snapshotData.estimatedSpendUsd,
-      videoCount: snapshotData.videoCount,
-      imageCount: snapshotData.imageCount,
-      videoPercentage: snapshotData.videoPercentage,
-      imagePercentage: snapshotData.imagePercentage,
-      avgAdAgeDays: snapshotData.avgAdAgeDays,
-      dominantGender: snapshotData.dominantGender,
-      dominantGenderPct: snapshotData.dominantGenderPct,
-      dominantAgeRange: snapshotData.dominantAgeRange,
-      dominantAgePct: snapshotData.dominantAgePct,
-      topCountry1Code: snapshotData.topCountry1Code,
-      topCountry1Pct: snapshotData.topCountry1Pct,
-      topCountry2Code: snapshotData.topCountry2Code,
-      topCountry2Pct: snapshotData.topCountry2Pct,
-      topCountry3Code: snapshotData.topCountry3Code,
-      topCountry3Pct: snapshotData.topCountry3Pct,
-      demographicsJson: snapshotData.demographicsJson ?? Prisma.JsonNull,
-      spendByCountryJson: snapshotData.spendByCountryJson ?? Prisma.JsonNull,
-      trackedBrandId: brand.id,
-      userId: session.user.id,
-    },
+  // Extract hooks from raw ad bodies (parallel data path)
+  const hookGroups = extractHooksFromAds(result.rawAdBodies);
+
+  // Create snapshot and hook groups in a single transaction
+  const snapshot = await prisma.$transaction(async (tx) => {
+    const createdSnapshot = await tx.brandSnapshot.create({
+      data: {
+        totalAdsFound: snapshotData.totalAdsFound,
+        activeAdsCount: snapshotData.activeAdsCount,
+        totalReach: snapshotData.totalReach,
+        avgReachPerAd: snapshotData.avgReachPerAd,
+        estimatedSpendUsd: snapshotData.estimatedSpendUsd,
+        videoCount: snapshotData.videoCount,
+        imageCount: snapshotData.imageCount,
+        videoPercentage: snapshotData.videoPercentage,
+        imagePercentage: snapshotData.imagePercentage,
+        avgAdAgeDays: snapshotData.avgAdAgeDays,
+        dominantGender: snapshotData.dominantGender,
+        dominantGenderPct: snapshotData.dominantGenderPct,
+        dominantAgeRange: snapshotData.dominantAgeRange,
+        dominantAgePct: snapshotData.dominantAgePct,
+        topCountry1Code: snapshotData.topCountry1Code,
+        topCountry1Pct: snapshotData.topCountry1Pct,
+        topCountry2Code: snapshotData.topCountry2Code,
+        topCountry2Pct: snapshotData.topCountry2Pct,
+        topCountry3Code: snapshotData.topCountry3Code,
+        topCountry3Pct: snapshotData.topCountry3Pct,
+        demographicsJson: snapshotData.demographicsJson ?? Prisma.JsonNull,
+        spendByCountryJson: snapshotData.spendByCountryJson ?? Prisma.JsonNull,
+        trackedBrandId: brand.id,
+        userId: session.user.id,
+      },
+    });
+
+    if (hookGroups.length > 0) {
+      await tx.hookGroup.createMany({
+        data: hookGroups.map(g => ({
+          hookText: g.hookText,
+          normalizedText: g.normalizedText,
+          frequency: g.frequency,
+          totalReach: BigInt(g.totalReach),
+          avgReachPerAd: g.avgReachPerAd,
+          adIds: g.adIds,
+          snapshotId: createdSnapshot.id,
+        })),
+      });
+    }
+
+    return createdSnapshot;
   });
 
   return NextResponse.json({ snapshot: serializeSnapshot(snapshot) });
