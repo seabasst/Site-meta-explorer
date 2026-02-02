@@ -29,8 +29,10 @@ v3.0 adds brand tracking and a dashboard to the Ad Library Demographics Analyzer
   1. Pro user can click "Save Brand" after completing analysis
   2. Brand name is auto-detected from the Facebook page name
   3. Saved brand stores aggregated demographic snapshot (age, gender, country, reach) — not raw ad data
-**Research**: Unlikely — extends existing Prisma schema, standard CRUD
-**Plans**: TBD
+**Research**: Complete (24-RESEARCH.md)
+**Plans**: 1 plan
+Plans:
+- [ ] 24-01-PLAN.md — Save Brand API endpoint + button in results header
 
 ### Phase 25: Dashboard
 **Goal**: Users can view saved brands in a card grid, see key metrics at a glance, click through to full results, and search/sort brands
@@ -74,7 +76,7 @@ Phases execute in numeric order: 24 → 25 → 26 → 27
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 24. Brand Data Model & Storage | 0/TBD | Not started | - |
+| 24. Brand Data Model & Storage | 0/1 | Planning complete | - |
 | 25. Dashboard | 0/TBD | Not started | - |
 | 26. Re-analysis & History | 0/TBD | Not started | - |
 | 27. Brand Deletion | 0/TBD | Not started | - |
