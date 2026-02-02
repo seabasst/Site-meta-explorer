@@ -1,13 +1,57 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import { useTrackedBrands } from '@/hooks/use-tracked-brands';
 import type { TrackedBrand, TrackedBrandSnapshot } from '@/hooks/use-tracked-brands';
 
 export default function BrandDetailPage({ params }: { params: Promise<{ brandId: string }> }) {
   const { brandId } = React.use(params);
-  const { data, loading } = useTrackedBrands();
+  const { data, loading, refresh } = useTrackedBrands();
+  const [analyzing, setAnalyzing] = useState(false);
+  const [history, setHistory] = useState<TrackedBrandSnapshot[]>([]);
+
+  const fetchHistory = useCallback(async (id: string) => {
+    try {
+      const res = await fetch(`/api/dashboard/snapshots?trackedBrandId=${id}&limit=10`);
+      if (res.ok) {
+        const json = await res.json();
+        setHistory(Array.isArray(json) ? json : json.snapshots ?? []);
+      }
+    } catch {
+      // silently fail — history is non-critical
+    }
+  }, []);
+
+  useEffect(() => {
+    if (brandId) {
+      fetchHistory(brandId);
+    }
+  }, [brandId, fetchHistory]);
+
+  const handleReanalyze = async () => {
+    if (!brand) return;
+    setAnalyzing(true);
+    try {
+      const res = await fetch('/api/dashboard/snapshots', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trackedBrandId: brand.id }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Analysis failed' }));
+        throw new Error(err.error || 'Analysis failed');
+      }
+      await refresh();
+      await fetchHistory(brand.id);
+      toast.success('Analysis complete — data updated.');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to re-analyze. Please try again.');
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   const brand: TrackedBrand | null = useMemo(() => {
     if (!data) return null;
@@ -89,17 +133,33 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
 
         {/* Brand header */}
         <div className="mb-8">
-          <h1 className="font-serif text-3xl text-[var(--text-primary)] mb-1">{brand.pageName}</h1>
-          {brand.adLibraryUrl && (
-            <a
-              href={brand.adLibraryUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-[var(--text-muted)] hover:text-[var(--accent-green-light)] transition-colors"
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="font-serif text-3xl text-[var(--text-primary)] mb-1">{brand.pageName}</h1>
+              {snapshot && (
+                <p className="text-xs text-[var(--text-muted)] mb-1">
+                  Last analyzed: {new Date(snapshot.snapshotDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(snapshot.snapshotDate).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+                </p>
+              )}
+              {brand.adLibraryUrl && (
+                <a
+                  href={brand.adLibraryUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[var(--text-muted)] hover:text-[var(--accent-green-light)] transition-colors"
+                >
+                  View in Ad Library &rarr;
+                </a>
+              )}
+            </div>
+            <button
+              onClick={handleReanalyze}
+              disabled={analyzing}
+              className="text-xs px-3 py-1.5 rounded-lg bg-[var(--accent-green)] text-white hover:bg-[var(--accent-green-light)] transition-colors disabled:opacity-50 shrink-0"
             >
-              View in Ad Library &rarr;
-            </a>
-          )}
+              {analyzing ? 'Analyzing...' : 'Re-analyze'}
+            </button>
+          </div>
         </div>
 
         {!snapshot ? (
@@ -199,6 +259,40 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
             )}
           </div>
         )}
+
+        {/* Snapshot History */}
+        <div className="glass rounded-2xl p-6">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">History</h3>
+          {history.length <= 1 ? (
+            <p className="text-sm text-[var(--text-muted)]">
+              No previous snapshots yet. Re-analyze to start tracking changes.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {history.map((snap, idx) => (
+                <div
+                  key={snap.id}
+                  className="flex items-center justify-between py-2 px-3 rounded-lg bg-[var(--bg-tertiary)]"
+                >
+                  <div className="flex items-center gap-2">
+                    {idx === 0 && (
+                      <span className="w-2 h-2 rounded-full bg-[var(--accent-green)] shrink-0" />
+                    )}
+                    <span className={`text-sm ${idx === 0 ? 'text-[var(--text-primary)] font-medium' : 'text-[var(--text-secondary)]'}`}>
+                      {new Date(snap.snapshotDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {idx === 0 && <span className="text-xs text-[var(--accent-green-light)] ml-2">Latest</span>}
+                    </span>
+                  </div>
+                  <div className="flex gap-4 text-xs text-[var(--text-muted)]">
+                    <span>{snap.activeAdsCount} ads</span>
+                    <span>{formatReach(snap.totalReach)} reach</span>
+                    <span>${Math.round(snap.estimatedSpendUsd).toLocaleString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
