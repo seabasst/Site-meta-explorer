@@ -45,8 +45,11 @@ Plans:
   1. User can view hooks as card list ranked by reach-weighted frequency
   2. User can search/filter hooks by text content
   3. User can expand a hook group to see all ads using that hook
-**Research**: Unlikely — standard UI components with existing patterns
-**Plans**: TBD
+**Research**: Complete (29-RESEARCH.md)
+**Plans**: 2 plans
+Plans:
+- [ ] 29-01-PLAN.md — GET /api/dashboard/hooks endpoint
+- [ ] 29-02-PLAN.md — HookExplorer and HookCard components + brand detail page integration
 
 ### Phase 30: Brand Comparison
 **Goal**: Side-by-side demographic comparison of two saved brands with mirrored charts
@@ -80,6 +83,6 @@ Phases 28 → 29 → 30 → 31 (Phase 30 can run parallel with 29 if desired)
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 28. Hook Extraction Engine | 2/2 | ✓ Complete | 2026-02-02 |
-| 29. Hook Exploration UI | 0/TBD | Not started | - |
+| 29. Hook Exploration UI | 0/2 | Planned | - |
 | 30. Brand Comparison | 0/TBD | Not started | - |
 | 31. Pattern Observations | 0/TBD | Not started | - |
