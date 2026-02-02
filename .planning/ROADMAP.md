@@ -31,8 +31,11 @@ v3.1 Competitive Intelligence adds four capabilities to the existing brand track
   2. Similar hooks are grouped after text normalization (lowercase, strip punctuation/emojis, trim)
   3. Each hook group shows frequency count, total reach, and average reach per ad
   4. Hooks are stored in database and available for saved brands without re-analysis
-**Research**: Likely — multilingual hook text handling, `ad_creative_bodies` array expansion
-**Plans**: TBD
+**Research**: Complete (28-RESEARCH.md)
+**Plans**: 2 plans
+Plans:
+- [ ] 28-01-PLAN.md — Hook extractor module + HookGroup Prisma model
+- [ ] 28-02-PLAN.md — Wire extraction into save-brand and re-analysis flows
 
 ### Phase 29: Hook Exploration UI
 **Goal**: Users can browse, search, and drill into extracted hooks on the brand detail page
@@ -76,7 +79,7 @@ Phases 28 → 29 → 30 → 31 (Phase 30 can run parallel with 29 if desired)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 28. Hook Extraction Engine | 0/TBD | Not started | - |
+| 28. Hook Extraction Engine | 0/2 | Planned | - |
 | 29. Hook Exploration UI | 0/TBD | Not started | - |
 | 30. Brand Comparison | 0/TBD | Not started | - |
 | 31. Pattern Observations | 0/TBD | Not started | - |
