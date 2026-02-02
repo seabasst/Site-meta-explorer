@@ -22,10 +22,10 @@ Requirements for v3.0 milestone (Brand Tracking & Dashboard). Pro-only feature.
 
 ### Re-analysis
 
-- [ ] **REANA-01**: User can trigger a fresh Facebook API analysis on a saved brand
-- [ ] **REANA-02**: Fresh analysis updates the stored demographic snapshot
-- [ ] **REANA-03**: System keeps analysis history (multiple snapshots over time)
-- [ ] **REANA-04**: Brand card shows when it was last analyzed
+- [x] **REANA-01**: User can trigger a fresh Facebook API analysis on a saved brand
+- [x] **REANA-02**: Fresh analysis updates the stored demographic snapshot
+- [x] **REANA-03**: System keeps analysis history (multiple snapshots over time)
+- [x] **REANA-04**: Brand card shows when it was last analyzed
 
 ### Deletion
 
@@ -66,10 +66,10 @@ Which phases cover which requirements. Updated by create-roadmap.
 | DASH-02 | Phase 25 | Complete |
 | DASH-03 | Phase 25 | Complete |
 | DASH-04 | Phase 25 | Complete |
-| REANA-01 | Phase 26 | Pending |
-| REANA-02 | Phase 26 | Pending |
-| REANA-03 | Phase 26 | Pending |
-| REANA-04 | Phase 26 | Pending |
+| REANA-01 | Phase 26 | Complete |
+| REANA-02 | Phase 26 | Complete |
+| REANA-03 | Phase 26 | Complete |
+| REANA-04 | Phase 26 | Complete |
 | DEL-01 | Phase 27 | Pending |
 | DEL-02 | Phase 27 | Pending |
 | DEL-03 | Phase 27 | Pending |
