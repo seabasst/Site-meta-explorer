@@ -1,12 +1,15 @@
 import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-// Lazy initialization to avoid build-time errors
 function createPrismaClient(): PrismaClient {
-  return new PrismaClient()
+  const adapter = new PrismaPg({
+    connectionString: process.env.DATABASE_URL!,
+  })
+  return new PrismaClient({ adapter })
 }
 
 function getPrisma(): PrismaClient {
