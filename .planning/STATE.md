@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Planning next milestone
+**Current focus:** v3.1 Competitive Intelligence
 
 ## Current Position
 
-Phase: 27 of 27 (Brand Deletion) — last phase of v3.0
-Plan: Complete
-Status: Ready to plan next milestone
-Last activity: 2026-02-02 — v3.0 milestone complete
+Phase: Not started (run /gsd:create-roadmap)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-02 — Milestone v3.1 started
 
-Progress: ████████████████████ 100% (v3.0)
+Progress: ░░░░░░░░░░░░░░░░░░░░ 0% (v3.1)
 
 ## Milestones
 
@@ -25,6 +25,7 @@ Progress: ████████████████████ 100% (v3.
 | v2.0 Payments & Auth | Complete (Phases 10-13) | 2026-01-27 |
 | v2.1 Polish & UX | Complete (Phases 14-17.2) | 2026-02-01 |
 | v3.0 Brand Tracking & Dashboard | Complete (Phases 24-27) | 2026-02-02 |
+| v3.1 Competitive Intelligence | In Progress | — |
 
 ## Performance Metrics
 
@@ -60,5 +61,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: v3.0 milestone archived
+Stopped at: v3.1 milestone initialized
 Resume file: None

@@ -48,19 +48,22 @@ Surface who competitors are reaching with their ads — demographics and geograp
 
 ### Active
 
-(None yet — define requirements for next milestone)
+- [ ] Extract ad creative hooks/opening lines from fetched ads, group similar phrases, show frequency weighted by reach
+- [ ] Trend charts visualizing demographic shifts across historical snapshots (age, gender, country over time)
+- [ ] Side-by-side brand comparison with mirrored demographic charts for two saved brands
+- [ ] Rule-based pattern observations — auto-generated factual summaries from demographic data (e.g., "skews 25-34 male", "top country shifted DE→FR")
 
 ### Out of Scope
 
 - Per-ad demographic breakdown — aggregated summary only
-- Historical trend charts — snapshot comparison over time (v3.1)
-- Brand comparisons side-by-side — deferred to v3.1
 - Scheduled re-analysis — requires background jobs, too complex for now
-- Actionable tips/insights — deferred to future milestone
+- LLM-generated insights — pattern observations are rule-based only
+- Own ad account integration — deferred to v4.0 (requires Meta Ads API + OAuth)
 - Puppeteer-based scraping — removed, using Facebook Graph API
 - Enterprise tier — keep it simple with Free + Pro
 - Team/organization accounts — single user accounts only
 - Mobile app — web responsive only
+- Comparing more than 2 brands — keep comparisons focused
 
 ## Context
 
@@ -122,4 +125,4 @@ Surface who competitors are reaching with their ads — demographics and geograp
 | Snapshot history with limit=10 | Sufficient history without unbounded growth | ✓ Good |
 
 ---
-*Last updated: 2026-02-02 after v3.0 milestone*
+*Last updated: 2026-02-02 after v3.1 milestone start*
