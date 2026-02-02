@@ -53,12 +53,17 @@ export function OwnBrandCard({ brand, onSetBrand, onSnapshot, snapshotLoading }:
       </div>
 
       {snapshot ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <MetricBox label="Active Ads" value={snapshot.activeAdsCount.toLocaleString()} />
-          <MetricBox label="Total Reach" value={formatReach(snapshot.totalReach)} />
-          <MetricBox label="Est. Spend" value={`$${Math.round(snapshot.estimatedSpendUsd).toLocaleString()}`} />
-          <MetricBox label="Avg Ad Age" value={`${Math.round(snapshot.avgAdAgeDays)}d`} />
-        </div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <MetricBox label="Active Ads" value={snapshot.activeAdsCount.toLocaleString()} />
+            <MetricBox label="Total Reach" value={formatReach(snapshot.totalReach)} />
+            <MetricBox label="Est. Spend" value={`$${Math.round(snapshot.estimatedSpendUsd).toLocaleString()}`} />
+            <MetricBox label="Avg Ad Age" value={`${Math.round(snapshot.avgAdAgeDays)}d`} />
+          </div>
+          <p className="text-xs text-[var(--text-muted)] mt-3">
+            Last analyzed: {new Date(snapshot.snapshotDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(snapshot.snapshotDate).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+          </p>
+        </>
       ) : (
         <p className="text-sm text-[var(--text-muted)]">
           No snapshot yet. Click &quot;Refresh Data&quot; to fetch the latest metrics.
