@@ -58,7 +58,9 @@ Plans:
   3. System keeps historical snapshots (multiple per brand)
   4. Brand card shows "last analyzed" timestamp
 **Research**: Unlikely — reuses existing API flow, adds snapshot versioning
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 26-01-PLAN.md — Re-analyze button on detail page, snapshot history timeline, last analyzed timestamps
 
 ### Phase 27: Brand Deletion
 **Goal**: Users can delete brands with confirmation dialog and bulk selection
@@ -80,5 +82,5 @@ Phases execute in numeric order: 24 → 25 → 26 → 27
 |-------|----------------|--------|-----------|
 | 24. Brand Data Model & Storage | 1/1 | Complete | 2026-02-02 |
 | 25. Dashboard | 1/1 | Complete | 2026-02-02 |
-| 26. Re-analysis & History | 0/TBD | Not started | - |
+| 26. Re-analysis & History | 0/1 | Planned | - |
 | 27. Brand Deletion | 0/TBD | Not started | - |
