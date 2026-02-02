@@ -83,7 +83,7 @@ export async function POST(req: Request) {
   return NextResponse.json({ competitor });
 }
 
-// DELETE — remove a competitor by id (passed as query param)
+// DELETE — remove competitor(s) by id (single: ?id=xxx, bulk: ?ids=xxx,yyy,zzz)
 export async function DELETE(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -91,16 +91,23 @@ export async function DELETE(req: Request) {
   }
 
   const { searchParams } = new URL(req.url);
-  const id = searchParams.get('id');
+  const idsParam = searchParams.get('ids');
+  const idParam = searchParams.get('id');
 
-  if (!id) {
-    return NextResponse.json({ error: 'Missing id parameter' }, { status: 400 });
+  const idArray: string[] = idsParam
+    ? idsParam.split(',').map(s => s.trim()).filter(Boolean)
+    : idParam
+      ? [idParam]
+      : [];
+
+  if (idArray.length === 0) {
+    return NextResponse.json({ error: 'Missing id or ids parameter' }, { status: 400 });
   }
 
-  // Only delete if it belongs to this user
-  await prisma.trackedBrand.deleteMany({
-    where: { id, trackerId: session.user.id },
+  // Only delete if they belong to this user
+  const result = await prisma.trackedBrand.deleteMany({
+    where: { id: { in: idArray }, trackerId: session.user.id },
   });
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, deleted: result.count });
 }
