@@ -21,9 +21,9 @@ Requirements for v3.1 release. Each maps to roadmap phases.
 - [ ] **HOOK-01**: System extracts first sentence (opening hook) from each ad's creative body text during analysis
 - [ ] **HOOK-02**: System groups identical hooks after normalization (lowercase, strip punctuation/emojis, trim)
 - [ ] **HOOK-03**: Each hook group shows frequency count, total reach, and average reach per ad
-- [ ] **HOOK-04**: User can view hooks as card list ranked by reach-weighted frequency
-- [ ] **HOOK-05**: User can search/filter hooks by text
-- [ ] **HOOK-06**: User can expand a hook group to see all ads using that hook
+- [x] **HOOK-04**: User can view hooks as card list ranked by reach-weighted frequency
+- [x] **HOOK-05**: User can search/filter hooks by text
+- [x] **HOOK-06**: User can expand a hook group to see all ads using that hook
 - [ ] **HOOK-07**: Hooks are persisted for saved brands (available on brand detail page without re-analysis)
 
 ### Pattern Observations
@@ -74,9 +74,9 @@ Which phases cover which requirements. Updated by create-roadmap.
 | HOOK-02 | Phase 28 | Complete |
 | HOOK-03 | Phase 28 | Complete |
 | HOOK-07 | Phase 28 | Complete |
-| HOOK-04 | Phase 29 | Pending |
-| HOOK-05 | Phase 29 | Pending |
-| HOOK-06 | Phase 29 | Pending |
+| HOOK-04 | Phase 29 | Complete |
+| HOOK-05 | Phase 29 | Complete |
+| HOOK-06 | Phase 29 | Complete |
 | COMP-01 | Phase 30 | Pending |
 | COMP-02 | Phase 30 | Pending |
 | COMP-03 | Phase 30 | Pending |

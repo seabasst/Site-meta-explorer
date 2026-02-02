@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 29 in progress — Hook Exploration UI
+**Current focus:** Phase 29 complete — ready for Phase 30
 
 ## Current Position
 
-Phase: 29 of 31 (Hook Exploration UI)
-Plan: 02 of 2 complete
-Status: Phase complete
-Last activity: 2026-02-02 — Completed 29-02-PLAN.md (Hook Explorer UI)
+Phase: 29 of 31 (Hook Exploration UI) — ✓ Complete
+Plan: All plans complete, verified
+Status: Phase 29 verified, ready for Phase 30
+Last activity: 2026-02-02 — Phase 29 verified (5/5 must-haves passed)
 
-Progress: ████████░░░░░░░░░░░░ 40% (v3.1)
+Progress: ██████████░░░░░░░░░░ 50% (v3.1)
 
 ## Milestones
 
@@ -62,5 +62,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Completed 29-02-PLAN.md (Hook Explorer UI) — Phase 29 complete
+Stopped at: Phase 29 verified and complete, ready for Phase 30
 Resume file: None
