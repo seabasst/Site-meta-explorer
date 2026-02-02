@@ -36,6 +36,7 @@ import { FeedbackPopup } from '@/components/feedback/feedback-popup';
 // Spend analysis temporarily disabled - updating CPM benchmarks
 // import { SpendAnalysisSection } from '@/components/spend/spend-analysis';
 import type { FacebookApiResult } from '@/lib/facebook-api';
+import { buildSnapshotFromApiResult } from '@/lib/snapshot-builder';
 
 function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   const sizeClasses = {
@@ -144,6 +145,10 @@ export default function Home() {
   // Dashboard tracking state
   const [trackingAction, setTrackingAction] = useState<string | null>(null);
 
+  // Save Brand state
+  const [saving, setSaving] = useState(false);
+  const [brandSaved, setBrandSaved] = useState(false);
+
   // Close export dropdown on outside click
   useEffect(() => {
     if (!exportOpen) return;
@@ -200,6 +205,38 @@ export default function Home() {
     }
   };
 
+  // Save brand with demographic snapshot
+  const handleSaveBrand = async () => {
+    if (!apiResult || !session) return;
+    setSaving(true);
+    try {
+      const snapshotData = buildSnapshotFromApiResult(apiResult);
+      const res = await fetch('/api/brands/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          facebookPageId: apiResult.pageId,
+          pageName: apiResult.pageName || `Page ${apiResult.pageId}`,
+          adLibraryUrl,
+          snapshot: {
+            ...snapshotData,
+            totalReach: Number(snapshotData.totalReach), // BigInt -> Number for JSON serialization
+          },
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to save brand');
+      }
+      toast.success('Brand saved!');
+      setBrandSaved(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save brand');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleUrlBlur = () => {
     if (!adLibraryUrl.trim()) {
       setUrlError(null); // Don't show error for empty field
@@ -233,6 +270,7 @@ export default function Home() {
     setApiResult(null);
     setTimelineAds(null);
     setChartFilter(null);
+    setBrandSaved(false);
 
     // EU countries (full demographic data available via DSA transparency)
     const euCountries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'];
@@ -944,6 +982,32 @@ export default function Home() {
                   </div>
                   {apiResult && (
                     <div className="flex items-center gap-2">
+                          {/* Save Brand */}
+                          {session && !brandSaved && (
+                            <button
+                              type="button"
+                              data-pdf-hide
+                              onClick={handleSaveBrand}
+                              disabled={saving}
+                              className="flex items-center gap-1.5 px-3 py-2 min-h-[48px] text-xs font-medium rounded-lg bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/30 transition-colors disabled:opacity-50"
+                            >
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                              </svg>
+                              {saving ? 'Saving...' : 'Save Brand'}
+                            </button>
+                          )}
+                          {session && brandSaved && (
+                            <span
+                              data-pdf-hide
+                              className="flex items-center gap-1.5 px-3 py-2 min-h-[48px] text-xs font-medium rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-muted)]"
+                            >
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              Saved
+                            </span>
+                          )}
                           {/* Export Dropdown */}
                           <div className="relative group" data-pdf-hide ref={exportRef}>
                             <button
