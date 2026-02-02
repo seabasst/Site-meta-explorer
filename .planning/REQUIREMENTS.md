@@ -70,10 +70,10 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HOOK-01 | Phase 28 | Pending |
-| HOOK-02 | Phase 28 | Pending |
-| HOOK-03 | Phase 28 | Pending |
-| HOOK-07 | Phase 28 | Pending |
+| HOOK-01 | Phase 28 | Complete |
+| HOOK-02 | Phase 28 | Complete |
+| HOOK-03 | Phase 28 | Complete |
+| HOOK-07 | Phase 28 | Complete |
 | HOOK-04 | Phase 29 | Pending |
 | HOOK-05 | Phase 29 | Pending |
 | HOOK-06 | Phase 29 | Pending |
@@ -96,4 +96,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-02 after roadmap creation*
+*Last updated: 2026-02-02 after Phase 28 completion*
