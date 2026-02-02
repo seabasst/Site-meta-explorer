@@ -53,6 +53,14 @@ Surface who competitors are reaching with their ads — demographics and geograp
 - [ ] Side-by-side brand comparison with mirrored demographic charts for two saved brands
 - [ ] Rule-based pattern observations — auto-generated factual summaries from demographic data (e.g., "skews 25-34 male", "top country shifted DE→FR")
 
+### Planned (v3.2 Benchmark Reports)
+
+- [ ] Benchmark reports — analyze N competitor pages against one baseline brand, producing aggregate benchmark numbers
+- [ ] Persistent benchmark report entity with saved brands and baseline designation
+- [ ] Batch analysis of multiple ad library pages with rate limit management
+- [ ] Benchmark aggregation — average demographics across competitor set, show over/under-indexing vs baseline
+- [ ] Benchmark dashboard — saved reports, re-analyzable over time, trend tracking vs benchmark
+
 ### Out of Scope
 
 - Per-ad demographic breakdown — aggregated summary only
@@ -63,7 +71,7 @@ Surface who competitors are reaching with their ads — demographics and geograp
 - Enterprise tier — keep it simple with Free + Pro
 - Team/organization accounts — single user accounts only
 - Mobile app — web responsive only
-- Comparing more than 2 brands — keep comparisons focused
+- Comparing more than 2 brands in v3.1 — benchmark reports planned for v3.2
 
 ## Context
 
