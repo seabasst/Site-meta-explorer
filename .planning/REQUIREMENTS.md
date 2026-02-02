@@ -29,9 +29,9 @@ Requirements for v3.0 milestone (Brand Tracking & Dashboard). Pro-only feature.
 
 ### Deletion
 
-- [ ] **DEL-01**: User can delete a saved brand and its data from the dashboard
-- [ ] **DEL-02**: System shows a confirmation dialog before deleting a brand
-- [ ] **DEL-03**: User can select and delete multiple brands at once
+- [x] **DEL-01**: User can delete a saved brand and its data from the dashboard
+- [x] **DEL-02**: System shows a confirmation dialog before deleting a brand
+- [x] **DEL-03**: User can select and delete multiple brands at once
 
 ## v2 Requirements
 
@@ -70,9 +70,9 @@ Which phases cover which requirements. Updated by create-roadmap.
 | REANA-02 | Phase 26 | Complete |
 | REANA-03 | Phase 26 | Complete |
 | REANA-04 | Phase 26 | Complete |
-| DEL-01 | Phase 27 | Pending |
-| DEL-02 | Phase 27 | Pending |
-| DEL-03 | Phase 27 | Pending |
+| DEL-01 | Phase 27 | Complete |
+| DEL-02 | Phase 27 | Complete |
+| DEL-03 | Phase 27 | Complete |
 
 **Coverage:**
 - v1 requirements: 14 total

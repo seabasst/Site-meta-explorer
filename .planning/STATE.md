@@ -5,13 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-02-01)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 27 — Brand Deletion
+**Current focus:** v3.0 milestone complete — all phases verified
 
 ## Current Position
 
 Phase: 27 of 27 (Brand Deletion)
 Plan: 01 of 01 complete
-Status: Phase complete
+Status: Phase complete, milestone complete
 Last activity: 2026-02-02 — Completed 27-01-PLAN.md
 
 Progress: ████████████████████ 100% (v3.0)

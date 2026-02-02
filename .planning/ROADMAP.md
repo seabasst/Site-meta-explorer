@@ -10,14 +10,14 @@ v3.0 adds brand tracking and a dashboard to the Ad Library Demographics Analyzer
 - ✅ **v1.1 Polish** - Phases 5-13 (shipped)
 - ✅ **v2.0 Auth & Payments** - Phases 14-17 (shipped)
 - ✅ **v2.1 Interactivity & Mobile** - Phases 18-23 (shipped)
-- 🚧 **v3.0 Brand Tracking & Dashboard** - Phases 24-27 (in progress)
+- ✅ **v3.0 Brand Tracking & Dashboard** - Phases 24-27 (shipped)
 
 ## Phases
 
 - [x] **Phase 24: Brand Data Model & Storage** - Prisma schema + save brand after analysis
 - [x] **Phase 25: Dashboard** - Brand cards grid with metrics and navigation
 - [x] **Phase 26: Re-analysis & History** - Fresh analysis on saved brands with snapshot history
-- [ ] **Phase 27: Brand Deletion** - Delete brands with confirmation and bulk actions
+- [x] **Phase 27: Brand Deletion** - Delete brands with confirmation and bulk actions
 
 ## Phase Details
 
@@ -73,7 +73,7 @@ Plans:
 **Research**: Unlikely — standard CRUD delete with UI confirmation
 **Plans**: 1 plan
 Plans:
-- [ ] 27-01-PLAN.md — Confirmation dialogs, delete buttons, bulk selection mode
+- [x] 27-01-PLAN.md — Confirmation dialogs, delete buttons, bulk selection mode
 
 ## Progress
 
@@ -85,4 +85,4 @@ Phases execute in numeric order: 24 → 25 → 26 → 27
 | 24. Brand Data Model & Storage | 1/1 | Complete | 2026-02-02 |
 | 25. Dashboard | 1/1 | Complete | 2026-02-02 |
 | 26. Re-analysis & History | 1/1 | Complete | 2026-02-02 |
-| 27. Brand Deletion | 0/1 | Not started | - |
+| 27. Brand Deletion | 1/1 | Complete | 2026-02-02 |
