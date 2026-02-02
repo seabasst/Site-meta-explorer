@@ -61,8 +61,11 @@ Plans:
   3. User sees paired horizontal bar chart comparing country distribution
   4. User sees summary metrics table with reach, ad count, and dominant demographic side by side
   5. User sees empty state with guidance when fewer than 2 brands are saved
-**Research**: Likely — Recharts butterfly/grouped bar implementation, negative-value approach vs dual-chart layout
-**Plans**: TBD
+**Research**: Complete (30-RESEARCH.md)
+**Plans**: 2 plans
+Plans:
+- [ ] 30-01-PLAN.md — ButterflyChart, CountryComparison, and MetricsTable components
+- [ ] 30-02-PLAN.md — Comparison page, BrandSelector, empty state, and dashboard link
 
 ### Phase 31: Pattern Observations
 **Goal**: Auto-generate factual observations from demographic data, surfacing notable patterns without AI/LLM
@@ -84,5 +87,5 @@ Phases 28 → 29 → 30 → 31 (Phase 30 can run parallel with 29 if desired)
 |-------|---------------|--------|-----------|
 | 28. Hook Extraction Engine | 2/2 | ✓ Complete | 2026-02-02 |
 | 29. Hook Exploration UI | 2/2 | ✓ Complete | 2026-02-02 |
-| 30. Brand Comparison | 0/TBD | Not started | - |
+| 30. Brand Comparison | 0/2 | Not started | - |
 | 31. Pattern Observations | 0/TBD | Not started | - |
