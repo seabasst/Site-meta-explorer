@@ -2,15 +2,20 @@
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTrackedBrands } from '@/hooks/use-tracked-brands';
 import type { TrackedBrand, TrackedBrandSnapshot } from '@/hooks/use-tracked-brands';
+import { DeleteBrandDialog } from '@/components/dashboard/delete-brand-dialog';
 
 export default function BrandDetailPage({ params }: { params: Promise<{ brandId: string }> }) {
   const { brandId } = React.use(params);
+  const router = useRouter();
   const { data, loading, refresh } = useTrackedBrands();
   const [analyzing, setAnalyzing] = useState(false);
   const [history, setHistory] = useState<TrackedBrandSnapshot[]>([]);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchHistory = useCallback(async (id: string) => {
     try {
@@ -50,6 +55,25 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
       toast.error(err instanceof Error ? err.message : 'Failed to re-analyze. Please try again.');
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setDeleteLoading(true);
+    try {
+      const isOwnBrand = data?.ownBrand?.id === brandId;
+      const url = isOwnBrand
+        ? '/api/dashboard/own-brand'
+        : `/api/dashboard/competitors?id=${brandId}`;
+      const res = await fetch(url, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete brand');
+      toast.success('Brand deleted');
+      router.push('/dashboard');
+    } catch {
+      toast.error('Failed to delete brand');
+    } finally {
+      setDeleteLoading(false);
+      setDeleteOpen(false);
     }
   };
 
@@ -152,13 +176,21 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
                 </a>
               )}
             </div>
-            <button
-              onClick={handleReanalyze}
-              disabled={analyzing}
-              className="text-xs px-3 py-1.5 rounded-lg bg-[var(--accent-green)] text-white hover:bg-[var(--accent-green-light)] transition-colors disabled:opacity-50 shrink-0"
-            >
-              {analyzing ? 'Analyzing...' : 'Re-analyze'}
-            </button>
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={handleReanalyze}
+                disabled={analyzing}
+                className="text-xs px-3 py-1.5 rounded-lg bg-[var(--accent-green)] text-white hover:bg-[var(--accent-green-light)] transition-colors disabled:opacity-50"
+              >
+                {analyzing ? 'Analyzing...' : 'Re-analyze'}
+              </button>
+              <button
+                onClick={() => setDeleteOpen(true)}
+                className="text-xs px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-red-400 hover:text-red-300 transition-colors"
+              >
+                Delete Brand
+              </button>
+            </div>
           </div>
         </div>
 
@@ -294,6 +326,14 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
           )}
         </div>
       </div>
+
+      <DeleteBrandDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        brandName={brand?.pageName ?? ''}
+        onConfirm={handleDelete}
+        loading={deleteLoading}
+      />
     </>
   );
 }

@@ -13,6 +13,7 @@ import { DemographicsComparison } from '@/components/dashboard/demographics-comp
 import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
 import { SubscriptionStatus } from '@/components/subscription/subscription-status';
+import { DeleteBrandDialog } from '@/components/dashboard/delete-brand-dialog';
 import { Menu, Search } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -22,6 +23,10 @@ export default function DashboardPage() {
   const [snapshotLoadingId, setSnapshotLoadingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'date'>('date');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleSetOwnBrand = useCallback(async (brandData: { facebookPageId: string; pageName: string; adLibraryUrl: string }) => {
     const res = await fetch('/api/dashboard/own-brand', {
@@ -77,6 +82,44 @@ export default function DashboardPage() {
       setSnapshotLoadingId(null);
     }
   }, [refresh]);
+
+  const handleDeleteOwnBrand = useCallback(async () => {
+    try {
+      const res = await fetch('/api/dashboard/own-brand', { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete brand');
+      toast.success('Brand deleted');
+      await refresh();
+    } catch {
+      toast.error('Failed to delete brand');
+    }
+  }, [refresh]);
+
+  const handleBulkDelete = useCallback(async () => {
+    setDeleteLoading(true);
+    try {
+      const ids = Array.from(selectedIds).join(',');
+      const res = await fetch(`/api/dashboard/competitors?ids=${ids}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete brands');
+      toast.success(`Deleted ${selectedIds.size} brand(s)`);
+      setSelectedIds(new Set());
+      setSelectMode(false);
+      await refresh();
+    } catch {
+      toast.error('Failed to delete brands');
+    } finally {
+      setDeleteLoading(false);
+      setBulkDeleteOpen(false);
+    }
+  }, [selectedIds, refresh]);
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
 
   // Not authenticated
   if (authStatus === 'loading') {
@@ -152,6 +195,7 @@ export default function DashboardPage() {
                 onSetBrand={() => setModalMode('own')}
                 onSnapshot={handleSnapshot}
                 snapshotLoading={snapshotLoadingId === ownBrand?.id}
+                onDelete={handleDeleteOwnBrand}
               />
 
               {/* 2. Competitors Grid */}
@@ -163,16 +207,58 @@ export default function DashboardPage() {
                       ({filteredCompetitors.length}{searchQuery ? ` of ${competitors.length}` : ''})
                     </span>
                   </h3>
-                  <button
-                    onClick={() => setModalMode('competitor')}
-                    className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    Add Competitor
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {selectMode && selectedIds.size > 0 && (
+                      <button
+                        onClick={() => setBulkDeleteOpen(true)}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+                      >
+                        Delete Selected ({selectedIds.size})
+                      </button>
+                    )}
+                    {competitors.length > 0 && (
+                      <button
+                        onClick={() => {
+                          if (selectMode) {
+                            setSelectMode(false);
+                            setSelectedIds(new Set());
+                          } else {
+                            setSelectMode(true);
+                          }
+                        }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                      >
+                        {selectMode ? 'Cancel' : 'Select'}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setModalMode('competitor')}
+                      className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Add Competitor
+                    </button>
+                  </div>
                 </div>
+
+                {selectMode && competitors.length > 0 && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <button
+                      onClick={() => {
+                        if (selectedIds.size === filteredCompetitors.length) {
+                          setSelectedIds(new Set());
+                        } else {
+                          setSelectedIds(new Set(filteredCompetitors.map(c => c.id)));
+                        }
+                      }}
+                      className="text-xs text-[var(--accent-green-light)] hover:text-[var(--text-primary)] transition-colors"
+                    >
+                      {selectedIds.size === filteredCompetitors.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                  </div>
+                )}
 
                 {competitors.length > 0 && (
                   <div className="flex items-center justify-between gap-3 mb-4">
@@ -229,6 +315,9 @@ export default function DashboardPage() {
                         onRemove={() => handleRemoveCompetitor(c.id)}
                         onSnapshot={handleSnapshot}
                         snapshotLoading={snapshotLoadingId === c.id}
+                        selectable={selectMode}
+                        selected={selectedIds.has(c.id)}
+                        onSelect={() => toggleSelect(c.id)}
                       />
                     ))}
                   </div>
@@ -254,6 +343,16 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Bulk delete confirmation */}
+      <DeleteBrandDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+        brandName=""
+        onConfirm={handleBulkDelete}
+        loading={deleteLoading}
+        count={selectedIds.size}
+      />
 
       {/* Modals */}
       <BrandSetupModal

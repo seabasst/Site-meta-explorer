@@ -1,15 +1,19 @@
 'use client';
 
+import { useState } from 'react';
 import type { TrackedBrand } from '@/hooks/use-tracked-brands';
+import { DeleteBrandDialog } from '@/components/dashboard/delete-brand-dialog';
 
 interface OwnBrandCardProps {
   brand: TrackedBrand | null;
   onSetBrand: () => void;
   onSnapshot: (brandId: string) => void;
   snapshotLoading: boolean;
+  onDelete?: () => void;
 }
 
-export function OwnBrandCard({ brand, onSetBrand, onSnapshot, snapshotLoading }: OwnBrandCardProps) {
+export function OwnBrandCard({ brand, onSetBrand, onSnapshot, snapshotLoading, onDelete }: OwnBrandCardProps) {
+  const [deleteOpen, setDeleteOpen] = useState(false);
   if (!brand) {
     return (
       <div className="glass rounded-2xl p-6 border-2 border-dashed border-[var(--border-subtle)] text-center">
@@ -49,6 +53,14 @@ export function OwnBrandCard({ brand, onSetBrand, onSnapshot, snapshotLoading }:
           <button onClick={onSetBrand} className="text-xs px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
             Change
           </button>
+          {onDelete && (
+            <button
+              onClick={() => setDeleteOpen(true)}
+              className="text-xs px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-red-400 hover:text-red-300 transition-colors"
+            >
+              Delete
+            </button>
+          )}
         </div>
       </div>
 
@@ -68,6 +80,15 @@ export function OwnBrandCard({ brand, onSetBrand, onSnapshot, snapshotLoading }:
         <p className="text-sm text-[var(--text-muted)]">
           No snapshot yet. Click &quot;Refresh Data&quot; to fetch the latest metrics.
         </p>
+      )}
+
+      {onDelete && brand && (
+        <DeleteBrandDialog
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          brandName={brand.pageName}
+          onConfirm={() => { onDelete(); setDeleteOpen(false); }}
+        />
       )}
     </div>
   );
