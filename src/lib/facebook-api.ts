@@ -543,19 +543,35 @@ async function fetchAdsForCountry(options: {
     params.set('ad_delivery_date_max', dateMax);
   }
 
-  try {
-    const res = await fetch(`${API_BASE}/${API_VERSION}/ads_archive?${params}`);
-    const data = await res.json() as FacebookApiResponse | { error: { message: string } };
+  const allAds: FacebookAdData[] = [];
 
-    if ('error' in data) {
-      console.error(`Error fetching ads for ${country}:`, data.error.message);
-      return [];
+  try {
+    let currentUrl: string | null = `${API_BASE}/${API_VERSION}/ads_archive?${params}`;
+
+    while (currentUrl && allAds.length < limit) {
+      const res = await fetch(currentUrl);
+      const data = await res.json() as FacebookApiResponse | { error: { message: string } };
+
+      if ('error' in data) {
+        console.error(`Error fetching ads for ${country}:`, data.error.message);
+        return allAds; // Return whatever we collected so far
+      }
+
+      allAds.push(...data.data);
+
+      // Follow pagination cursor
+      currentUrl = data.paging?.next ?? null;
+
+      if (allAds.length >= limit) {
+        allAds.splice(limit);
+        break;
+      }
     }
 
-    return data.data;
+    return allAds;
   } catch (error) {
     console.error(`Failed to fetch ads for ${country}:`, error);
-    return [];
+    return allAds;
   }
 }
 
@@ -597,20 +613,22 @@ export async function fetchFacebookAds(options: {
   let fetchedPageId: string | null = pageId || null;
 
   try {
-    // For smaller limits (<=250), use a single query to ALL EU countries
-    // This is simpler, faster, and ensures we get the exact number of ads requested
-    // For larger limits, we use multi-country queries to get better geographic distribution
-    const useMultiCountryQuery = countries.length > 5 && pageId && limit > 250;
+    // Always use per-country querying when multiple countries are selected.
+    // Querying many countries in a single API call can return incomplete results
+    // because the Facebook API silently truncates results with large country arrays.
+    // Per-country queries with deduplication ensure all ads are found.
+    const useMultiCountryQuery = countries.length > 1 && pageId;
 
     if (useMultiCountryQuery && pageId) {
-      // Query each key market separately (in parallel batches to avoid rate limits)
-      // Fetch 3x per country to compensate for deduplication across markets
-      const adsPerCountry = Math.ceil((limit * 3) / KEY_EU_MARKETS.length);
+      // Use the provided countries list (or KEY_EU_MARKETS as a reasonable subset)
+      // to query each market separately and deduplicate
+      const marketsToQuery = countries.length > 10 ? KEY_EU_MARKETS : countries;
+      const adsPerCountry = Math.ceil((limit * 3) / marketsToQuery.length);
       const adIdSet = new Set<string>();
 
       // Fetch in parallel batches of 3 to be gentle on rate limits
-      for (let i = 0; i < KEY_EU_MARKETS.length; i += 3) {
-        const batch = KEY_EU_MARKETS.slice(i, i + 3);
+      for (let i = 0; i < marketsToQuery.length; i += 3) {
+        const batch = marketsToQuery.slice(i, i + 3);
         const batchResults = await Promise.all(
           batch.map(country =>
             fetchAdsForCountry({
@@ -643,7 +661,7 @@ export async function fetchFacebookAds(options: {
         }
       }
     } else {
-      // Single country or small country list - use standard query
+      // Single country or search-term query - use standard paginated query
       const fields = [
         'id',
         'page_id',
