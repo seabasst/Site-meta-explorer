@@ -18,22 +18,22 @@ Requirements for v3.1 release. Each maps to roadmap phases.
 
 ### Hook Extraction
 
-- [ ] **HOOK-01**: System extracts first sentence (opening hook) from each ad's creative body text during analysis
-- [ ] **HOOK-02**: System groups identical hooks after normalization (lowercase, strip punctuation/emojis, trim)
-- [ ] **HOOK-03**: Each hook group shows frequency count, total reach, and average reach per ad
+- [x] **HOOK-01**: System extracts first sentence (opening hook) from each ad's creative body text during analysis
+- [x] **HOOK-02**: System groups identical hooks after normalization (lowercase, strip punctuation/emojis, trim)
+- [x] **HOOK-03**: Each hook group shows frequency count, total reach, and average reach per ad
 - [x] **HOOK-04**: User can view hooks as card list ranked by reach-weighted frequency
 - [x] **HOOK-05**: User can search/filter hooks by text
 - [x] **HOOK-06**: User can expand a hook group to see all ads using that hook
-- [ ] **HOOK-07**: Hooks are persisted for saved brands (available on brand detail page without re-analysis)
+- [x] **HOOK-07**: Hooks are persisted for saved brands (available on brand detail page without re-analysis)
 
 ### Pattern Observations
 
-- [ ] **OBSV-01**: System auto-generates dominant demographic skew observation (e.g., "Skews 25-34 male, 42% of reach")
-- [ ] **OBSV-02**: System auto-generates gender imbalance observation when one gender exceeds 60% of reach
-- [ ] **OBSV-03**: System auto-generates geographic concentration observation when top 2 countries exceed 50% of reach
-- [ ] **OBSV-04**: System auto-generates hook pattern observation showing most common hook and its frequency
-- [ ] **OBSV-05**: User can view up to 5 observation cards at top of brand detail page, ranked by signal magnitude
-- [ ] **OBSV-06**: Observations are hidden entirely when no significant patterns are detected
+- [x] **OBSV-01**: System auto-generates dominant demographic skew observation (e.g., "Skews 25-34 male, 42% of reach")
+- [x] **OBSV-02**: System auto-generates gender imbalance observation when one gender exceeds 60% of reach
+- [x] **OBSV-03**: System auto-generates geographic concentration observation when top 2 countries exceed 50% of reach
+- [x] **OBSV-04**: System auto-generates hook pattern observation showing most common hook and its frequency
+- [x] **OBSV-05**: User can view up to 5 observation cards at top of brand detail page, ranked by signal magnitude
+- [x] **OBSV-06**: Observations are hidden entirely when no significant patterns are detected
 
 ## v2 Requirements
 
@@ -82,12 +82,12 @@ Which phases cover which requirements. Updated by create-roadmap.
 | COMP-03 | Phase 30 | Complete |
 | COMP-04 | Phase 30 | Complete |
 | COMP-05 | Phase 30 | Complete |
-| OBSV-01 | Phase 31 | Pending |
-| OBSV-02 | Phase 31 | Pending |
-| OBSV-03 | Phase 31 | Pending |
-| OBSV-04 | Phase 31 | Pending |
-| OBSV-05 | Phase 31 | Pending |
-| OBSV-06 | Phase 31 | Pending |
+| OBSV-01 | Phase 31 | Complete |
+| OBSV-02 | Phase 31 | Complete |
+| OBSV-03 | Phase 31 | Complete |
+| OBSV-04 | Phase 31 | Complete |
+| OBSV-05 | Phase 31 | Complete |
+| OBSV-06 | Phase 31 | Complete |
 
 **Coverage:**
 - v1 requirements: 18 total
@@ -96,4 +96,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-02 after Phase 30 completion*
+*Last updated: 2026-02-03 after Phase 31 completion*

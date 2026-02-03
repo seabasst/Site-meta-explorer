@@ -11,14 +11,14 @@ v3.1 Competitive Intelligence adds four capabilities to the existing brand track
 - ✅ **v2.0 Payments & Auth** - Phases 10-13 (shipped 2026-01-27)
 - ✅ **v2.1 Polish & UX** - Phases 14-17.2 (shipped 2026-02-01)
 - ✅ **v3.0 Brand Tracking** - Phases 24-27 (shipped 2026-02-02)
-- 🚧 **v3.1 Competitive Intelligence** - Phases 28-31 (in progress)
+- ✅ **v3.1 Competitive Intelligence** - Phases 28-31 (shipped 2026-02-03)
 
 ## Phases
 
 - [x] **Phase 28: Hook Extraction Engine** - Extract, group, and persist ad creative hooks from analysis data
 - [x] **Phase 29: Hook Exploration UI** - Browse, search, and explore extracted hooks
 - [x] **Phase 30: Brand Comparison** - Side-by-side demographic comparison of two saved brands
-- [ ] **Phase 31: Pattern Observations** - Auto-generated factual observations surfacing notable demographic patterns
+- [x] **Phase 31: Pattern Observations** - Auto-generated factual observations surfacing notable demographic patterns
 
 ## Phase Details
 
@@ -78,8 +78,8 @@ Plans:
 **Research**: Complete (31-RESEARCH.md)
 **Plans**: 2 plans
 Plans:
-- [ ] 31-01-PLAN.md — Observation engine + card components
-- [ ] 31-02-PLAN.md — Brand detail page integration + visual verification
+- [x] 31-01-PLAN.md — Observation engine + card components
+- [x] 31-02-PLAN.md — Brand detail page integration + visual verification
 
 ## Progress
 
@@ -91,4 +91,4 @@ Phases 28 → 29 → 30 → 31 (Phase 30 can run parallel with 29 if desired)
 | 28. Hook Extraction Engine | 2/2 | ✓ Complete | 2026-02-02 |
 | 29. Hook Exploration UI | 2/2 | ✓ Complete | 2026-02-02 |
 | 30. Brand Comparison | 2/2 | ✓ Complete | 2026-02-02 |
-| 31. Pattern Observations | 0/2 | Not started | - |
+| 31. Pattern Observations | 2/2 | ✓ Complete | 2026-02-03 |
