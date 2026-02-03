@@ -1,5 +1,32 @@
 # Project Milestones: Ad Library Demographics Analyzer
 
+## v3.1 Competitive Intelligence (Shipped: 2026-02-03)
+
+**Delivered:** Added competitive intelligence features — ad creative hook extraction and exploration, side-by-side brand comparison with butterfly/country charts, and auto-generated pattern observations surfacing notable demographic insights.
+
+**Phases completed:** 28-31 (8 plans total)
+
+**Key accomplishments:**
+
+- Hook extraction engine processing all ad creative bodies with normalization, grouping, and reach-weighted metrics
+- Searchable hook explorer UI with expandable cards and Facebook Ad Library links
+- Side-by-side brand comparison page with butterfly chart, country bar chart, metrics table, and URL-persisted selection
+- Rule-based observation engine with 4 threshold detectors (demographic skew, gender imbalance, geographic concentration, recurring hooks) and magnitude-ranked cards on brand detail page
+- Zero tech debt — all 18 requirements satisfied, audit passed with no gaps
+
+**Stats:**
+
+- 20 code files created/modified, +1,496 lines
+- ~16,390 total lines of TypeScript
+- 4 phases, 8 plans
+- 1 day (2026-02-02 → 2026-02-03)
+
+**Git range:** `535768e` → `f03826c`
+
+**What's next:** TBD — discuss next milestone
+
+---
+
 ## v3.0 Brand Tracking & Dashboard (Shipped: 2026-02-02)
 
 **Delivered:** Added brand tracking and dashboard — Pro users can save brands after analysis, view them in a card grid with key metrics, re-analyze with fresh data, and delete brands with confirmation dialogs.
