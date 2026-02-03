@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 31 in progress — observation engine and cards built
+**Current focus:** Phase 31 complete — v3.1 Competitive Intelligence shipped
 
 ## Current Position
 
 Phase: 31 of 31 (Pattern Observations)
-Plan: 01 of 01 complete
-Status: Phase 31 Plan 01 complete
-Last activity: 2026-02-03 — Completed 31-01-PLAN.md (observation engine + card components)
+Plan: 02 of 02 complete
+Status: Phase 31 complete — v3.1 Competitive Intelligence complete
+Last activity: 2026-02-03 — Completed 31-02-PLAN.md (observation integration into brand page)
 
-Progress: ████████████████████ 80% (v3.1)
+Progress: █████████████████████████ 100% (v3.1)
 
 ## Milestones
 
@@ -25,7 +25,7 @@ Progress: ████████████████████ 80% (v3.1
 | v2.0 Payments & Auth | Complete (Phases 10-13) | 2026-01-27 |
 | v2.1 Polish & UX | Complete (Phases 14-17.2) | 2026-02-01 |
 | v3.0 Brand Tracking | Complete (Phases 24-27) | 2026-02-02 |
-| v3.1 Competitive Intelligence | In Progress (Phases 28-31) | — |
+| v3.1 Competitive Intelligence | Complete (Phases 28-31) | 2026-02-03 |
 
 ## Performance Metrics
 
@@ -62,5 +62,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 31-01-PLAN.md (observation engine + card components)
+Stopped at: Completed 31-02-PLAN.md (observation integration — phase 31 complete)
 Resume file: None
