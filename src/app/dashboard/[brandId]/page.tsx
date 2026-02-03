@@ -9,6 +9,8 @@ import type { TrackedBrand, TrackedBrandSnapshot } from '@/hooks/use-tracked-bra
 import { DeleteBrandDialog } from '@/components/dashboard/delete-brand-dialog';
 import { HookExplorer } from '@/components/dashboard/hook-explorer';
 import type { HookGroupDisplay } from '@/components/dashboard/hook-explorer';
+import { generateObservations } from '@/lib/observation-engine';
+import { ObservationList } from '@/components/dashboard/observation-list';
 
 export default function BrandDetailPage({ params }: { params: Promise<{ brandId: string }> }) {
   const { brandId } = React.use(params);
@@ -126,6 +128,11 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
     }
   }, [snapshot?.id, fetchHooks]);
 
+  const observations = useMemo(() => {
+    if (!snapshot) return [];
+    return generateObservations(snapshot, hookGroups);
+  }, [snapshot, hookGroups]);
+
   // Loading state
   if (loading) {
     return (
@@ -225,6 +232,8 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
           </div>
         ) : (
           <div className="space-y-6">
+            <ObservationList observations={observations} />
+
             {/* Key metrics summary */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <MetricBox label="Active Ads" value={snapshot.activeAdsCount.toLocaleString()} />
