@@ -49,29 +49,29 @@ Surface who competitors are reaching with their ads — demographics and geograp
 - ✓ Side-by-side brand comparison with mirrored demographic charts for two saved brands — v3.1
 - ✓ Rule-based pattern observations — auto-generated factual summaries from demographic data (e.g., "skews 25-34 male", "geographic concentration") — v3.1
 
-### Active
+### Active (v4.0 Analytics Platform)
 
 - [ ] Trend charts visualizing demographic shifts across historical snapshots (age, gender, country over time)
-
-### Planned (v3.2 Benchmark Reports)
-
-- [ ] Benchmark reports — analyze N competitor pages against one baseline brand, producing aggregate benchmark numbers
+- [ ] Benchmark reports — analyze up to 5 competitor pages against one baseline brand, producing aggregate benchmark numbers
 - [ ] Persistent benchmark report entity with saved brands and baseline designation
 - [ ] Batch analysis of multiple ad library pages with rate limit management
 - [ ] Benchmark aggregation — average demographics across competitor set, show over/under-indexing vs baseline
 - [ ] Benchmark dashboard — saved reports, re-analyzable over time, trend tracking vs benchmark
+- [ ] Dashboard UX overhaul — better navigation, richer brand cards, filtering/tags/organization
+- [ ] Performance improvements — faster analysis, re-analysis, and page loads
+- [ ] Data accuracy fixes — better hook grouping, improved demographic weighting, better missing data handling
 
 ### Out of Scope
 
 - Per-ad demographic breakdown — aggregated summary only
 - Scheduled re-analysis — requires background jobs, too complex for now
 - LLM-generated insights — pattern observations are rule-based only
-- Own ad account integration — deferred to v4.0 (requires Meta Ads API + OAuth)
+- Own ad account integration — deferred (requires Meta Ads API + OAuth)
 - Puppeteer-based scraping — removed, using Facebook Graph API
 - Enterprise tier — keep it simple with Free + Pro
 - Team/organization accounts — single user accounts only
 - Mobile app — web responsive only
-- Comparing more than 2 brands — benchmark reports planned for v3.2
+- Comparing more than 2 brands at once — benchmark reports handle up to 5 competitors
 
 ## Context
 
@@ -145,5 +145,17 @@ Surface who competitors are reaching with their ads — demographics and geograp
 | Pure function observation engine with threshold detectors | No AI/LLM cost, deterministic, instant results | ✓ Good |
 | Magnitude-based cross-type ranking | Normalizes different detector outputs for fair ordering | ✓ Good |
 
+## Current Milestone: v4.0 Analytics Platform
+
+**Goal:** Full analytics platform with trend visualization, competitive benchmarking, and polish across UX, performance, and data quality.
+
+**Target features:**
+- Trend charts — demographic shifts over time from snapshot history
+- Benchmark reports — up to 5 competitors vs baseline with aggregate numbers
+- Benchmark dashboard — saved reports, re-analyze, track trends vs benchmark
+- Dashboard UX overhaul — navigation, richer cards, filtering/tags
+- Performance improvements — faster analysis and page loads
+- Data accuracy fixes — hook grouping, demographic weighting, missing data handling
+
 ---
-*Last updated: 2026-02-03 after v3.1 milestone*
+*Last updated: 2026-02-03 after v4.0 milestone start*
