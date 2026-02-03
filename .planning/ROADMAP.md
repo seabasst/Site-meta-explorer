@@ -75,8 +75,11 @@ Plans:
   1. System generates demographic skew, gender imbalance, geographic concentration, and hook pattern observations
   2. User sees up to 5 observation cards at top of brand detail page, ranked by signal magnitude
   3. Observations are hidden entirely when no significant patterns are detected
-**Research**: Unlikely — pure TypeScript rule engine, no external dependencies
-**Plans**: TBD
+**Research**: Complete (31-RESEARCH.md)
+**Plans**: 2 plans
+Plans:
+- [ ] 31-01-PLAN.md — Observation engine + card components
+- [ ] 31-02-PLAN.md — Brand detail page integration + visual verification
 
 ## Progress
 
@@ -88,4 +91,4 @@ Phases 28 → 29 → 30 → 31 (Phase 30 can run parallel with 29 if desired)
 | 28. Hook Extraction Engine | 2/2 | ✓ Complete | 2026-02-02 |
 | 29. Hook Exploration UI | 2/2 | ✓ Complete | 2026-02-02 |
 | 30. Brand Comparison | 2/2 | ✓ Complete | 2026-02-02 |
-| 31. Pattern Observations | 0/TBD | Not started | - |
+| 31. Pattern Observations | 0/2 | Not started | - |
