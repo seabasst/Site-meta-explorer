@@ -14,8 +14,10 @@ export interface SnapshotData {
   estimatedSpendUsd: number;
   videoCount: number;
   imageCount: number;
+  carouselCount: number;
   videoPercentage: number;
   imagePercentage: number;
+  carouselPercentage: number;
   avgAdAgeDays: number;
   dominantGender: string | null;
   dominantGenderPct: number | null;
@@ -47,8 +49,10 @@ export function buildSnapshotFromApiResult(result: FacebookApiResult): SnapshotD
   // Media type
   const videoCount = result.mediaTypeBreakdown?.video ?? 0;
   const imageCount = result.mediaTypeBreakdown?.image ?? 0;
+  const carouselCount = result.mediaTypeBreakdown?.carousel ?? 0;
   const videoPercentage = result.mediaTypeBreakdown?.videoPercentage ?? 0;
   const imagePercentage = result.mediaTypeBreakdown?.imagePercentage ?? 0;
+  const carouselPercentage = result.mediaTypeBreakdown?.carouselPercentage ?? 0;
 
   // Average ad age in days
   const adAges = result.ads
@@ -85,8 +89,10 @@ export function buildSnapshotFromApiResult(result: FacebookApiResult): SnapshotD
     estimatedSpendUsd,
     videoCount,
     imageCount,
+    carouselCount,
     videoPercentage,
     imagePercentage,
+    carouselPercentage,
     avgAdAgeDays,
     dominantGender,
     dominantGenderPct,

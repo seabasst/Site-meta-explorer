@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { Play, Image as ImageIcon, ExternalLink, MousePointerClick } from 'lucide-react';
+import { Play, Image as ImageIcon, ExternalLink, MousePointerClick, Layers } from 'lucide-react';
 import { useAdMedia } from '@/hooks/use-ad-media';
 
 interface AdPreviewCardProps {
@@ -16,7 +16,7 @@ interface AdPreviewCardProps {
     linkTitle: string | null;
     linkUrl: string | null;
     snapshotUrl: string | null;
-    mediaType: 'video' | 'image' | 'unknown';
+    mediaType: 'video' | 'image' | 'carousel' | 'unknown';
     euTotalReach: number;
     startedRunning: string | null;
   };
@@ -30,10 +30,10 @@ export function AdPreviewCard({ ad }: AdPreviewCardProps) {
   );
   const [imgError, setImgError] = useState(false);
 
-  // Derive badge type from resolved media type (ad.mediaType is always 'unknown' from API)
-  const badgeType = resolvedMediaType === 'video' ? 'video'
+  // Derive badge type: prefer the per-ad detected type, fall back to resolved media type
+  const badgeType = ad.mediaType !== 'unknown' ? ad.mediaType
+    : resolvedMediaType === 'video' ? 'video'
     : resolvedMediaType === 'image' ? 'image'
-    : ad.mediaType !== 'unknown' ? ad.mediaType
     : null;
 
   // Format date
@@ -107,12 +107,14 @@ export function AdPreviewCard({ ad }: AdPreviewCardProps) {
           <div className="flex flex-col items-center gap-1.5 text-[var(--text-muted)] group-hover:text-[var(--accent-green-light)] transition-colors">
             {badgeType === 'video' ? (
               <Play className="w-8 h-8 opacity-50 group-hover:opacity-80 transition-opacity" />
+            ) : badgeType === 'carousel' ? (
+              <Layers className="w-8 h-8 opacity-50 group-hover:opacity-80 transition-opacity" />
             ) : (
               <ImageIcon className="w-8 h-8 opacity-50 group-hover:opacity-80 transition-opacity" />
             )}
             <div className="flex items-center gap-1 text-xs opacity-70 group-hover:opacity-100">
               <MousePointerClick className="w-3 h-3" />
-              <span>View {badgeType === 'video' ? 'video' : 'ad'}</span>
+              <span>View {badgeType === 'video' ? 'video' : badgeType === 'carousel' ? 'carousel' : 'ad'}</span>
             </div>
           </div>
         ) : null}
@@ -135,9 +137,11 @@ export function AdPreviewCard({ ad }: AdPreviewCardProps) {
             <span className={`px-2 py-0.5 rounded text-xs font-medium backdrop-blur-sm ${
               badgeType === 'video'
                 ? 'bg-purple-500/20 text-purple-400'
-                : 'bg-blue-500/20 text-blue-400'
+                : badgeType === 'carousel'
+                  ? 'bg-amber-500/20 text-amber-400'
+                  : 'bg-blue-500/20 text-blue-400'
             }`}>
-              {badgeType === 'video' ? 'Video' : 'Image'}
+              {badgeType === 'video' ? 'Video' : badgeType === 'carousel' ? 'Carousel' : 'Image'}
             </span>
           )}
         </div>

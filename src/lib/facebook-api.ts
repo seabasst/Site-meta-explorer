@@ -95,7 +95,7 @@ export interface FacebookAdResult {
   linkUrl: string | null;
   snapshotUrl: string | null;
   euTotalReach: number;
-  mediaType: 'video' | 'image' | 'unknown';
+  mediaType: 'video' | 'image' | 'carousel' | 'unknown';
   demographics: AdDemographics | null;
   targeting: {
     ageMin: string | null;
@@ -110,9 +110,11 @@ export interface FacebookAdResult {
 export interface MediaTypeBreakdown {
   video: number;
   image: number;
+  carousel: number;
   unknown: number;
   videoPercentage: number;
   imagePercentage: number;
+  carouselPercentage: number;
 }
 
 export interface ProductMarketReach {
@@ -455,15 +457,17 @@ function analyzeProductsByMarket(ads: FacebookAdResult[]): ProductMarketMatrix |
 }
 
 /**
- * Count ads by media type using the media_type filter
+ * Fetch ad IDs by media type using the media_type filter.
+ * Returns a Set of ad IDs matching the given media type.
  */
-async function countAdsByMediaType(options: {
+async function fetchAdIdsByMediaType(options: {
   accessToken: string;
   pageId: string;
   countries: string[];
   mediaType: 'VIDEO' | 'IMAGE';
-}): Promise<number> {
+}): Promise<Set<string>> {
   const { accessToken, pageId, countries, mediaType } = options;
+  const ids = new Set<string>();
 
   const params = new URLSearchParams({
     access_token: accessToken,
@@ -472,20 +476,30 @@ async function countAdsByMediaType(options: {
     search_page_ids: pageId,
     media_type: mediaType,
     fields: 'id',
-    limit: '500', // Fetch up to 500 to count
+    limit: '500',
   });
 
   try {
-    const res = await fetch(`${API_BASE}/${API_VERSION}/ads_archive?${params}`);
-    const data = await res.json() as FacebookApiResponse | { error: unknown };
+    let currentUrl: string | null = `${API_BASE}/${API_VERSION}/ads_archive?${params}`;
 
-    if ('error' in data) {
-      return 0;
+    while (currentUrl) {
+      const res = await fetch(currentUrl);
+      const data = await res.json() as FacebookApiResponse | { error: unknown };
+
+      if ('error' in data) {
+        return ids;
+      }
+
+      for (const ad of data.data) {
+        ids.add(ad.id);
+      }
+
+      currentUrl = data.paging?.next ?? null;
     }
 
-    return data.data.length;
+    return ids;
   } catch {
-    return 0;
+    return ids;
   }
 }
 
@@ -747,7 +761,12 @@ export async function fetchFacebookAds(options: {
       eu_total_reach: ad.eu_total_reach || 0,
     }));
 
-    // Convert to our format
+    // Fetch video ad IDs in parallel so we can tag individual ads
+    const videoAdIds = fetchedPageId
+      ? await fetchAdIdsByMediaType({ accessToken, pageId: fetchedPageId, countries, mediaType: 'VIDEO' })
+      : new Set<string>();
+
+    // Convert to our format with per-ad media type detection
     const ads: FacebookAdResult[] = allAds.map(ad => {
       const demographics = convertDemographics(
         ad.age_country_gender_reach_breakdown,
@@ -755,6 +774,24 @@ export async function fetchFacebookAds(options: {
       );
 
       const currentBeneficiary = ad.beneficiary_payers?.find(bp => bp.current);
+
+      // Detect media type:
+      // 1. Carousel: multiple link titles or link URLs indicate carousel cards
+      // 2. Video: ad ID found in the video IDs set from the API
+      // 3. Image: everything else
+      const linkTitleCount = ad.ad_creative_link_titles?.length || 0;
+      const linkUrlCount = ad.ad_creative_link_urls?.length || 0;
+      const isCarousel = linkTitleCount > 1 || linkUrlCount > 1;
+      const isVideo = videoAdIds.has(ad.id);
+
+      let mediaType: 'video' | 'image' | 'carousel' | 'unknown';
+      if (isCarousel) {
+        mediaType = 'carousel';
+      } else if (isVideo) {
+        mediaType = 'video';
+      } else {
+        mediaType = 'image';
+      }
 
       return {
         adId: ad.id,
@@ -770,7 +807,7 @@ export async function fetchFacebookAds(options: {
         linkUrl: ad.ad_creative_link_urls?.[0] || null,
         snapshotUrl: ad.ad_snapshot_url || null,
         euTotalReach: ad.eu_total_reach || 0,
-        mediaType: 'unknown' as const, // Media type determined via separate API calls
+        mediaType,
         demographics: demographics ? {
           adArchiveId: ad.id,
           ageGenderBreakdown: demographics.ageGender,
@@ -804,22 +841,23 @@ export async function fetchFacebookAds(options: {
     // Aggregate demographics
     const aggregatedDemographics = aggregateDemographics(ads);
 
-    // Get media type breakdown via separate filtered API calls (in parallel)
+    // Derive media type breakdown from per-ad types
     let mediaTypeBreakdown: MediaTypeBreakdown | null = null;
-    if (fetchedPageId) {
-      const [videoCount, imageCount] = await Promise.all([
-        countAdsByMediaType({ accessToken, pageId: fetchedPageId, countries, mediaType: 'VIDEO' }),
-        countAdsByMediaType({ accessToken, pageId: fetchedPageId, countries, mediaType: 'IMAGE' }),
-      ]);
+    {
+      const videoCount = ads.filter(ad => ad.mediaType === 'video').length;
+      const imageCount = ads.filter(ad => ad.mediaType === 'image').length;
+      const carouselCount = ads.filter(ad => ad.mediaType === 'carousel').length;
+      const totalCounted = videoCount + imageCount + carouselCount;
 
-      const totalCounted = videoCount + imageCount;
       if (totalCounted > 0) {
         mediaTypeBreakdown = {
           video: videoCount,
           image: imageCount,
-          unknown: 0,
+          carousel: carouselCount,
+          unknown: ads.length - totalCounted,
           videoPercentage: (videoCount / totalCounted) * 100,
           imagePercentage: (imageCount / totalCounted) * 100,
+          carouselPercentage: (carouselCount / totalCounted) * 100,
         };
       }
     }

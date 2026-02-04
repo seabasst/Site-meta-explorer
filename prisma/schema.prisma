@@ -59,8 +59,10 @@ model BrandSnapshot {
   estimatedSpendUsd Float
   videoCount       Int
   imageCount       Int
+  carouselCount    Int       @default(0)
   videoPercentage  Float
   imagePercentage  Float
+  carouselPercentage Float   @default(0)
   avgAdAgeDays     Float
   dominantGender   String?
   dominantGenderPct Float?

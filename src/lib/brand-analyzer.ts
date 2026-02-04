@@ -34,7 +34,8 @@ export interface BrandKPIs {
   // Media Mix
   videoPercentage: number;
   imagePercentage: number;
-  preferredFormat: 'video' | 'image' | 'balanced';
+  carouselPercentage: number;
+  preferredFormat: 'video' | 'image' | 'carousel' | 'balanced';
 
   // Targeting Focus
   primaryGender: string;
@@ -274,9 +275,11 @@ function extractKPIs(
   // Media mix
   const videoPercentage = mediaBreakdown?.videoPercentage || 0;
   const imagePercentage = mediaBreakdown?.imagePercentage || 0;
-  let preferredFormat: 'video' | 'image' | 'balanced' = 'balanced';
+  const carouselPercentage = mediaBreakdown?.carouselPercentage || 0;
+  let preferredFormat: 'video' | 'image' | 'carousel' | 'balanced' = 'balanced';
   if (videoPercentage > 60) preferredFormat = 'video';
   else if (imagePercentage > 60) preferredFormat = 'image';
+  else if (carouselPercentage > 60) preferredFormat = 'carousel';
 
   // Targeting analysis
   let primaryGender = 'All';
@@ -326,6 +329,7 @@ function extractKPIs(
     evergreenAdsCount,
     videoPercentage,
     imagePercentage,
+    carouselPercentage,
     preferredFormat,
     primaryGender,
     genderSkew,
@@ -443,6 +447,14 @@ function generateInsights(kpis: BrandKPIs, ads: FacebookAdResult[]): BrandInsigh
       title: 'Image-Focused Approach',
       description: `${kpis.imagePercentage.toFixed(0)}% static images. Efficient for testing and scaling, with lower production costs.`,
       metric: `${kpis.imagePercentage.toFixed(0)}% images`,
+      sentiment: 'insight',
+    });
+  } else if (kpis.carouselPercentage > 40) {
+    insights.push({
+      category: 'creative',
+      title: 'Carousel-Heavy Strategy',
+      description: `${kpis.carouselPercentage.toFixed(0)}% carousel ads. This brand uses multi-card formats to showcase product range or tell sequential stories.`,
+      metric: `${kpis.carouselPercentage.toFixed(0)}% carousel`,
       sentiment: 'insight',
     });
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import type { FacebookApiResult } from '@/lib/facebook-api';
-import { Globe, Users, Target, Play, Image as ImageIcon, TrendingUp } from 'lucide-react';
+import { Globe, Users, Target, Play, Image as ImageIcon, TrendingUp, Layers } from 'lucide-react';
 
 // Country code to name mapping
 const COUNTRY_NAMES: Record<string, string> = {
@@ -37,9 +37,10 @@ export function AccountSummary({ result }: AccountSummaryProps) {
   // Get top 3 countries
   const topCountries = demographics?.regionBreakdown?.slice(0, 3) || [];
 
-  // Calculate video vs image percentage
+  // Calculate video vs image vs carousel percentage
   const videoPercentage = mediaBreakdown?.videoPercentage || 0;
   const imagePercentage = mediaBreakdown?.imagePercentage || 0;
+  const carouselPercentage = mediaBreakdown?.carouselPercentage || 0;
 
   // Get average ad age (days running)
   const adsWithDates = result.ads.filter(ad => ad.startedRunning);
@@ -143,6 +144,12 @@ export function AccountSummary({ result }: AccountSummaryProps) {
                 <ImageIcon className="w-3 h-3 text-blue-500" />
                 {imagePercentage.toFixed(0)}%
               </span>
+              {carouselPercentage > 0 && (
+                <span className="flex items-center gap-1">
+                  <Layers className="w-3 h-3 text-amber-500" />
+                  {carouselPercentage.toFixed(0)}%
+                </span>
+              )}
             </div>
           )}
         </div>

@@ -25,6 +25,7 @@ export function ComparisonTable({ ownBrand, competitors }: ComparisonTableProps)
     { key: 'estimatedSpendUsd', label: 'Est. Spend', format: (v) => `$${Math.round(v).toLocaleString()}` },
     { key: 'videoPercentage', label: 'Video %', format: (v) => `${v.toFixed(1)}%` },
     { key: 'imagePercentage', label: 'Image %', format: (v) => `${v.toFixed(1)}%` },
+    { key: 'carouselPercentage', label: 'Carousel %', format: (v) => `${v.toFixed(1)}%` },
     { key: 'avgAdAgeDays', label: 'Avg Ad Age', format: (v) => `${Math.round(v)} days` },
   ];
 

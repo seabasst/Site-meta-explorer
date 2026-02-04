@@ -192,6 +192,7 @@ export function exportFullReportToCSV(result: FacebookApiResult) {
       'Type,Count,Percentage',
       `Video,${mtb.video},${mtb.videoPercentage.toFixed(2)}`,
       `Image,${mtb.image},${mtb.imagePercentage.toFixed(2)}`,
+      `Carousel,${mtb.carousel},${mtb.carouselPercentage.toFixed(2)}`,
       ''
     );
   }
