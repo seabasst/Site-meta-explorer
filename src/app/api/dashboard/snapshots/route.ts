@@ -41,9 +41,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Facebook API not configured' }, { status: 500 });
   }
 
+  // Key EU markets to query - ensures we find ads targeting any EU country
+  const euCountries = ['DE', 'FR', 'NL', 'SE', 'FI', 'DK', 'ES', 'IT', 'PL', 'BE'];
+
   const result = await fetchFacebookAds({
     accessToken,
     pageId: brand.facebookPageId,
+    countries: euCountries,
     limit: 500,
     activeStatus: 'ACTIVE',
   });
