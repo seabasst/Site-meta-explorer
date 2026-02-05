@@ -29,10 +29,25 @@ function extractDomain(url: string): string {
   }
 }
 
-function formatUrl(url: string, maxLength: number = 50): string {
-  const withoutProtocol = url.replace(/^https?:\/\//, '').replace('www.', '');
-  if (withoutProtocol.length <= maxLength) return withoutProtocol;
-  return withoutProtocol.slice(0, maxLength - 3) + '...';
+function formatUrl(url: string, maxLength: number = 60): string {
+  try {
+    const parsed = new URL(url.startsWith('http') ? url : `https://${url}`);
+    const domain = parsed.hostname.replace('www.', '');
+    const path = parsed.pathname + parsed.search;
+    const full = domain + (path === '/' ? '' : path);
+    if (full.length <= maxLength) return full;
+    // Truncate from the middle of the path if too long
+    const domainPart = domain + '/';
+    const remaining = maxLength - domainPart.length - 3;
+    if (remaining > 10) {
+      return domainPart + '...' + path.slice(-remaining);
+    }
+    return full.slice(0, maxLength - 3) + '...';
+  } catch {
+    const withoutProtocol = url.replace(/^https?:\/\//, '').replace('www.', '');
+    if (withoutProtocol.length <= maxLength) return withoutProtocol;
+    return withoutProtocol.slice(0, maxLength - 3) + '...';
+  }
 }
 
 function formatNumber(num: number): string {
@@ -46,19 +61,19 @@ export function LandingPageAnalysis({ apiAds, sitemapUrls }: LandingPageAnalysis
     const landingPages = new Map<string, LandingPageData>();
     const sitemapSet = new Set(sitemapUrls?.map(u => u.toLowerCase()) || []);
 
-    // Process API data (group by link caption)
+    // Process API data (group by linkUrl for full path, fallback to linkCaption)
     if (apiAds && apiAds.length > 0) {
-      // Group by linkCaption which often contains domain/path
-      const captionGroups = new Map<string, FacebookAdResult[]>();
+      const urlGroups = new Map<string, FacebookAdResult[]>();
 
       for (const ad of apiAds) {
-        const key = ad.linkCaption || ad.linkTitle || 'unknown';
-        const group = captionGroups.get(key) || [];
+        // Prefer linkUrl (full path) over linkCaption (usually just domain)
+        const key = ad.linkUrl || ad.linkCaption || ad.linkTitle || 'unknown';
+        const group = urlGroups.get(key) || [];
         group.push(ad);
-        captionGroups.set(key, group);
+        urlGroups.set(key, group);
       }
 
-      for (const [caption, ads] of captionGroups) {
+      for (const [url, ads] of urlGroups) {
         const totalReach = ads.reduce((sum, ad) => sum + ad.euTotalReach, 0);
         const earliestDate = ads
           .map(ad => ad.startedRunning)
@@ -71,16 +86,19 @@ export function LandingPageAnalysis({ apiAds, sitemapUrls }: LandingPageAnalysis
             .filter((t): t is string => t !== null)
         )].slice(0, 3);
 
-        // Use caption as URL proxy
-        const normalizedCaption = caption.toLowerCase();
-        const isInSitemap = sitemapSet.has(normalizedCaption) ||
+        // Check if URL is in sitemap
+        const normalizedUrl = url.toLowerCase();
+        const isInSitemap = sitemapSet.has(normalizedUrl) ||
           Array.from(sitemapSet).some(sitemapUrl =>
-            sitemapUrl.includes(normalizedCaption)
+            sitemapUrl.includes(normalizedUrl) || normalizedUrl.includes(sitemapUrl)
           );
 
-        landingPages.set(caption, {
-          url: caption,
-          displayUrl: caption,
+        // Create display URL (strip protocol, keep path)
+        const displayUrl = formatUrl(url, 60);
+
+        landingPages.set(url, {
+          url,
+          displayUrl,
           adCount: ads.length,
           totalReach,
           isInSitemap,

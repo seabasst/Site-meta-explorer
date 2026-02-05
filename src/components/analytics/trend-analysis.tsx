@@ -114,6 +114,15 @@ export function TrendAnalysis({ ads }: TrendAnalysisProps) {
   const velocity = useMemo(() => computeCreativeVelocity(groups), [groups]);
   const trajectory = useMemo(() => computeReachTrajectory(groups), [groups]);
 
+  // Debug: log grouping details
+  console.log('[TrendAnalysis]', {
+    totalAds: ads.length,
+    adsWithDates: ads.filter(a => a.startedRunning).length,
+    periodMode,
+    groups: groups.map(g => ({ key: g.key, label: g.label, count: g.ads.length })),
+    uniqueAdIds: new Set(ads.map(a => a.adArchiveId)).size,
+  });
+
   if (groups.length === 0) {
     return (
       <div className="text-center py-6 text-[var(--text-muted)]">
