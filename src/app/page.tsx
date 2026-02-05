@@ -9,7 +9,7 @@ import { ProductMarketTable } from '@/components/analytics/product-market-table'
 import { AdLongevity } from '@/components/analytics/ad-longevity';
 import { AdCopyAnalysis } from '@/components/analytics/ad-copy-analysis';
 import { BrandComparison } from '@/components/analytics/brand-comparison';
-import { TimeTrends } from '@/components/analytics/time-trends';
+import { TrendAnalysis } from '@/components/analytics/trend-analysis';
 import { LandingPageAnalysis } from '@/components/analytics/landing-page-analysis';
 import { FavoritesPanel } from '@/components/favorites/favorites-panel';
 import { useFavorites, FavoriteBrand } from '@/hooks/use-favorites';
@@ -1360,22 +1360,22 @@ export default function Home() {
                       </FeatureGate>
                     )}
 
-                    {/* Time Trends - Activity Timeline */}
+                    {/* Trend Analysis */}
                     {timelineAds && timelineAds.length > 0 && (
                       <div className="space-y-4 mb-6" data-pdf-section="time-trends">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                            Activity <span className="italic text-[var(--accent-green-light)]">Timeline</span>
+                            Trend <span className="italic text-[var(--accent-green-light)]">Analysis</span>
                           </h3>
                           <div className="text-xs text-[var(--text-muted)]">
                             {activeStatus === 'ACTIVE' && timelineAds.length !== apiResult.ads.length && (
                               <span className="text-[var(--accent-yellow)] mr-2">Includes inactive ads</span>
                             )}
-                            Advertising intensity over time
+                            Advertising trends over time
                           </div>
                         </div>
                         <div className="glass rounded-xl p-5">
-                          <TimeTrends ads={timelineAds} />
+                          <TrendAnalysis ads={timelineAds} />
                         </div>
                       </div>
                     )}
