@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 32 of 36 (Trend Analysis)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-06 — v4.0 roadmap created
+Plan: 01 of 02 complete
+Status: In progress
+Last activity: 2026-02-06 — Completed 32-01-PLAN.md (demographics data layer)
 
-Progress: ░░░░░░░░░░░░░░░░░░░░░░░░░ 0% (v4.0)
+Progress: ██░░░░░░░░░░░░░░░░░░░░░░░ 9% (v4.0)
 
 ## Milestones
 
@@ -31,7 +31,7 @@ Progress: ░░░░░░░░░░░░░░░░░░░░░░░�
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 56
+- Total plans completed: 57
 - Average duration: —
 - Total execution time: —
 
@@ -40,7 +40,12 @@ Progress: ░░░░░░░░░░░░░░░░░░░░░░░�
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-All v3.1 decisions confirmed as ✓ Good.
+All v3.1 decisions confirmed as Good.
+
+**32-01 Decisions:**
+- Union approach for countryTrend: all top-5 countries from any snapshot included, 0 for missing
+- Flat keys for age/gender data points (Recharts-compatible)
+- Unix epoch milliseconds for timestamps
 
 ### Roadmap Evolution
 
@@ -63,6 +68,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-06
-Stopped at: v4.0 roadmap created (5 phases, 11 requirements)
+Last session: 2026-02-06T07:56:31Z
+Stopped at: Completed 32-01-PLAN.md
 Resume file: None
