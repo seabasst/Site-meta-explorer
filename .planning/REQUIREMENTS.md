@@ -9,7 +9,7 @@ Requirements for v4.0 Analytics Platform. Each maps to roadmap phases.
 
 ### Trend Analysis
 
-- [ ] **TREND-01**: User can view demographic trend charts showing how age, gender, and country distribution change across historical snapshots for a saved brand
+- [x] **TREND-01**: User can view demographic trend charts showing how age, gender, and country distribution change across historical snapshots for a saved brand
 
 ### Competitive Benchmarking
 
@@ -58,7 +58,7 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TREND-01 | Phase 32 | Pending |
+| TREND-01 | Phase 32 | Complete |
 | BENCH-01 | Phase 33 | Pending |
 | BENCH-02 | Phase 33 | Pending |
 | BENCH-03 | Phase 34 | Pending |
@@ -77,4 +77,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-06 after roadmap creation*
+*Last updated: 2026-02-06 after Phase 32 completion*

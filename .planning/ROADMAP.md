@@ -12,7 +12,7 @@ Transform the brand tracking dashboard into a full analytics platform with trend
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 32: Trend Analysis** - Visualize demographic shifts across historical snapshots
+- [x] **Phase 32: Trend Analysis** - Visualize demographic shifts across historical snapshots
 - [ ] **Phase 33: Benchmark Foundation** - Create benchmark reports comparing competitors
 - [ ] **Phase 34: Benchmark Aggregation** - Display aggregate metrics with indexing
 - [ ] **Phase 35: Dashboard UX** - Improve navigation, cards, and organization
@@ -32,8 +32,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 
 Plans:
-- [ ] 32-01-PLAN.md — Backend: demographics normalizer + trends API endpoint
-- [ ] 32-02-PLAN.md — Frontend: trend chart component + brand page integration
+- [x] 32-01-PLAN.md — Backend: demographics normalizer + trends API endpoint
+- [x] 32-02-PLAN.md — Frontend: trend chart component + brand page integration
 
 ### Phase 33: Benchmark Foundation
 **Goal**: Users can create and save benchmark reports comparing competitors against a baseline
@@ -100,7 +100,7 @@ Phases execute in numeric order: 32 → 33 → 34 → 35 → 36
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 32. Trend Analysis | 0/2 | Planned | - |
+| 32. Trend Analysis | 2/2 | Complete | 2026-02-06 |
 | 33. Benchmark Foundation | 0/2 | Not started | - |
 | 34. Benchmark Aggregation | 0/1 | Not started | - |
 | 35. Dashboard UX | 0/2 | Not started | - |
