@@ -44,11 +44,11 @@ Plans:
   2. System fetches all pages with rate limiting (no API failures)
   3. User can save the benchmark report as a persistent entity
   4. Benchmark report stores all brands with baseline designation
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 33-01: TBD
-- [ ] 33-02: TBD
+- [ ] 33-01-PLAN.md — Backend: Prisma schema + batch fetch utility + API endpoints
+- [ ] 33-02-PLAN.md — Frontend: Multi-brand selector + creation flow + list pages
 
 ### Phase 34: Benchmark Aggregation
 **Goal**: Users can see meaningful aggregate comparisons with over/under indexing
@@ -101,7 +101,7 @@ Phases execute in numeric order: 32 → 33 → 34 → 35 → 36
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 32. Trend Analysis | 2/2 | Complete | 2026-02-06 |
-| 33. Benchmark Foundation | 0/2 | Not started | - |
+| 33. Benchmark Foundation | 0/2 | Planned | - |
 | 34. Benchmark Aggregation | 0/1 | Not started | - |
 | 35. Dashboard UX | 0/2 | Not started | - |
 | 36. Performance & Quality | 0/2 | Not started | - |
