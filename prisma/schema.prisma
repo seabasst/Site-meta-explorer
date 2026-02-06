@@ -23,6 +23,7 @@ model User {
   ownBrand    TrackedBrand?  @relation("OwnBrand")
   competitors TrackedBrand[] @relation("Competitors")
   snapshots   BrandSnapshot[]
+  benchmarks  BenchmarkReport[]
 }
 
 model TrackedBrand {
@@ -109,4 +110,47 @@ model HookGroup {
 
   @@index([snapshotId])
   @@index([snapshotId, totalReach])
+}
+
+model BenchmarkReport {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Owner
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Brands in this benchmark (1 baseline + up to 5 competitors)
+  brands BenchmarkBrand[]
+}
+
+model BenchmarkBrand {
+  id             String   @id @default(cuid())
+  facebookPageId String
+  pageName       String
+  adLibraryUrl   String
+  isBaseline     Boolean  @default(false) // Exactly one per report must be true
+  addedAt        DateTime @default(now())
+
+  // Aggregated snapshot data (same fields as BrandSnapshot)
+  totalAdsFound      Int?
+  activeAdsCount     Int?
+  totalReach         BigInt?
+  avgReachPerAd      Float?
+  estimatedSpendUsd  Float?
+  videoPercentage    Float?
+  imagePercentage    Float?
+  carouselPercentage Float?
+  dominantGender     String?
+  dominantAgeRange   String?
+  demographicsJson   Json?
+
+  // Relations
+  benchmarkId String
+  benchmark   BenchmarkReport @relation(fields: [benchmarkId], references: [id], onDelete: Cascade)
+
+  @@unique([benchmarkId, facebookPageId])
+  @@index([benchmarkId])
 }
