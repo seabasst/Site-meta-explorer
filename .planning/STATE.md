@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 33 of 36 (Benchmark Foundation)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-06 — Phase 32 verified and complete
+Plan: 01 of 02 complete
+Status: In progress
+Last activity: 2026-02-06 — Completed 33-01-PLAN.md
 
-Progress: ██░░░░░░░░░░░░░░░░░░░░░░░ 20% (v4.0)
+Progress: ███░░░░░░░░░░░░░░░░░░░░░░ 22% (v4.0)
 
 ## Milestones
 
@@ -31,7 +31,7 @@ Progress: ██░░░░░░░░░░░░░░░░░░░░░�
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 58
+- Total plans completed: 59
 - Average duration: —
 - Total execution time: —
 
@@ -51,6 +51,11 @@ All v3.1 decisions confirmed as Good.
 - Chart placement: after observations, before key metrics
 - 300px chart height for consistency with existing charts
 - Empty state guidance for < 3 snapshots
+
+**33-01 Decisions:**
+- batchSize=2 with 2s delay for safe rate limiting
+- Promise.allSettled for partial success handling
+- Minimum 2 successful brands required (1 baseline + 1 competitor)
 
 ### Roadmap Evolution
 
@@ -73,6 +78,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-06T07:59:29Z
-Stopped at: Completed 32-02-PLAN.md (Phase 32 complete)
+Last session: 2026-02-06T12:46:00Z
+Stopped at: Completed 33-01-PLAN.md
 Resume file: None
