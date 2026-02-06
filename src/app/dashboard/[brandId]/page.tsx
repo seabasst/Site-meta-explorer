@@ -11,6 +11,7 @@ import { HookExplorer } from '@/components/dashboard/hook-explorer';
 import type { HookGroupDisplay } from '@/components/dashboard/hook-explorer';
 import { generateObservations } from '@/lib/observation-engine';
 import { ObservationList } from '@/components/dashboard/observation-list';
+import { DemographicTrendChart } from '@/components/dashboard/demographic-trend-chart';
 
 export default function BrandDetailPage({ params }: { params: Promise<{ brandId: string }> }) {
   const { brandId } = React.use(params);
@@ -233,6 +234,9 @@ export default function BrandDetailPage({ params }: { params: Promise<{ brandId:
         ) : (
           <div className="space-y-6">
             <ObservationList observations={observations} />
+
+            {/* Demographic Trends */}
+            <DemographicTrendChart trackedBrandId={brandId} />
 
             {/* Key metrics summary */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
