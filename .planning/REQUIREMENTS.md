@@ -58,23 +58,23 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TREND-01 | — | Pending |
-| BENCH-01 | — | Pending |
-| BENCH-02 | — | Pending |
-| BENCH-03 | — | Pending |
-| BENCH-04 | — | Pending |
-| DASH-01 | — | Pending |
-| DASH-02 | — | Pending |
-| DASH-03 | — | Pending |
-| PERF-01 | — | Pending |
-| QUAL-01 | — | Pending |
-| QUAL-02 | — | Pending |
+| TREND-01 | Phase 32 | Pending |
+| BENCH-01 | Phase 33 | Pending |
+| BENCH-02 | Phase 33 | Pending |
+| BENCH-03 | Phase 34 | Pending |
+| BENCH-04 | Phase 33 | Pending |
+| DASH-01 | Phase 35 | Pending |
+| DASH-02 | Phase 35 | Pending |
+| DASH-03 | Phase 35 | Pending |
+| PERF-01 | Phase 36 | Pending |
+| QUAL-01 | Phase 36 | Pending |
+| QUAL-02 | Phase 36 | Pending |
 
 **Coverage:**
 - v4.0 requirements: 11 total
-- Mapped to phases: 0
-- Unmapped: 11 (awaiting roadmap)
+- Mapped to phases: 11
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-05*
-*Last updated: 2026-02-05 after initial definition*
+*Last updated: 2026-02-06 after roadmap creation*
