@@ -12,50 +12,51 @@ import { Prisma } from '@prisma/client';
  * - baselineIndex: Which URL is the baseline (0-indexed)
  */
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-  const body = await req.json();
-  const { name, urls, baselineIndex } = body as {
-    name: string;
-    urls: string[];
-    baselineIndex: number;
-  };
+    const body = await req.json();
+    const { name, urls, baselineIndex } = body as {
+      name: string;
+      urls: string[];
+      baselineIndex: number;
+    };
 
-  // Validate input
-  if (!name || typeof name !== 'string' || name.trim().length === 0) {
-    return NextResponse.json(
-      { error: 'Name is required' },
-      { status: 400 }
-    );
-  }
+    // Validate input
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Name is required' },
+        { status: 400 }
+      );
+    }
 
-  if (!Array.isArray(urls) || urls.length < 2 || urls.length > 6) {
-    return NextResponse.json(
-      { error: 'Must provide 2-6 Ad Library URLs' },
-      { status: 400 }
-    );
-  }
+    if (!Array.isArray(urls) || urls.length < 2 || urls.length > 6) {
+      return NextResponse.json(
+        { error: 'Must provide 2-6 Ad Library URLs' },
+        { status: 400 }
+      );
+    }
 
-  if (typeof baselineIndex !== 'number' || baselineIndex < 0 || baselineIndex >= urls.length) {
-    return NextResponse.json(
-      { error: 'Invalid baselineIndex' },
-      { status: 400 }
-    );
-  }
+    if (typeof baselineIndex !== 'number' || baselineIndex < 0 || baselineIndex >= urls.length) {
+      return NextResponse.json(
+        { error: 'Invalid baselineIndex' },
+        { status: 400 }
+      );
+    }
 
-  // Fetch all pages with rate limiting
-  const accessToken = process.env.FACEBOOK_ACCESS_TOKEN;
-  if (!accessToken) {
-    return NextResponse.json(
-      { error: 'Facebook API not configured' },
-      { status: 500 }
-    );
-  }
+    // Fetch all pages with rate limiting
+    const accessToken = process.env.FACEBOOK_ACCESS_TOKEN;
+    if (!accessToken) {
+      return NextResponse.json(
+        { error: 'Facebook API not configured' },
+        { status: 500 }
+      );
+    }
 
-  const results = await batchFetchPages(urls, accessToken);
+    const results = await batchFetchPages(urls, accessToken);
 
   // Check if baseline succeeded
   const baselineUrl = urls[baselineIndex];
@@ -132,6 +133,13 @@ export async function POST(req: Request) {
     },
     failed: failed.map(f => ({ url: f.url, error: f.error })),
   });
+  } catch (error) {
+    console.error('Benchmark creation error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to create benchmark' },
+      { status: 500 }
+    );
+  }
 }
 
 /**

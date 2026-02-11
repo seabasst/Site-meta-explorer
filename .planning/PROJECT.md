@@ -61,6 +61,17 @@ Surface who competitors are reaching with their ads — demographics and geograp
 - [ ] Performance improvements — faster analysis, re-analysis, and page loads
 - [ ] Data accuracy fixes — better hook grouping, improved demographic weighting, better missing data handling
 
+### Planned (v4.5 Industry Benchmarks — Admin Only)
+
+- [ ] Industry entity with manual brand curation (add Facebook pages to industry groups)
+- [ ] Benchmark generation — fetch all brands, compute weighted aggregate demographics
+- [ ] Admin UI — industry list, brand management, benchmark display with charts
+- [ ] Comparison view — select any brand, see side-by-side vs industry average with indexing
+- [ ] Historical snapshots — track how industry benchmarks change over time
+- [ ] Export — CSV/JSON export of benchmark data
+
+See: `.planning/v4.5-industry-benchmarks-research.md`
+
 ### Out of Scope
 
 - Per-ad demographic breakdown — aggregated summary only
