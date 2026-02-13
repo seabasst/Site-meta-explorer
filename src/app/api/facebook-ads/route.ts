@@ -3,6 +3,7 @@ import {
   fetchFacebookAds,
   fetchAdsByPageUrl,
   extractPageIdFromUrl,
+  EU_COUNTRIES,
 } from '@/lib/facebook-api';
 import { auth } from '@/auth';
 import { getSubscriptionStatus } from '@/lib/subscription';
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
       adLibraryUrl,
       pageId,
       searchTerms,
-      countries = ['NL'],
+      countries = [...EU_COUNTRIES, 'GB'],
       limit = 100,  // Default to free tier limit
       activeStatus = 'ACTIVE',
     } = body;
@@ -109,7 +110,7 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const pageId = searchParams.get('pageId');
   const searchTerms = searchParams.get('searchTerms') || searchParams.get('q');
-  const countries = searchParams.get('countries')?.split(',') || ['NL'];
+  const countries = searchParams.get('countries')?.split(',') || [...EU_COUNTRIES, 'GB'];
   let limit = parseInt(searchParams.get('limit') || '25', 10);
 
   // --- TIER ENFORCEMENT ---

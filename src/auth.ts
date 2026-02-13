@@ -26,6 +26,7 @@ const DEMO_USER = {
 const isGoogleConfigured = !!(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET)
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   providers: [
     // Only add Google provider if credentials are configured
     ...(isGoogleConfigured ? [

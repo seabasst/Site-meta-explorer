@@ -634,9 +634,9 @@ export async function fetchFacebookAds(options: {
     const useMultiCountryQuery = countries.length > 1 && pageId;
 
     if (useMultiCountryQuery && pageId) {
-      // Use the provided countries list (or KEY_EU_MARKETS as a reasonable subset)
-      // to query each market separately and deduplicate
-      const marketsToQuery = countries.length > 10 ? KEY_EU_MARKETS : countries;
+      // Query all provided countries separately and deduplicate
+      // This ensures we find ads targeting any of the specified countries
+      const marketsToQuery = countries;
       const adsPerCountry = Math.ceil((limit * 3) / marketsToQuery.length);
       const adIdSet = new Set<string>();
 

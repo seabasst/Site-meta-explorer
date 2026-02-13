@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
-import { fetchFacebookAds } from '@/lib/facebook-api';
+import { fetchFacebookAds, EU_COUNTRIES } from '@/lib/facebook-api';
 import { buildSnapshotFromApiResult } from '@/lib/snapshot-builder';
 import { extractHooksFromAds } from '@/lib/hook-extractor';
 
@@ -41,8 +41,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Facebook API not configured' }, { status: 500 });
   }
 
-  // Key EU markets to query - ensures we find ads targeting any EU country
-  const euCountries = ['DE', 'FR', 'NL', 'SE', 'FI', 'DK', 'ES', 'IT', 'PL', 'BE'];
+  // All EU countries + GB (UK) for comprehensive coverage
+  const euCountries = [...EU_COUNTRIES, 'GB'];
 
   const result = await fetchFacebookAds({
     accessToken,
