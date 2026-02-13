@@ -72,6 +72,18 @@ Surface who competitors are reaching with their ads — demographics and geograp
 
 See: `.planning/v4.5-industry-benchmarks-research.md`
 
+### Planned (v5.0 Meta Ad Library Pipeline — Major Infrastructure)
+
+- [ ] Meta Ad Library API access — research approval, long-lived token with ads_read
+- [ ] Brand list management — curate 1K+ European brands with 30+ active ads
+- [ ] Database & storage design — ads schema, S3 media storage, CDN configuration
+- [ ] Ingestion pipeline — fetch ads, download media, generate thumbnails, job queue
+- [ ] Search & API layer — full-text search, REST API with filters/pagination/export
+- [ ] Research UI — browse, filter, and export ad creatives and metadata
+- [ ] Monitoring & maintenance — job alerting, storage tracking, brand validation
+
+See: `.planning/v5.0-meta-ad-library-pipeline-research.md`
+
 ### Out of Scope
 
 - Per-ad demographic breakdown — aggregated summary only
