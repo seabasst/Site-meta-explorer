@@ -48,3 +48,6 @@ prisma/dev.db-journal
 
 # Media cache
 .media-cache/
+
+# Generated data
+data/brand-ingestion-results.json

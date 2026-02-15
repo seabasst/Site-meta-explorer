@@ -154,3 +154,157 @@ model BenchmarkBrand {
   @@unique([benchmarkId, facebookPageId])
   @@index([benchmarkId])
 }
+
+// =============================================================================
+// v5.0 Meta Ad Library Pipeline
+// =============================================================================
+
+model AdLibraryBrand {
+  id            String   @id @default(cuid())
+  pageId        String   @unique // Facebook Page ID
+  pageName      String
+  profilePicUrl String?
+  country       String?  // Primary country code (DE, GB, etc.)
+  category      String?  // Business category (fashion, electronics, etc.)
+  website       String?  // Brand website URL
+
+  // Discovery metadata
+  totalReach      BigInt   @default(0) // Total EU reach at discovery
+  activeAdCount   Int      @default(0) // Active ads at last check
+  lastCheckedAt   DateTime?
+
+  // Ingestion control
+  ingestionStatus String   @default("pending") // pending, active, paused, failed
+  priority        Int      @default(0)         // Higher = process first
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ads           AdLibraryAd[]
+  ingestionJobs IngestionJob[]
+
+  @@index([ingestionStatus, priority])
+  @@index([category])
+}
+
+model AdLibraryAd {
+  id   String @id @default(cuid())
+  adId String @unique // Meta's ad_id
+
+  // Brand relation
+  brandId String
+  brand   AdLibraryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  // Creative content
+  displayFormat      String?  // image, video, carousel, dpa
+  publisherPlatforms String[] // facebook, instagram, messenger, audience_network
+  body               String?  // Primary ad copy (ad_creative_body)
+  caption            String?  // Link caption
+  title              String?  // Link title
+  linkDescription    String?  // Link description
+  linkUrl            String?  // Destination URL
+  ctaText            String?  // Call-to-action text
+  ctaType            String?  // Call-to-action type (SHOP_NOW, LEARN_MORE, etc.)
+  snapshotUrl        String?  // Meta's ad_snapshot_url
+
+  // Dates
+  startDate      DateTime?
+  endDate        DateTime?
+  adDurationDays Int?
+  isActive       Boolean   @default(true)
+
+  // Performance estimates (if available from API)
+  reachEstimate    Int?
+  impressionsLower Int?
+  impressionsUpper Int?
+  spendLower       Float?
+  spendUpper       Float?
+  currency         String?
+
+  // Targeting (from demographic_distribution if available)
+  targetingJson Json? // Full targeting data
+
+  // Ingestion tracking
+  ingestionJobId String?
+  ingestionJob   IngestionJob? @relation(fields: [ingestionJobId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assets AdAsset[]
+
+  @@index([brandId, isActive])
+  @@index([brandId, startDate])
+  @@index([displayFormat])
+}
+
+model AdAsset {
+  id String @id @default(cuid())
+
+  // Ad relation
+  adId String
+  ad   AdLibraryAd @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  // Asset type
+  assetType   String  // image, video, thumbnail
+  position    Int     @default(0) // Order in carousel (0 for single assets)
+
+  // Original source
+  originalUrl String // Meta CDN URL
+
+  // Our storage
+  storedUrl     String? // Our CDN URL (after download)
+  storedKey     String? // S3/R2 object key
+  thumbnailUrl  String? // Generated thumbnail URL
+  thumbnailKey  String? // S3/R2 key for thumbnail
+
+  // File metadata
+  fileExtension String?
+  fileSizeBytes Int?
+  width         Int?
+  height        Int?
+  durationMs    Int?    // For videos
+
+  // Status
+  downloadStatus String @default("pending") // pending, downloading, completed, failed
+  downloadError  String?
+
+  createdAt DateTime @default(now())
+
+  @@index([adId])
+  @@index([downloadStatus])
+}
+
+model IngestionJob {
+  id String @id @default(cuid())
+
+  // Brand relation
+  brandId String
+  brand   AdLibraryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  // Job type
+  jobType String @default("full") // full, incremental, assets_only
+
+  // Status tracking
+  status           String   @default("queued") // queued, running, completed, failed, cancelled
+  adsFetched       Int      @default(0)
+  adsCreated       Int      @default(0)
+  adsUpdated       Int      @default(0)
+  assetsQueued     Int      @default(0)
+  assetsDownloaded Int      @default(0)
+  assetsFailed     Int      @default(0)
+
+  // Error tracking
+  errorMessage String?
+  errorsJson   Json?   // Array of detailed error objects
+
+  // Timing
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  ads AdLibraryAd[]
+
+  @@index([brandId, status])
+  @@index([status, createdAt])
+}

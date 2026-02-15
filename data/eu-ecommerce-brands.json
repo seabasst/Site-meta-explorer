@@ -1,0 +1,1182 @@
+{
+  "description": "Curated list of major EU ecommerce brands for ad library analysis",
+  "lastUpdated": "2025-02-14",
+  "brands": [
+    {
+      "name": "Zalando",
+      "category": "fashion",
+      "country": "DE",
+      "website": "zalando.com"
+    },
+    {
+      "name": "ASOS",
+      "category": "fashion",
+      "country": "GB",
+      "website": "asos.com"
+    },
+    {
+      "name": "H&M",
+      "category": "fashion",
+      "country": "SE",
+      "website": "hm.com"
+    },
+    {
+      "name": "Zara",
+      "category": "fashion",
+      "country": "ES",
+      "website": "zara.com"
+    },
+    {
+      "name": "Boohoo",
+      "category": "fashion",
+      "country": "GB",
+      "website": "boohoo.com"
+    },
+    {
+      "name": "PrettyLittleThing",
+      "category": "fashion",
+      "country": "GB",
+      "website": "prettylittlething.com"
+    },
+    {
+      "name": "Missguided",
+      "category": "fashion",
+      "country": "GB",
+      "website": "missguided.com"
+    },
+    {
+      "name": "NA-KD",
+      "category": "fashion",
+      "country": "SE",
+      "website": "na-kd.com"
+    },
+    {
+      "name": "Gymshark",
+      "category": "fashion",
+      "country": "GB",
+      "website": "gymshark.com"
+    },
+    {
+      "name": "About You",
+      "category": "fashion",
+      "country": "DE",
+      "website": "aboutyou.com"
+    },
+    {
+      "name": "Mango",
+      "category": "fashion",
+      "country": "ES",
+      "website": "mango.com"
+    },
+    {
+      "name": "Bershka",
+      "category": "fashion",
+      "country": "ES",
+      "website": "bershka.com"
+    },
+    {
+      "name": "Pull&Bear",
+      "category": "fashion",
+      "country": "ES",
+      "website": "pullandbear.com"
+    },
+    {
+      "name": "Massimo Dutti",
+      "category": "fashion",
+      "country": "ES",
+      "website": "massimodutti.com"
+    },
+    {
+      "name": "COS",
+      "category": "fashion",
+      "country": "SE",
+      "website": "cos.com"
+    },
+    {
+      "name": "& Other Stories",
+      "category": "fashion",
+      "country": "SE",
+      "website": "stories.com"
+    },
+    {
+      "name": "Arket",
+      "category": "fashion",
+      "country": "SE",
+      "website": "arket.com"
+    },
+    {
+      "name": "Weekday",
+      "category": "fashion",
+      "country": "SE",
+      "website": "weekday.com"
+    },
+    {
+      "name": "Monki",
+      "category": "fashion",
+      "country": "SE",
+      "website": "monki.com"
+    },
+    {
+      "name": "Reserved",
+      "category": "fashion",
+      "country": "PL",
+      "website": "reserved.com"
+    },
+    {
+      "name": "Sinsay",
+      "category": "fashion",
+      "country": "PL",
+      "website": "sinsay.com"
+    },
+    {
+      "name": "Cropp",
+      "category": "fashion",
+      "country": "PL",
+      "website": "cropp.com"
+    },
+    {
+      "name": "House",
+      "category": "fashion",
+      "country": "PL",
+      "website": "housebrand.com"
+    },
+    {
+      "name": "Mohito",
+      "category": "fashion",
+      "country": "PL",
+      "website": "mohito.com"
+    },
+    {
+      "name": "Primark",
+      "category": "fashion",
+      "country": "IE",
+      "website": "primark.com"
+    },
+    {
+      "name": "River Island",
+      "category": "fashion",
+      "country": "GB",
+      "website": "riverisland.com"
+    },
+    {
+      "name": "New Look",
+      "category": "fashion",
+      "country": "GB",
+      "website": "newlook.com"
+    },
+    {
+      "name": "Topshop",
+      "category": "fashion",
+      "country": "GB",
+      "website": "topshop.com"
+    },
+    {
+      "name": "JD Sports",
+      "category": "fashion",
+      "country": "GB",
+      "website": "jdsports.com"
+    },
+    {
+      "name": "Foot Locker",
+      "category": "fashion",
+      "country": "NL",
+      "website": "footlocker.eu"
+    },
+    {
+      "name": "Snipes",
+      "category": "fashion",
+      "country": "DE",
+      "website": "snipes.com"
+    },
+    {
+      "name": "Orsay",
+      "category": "fashion",
+      "country": "DE",
+      "website": "orsay.com"
+    },
+    {
+      "name": "Esprit",
+      "category": "fashion",
+      "country": "DE",
+      "website": "esprit.com"
+    },
+    {
+      "name": "Marc O'Polo",
+      "category": "fashion",
+      "country": "DE",
+      "website": "marc-o-polo.com"
+    },
+    {
+      "name": "s.Oliver",
+      "category": "fashion",
+      "country": "DE",
+      "website": "soliver.com"
+    },
+    {
+      "name": "Tom Tailor",
+      "category": "fashion",
+      "country": "DE",
+      "website": "tom-tailor.com"
+    },
+    {
+      "name": "Bonprix",
+      "category": "fashion",
+      "country": "DE",
+      "website": "bonprix.com"
+    },
+    {
+      "name": "Otto",
+      "category": "marketplace",
+      "country": "DE",
+      "website": "otto.de"
+    },
+    {
+      "name": "Bol.com",
+      "category": "marketplace",
+      "country": "NL",
+      "website": "bol.com"
+    },
+    {
+      "name": "Coolblue",
+      "category": "electronics",
+      "country": "NL",
+      "website": "coolblue.nl"
+    },
+    {
+      "name": "MediaMarkt",
+      "category": "electronics",
+      "country": "DE",
+      "website": "mediamarkt.com"
+    },
+    {
+      "name": "Saturn",
+      "category": "electronics",
+      "country": "DE",
+      "website": "saturn.de"
+    },
+    {
+      "name": "Currys",
+      "category": "electronics",
+      "country": "GB",
+      "website": "currys.co.uk"
+    },
+    {
+      "name": "Elkjøp",
+      "category": "electronics",
+      "country": "NO",
+      "website": "elkjop.no"
+    },
+    {
+      "name": "Elgiganten",
+      "category": "electronics",
+      "country": "SE",
+      "website": "elgiganten.se"
+    },
+    {
+      "name": "Power",
+      "category": "electronics",
+      "country": "DK",
+      "website": "power.dk"
+    },
+    {
+      "name": "Sephora",
+      "category": "beauty",
+      "country": "FR",
+      "website": "sephora.com"
+    },
+    {
+      "name": "Douglas",
+      "category": "beauty",
+      "country": "DE",
+      "website": "douglas.de"
+    },
+    {
+      "name": "Lookfantastic",
+      "category": "beauty",
+      "country": "GB",
+      "website": "lookfantastic.com"
+    },
+    {
+      "name": "Cult Beauty",
+      "category": "beauty",
+      "country": "GB",
+      "website": "cultbeauty.com"
+    },
+    {
+      "name": "Feelunique",
+      "category": "beauty",
+      "country": "GB",
+      "website": "feelunique.com"
+    },
+    {
+      "name": "Notino",
+      "category": "beauty",
+      "country": "CZ",
+      "website": "notino.com"
+    },
+    {
+      "name": "Flaconi",
+      "category": "beauty",
+      "country": "DE",
+      "website": "flaconi.de"
+    },
+    {
+      "name": "Rituals",
+      "category": "beauty",
+      "country": "NL",
+      "website": "rituals.com"
+    },
+    {
+      "name": "The Body Shop",
+      "category": "beauty",
+      "country": "GB",
+      "website": "thebodyshop.com"
+    },
+    {
+      "name": "Lush",
+      "category": "beauty",
+      "country": "GB",
+      "website": "lush.com"
+    },
+    {
+      "name": "Charlotte Tilbury",
+      "category": "beauty",
+      "country": "GB",
+      "website": "charlottetilbury.com"
+    },
+    {
+      "name": "Glossier",
+      "category": "beauty",
+      "country": "US",
+      "website": "glossier.com"
+    },
+    {
+      "name": "Drunk Elephant",
+      "category": "beauty",
+      "country": "US",
+      "website": "drunkelephant.com"
+    },
+    {
+      "name": "The Ordinary",
+      "category": "beauty",
+      "country": "CA",
+      "website": "theordinary.com"
+    },
+    {
+      "name": "Paula's Choice",
+      "category": "beauty",
+      "country": "US",
+      "website": "paulaschoice.com"
+    },
+    {
+      "name": "Kiehl's",
+      "category": "beauty",
+      "country": "US",
+      "website": "kiehls.com"
+    },
+    {
+      "name": "La Roche-Posay",
+      "category": "beauty",
+      "country": "FR",
+      "website": "laroche-posay.com"
+    },
+    {
+      "name": "Vichy",
+      "category": "beauty",
+      "country": "FR",
+      "website": "vichy.com"
+    },
+    {
+      "name": "Bioderma",
+      "category": "beauty",
+      "country": "FR",
+      "website": "bioderma.com"
+    },
+    {
+      "name": "Avène",
+      "category": "beauty",
+      "country": "FR",
+      "website": "avene.com"
+    },
+    {
+      "name": "IKEA",
+      "category": "home",
+      "country": "SE",
+      "website": "ikea.com"
+    },
+    {
+      "name": "Westwing",
+      "category": "home",
+      "country": "DE",
+      "website": "westwing.com"
+    },
+    {
+      "name": "Made.com",
+      "category": "home",
+      "country": "GB",
+      "website": "made.com"
+    },
+    {
+      "name": "Wayfair",
+      "category": "home",
+      "country": "US",
+      "website": "wayfair.com"
+    },
+    {
+      "name": "Home24",
+      "category": "home",
+      "country": "DE",
+      "website": "home24.com"
+    },
+    {
+      "name": "Desenio",
+      "category": "home",
+      "country": "SE",
+      "website": "desenio.com"
+    },
+    {
+      "name": "Juniqe",
+      "category": "home",
+      "country": "DE",
+      "website": "juniqe.com"
+    },
+    {
+      "name": "Posterlounge",
+      "category": "home",
+      "country": "DE",
+      "website": "posterlounge.com"
+    },
+    {
+      "name": "Emma Mattress",
+      "category": "home",
+      "country": "DE",
+      "website": "emma-mattress.com"
+    },
+    {
+      "name": "Casper",
+      "category": "home",
+      "country": "US",
+      "website": "casper.com"
+    },
+    {
+      "name": "eve Sleep",
+      "category": "home",
+      "country": "GB",
+      "website": "evesleep.com"
+    },
+    {
+      "name": "Simba",
+      "category": "home",
+      "country": "GB",
+      "website": "simbasleep.com"
+    },
+    {
+      "name": "Ocado",
+      "category": "grocery",
+      "country": "GB",
+      "website": "ocado.com"
+    },
+    {
+      "name": "HelloFresh",
+      "category": "food",
+      "country": "DE",
+      "website": "hellofresh.com"
+    },
+    {
+      "name": "Gousto",
+      "category": "food",
+      "country": "GB",
+      "website": "gousto.co.uk"
+    },
+    {
+      "name": "Mindful Chef",
+      "category": "food",
+      "country": "GB",
+      "website": "mindfulchef.com"
+    },
+    {
+      "name": "Huel",
+      "category": "food",
+      "country": "GB",
+      "website": "huel.com"
+    },
+    {
+      "name": "Athletic Greens",
+      "category": "health",
+      "country": "US",
+      "website": "athleticgreens.com"
+    },
+    {
+      "name": "Myprotein",
+      "category": "health",
+      "country": "GB",
+      "website": "myprotein.com"
+    },
+    {
+      "name": "Bulk",
+      "category": "health",
+      "country": "GB",
+      "website": "bulk.com"
+    },
+    {
+      "name": "Prozis",
+      "category": "health",
+      "country": "PT",
+      "website": "prozis.com"
+    },
+    {
+      "name": "Foodspring",
+      "category": "health",
+      "country": "DE",
+      "website": "foodspring.com"
+    },
+    {
+      "name": "Freeletics",
+      "category": "fitness",
+      "country": "DE",
+      "website": "freeletics.com"
+    },
+    {
+      "name": "Peloton",
+      "category": "fitness",
+      "country": "US",
+      "website": "onepeloton.com"
+    },
+    {
+      "name": "Decathlon",
+      "category": "sports",
+      "country": "FR",
+      "website": "decathlon.com"
+    },
+    {
+      "name": "SportsDirect",
+      "category": "sports",
+      "country": "GB",
+      "website": "sportsdirect.com"
+    },
+    {
+      "name": "XXL Sport",
+      "category": "sports",
+      "country": "NO",
+      "website": "xxl.no"
+    },
+    {
+      "name": "Intersport",
+      "category": "sports",
+      "country": "DE",
+      "website": "intersport.com"
+    },
+    {
+      "name": "Stadium",
+      "category": "sports",
+      "country": "SE",
+      "website": "stadium.se"
+    },
+    {
+      "name": "Adidas",
+      "category": "sports",
+      "country": "DE",
+      "website": "adidas.com"
+    },
+    {
+      "name": "Nike",
+      "category": "sports",
+      "country": "US",
+      "website": "nike.com"
+    },
+    {
+      "name": "Puma",
+      "category": "sports",
+      "country": "DE",
+      "website": "puma.com"
+    },
+    {
+      "name": "Reebok",
+      "category": "sports",
+      "country": "US",
+      "website": "reebok.com"
+    },
+    {
+      "name": "Under Armour",
+      "category": "sports",
+      "country": "US",
+      "website": "underarmour.com"
+    },
+    {
+      "name": "New Balance",
+      "category": "sports",
+      "country": "US",
+      "website": "newbalance.com"
+    },
+    {
+      "name": "ASICS",
+      "category": "sports",
+      "country": "JP",
+      "website": "asics.com"
+    },
+    {
+      "name": "On Running",
+      "category": "sports",
+      "country": "CH",
+      "website": "on-running.com"
+    },
+    {
+      "name": "Hoka",
+      "category": "sports",
+      "country": "US",
+      "website": "hoka.com"
+    },
+    {
+      "name": "Lululemon",
+      "category": "sports",
+      "country": "CA",
+      "website": "lululemon.com"
+    },
+    {
+      "name": "Alo Yoga",
+      "category": "sports",
+      "country": "US",
+      "website": "aloyoga.com"
+    },
+    {
+      "name": "Sweaty Betty",
+      "category": "sports",
+      "country": "GB",
+      "website": "sweatybetty.com"
+    },
+    {
+      "name": "Outdoor Voices",
+      "category": "sports",
+      "country": "US",
+      "website": "outdoorvoices.com"
+    },
+    {
+      "name": "AllSaints",
+      "category": "fashion",
+      "country": "GB",
+      "website": "allsaints.com"
+    },
+    {
+      "name": "Reiss",
+      "category": "fashion",
+      "country": "GB",
+      "website": "reiss.com"
+    },
+    {
+      "name": "Ted Baker",
+      "category": "fashion",
+      "country": "GB",
+      "website": "tedbaker.com"
+    },
+    {
+      "name": "Whistles",
+      "category": "fashion",
+      "country": "GB",
+      "website": "whistles.com"
+    },
+    {
+      "name": "Karen Millen",
+      "category": "fashion",
+      "country": "GB",
+      "website": "karenmillen.com"
+    },
+    {
+      "name": "Hobbs",
+      "category": "fashion",
+      "country": "GB",
+      "website": "hobbs.com"
+    },
+    {
+      "name": "Phase Eight",
+      "category": "fashion",
+      "country": "GB",
+      "website": "phase-eight.com"
+    },
+    {
+      "name": "Jigsaw",
+      "category": "fashion",
+      "country": "GB",
+      "website": "jigsaw-online.com"
+    },
+    {
+      "name": "ME+EM",
+      "category": "fashion",
+      "country": "GB",
+      "website": "meandem.com"
+    },
+    {
+      "name": "Sézane",
+      "category": "fashion",
+      "country": "FR",
+      "website": "sezane.com"
+    },
+    {
+      "name": "Rouje",
+      "category": "fashion",
+      "country": "FR",
+      "website": "rouje.com"
+    },
+    {
+      "name": "Sandro",
+      "category": "fashion",
+      "country": "FR",
+      "website": "sandro-paris.com"
+    },
+    {
+      "name": "Maje",
+      "category": "fashion",
+      "country": "FR",
+      "website": "maje.com"
+    },
+    {
+      "name": "Claudie Pierlot",
+      "category": "fashion",
+      "country": "FR",
+      "website": "claudiepierlot.com"
+    },
+    {
+      "name": "Ba&sh",
+      "category": "fashion",
+      "country": "FR",
+      "website": "ba-sh.com"
+    },
+    {
+      "name": "The Kooples",
+      "category": "fashion",
+      "country": "FR",
+      "website": "thekooples.com"
+    },
+    {
+      "name": "Zadig & Voltaire",
+      "category": "fashion",
+      "country": "FR",
+      "website": "zadig-et-voltaire.com"
+    },
+    {
+      "name": "Isabel Marant",
+      "category": "fashion",
+      "country": "FR",
+      "website": "isabelmarant.com"
+    },
+    {
+      "name": "Ganni",
+      "category": "fashion",
+      "country": "DK",
+      "website": "ganni.com"
+    },
+    {
+      "name": "Stine Goya",
+      "category": "fashion",
+      "country": "DK",
+      "website": "stinegoya.com"
+    },
+    {
+      "name": "Baum und Pferdgarten",
+      "category": "fashion",
+      "country": "DK",
+      "website": "baumundpferdgarten.com"
+    },
+    {
+      "name": "By Malene Birger",
+      "category": "fashion",
+      "country": "DK",
+      "website": "bymalenebirger.com"
+    },
+    {
+      "name": "Filippa K",
+      "category": "fashion",
+      "country": "SE",
+      "website": "filippa-k.com"
+    },
+    {
+      "name": "Acne Studios",
+      "category": "fashion",
+      "country": "SE",
+      "website": "acnestudios.com"
+    },
+    {
+      "name": "Tiger of Sweden",
+      "category": "fashion",
+      "country": "SE",
+      "website": "tigerofsweden.com"
+    },
+    {
+      "name": "Toteme",
+      "category": "fashion",
+      "country": "SE",
+      "website": "toteme-studio.com"
+    },
+    {
+      "name": "Nudie Jeans",
+      "category": "fashion",
+      "country": "SE",
+      "website": "nudiejeans.com"
+    },
+    {
+      "name": "Scotch & Soda",
+      "category": "fashion",
+      "country": "NL",
+      "website": "scotch-soda.com"
+    },
+    {
+      "name": "Suitsupply",
+      "category": "fashion",
+      "country": "NL",
+      "website": "suitsupply.com"
+    },
+    {
+      "name": "G-Star RAW",
+      "category": "fashion",
+      "country": "NL",
+      "website": "g-star.com"
+    },
+    {
+      "name": "Denham",
+      "category": "fashion",
+      "country": "NL",
+      "website": "denhamthejeanmaker.com"
+    },
+    {
+      "name": "Tommy Hilfiger",
+      "category": "fashion",
+      "country": "NL",
+      "website": "tommy.com"
+    },
+    {
+      "name": "Calvin Klein",
+      "category": "fashion",
+      "country": "US",
+      "website": "calvinklein.com"
+    },
+    {
+      "name": "Hugo Boss",
+      "category": "fashion",
+      "country": "DE",
+      "website": "hugoboss.com"
+    },
+    {
+      "name": "Lacoste",
+      "category": "fashion",
+      "country": "FR",
+      "website": "lacoste.com"
+    },
+    {
+      "name": "Ralph Lauren",
+      "category": "fashion",
+      "country": "US",
+      "website": "ralphlauren.com"
+    },
+    {
+      "name": "Gant",
+      "category": "fashion",
+      "country": "SE",
+      "website": "gant.com"
+    },
+    {
+      "name": "Superdry",
+      "category": "fashion",
+      "country": "GB",
+      "website": "superdry.com"
+    },
+    {
+      "name": "Jack & Jones",
+      "category": "fashion",
+      "country": "DK",
+      "website": "jackjones.com"
+    },
+    {
+      "name": "Vero Moda",
+      "category": "fashion",
+      "country": "DK",
+      "website": "veromoda.com"
+    },
+    {
+      "name": "Only",
+      "category": "fashion",
+      "country": "DK",
+      "website": "only.com"
+    },
+    {
+      "name": "Selected",
+      "category": "fashion",
+      "country": "DK",
+      "website": "selected.com"
+    },
+    {
+      "name": "Pieces",
+      "category": "fashion",
+      "country": "DK",
+      "website": "pieces.com"
+    },
+    {
+      "name": "Name It",
+      "category": "fashion",
+      "country": "DK",
+      "website": "nameit.com"
+    },
+    {
+      "name": "Pandora",
+      "category": "jewelry",
+      "country": "DK",
+      "website": "pandora.net"
+    },
+    {
+      "name": "Swarovski",
+      "category": "jewelry",
+      "country": "AT",
+      "website": "swarovski.com"
+    },
+    {
+      "name": "Monica Vinader",
+      "category": "jewelry",
+      "country": "GB",
+      "website": "monicavinader.com"
+    },
+    {
+      "name": "Missoma",
+      "category": "jewelry",
+      "country": "GB",
+      "website": "missoma.com"
+    },
+    {
+      "name": "Astrid & Miyu",
+      "category": "jewelry",
+      "country": "GB",
+      "website": "astridandmiyu.com"
+    },
+    {
+      "name": "Mejuri",
+      "category": "jewelry",
+      "country": "CA",
+      "website": "mejuri.com"
+    },
+    {
+      "name": "Daniel Wellington",
+      "category": "watches",
+      "country": "SE",
+      "website": "danielwellington.com"
+    },
+    {
+      "name": "Nordgreen",
+      "category": "watches",
+      "country": "DK",
+      "website": "nordgreen.com"
+    },
+    {
+      "name": "Skagen",
+      "category": "watches",
+      "country": "DK",
+      "website": "skagen.com"
+    },
+    {
+      "name": "Kapten & Son",
+      "category": "watches",
+      "country": "DE",
+      "website": "kapten-son.com"
+    },
+    {
+      "name": "Ray-Ban",
+      "category": "eyewear",
+      "country": "IT",
+      "website": "ray-ban.com"
+    },
+    {
+      "name": "Ace & Tate",
+      "category": "eyewear",
+      "country": "NL",
+      "website": "aceandtate.com"
+    },
+    {
+      "name": "Mister Spex",
+      "category": "eyewear",
+      "country": "DE",
+      "website": "misterspex.com"
+    },
+    {
+      "name": "Polette",
+      "category": "eyewear",
+      "country": "NL",
+      "website": "polette.com"
+    },
+    {
+      "name": "Away",
+      "category": "travel",
+      "country": "US",
+      "website": "awaytravel.com"
+    },
+    {
+      "name": "Horizn Studios",
+      "category": "travel",
+      "country": "DE",
+      "website": "horizn-studios.com"
+    },
+    {
+      "name": "July",
+      "category": "travel",
+      "country": "AU",
+      "website": "july.com"
+    },
+    {
+      "name": "Rimowa",
+      "category": "travel",
+      "country": "DE",
+      "website": "rimowa.com"
+    },
+    {
+      "name": "Eastpak",
+      "category": "bags",
+      "country": "US",
+      "website": "eastpak.com"
+    },
+    {
+      "name": "Fjällräven",
+      "category": "bags",
+      "country": "SE",
+      "website": "fjallraven.com"
+    },
+    {
+      "name": "Sandqvist",
+      "category": "bags",
+      "country": "SE",
+      "website": "sandqvist.com"
+    },
+    {
+      "name": "Rains",
+      "category": "bags",
+      "country": "DK",
+      "website": "rains.com"
+    },
+    {
+      "name": "Freitag",
+      "category": "bags",
+      "country": "CH",
+      "website": "freitag.ch"
+    },
+    {
+      "name": "Birkenstock",
+      "category": "footwear",
+      "country": "DE",
+      "website": "birkenstock.com"
+    },
+    {
+      "name": "Dr. Martens",
+      "category": "footwear",
+      "country": "GB",
+      "website": "drmartens.com"
+    },
+    {
+      "name": "Clarks",
+      "category": "footwear",
+      "country": "GB",
+      "website": "clarks.com"
+    },
+    {
+      "name": "Ecco",
+      "category": "footwear",
+      "country": "DK",
+      "website": "ecco.com"
+    },
+    {
+      "name": "Veja",
+      "category": "footwear",
+      "country": "FR",
+      "website": "veja-store.com"
+    },
+    {
+      "name": "Allbirds",
+      "category": "footwear",
+      "country": "US",
+      "website": "allbirds.com"
+    },
+    {
+      "name": "Axel Arigato",
+      "category": "footwear",
+      "country": "SE",
+      "website": "axelarigato.com"
+    },
+    {
+      "name": "Filling Pieces",
+      "category": "footwear",
+      "country": "NL",
+      "website": "fillingpieces.com"
+    },
+    {
+      "name": "Superga",
+      "category": "footwear",
+      "country": "IT",
+      "website": "superga.com"
+    },
+    {
+      "name": "Converse",
+      "category": "footwear",
+      "country": "US",
+      "website": "converse.com"
+    },
+    {
+      "name": "Vans",
+      "category": "footwear",
+      "country": "US",
+      "website": "vans.com"
+    },
+    {
+      "name": "Reformation",
+      "category": "fashion",
+      "country": "US",
+      "website": "thereformation.com"
+    },
+    {
+      "name": "Everlane",
+      "category": "fashion",
+      "country": "US",
+      "website": "everlane.com"
+    },
+    {
+      "name": "Armedangels",
+      "category": "fashion",
+      "country": "DE",
+      "website": "armedangels.com"
+    },
+    {
+      "name": "Thought",
+      "category": "fashion",
+      "country": "GB",
+      "website": "wearethought.com"
+    },
+    {
+      "name": "People Tree",
+      "category": "fashion",
+      "country": "GB",
+      "website": "peopletree.co.uk"
+    },
+    {
+      "name": "Organic Basics",
+      "category": "fashion",
+      "country": "DK",
+      "website": "organicbasics.com"
+    },
+    {
+      "name": "Colorful Standard",
+      "category": "fashion",
+      "country": "DK",
+      "website": "colorfulstandard.com"
+    },
+    {
+      "name": "CDLP",
+      "category": "fashion",
+      "country": "SE",
+      "website": "cdlp.com"
+    },
+    {
+      "name": "Sunspel",
+      "category": "fashion",
+      "country": "GB",
+      "website": "sunspel.com"
+    },
+    {
+      "name": "Orlebar Brown",
+      "category": "fashion",
+      "country": "GB",
+      "website": "orlebarbrown.com"
+    }
+  ]
+}
