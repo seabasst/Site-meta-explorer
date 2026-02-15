@@ -48,10 +48,20 @@ export interface TrendSnapshot {
   estimatedSpendUsd: number;
 }
 
+export interface TopHook {
+  id: string;
+  hookText: string;
+  frequency: number;
+  totalReach: number;
+  avgReachPerAd: number;
+  snapshotId: string;
+}
+
 export interface DashboardData {
   ownBrand: TrackedBrand | null;
   competitors: TrackedBrand[];
   trendSnapshots: TrendSnapshot[];
+  topHooks: TopHook[];
 }
 
 export function useTrackedBrands() {

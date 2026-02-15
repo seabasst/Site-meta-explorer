@@ -57,11 +57,34 @@ export async function GET() {
       })
     : [];
 
+  // Fetch top hooks from all tracked brands' latest snapshots
+  const latestSnapshotIds = [
+    ...(ownBrand?.snapshots?.[0]?.id ? [ownBrand.snapshots[0].id] : []),
+    ...competitors.flatMap(c => c.snapshots?.[0]?.id ? [c.snapshots[0].id] : []),
+  ];
+
+  const topHooks = latestSnapshotIds.length > 0
+    ? await prisma.hookGroup.findMany({
+        where: { snapshotId: { in: latestSnapshotIds } },
+        orderBy: { totalReach: 'desc' },
+        take: 20,
+        select: {
+          id: true,
+          hookText: true,
+          frequency: true,
+          totalReach: true,
+          avgReachPerAd: true,
+          snapshotId: true,
+        },
+      })
+    : [];
+
   return NextResponse.json(
     serialize({
       ownBrand,
       competitors,
       trendSnapshots,
+      topHooks,
     })
   );
 }

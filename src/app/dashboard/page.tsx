@@ -7,9 +7,10 @@ import { useTrackedBrands } from '@/hooks/use-tracked-brands';
 import { OwnBrandCard } from '@/components/dashboard/own-brand-card';
 import { CompetitorCard } from '@/components/dashboard/competitor-card';
 import { BrandSetupModal } from '@/components/dashboard/brand-setup-modal';
-import { ComparisonTable } from '@/components/dashboard/comparison-table';
+import { MediaMixChart } from '@/components/dashboard/media-mix-chart';
+import { PerformanceInsights } from '@/components/dashboard/performance-insights';
+import { TopHooks } from '@/components/dashboard/top-hooks';
 import { TrendChart } from '@/components/dashboard/trend-chart';
-import { DemographicsComparison } from '@/components/dashboard/demographics-comparison';
 import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
 import { SubscriptionStatus } from '@/components/subscription/subscription-status';
@@ -149,6 +150,7 @@ export default function DashboardPage() {
   const ownBrand = data?.ownBrand ?? null;
   const competitors = data?.competitors ?? [];
   const trendSnapshots = data?.trendSnapshots ?? [];
+  const topHooks = data?.topHooks ?? [];
   const ownSnapshot = ownBrand?.snapshots[0] ?? null;
 
   const filteredCompetitors = competitors
@@ -325,8 +327,27 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              {/* 3. Comparison Table */}
-              <ComparisonTable ownBrand={ownBrand} competitors={competitors} />
+              {/* 3. Performance Signals - Actionable insights */}
+              <PerformanceInsights
+                ownBrand={ownBrand}
+                competitors={competitors}
+              />
+
+              {/* 4. Media Mix + Top Hooks - Side by side */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <MediaMixChart
+                  ownBrand={ownBrand}
+                  competitors={competitors}
+                />
+                <TopHooks hooks={topHooks} />
+              </div>
+
+              {/* 5. Trend Charts - Historical context */}
+              <TrendChart
+                ownBrand={ownBrand}
+                competitors={competitors}
+                trendSnapshots={trendSnapshots}
+              />
 
               {/* Compare Brands link - show when 2+ brands have snapshots */}
               {(() => {
@@ -341,24 +362,11 @@ export default function DashboardPage() {
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent-green)] transition-colors"
                     >
                       <Scale className="w-4 h-4" />
-                      Compare Brands
+                      Compare Brands in Detail
                     </Link>
                   </div>
                 ) : null;
               })()}
-
-              {/* 4. Trend Charts */}
-              <TrendChart
-                ownBrand={ownBrand}
-                competitors={competitors}
-                trendSnapshots={trendSnapshots}
-              />
-
-              {/* 5. Demographics Comparison */}
-              <DemographicsComparison
-                ownBrand={ownBrand}
-                competitors={competitors}
-              />
             </div>
           )}
         </div>

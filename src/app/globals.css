@@ -21,6 +21,12 @@
   --border-subtle: #d4e0dc;
   --border-medium: #b8ccc6;
 
+  /* Blue color scheme for dashboard charts */
+  --chart-blue: #5B8DEF;
+  --chart-blue-light: #93B4F5;
+  --chart-navy: #1E2A5E;
+  --chart-navy-light: #3D4F7A;
+
   /* Category colors - harmonized with light theme */
   --cat-landing: #1a3933;
   --cat-landing-bg: rgba(26, 57, 51, 0.1);
@@ -249,6 +255,45 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
   box-shadow: 0 4px 24px -4px rgba(26, 57, 51, 0.08);
+}
+
+/* Dashboard card - clean white with subtle shadow (like reference) */
+.dashboard-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+/* Pill filter tabs (like reference All/Active/Inactive) */
+.pill-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #f5f5f5;
+  border-radius: 24px;
+}
+
+.pill-tab {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.pill-tab:hover {
+  color: var(--text-secondary);
+}
+
+.pill-tab.active {
+  background: var(--chart-blue);
+  color: white;
+  box-shadow: 0 2px 4px rgba(91, 141, 239, 0.3);
 }
 
 /* Glow effects */
