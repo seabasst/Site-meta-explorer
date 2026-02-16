@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const NOTION_DATABASE_ID = 'f551c505-36e0-409e-9451-1f0c7184f570';
+const NOTION_DATABASE_ID = '2f5a66a6b1b680339d4ecbc1b741a756';
 
 interface SignupRequest {
   email: string;
@@ -37,8 +37,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const today = new Date().toISOString().split('T')[0];
-
     const response = await fetch('https://api.notion.com/v1/pages', {
       method: 'POST',
       headers: {
@@ -55,23 +53,10 @@ export async function POST(request: Request) {
             title: [
               {
                 text: {
-                  content: body.name?.trim() || body.email.trim(),
+                  content: `${body.email.trim()}${body.name ? ` (${body.name.trim()})` : ''}`,
                 },
               },
             ],
-          },
-          Email: {
-            email: body.email.trim(),
-          },
-          Source: {
-            select: {
-              name: 'Coming Soon Page',
-            },
-          },
-          'Signed Up': {
-            date: {
-              start: today,
-            },
           },
         },
       }),
