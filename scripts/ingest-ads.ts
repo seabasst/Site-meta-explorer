@@ -26,11 +26,12 @@ const FACEBOOK_ACCESS_TOKEN = process.env.FACEBOOK_ACCESS_TOKEN;
 const API_VERSION = 'v19.0';
 const BASE_URL = 'https://graph.facebook.com';
 
-// Rate limiting
-const DELAY_BETWEEN_REQUESTS = 1000; // 1 second
-const DELAY_BETWEEN_BRANDS = 3000;   // 3 seconds between brands
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 5000;
+// Rate limiting - conservative to avoid 613 errors
+const DELAY_BETWEEN_REQUESTS = 2000; // 2 seconds between pagination requests
+const DELAY_BETWEEN_BRANDS = 30000;  // 30 seconds between brands
+const MAX_RETRIES = 5;
+const INITIAL_RETRY_DELAY = 60000;   // 1 minute initial retry delay
+const RATE_LIMIT_PAUSE = 300000;     // 5 minute pause when rate limited
 
 // EU + GB countries for comprehensive coverage
 const EU_COUNTRIES = [
@@ -173,13 +174,20 @@ async function fetchAdsPage(
     const data = await response.json();
 
     if (data.error) {
-      // Rate limit hit - wait and retry
-      if (data.error.code === 4 || data.error.code === 17) {
+      // Rate limit hit - wait and retry with exponential backoff
+      const rateLimitCodes = [4, 17, 613, 80004];
+      if (rateLimitCodes.includes(data.error.code)) {
         if (retryCount < MAX_RETRIES) {
-          console.log(`    ⏳ Rate limited, waiting ${RETRY_DELAY / 1000}s...`);
-          await sleep(RETRY_DELAY * (retryCount + 1));
+          // Exponential backoff: 1min, 2min, 4min, 8min, 16min
+          const waitTime = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+          console.log(`    ⏳ Rate limited (code ${data.error.code}), waiting ${waitTime / 60000} minutes...`);
+          await sleep(waitTime);
           return fetchAdsPage(pageId, cursor, retryCount + 1);
         }
+        // If all retries exhausted, throw with a flag to pause processing
+        const error = new Error(`API Error: ${data.error.message} (code: ${data.error.code})`);
+        (error as any).isRateLimit = true;
+        throw error;
       }
       throw new Error(`API Error: ${data.error.message} (code: ${data.error.code})`);
     }
@@ -436,7 +444,9 @@ async function ingestBrand(
 
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error);
+    const isRateLimit = (error as any).isRateLimit || errMsg.includes('613') || errMsg.includes('rate limit');
     stats.errors.push(errMsg);
+    (stats as any).isRateLimit = isRateLimit;
     console.error(`  ❌ Failed: ${errMsg}`);
 
     if (job) {
@@ -537,10 +547,15 @@ async function main() {
     totalStats.adsUpdated += stats.adsUpdated;
     totalStats.errors.push(...stats.errors);
 
-    // Delay between brands
+    // Delay between brands - longer if rate limited
     if (i < brands.length - 1) {
-      console.log(`\n  Waiting ${DELAY_BETWEEN_BRANDS / 1000}s before next brand...`);
-      await sleep(DELAY_BETWEEN_BRANDS);
+      if ((stats as any).isRateLimit) {
+        console.log(`\n  ⚠️ Rate limit hit - pausing for ${RATE_LIMIT_PAUSE / 60000} minutes before next brand...`);
+        await sleep(RATE_LIMIT_PAUSE);
+      } else {
+        console.log(`\n  Waiting ${DELAY_BETWEEN_BRANDS / 1000}s before next brand...`);
+        await sleep(DELAY_BETWEEN_BRANDS);
+      }
     }
   }
 
