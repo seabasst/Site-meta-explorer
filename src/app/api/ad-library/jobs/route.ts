@@ -94,6 +94,48 @@ function buildWhereClause(params: JobsQueryParams): Prisma.IngestionJobWhereInpu
 // List all ingestion jobs with pagination and filtering
 // =============================================================================
 
+// =============================================================================
+// POST /api/ad-library/jobs
+// Perform actions on jobs (cleanup stale, etc.)
+// =============================================================================
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { action } = body;
+
+    if (action === 'cleanup-stale') {
+      const result = await prisma.ingestionJob.updateMany({
+        where: { status: 'running' },
+        data: {
+          status: 'failed',
+          errorMessage: 'Job terminated - stale running state',
+          completedAt: new Date(),
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `Cleaned up ${result.count} stale jobs`,
+        count: result.count,
+      });
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  } catch (error) {
+    console.error('[POST /api/ad-library/jobs] Error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to perform action' },
+      { status: 500 }
+    );
+  }
+}
+
+// =============================================================================
+// GET /api/ad-library/jobs
+// List all ingestion jobs with pagination and filtering
+// =============================================================================
+
 export async function GET(req: NextRequest) {
   try {
     const params = parseQueryParams(req);
