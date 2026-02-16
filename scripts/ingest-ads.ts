@@ -33,11 +33,22 @@ const MAX_RETRIES = 5;
 const INITIAL_RETRY_DELAY = 60000;   // 1 minute initial retry delay
 const RATE_LIMIT_PAUSE = 300000;     // 5 minute pause when rate limited
 
-// EU + GB countries for comprehensive coverage
-const EU_COUNTRIES = [
+// Global countries for comprehensive coverage
+const TARGET_COUNTRIES = [
+  // Europe (EU + GB + others)
   'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
   'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
-  'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'GB'
+  'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'GB', 'CH', 'NO',
+  // North America
+  'US', 'CA', 'MX',
+  // Asia-Pacific
+  'AU', 'NZ', 'JP', 'KR', 'SG', 'HK', 'TW', 'IN', 'PH', 'MY', 'ID', 'TH', 'VN',
+  // Middle East
+  'AE', 'SA', 'IL',
+  // South America
+  'BR', 'AR', 'CO', 'CL',
+  // Africa
+  'ZA', 'NG', 'EG',
 ];
 
 // Fields to fetch from Meta API
@@ -158,7 +169,7 @@ async function fetchAdsPage(
   const params = new URLSearchParams({
     access_token: FACEBOOK_ACCESS_TOKEN!,
     search_page_ids: pageId,
-    ad_reached_countries: JSON.stringify(EU_COUNTRIES),
+    ad_reached_countries: JSON.stringify(TARGET_COUNTRIES),
     ad_type: 'ALL',
     ad_active_status: 'ALL',
     fields: AD_FIELDS,
