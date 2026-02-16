@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/ad-library/cron/ingest",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
