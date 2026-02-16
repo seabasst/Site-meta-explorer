@@ -144,41 +144,37 @@ function detectDisplayFormat(ad: MetaAd): string {
 
 async function upsertAd(ad: MetaAd, brandId: string): Promise<'created' | 'updated'> {
   const existing = await prisma.adLibraryAd.findUnique({
-    where: { adArchiveId: ad.id },
+    where: { adId: ad.id },
     select: { id: true },
   });
 
   const data = {
     brandId,
-    adArchiveId: ad.id,
-    pageId: ad.page_id || '',
-    pageName: ad.page_name || '',
-    snapshotUrl: ad.ad_snapshot_url || '',
+    adId: ad.id,
+    snapshotUrl: ad.ad_snapshot_url || null,
     startDate: ad.ad_delivery_start_time ? new Date(ad.ad_delivery_start_time) : null,
     endDate: ad.ad_delivery_stop_time ? new Date(ad.ad_delivery_stop_time) : null,
     isActive: !ad.ad_delivery_stop_time,
     publisherPlatforms: ad.publisher_platforms || [],
     displayFormat: detectDisplayFormat(ad),
-    creativeBody: ad.ad_creative_bodies?.[0] || null,
-    creativeBodies: ad.ad_creative_bodies || [],
-    linkCaption: ad.ad_creative_link_captions?.[0] || null,
+    body: ad.ad_creative_bodies?.[0] || null,
+    caption: ad.ad_creative_link_captions?.[0] || null,
     linkDescription: ad.ad_creative_link_descriptions?.[0] || null,
-    linkTitle: ad.ad_creative_link_titles?.[0] || null,
-    linkTitles: ad.ad_creative_link_titles || [],
-    languages: ad.languages || [],
+    title: ad.ad_creative_link_titles?.[0] || null,
     currency: ad.currency || null,
     spendLower: ad.spend?.lower_bound || null,
     spendUpper: ad.spend?.upper_bound || null,
     impressionsLower: ad.impressions?.lower_bound || null,
     impressionsUpper: ad.impressions?.upper_bound || null,
     reachEstimate: ad.eu_total_reach || null,
-    audienceSizeLower: ad.estimated_audience_size?.lower_bound || null,
-    audienceSizeUpper: ad.estimated_audience_size?.upper_bound || null,
-    targetAges: ad.target_ages || null,
-    targetGender: ad.target_gender || null,
-    targetLocations: ad.target_locations || [],
-    deliveryByRegion: ad.delivery_by_region || [],
-    bylines: ad.bylines || null,
+    targetingJson: {
+      deliveryByRegion: ad.delivery_by_region || [],
+      targetAges: ad.target_ages || null,
+      targetGender: ad.target_gender || null,
+      targetLocations: ad.target_locations || [],
+      languages: ad.languages || [],
+      bylines: ad.bylines || null,
+    },
   };
 
   if (existing) {
@@ -233,7 +229,7 @@ async function processBrand(brandId: string, pageId: string, pageName: string) {
         ingestionStatus: 'active',
         activeAdCount: activeCount,
         totalReach: BigInt(totalReach),
-        lastIngestionAt: new Date(),
+        lastCheckedAt: new Date(),
       },
     });
 

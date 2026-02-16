@@ -19,6 +19,8 @@ import {
   FileSpreadsheet,
   Search,
   Briefcase,
+  Globe,
+  Calendar,
 } from 'lucide-react';
 
 // Types matching the API response
@@ -81,6 +83,29 @@ interface AdLibraryStats {
     queued: number;
   };
   topBrandsByAdCount: TopBrand[];
+}
+
+interface ReachByCountry {
+  country: string;
+  reach: number;
+  adCount: number;
+}
+
+interface ReachByMonth {
+  month: string;
+  reach: number;
+  adCount: number;
+}
+
+interface AnalyticsData {
+  reachByCountry: ReachByCountry[];
+  reachByMonth: ReachByMonth[];
+  summary: {
+    totalReach: number;
+    totalAds: number;
+    countriesTracked: number;
+    monthsTracked: number;
+  };
 }
 
 function formatNumber(num: number | string): string {
@@ -246,8 +271,95 @@ function PlatformChart({ data }: { data: AdPlatformCount[] }) {
   );
 }
 
+function ReachByCountryChart({ data }: { data: ReachByCountry[] }) {
+  const maxReach = Math.max(...data.map(d => d.reach), 1);
+
+  return (
+    <div className="glass rounded-xl p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <Globe className="w-4 h-4 text-[var(--accent-green)]" />
+        <h3 className="text-sm font-medium text-[var(--text-primary)]">Reach by Region</h3>
+      </div>
+      <div className="space-y-2 max-h-64 overflow-y-auto">
+        {data.slice(0, 15).map((item, i) => {
+          const percentage = (item.reach / maxReach) * 100;
+          return (
+            <div key={item.country}>
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-[var(--text-secondary)] truncate max-w-[150px]" title={item.country}>
+                  {item.country}
+                </span>
+                <span className="text-[var(--text-muted)]">{formatNumber(item.reach)}</span>
+              </div>
+              <div className="h-1.5 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${percentage}%`,
+                    backgroundColor: `hsl(${160 - i * 8}, 70%, 50%)`,
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {data.length === 0 && (
+        <p className="text-xs text-[var(--text-muted)] text-center py-4">No region data available</p>
+      )}
+    </div>
+  );
+}
+
+function ReachByMonthChart({ data }: { data: ReachByMonth[] }) {
+  const maxReach = Math.max(...data.map(d => d.reach), 1);
+
+  const formatMonth = (monthStr: string) => {
+    const [year, month] = monthStr.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1);
+    return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+  };
+
+  return (
+    <div className="glass rounded-xl p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <Calendar className="w-4 h-4 text-[var(--accent-green)]" />
+        <h3 className="text-sm font-medium text-[var(--text-primary)]">Reach by Month</h3>
+      </div>
+      <div className="flex items-end gap-1 h-40">
+        {data.slice(-12).map((item, i) => {
+          const height = (item.reach / maxReach) * 100;
+          return (
+            <div key={item.month} className="flex-1 flex flex-col items-center group">
+              <div className="relative w-full flex justify-center mb-1">
+                <div
+                  className="w-full max-w-8 rounded-t transition-all duration-300 group-hover:opacity-80"
+                  style={{
+                    height: `${Math.max(height, 4)}%`,
+                    backgroundColor: `hsl(160, 70%, ${50 + i * 2}%)`,
+                  }}
+                />
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--bg-secondary)] px-2 py-1 rounded text-xs text-[var(--text-primary)] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-lg">
+                  {formatNumber(item.reach)}
+                </div>
+              </div>
+              <span className="text-[10px] text-[var(--text-muted)] truncate w-full text-center">
+                {formatMonth(item.month)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      {data.length === 0 && (
+        <p className="text-xs text-[var(--text-muted)] text-center py-4">No monthly data available</p>
+      )}
+    </div>
+  );
+}
+
 export default function AdLibraryDashboard() {
   const [stats, setStats] = useState<AdLibraryStats | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
@@ -256,10 +368,20 @@ export default function AdLibraryDashboard() {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/ad-library/stats');
-      if (!res.ok) throw new Error('Failed to fetch stats');
-      const data = await res.json();
-      setStats(data);
+      const [statsRes, analyticsRes] = await Promise.all([
+        fetch('/api/ad-library/stats'),
+        fetch('/api/ad-library/analytics'),
+      ]);
+
+      if (!statsRes.ok) throw new Error('Failed to fetch stats');
+      const statsData = await statsRes.json();
+      setStats(statsData);
+
+      if (analyticsRes.ok) {
+        const analyticsData = await analyticsRes.json();
+        setAnalytics(analyticsData);
+      }
+
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -462,6 +584,14 @@ export default function AdLibraryDashboard() {
             <FormatChart data={stats.adsByFormat} />
             <PlatformChart data={stats.adsByPlatform} />
           </div>
+
+          {/* Analytics Row - Reach by Country and Month */}
+          {analytics && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <ReachByCountryChart data={analytics.reachByCountry} />
+              <ReachByMonthChart data={analytics.reachByMonth} />
+            </div>
+          )}
 
           {/* Top Brands Table */}
           <div className="glass rounded-xl p-5 mb-8">

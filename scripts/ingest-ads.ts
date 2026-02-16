@@ -210,7 +210,7 @@ async function fetchAdsPage(
   } catch (error) {
     if (retryCount < MAX_RETRIES) {
       console.log(`    ⚠️ Fetch error, retrying (${retryCount + 1}/${MAX_RETRIES})...`);
-      await sleep(RETRY_DELAY);
+      await sleep(INITIAL_RETRY_DELAY);
       return fetchAdsPage(pageId, cursor, retryCount + 1);
     }
     throw error;
