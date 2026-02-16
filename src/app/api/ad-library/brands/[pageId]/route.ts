@@ -232,7 +232,7 @@ function serializeJob(job: {
 
 // =============================================================================
 // GET /api/ad-library/brands/[pageId]
-// Fetch a single brand by pageId with recent ads and stats
+// Fetch a single brand by pageId with paginated ads
 // =============================================================================
 
 export async function GET(
@@ -243,10 +243,21 @@ export async function GET(
     const { pageId } = await params;
     const { searchParams } = new URL(req.url);
 
-    // Parse query params for ads
-    const adsLimit = Math.min(50, Math.max(1, parseInt(searchParams.get('adsLimit') ?? '10', 10)));
-    const adsOffset = Math.max(0, parseInt(searchParams.get('adsOffset') ?? '0', 10));
-    const activeOnly = searchParams.get('activeOnly') === 'true';
+    // Parse pagination params
+    const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10));
+    const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') ?? '24', 10)));
+    const skip = (page - 1) * pageSize;
+
+    // Parse filter params
+    const search = searchParams.get('search') ?? '';
+    const format = searchParams.get('format') ?? '';
+    const isActiveParam = searchParams.get('isActive');
+    const startDateFrom = searchParams.get('startDateFrom');
+    const startDateTo = searchParams.get('startDateTo');
+
+    // Parse sort params
+    const sortBy = searchParams.get('sortBy') ?? 'startDate';
+    const sortOrder = (searchParams.get('sortOrder') ?? 'desc') as 'asc' | 'desc';
 
     // Find brand by pageId
     const brand = await prisma.adLibraryBrand.findUnique({
@@ -263,21 +274,47 @@ export async function GET(
     // Build ads where clause
     const adsWhere: Prisma.AdLibraryAdWhereInput = {
       brandId: brand.id,
-      ...(activeOnly ? { isActive: true } : {}),
     };
 
-    // Fetch related data in parallel
-    const [
-      recentAds,
-      recentJobs,
-      totalAds,
-      activeAds,
-      totalAssets,
-      pendingAssets,
-      completedJobs,
-      failedJobs,
-    ] = await Promise.all([
-      // Recent ads with assets
+    // Filter by format
+    if (format) {
+      adsWhere.displayFormat = format;
+    }
+
+    // Filter by active status
+    if (isActiveParam === 'true') {
+      adsWhere.isActive = true;
+    } else if (isActiveParam === 'false') {
+      adsWhere.isActive = false;
+    }
+
+    // Filter by date range
+    if (startDateFrom || startDateTo) {
+      adsWhere.startDate = {};
+      if (startDateFrom) {
+        adsWhere.startDate.gte = new Date(startDateFrom);
+      }
+      if (startDateTo) {
+        adsWhere.startDate.lte = new Date(startDateTo);
+      }
+    }
+
+    // Search in text fields
+    if (search) {
+      adsWhere.OR = [
+        { body: { contains: search, mode: 'insensitive' } },
+        { title: { contains: search, mode: 'insensitive' } },
+        { caption: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    // Build sort order
+    const validSortFields = ['startDate', 'reachEstimate', 'createdAt', 'displayFormat'];
+    const orderByField = validSortFields.includes(sortBy) ? sortBy : 'startDate';
+    const orderBy: Record<string, 'asc' | 'desc'> = { [orderByField]: sortOrder };
+
+    // Fetch ads and total count in parallel
+    const [ads, totalAds] = await Promise.all([
       prisma.adLibraryAd.findMany({
         where: adsWhere,
         include: {
@@ -297,68 +334,25 @@ export async function GET(
             orderBy: { position: 'asc' },
           },
         },
-        orderBy: { startDate: 'desc' },
-        skip: adsOffset,
-        take: adsLimit,
+        orderBy,
+        skip,
+        take: pageSize,
       }),
-      // Recent ingestion jobs
-      prisma.ingestionJob.findMany({
-        where: { brandId: brand.id },
-        orderBy: { createdAt: 'desc' },
-        take: 5,
-        select: {
-          id: true,
-          jobType: true,
-          status: true,
-          adsFetched: true,
-          adsCreated: true,
-          adsUpdated: true,
-          assetsQueued: true,
-          assetsDownloaded: true,
-          assetsFailed: true,
-          errorMessage: true,
-          startedAt: true,
-          completedAt: true,
-          createdAt: true,
-        },
-      }),
-      // Stats: total ads
-      prisma.adLibraryAd.count({ where: { brandId: brand.id } }),
-      // Stats: active ads
-      prisma.adLibraryAd.count({ where: { brandId: brand.id, isActive: true } }),
-      // Stats: total assets
-      prisma.adAsset.count({
-        where: { ad: { brandId: brand.id } },
-      }),
-      // Stats: pending assets
-      prisma.adAsset.count({
-        where: { ad: { brandId: brand.id }, downloadStatus: 'pending' },
-      }),
-      // Stats: completed jobs
-      prisma.ingestionJob.count({
-        where: { brandId: brand.id, status: 'completed' },
-      }),
-      // Stats: failed jobs
-      prisma.ingestionJob.count({
-        where: { brandId: brand.id, status: 'failed' },
-      }),
+      prisma.adLibraryAd.count({ where: adsWhere }),
     ]);
 
-    const response: BrandDetailResponse = {
-      brand: serializeBrand(brand),
-      recentAds: recentAds.map(serializeAd),
-      recentJobs: recentJobs.map(serializeJob),
-      stats: {
-        totalAds,
-        activeAds,
-        totalAssets,
-        pendingAssets,
-        completedJobs,
-        failedJobs,
-      },
-    };
+    const totalPages = Math.ceil(totalAds / pageSize);
 
-    return NextResponse.json(response);
+    return NextResponse.json({
+      brand: serializeBrand(brand),
+      ads: ads.map(serializeAd),
+      pagination: {
+        total: totalAds,
+        page,
+        pageSize,
+        totalPages,
+      },
+    });
   } catch (error) {
     console.error('[GET /api/ad-library/brands/[pageId]] Error:', error);
     return NextResponse.json(

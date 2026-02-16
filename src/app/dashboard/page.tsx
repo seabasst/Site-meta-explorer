@@ -15,7 +15,7 @@ import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
 import { SubscriptionStatus } from '@/components/subscription/subscription-status';
 import { DeleteBrandDialog } from '@/components/dashboard/delete-brand-dialog';
-import { Menu, Search, Scale } from 'lucide-react';
+import { Menu, Search, Scale, Database } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -409,6 +409,9 @@ function DashboardNav({ session, authStatus }: { session: unknown; authStatus: s
           <a href="/dashboard" className="px-3 py-2 text-sm text-[var(--accent-green-light)] font-medium transition-colors rounded-lg bg-[var(--bg-tertiary)]">
             Dashboard
           </a>
+          <a href="/dashboard/ad-library" className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]">
+            Ad Library
+          </a>
           <a href="/about" className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]">
             About us
           </a>
@@ -454,6 +457,9 @@ function DashboardNav({ session, authStatus }: { session: unknown; authStatus: s
         </a>
         <a href="/dashboard" className="block px-3 py-2 text-sm text-[var(--accent-green-light)] font-medium rounded-lg bg-[var(--bg-tertiary)]">
           Dashboard
+        </a>
+        <a href="/dashboard/ad-library" className="block px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)]">
+          Ad Library
         </a>
         <a href="/about" className="block px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)]">
           About us
