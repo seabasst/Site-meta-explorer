@@ -30,7 +30,7 @@ const BASE_URL = 'https://graph.facebook.com';
 const DELAY_BETWEEN_REQUESTS = 2000; // 2 seconds between pagination requests
 const DELAY_BETWEEN_BRANDS = 30000;  // 30 seconds between brands
 const MAX_RETRIES = 5;
-const INITIAL_RETRY_DELAY = 60000;   // 1 minute initial retry delay
+const INITIAL_RETRY_DELAY = 60000; // 1 minute initial retry delay
 const RATE_LIMIT_PAUSE = 300000;     // 5 minute pause when rate limited
 
 // Global countries for comprehensive coverage
