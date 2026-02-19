@@ -3,6 +3,10 @@
     {
       "path": "/api/ad-library/cron/ingest",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/ad-library/cron/assets",
+      "schedule": "*/30 * * * *"
     }
   ]
 }
