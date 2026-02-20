@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 const IS_VERCEL = !!process.env.VERCEL;
+const USE_R2_ONLY = process.env.USE_R2_ONLY === 'true';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,9 +16,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // On Vercel, Puppeteer + local file cache won't work.
-    // Return the snapshot URL directly so the client can render it in an iframe.
-    if (IS_VERCEL) {
+    // First, check if we have this asset stored in R2
+    const asset = await prisma.adAsset.findFirst({
+      where: {
+        ad: { adId: adId },
+        downloadStatus: 'completed',
+        storedUrl: { not: null },
+      },
+      select: {
+        storedUrl: true,
+        assetType: true,
+      },
+    });
+
+    if (asset?.storedUrl) {
+      return NextResponse.json({
+        success: true,
+        mediaUrl: asset.storedUrl,
+        mediaType: asset.assetType === 'video' ? 'video' : 'image',
+      });
+    }
+
+    // If R2-only mode or on Vercel, return snapshot URL as fallback
+    if (USE_R2_ONLY || IS_VERCEL) {
       return NextResponse.json({
         success: true,
         mediaUrl: snapshotUrl,
@@ -24,7 +46,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Dynamic import to avoid pulling in Puppeteer on Vercel
+    // Locally: use Puppeteer to extract and cache media
     const { getOrCacheMedia } = await import('@/lib/media-cache');
     const entry = await getOrCacheMedia(adId, snapshotUrl);
 

@@ -142,7 +142,7 @@ function detectDisplayFormat(ad: MetaAd): string {
   return 'image';
 }
 
-async function upsertAd(ad: MetaAd, brandId: string): Promise<'created' | 'updated'> {
+async function upsertAd(ad: MetaAd, brandId: string): Promise<{ action: 'created' | 'updated'; adDbId: string }> {
   const existing = await prisma.adLibraryAd.findUnique({
     where: { adId: ad.id },
     select: { id: true },
@@ -177,13 +177,53 @@ async function upsertAd(ad: MetaAd, brandId: string): Promise<'created' | 'updat
     },
   };
 
+  let adDbId: string;
+  let action: 'created' | 'updated';
+
   if (existing) {
     await prisma.adLibraryAd.update({ where: { id: existing.id }, data });
-    return 'updated';
+    adDbId = existing.id;
+    action = 'updated';
   } else {
-    await prisma.adLibraryAd.create({ data });
-    return 'created';
+    const created = await prisma.adLibraryAd.create({ data });
+    adDbId = created.id;
+    action = 'created';
   }
+
+  // Create/update AdAsset with fresh snapshot URL for later processing
+  if (ad.ad_snapshot_url) {
+    // Check if asset already exists and is completed
+    const existingAsset = await prisma.adAsset.findUnique({
+      where: { id: `${adDbId}-0` },
+      select: { downloadStatus: true },
+    });
+
+    if (!existingAsset) {
+      // Create new asset record
+      await prisma.adAsset.create({
+        data: {
+          id: `${adDbId}-0`,
+          adId: adDbId,
+          assetType: detectDisplayFormat(ad) === 'video' ? 'video' : 'image',
+          position: 0,
+          originalUrl: ad.ad_snapshot_url,
+          downloadStatus: 'pending',
+        },
+      });
+    } else if (existingAsset.downloadStatus !== 'completed') {
+      // Update with fresh URL if not already completed
+      await prisma.adAsset.update({
+        where: { id: `${adDbId}-0` },
+        data: {
+          originalUrl: ad.ad_snapshot_url,
+          downloadStatus: 'pending',
+          downloadError: null,
+        },
+      });
+    }
+  }
+
+  return { action, adDbId };
 }
 
 async function processBrand(brandId: string, pageId: string, pageName: string) {
@@ -210,14 +250,17 @@ async function processBrand(brandId: string, pageId: string, pageName: string) {
       data: { adsFetched: ads.length },
     });
 
-    // Upsert ads
+    // Upsert ads and create asset records
     let created = 0;
     let updated = 0;
+    let assetsQueued = 0;
     for (const ad of ads) {
       const result = await upsertAd(ad, brandId);
-      if (result === 'created') created++;
+      if (result.action === 'created') created++;
       else updated++;
+      if (ad.ad_snapshot_url) assetsQueued++;
     }
+    console.log(`Queued ${assetsQueued} assets for processing`);
 
     // Update brand status
     const activeCount = ads.filter(a => !a.ad_delivery_stop_time).length;
