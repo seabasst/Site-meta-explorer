@@ -169,6 +169,13 @@ function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Calculate date 1 year ago for filtering
+function getOneYearAgoDate(): string {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 1);
+  return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+}
+
 async function fetchAdsPage(
   pageId: string,
   cursor?: string,
@@ -182,6 +189,7 @@ async function fetchAdsPage(
     ad_reached_countries: JSON.stringify(TARGET_COUNTRIES),
     ad_type: 'ALL',
     ad_active_status: 'ALL',
+    ad_delivery_date_min: getOneYearAgoDate(), // Only ads from last year
     fields: AD_FIELDS,
     limit: String(limit),
   });
@@ -240,6 +248,7 @@ async function fetchAdsBySearchTerms(
     ad_reached_countries: JSON.stringify(TARGET_COUNTRIES),
     ad_type: 'ALL',
     ad_active_status: 'ALL',
+    ad_delivery_date_min: getOneYearAgoDate(), // Only ads from last year
     fields: AD_FIELDS,
     limit: String(limit),
   });
