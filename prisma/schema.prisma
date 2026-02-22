@@ -176,6 +176,7 @@ model AdLibraryBrand {
   // Ingestion control
   ingestionStatus String   @default("pending") // pending, active, paused, failed
   priority        Int      @default(0)         // Higher = process first
+  failCount       Int      @default(0)         // Number of consecutive failures (paused at 3+)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

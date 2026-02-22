@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useAdMedia } from '@/hooks/use-ad-media';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -136,16 +137,21 @@ function FormatIcon({ format }: { format: string }) {
 
 function AdCard({ ad, viewMode }: { ad: Ad; viewMode: 'grid' | 'list' }) {
   const [imageError, setImageError] = useState(false);
+  const { mediaUrl, mediaType, isLoading } = useAdMedia(ad.adId, ad.snapshotUrl);
 
   if (viewMode === 'list') {
     return (
       <div className="glass rounded-lg p-4 flex gap-4 hover:bg-[var(--bg-tertiary)]/50 transition-colors">
         {/* Thumbnail */}
         <div className="w-24 h-24 rounded-lg bg-[var(--bg-tertiary)] flex-shrink-0 overflow-hidden">
-          {ad.snapshotUrl && !imageError ? (
-            <a href={ad.snapshotUrl} target="_blank" rel="noopener noreferrer">
+          {isLoading ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="w-6 h-6 border-2 border-[var(--accent-green)] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : mediaUrl && !imageError ? (
+            <a href={ad.snapshotUrl || '#'} target="_blank" rel="noopener noreferrer">
               <img
-                src={`https://www.facebook.com/ads/archive/render_ad/?id=${ad.adId}&access_token=`}
+                src={mediaUrl}
                 alt=""
                 className="w-full h-full object-cover"
                 onError={() => setImageError(true)}
@@ -215,17 +221,36 @@ function AdCard({ ad, viewMode }: { ad: Ad; viewMode: 'grid' | 'list' }) {
     <div className="glass rounded-xl overflow-hidden hover:ring-1 hover:ring-[var(--accent-green)]/30 transition-all group">
       {/* Image/Preview Area */}
       <div className="aspect-square bg-[var(--bg-tertiary)] relative">
-        {ad.snapshotUrl && !imageError ? (
-          <a href={ad.snapshotUrl} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+        {isLoading ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-[var(--accent-green)] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : mediaUrl && !imageError ? (
+          <a href={ad.snapshotUrl || '#'} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+            {mediaType === 'video' ? (
+              <video
+                src={mediaUrl}
+                className="w-full h-full object-cover"
+                muted
+                playsInline
+                preload="metadata"
+              />
+            ) : (
+              <img
+                src={mediaUrl}
+                alt={ad.title || 'Ad creative'}
+                className="w-full h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            )}
+          </a>
+        ) : (
+          <a href={ad.snapshotUrl || '#'} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
             <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
               <FormatIcon format={ad.displayFormat} />
               <span className="ml-2 text-sm">View Ad</span>
             </div>
           </a>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
-            <FormatIcon format={ad.displayFormat} />
-          </div>
         )}
 
         {/* Status badge */}
