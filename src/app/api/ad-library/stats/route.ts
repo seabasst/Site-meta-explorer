@@ -2,6 +2,32 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // =============================================================================
+// Simple In-Memory Cache
+// =============================================================================
+
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const cache = new Map<string, CacheEntry<unknown>>();
+const CACHE_TTL_MS = 60 * 1000; // 60 seconds
+
+function getCached<T>(key: string): T | null {
+  const entry = cache.get(key) as CacheEntry<T> | undefined;
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+    cache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setCache<T>(key: string, data: T): void {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
+// =============================================================================
 // Types
 // =============================================================================
 
@@ -146,10 +172,18 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const brandId = searchParams.get('brandId');
+    const fastMode = searchParams.get('fast') === 'true';
     const { start: startDate, end: endDate } = parseDateRange(
       searchParams.get('startDate'),
       searchParams.get('endDate')
     );
+
+    // Check cache first
+    const cacheKey = `stats:${fastMode ? 'fast' : 'full'}:${brandId || 'all'}:${startDate?.toISOString() || ''}:${endDate?.toISOString() || ''}`;
+    const cached = getCached<AdLibraryStats>(cacheKey);
+    if (cached) {
+      return NextResponse.json(serializeBigInt(cached));
+    }
 
     // Build date filter for ads
     const dateFilter: { startDate?: { gte?: Date; lte?: Date } } = {};
@@ -209,78 +243,49 @@ export async function GET(req: Request) {
       count: row._count.id,
     }));
 
-    // Platform breakdown - need to aggregate since publisherPlatforms is an array
-    const adsWithPlatforms = await prisma.adLibraryAd.findMany({
-      where: adWhereClause,
-      select: { publisherPlatforms: true },
-    });
+    // Platform breakdown - skip in fast mode (too slow)
+    let adsByPlatform: AdPlatformCount[] = [];
+    if (!fastMode) {
+      const adsWithPlatforms = await prisma.adLibraryAd.findMany({
+        where: adWhereClause,
+        select: { publisherPlatforms: true },
+        take: 10000,
+      });
 
-    const platformCounts: Record<string, number> = {};
-    for (const ad of adsWithPlatforms) {
-      for (const platform of ad.publisherPlatforms) {
-        platformCounts[platform] = (platformCounts[platform] || 0) + 1;
+      const platformCounts: Record<string, number> = {};
+      for (const ad of adsWithPlatforms) {
+        for (const platform of ad.publisherPlatforms) {
+          platformCounts[platform] = (platformCounts[platform] || 0) + 1;
+        }
       }
+
+      adsByPlatform = Object.entries(platformCounts)
+        .map(([platform, count]) => ({ platform, count }))
+        .sort((a, b) => b.count - a.count);
     }
 
-    const adsByPlatform: AdPlatformCount[] = Object.entries(platformCounts)
-      .map(([platform, count]) => ({ platform, count }))
-      .sort((a, b) => b.count - a.count);
-
     // ==========================================================================
-    // Reach Statistics
+    // Reach Statistics - skip in fast mode
     // ==========================================================================
 
-    const reachAggregation = await prisma.adLibraryAd.aggregate({
-      where: adWhereClause,
-      _sum: { reachEstimate: true },
-      _avg: { reachEstimate: true },
-    });
+    let totalReach = BigInt(0);
+    let avgReachPerAd = 0;
+    if (!fastMode) {
+      const reachAggregation = await prisma.adLibraryAd.aggregate({
+        where: adWhereClause,
+        _sum: { reachEstimate: true },
+        _avg: { reachEstimate: true },
+      });
 
-    const totalReach = BigInt(reachAggregation._sum.reachEstimate || 0);
-    const avgReachPerAd = reachAggregation._avg.reachEstimate || 0;
+      totalReach = BigInt(reachAggregation._sum.reachEstimate || 0);
+      avgReachPerAd = reachAggregation._avg.reachEstimate || 0;
+    }
 
     // ==========================================================================
-    // Ingestion Job Statistics
+    // Ingestion Job Statistics - skip in fast mode
     // ==========================================================================
 
-    const jobWhereClause = brandId ? { brandId } : {};
-
-    const [recentJobsRaw, jobStatusCounts] = await Promise.all([
-      prisma.ingestionJob.findMany({
-        where: jobWhereClause,
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-        include: {
-          brand: {
-            select: { pageName: true },
-          },
-        },
-      }),
-      prisma.ingestionJob.groupBy({
-        by: ['status'],
-        _count: { id: true },
-        where: jobWhereClause,
-      }),
-    ]);
-
-    const recentJobs: IngestionJobSummary[] = recentJobsRaw.map((job) => ({
-      id: job.id,
-      brandId: job.brandId,
-      brandName: job.brand.pageName,
-      jobType: job.jobType,
-      status: job.status,
-      adsFetched: job.adsFetched,
-      adsCreated: job.adsCreated,
-      adsUpdated: job.adsUpdated,
-      assetsQueued: job.assetsQueued,
-      assetsDownloaded: job.assetsDownloaded,
-      assetsFailed: job.assetsFailed,
-      errorMessage: job.errorMessage,
-      startedAt: job.startedAt?.toISOString() || null,
-      completedAt: job.completedAt?.toISOString() || null,
-      createdAt: job.createdAt.toISOString(),
-    }));
-
+    let recentJobs: IngestionJobSummary[] = [];
     const jobStats = {
       total: 0,
       completed: 0,
@@ -289,100 +294,149 @@ export async function GET(req: Request) {
       queued: 0,
     };
 
-    for (const row of jobStatusCounts) {
-      jobStats.total += row._count.id;
-      switch (row.status) {
-        case 'completed':
-          jobStats.completed = row._count.id;
-          break;
-        case 'failed':
-          jobStats.failed = row._count.id;
-          break;
-        case 'running':
-          jobStats.running = row._count.id;
-          break;
-        case 'queued':
-          jobStats.queued = row._count.id;
-          break;
-      }
-    }
+    if (!fastMode) {
+      const jobWhereClause = brandId ? { brandId } : {};
 
-    // ==========================================================================
-    // Top Brands by Ad Count
-    // ==========================================================================
+      const [recentJobsRaw, jobStatusCounts] = await Promise.all([
+        prisma.ingestionJob.findMany({
+          where: jobWhereClause,
+          orderBy: { createdAt: 'desc' },
+          take: 20,
+          include: {
+            brand: {
+              select: { pageName: true },
+            },
+          },
+        }),
+        prisma.ingestionJob.groupBy({
+          by: ['status'],
+          _count: { id: true },
+          where: jobWhereClause,
+        }),
+      ]);
 
-    const topBrandsRaw = await prisma.adLibraryBrand.findMany({
-      where: brandId ? { id: brandId } : {},
-      orderBy: { activeAdCount: 'desc' },
-      take: 10,
-      select: {
-        id: true,
-        pageId: true,
-        pageName: true,
-        category: true,
-        totalReach: true,
-        activeAdCount: true,
-        _count: {
-          select: { ads: true },
-        },
-      },
-    });
+      recentJobs = recentJobsRaw.map((job) => ({
+        id: job.id,
+        brandId: job.brandId,
+        brandName: job.brand.pageName,
+        jobType: job.jobType,
+        status: job.status,
+        adsFetched: job.adsFetched,
+        adsCreated: job.adsCreated,
+        adsUpdated: job.adsUpdated,
+        assetsQueued: job.assetsQueued,
+        assetsDownloaded: job.assetsDownloaded,
+        assetsFailed: job.assetsFailed,
+        errorMessage: job.errorMessage,
+        startedAt: job.startedAt?.toISOString() || null,
+        completedAt: job.completedAt?.toISOString() || null,
+        createdAt: job.createdAt.toISOString(),
+      }));
 
-    const topBrandsByAdCount: TopBrand[] = topBrandsRaw.map((brand) => ({
-      id: brand.id,
-      pageId: brand.pageId,
-      pageName: brand.pageName,
-      category: brand.category,
-      adCount: brand._count.ads,
-      activeAdCount: brand.activeAdCount,
-      totalReach: brand.totalReach.toString(),
-    }));
-
-    // ==========================================================================
-    // Ads by Date (for trend charts)
-    // ==========================================================================
-
-    // Get ads grouped by start date for the last 30 days
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    const adsWithDates = await prisma.adLibraryAd.findMany({
-      where: {
-        ...brandFilter,
-        startDate: {
-          gte: startDate || thirtyDaysAgo,
-          ...(endDate ? { lte: endDate } : {}),
-        },
-      },
-      select: {
-        startDate: true,
-        isActive: true,
-      },
-    });
-
-    // Aggregate by date
-    const dateMap: Record<string, { count: number; activeCount: number }> = {};
-
-    for (const ad of adsWithDates) {
-      if (ad.startDate) {
-        const dateKey = ad.startDate.toISOString().split('T')[0];
-        if (!dateMap[dateKey]) {
-          dateMap[dateKey] = { count: 0, activeCount: 0 };
-        }
-        dateMap[dateKey].count++;
-        if (ad.isActive) {
-          dateMap[dateKey].activeCount++;
+      for (const row of jobStatusCounts) {
+        jobStats.total += row._count.id;
+        switch (row.status) {
+          case 'completed':
+            jobStats.completed = row._count.id;
+            break;
+          case 'failed':
+            jobStats.failed = row._count.id;
+            break;
+          case 'running':
+            jobStats.running = row._count.id;
+            break;
+          case 'queued':
+            jobStats.queued = row._count.id;
+            break;
         }
       }
     }
 
-    const adsByDate: AdsByDatePoint[] = Object.entries(dateMap)
-      .map(([date, stats]) => ({
-        date,
-        count: stats.count,
-        activeCount: stats.activeCount,
-      }))
-      .sort((a, b) => a.date.localeCompare(b.date));
+    // ==========================================================================
+    // Top Brands by Ad Count - skip in fast mode
+    // ==========================================================================
+
+    let topBrandsByAdCount: TopBrand[] = [];
+    if (!fastMode) {
+      const topBrandsRaw = await prisma.adLibraryBrand.findMany({
+        where: brandId ? { id: brandId } : {},
+        orderBy: { activeAdCount: 'desc' },
+        take: 10,
+        select: {
+          id: true,
+          pageId: true,
+          pageName: true,
+          category: true,
+          totalReach: true,
+          activeAdCount: true,
+          _count: {
+            select: { ads: true },
+          },
+        },
+      });
+
+      topBrandsByAdCount = topBrandsRaw.map((brand) => ({
+        id: brand.id,
+        pageId: brand.pageId,
+        pageName: brand.pageName,
+        category: brand.category,
+        adCount: brand._count.ads,
+        activeAdCount: brand.activeAdCount,
+        totalReach: brand.totalReach.toString(),
+      }));
+    }
+
+    // ==========================================================================
+    // Ads by Date (for trend charts) - skip in fast mode
+    // ==========================================================================
+
+    let adsByDate: AdsByDatePoint[] = [];
+    if (!fastMode) {
+      // Get ads grouped by start date for the last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      // Limit to 20000 ads to prevent memory issues - sufficient for trend visualization
+      const adsWithDates = await prisma.adLibraryAd.findMany({
+        where: {
+          ...brandFilter,
+          startDate: {
+            gte: startDate || thirtyDaysAgo,
+            ...(endDate ? { lte: endDate } : {}),
+          },
+        },
+        select: {
+          startDate: true,
+          isActive: true,
+        },
+        orderBy: { startDate: 'desc' },
+        take: 20000,
+      });
+
+      // Aggregate by date
+      const dateMap: Record<string, { count: number; activeCount: number }> = {};
+
+      for (const ad of adsWithDates) {
+        if (ad.startDate) {
+          const dateKey = ad.startDate.toISOString().split('T')[0];
+          if (!dateMap[dateKey]) {
+            dateMap[dateKey] = { count: 0, activeCount: 0 };
+          }
+          dateMap[dateKey].count++;
+          if (ad.isActive) {
+            dateMap[dateKey].activeCount++;
+          }
+        }
+      }
+
+      adsByDate = Object.entries(dateMap)
+        .map(([date, stats]) => ({
+          date,
+          count: stats.count,
+          activeCount: stats.activeCount,
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+    }
 
     // ==========================================================================
     // Build Response
@@ -403,6 +457,9 @@ export async function GET(req: Request) {
       topBrandsByAdCount,
       adsByDate,
     };
+
+    // Cache the result
+    setCache(cacheKey, stats);
 
     return NextResponse.json(serializeBigInt(stats));
   } catch (error) {

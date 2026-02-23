@@ -214,12 +214,15 @@ function BrandsListPageContent() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '');
   const [categoryFilter, setCategoryFilter] = useState(searchParams.get('category') || '');
+  const [dcongressOnly, setDcongressOnly] = useState(searchParams.get('priority') === '100');
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'priority');
   const [sortOrder, setSortOrder] = useState(searchParams.get('sortOrder') || 'desc');
   const [showFilters, setShowFilters] = useState(false);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
+  const [ingestionLoading, setIngestionLoading] = useState(false);
+  const [ingestionResult, setIngestionResult] = useState<{ success: boolean; message: string } | null>(null);
 
   const page = parseInt(searchParams.get('page') || '1', 10);
   const limit = 25;
@@ -236,6 +239,7 @@ function BrandsListPageContent() {
       if (searchQuery) params.set('search', searchQuery);
       if (statusFilter) params.set('status', statusFilter);
       if (categoryFilter) params.set('category', categoryFilter);
+      if (dcongressOnly) params.set('priority', '100');
 
       const res = await fetch(`/api/ad-library/brands?${params}`);
       if (!res.ok) throw new Error('Failed to fetch brands');
@@ -247,7 +251,7 @@ function BrandsListPageContent() {
     } finally {
       setLoading(false);
     }
-  }, [page, sortBy, sortOrder, searchQuery, statusFilter, categoryFilter]);
+  }, [page, sortBy, sortOrder, searchQuery, statusFilter, categoryFilter, dcongressOnly]);
 
   useEffect(() => {
     fetchData();
@@ -363,6 +367,42 @@ function BrandsListPageContent() {
     }
   };
 
+  const handleTriggerIngestion = async () => {
+    setIngestionLoading(true);
+    setIngestionResult(null);
+    try {
+      const body: { dcongressOnly?: boolean; limit?: number } = {};
+      if (dcongressOnly) {
+        body.dcongressOnly = true;
+      }
+      body.limit = 10;
+
+      const res = await fetch('/api/ad-library/cron/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const result = await res.json();
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to trigger ingestion');
+      }
+
+      setIngestionResult({
+        success: true,
+        message: `Processed ${result.processed} brands (${result.newAds} new ads, ${result.updatedAds} updated)`,
+      });
+      fetchData(); // Refresh the list
+    } catch (err) {
+      setIngestionResult({
+        success: false,
+        message: err instanceof Error ? err.message : 'Failed to trigger ingestion',
+      });
+    } finally {
+      setIngestionLoading(false);
+    }
+  };
+
   // Get unique categories for filter
   const categories = data?.brands
     ? [...new Set(data.brands.map(b => b.category).filter(Boolean))]
@@ -415,13 +455,29 @@ function BrandsListPageContent() {
                 </span>
               )}
             </div>
-            <button
-              onClick={fetchData}
-              disabled={loading}
-              className="p-2 rounded-lg hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={fetchData}
+                disabled={loading}
+                className="p-2 rounded-lg hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                title="Refresh"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+              <button
+                onClick={handleTriggerIngestion}
+                disabled={ingestionLoading}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  dcongressOnly
+                    ? 'bg-purple-500/20 border border-purple-500/50 text-purple-300 hover:bg-purple-500/30'
+                    : 'bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 text-[var(--accent-green-light)] hover:bg-[var(--accent-green)]/20'
+                } disabled:opacity-50`}
+                title={dcongressOnly ? 'Trigger ingestion for D-Congress brands' : 'Trigger ingestion for pending brands'}
+              >
+                <Play className={`w-3 h-3 ${ingestionLoading ? 'animate-pulse' : ''}`} />
+                {ingestionLoading ? 'Running...' : dcongressOnly ? 'Ingest D-Congress' : 'Trigger Ingestion'}
+              </button>
+            </div>
             {statusCounts['failed'] > 0 && (
               <button
                 onClick={async () => {
@@ -495,6 +551,34 @@ function BrandsListPageContent() {
             </div>
           )}
 
+          {/* Ingestion result notification */}
+          {ingestionResult && (
+            <div
+              className={`rounded-xl p-4 mb-6 flex items-center justify-between ${
+                ingestionResult.success
+                  ? 'bg-green-500/10 border border-green-500/30'
+                  : 'bg-red-500/10 border border-red-500/30'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                {ingestionResult.success ? (
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-red-400" />
+                )}
+                <span className={`text-sm ${ingestionResult.success ? 'text-green-300' : 'text-red-300'}`}>
+                  {ingestionResult.message}
+                </span>
+              </div>
+              <button
+                onClick={() => setIngestionResult(null)}
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              >
+                <XCircle className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           {/* Toolbar */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <form onSubmit={handleSearch} className="relative w-full sm:w-auto">
@@ -512,20 +596,21 @@ function BrandsListPageContent() {
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`p-2 rounded-lg border transition-colors flex items-center gap-2 text-sm ${
-                  showFilters || statusFilter || categoryFilter
+                  showFilters || statusFilter || categoryFilter || dcongressOnly
                     ? 'bg-[var(--accent-green)]/10 border-[var(--accent-green)] text-[var(--accent-green-light)]'
                     : 'bg-[var(--bg-tertiary)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
                 }`}
               >
                 <Filter className="w-4 h-4" />
                 Filters
+                {dcongressOnly && <span className="px-1.5 py-0.5 bg-purple-500/30 rounded text-xs">D-Congress</span>}
               </button>
             </div>
           </div>
 
           {/* Filters panel */}
           {showFilters && (
-            <div className="glass rounded-xl p-4 mb-4 flex flex-wrap gap-4">
+            <div className="glass rounded-xl p-4 mb-4 flex flex-wrap gap-4 items-end">
               <div>
                 <label className="text-xs text-[var(--text-muted)] block mb-1">Status</label>
                 <select
@@ -561,14 +646,33 @@ function BrandsListPageContent() {
                 </select>
               </div>
 
-              {(statusFilter || categoryFilter) && (
+              <div>
+                <label className="text-xs text-[var(--text-muted)] block mb-1">Source</label>
+                <button
+                  onClick={() => {
+                    const newValue = !dcongressOnly;
+                    setDcongressOnly(newValue);
+                    updateURL({ priority: newValue ? '100' : '', page: '1' });
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    dcongressOnly
+                      ? 'bg-purple-500/20 border border-purple-500/50 text-purple-300'
+                      : 'bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)]'
+                  }`}
+                >
+                  D-Congress 2025
+                </button>
+              </div>
+
+              {(statusFilter || categoryFilter || dcongressOnly) && (
                 <button
                   onClick={() => {
                     setStatusFilter('');
                     setCategoryFilter('');
-                    updateURL({ status: '', category: '', page: '1' });
+                    setDcongressOnly(false);
+                    updateURL({ status: '', category: '', priority: '', page: '1' });
                   }}
-                  className="self-end text-xs text-[var(--accent-green-light)] hover:text-[var(--text-primary)]"
+                  className="text-xs text-[var(--accent-green-light)] hover:text-[var(--text-primary)]"
                 >
                   Clear filters
                 </button>

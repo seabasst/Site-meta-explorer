@@ -40,6 +40,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch ads with targeting data and dates
+    // Limit to most recent 5000 ads to prevent memory issues with large datasets
     const ads = await prisma.adLibraryAd.findMany({
       where,
       select: {
@@ -48,6 +49,8 @@ export async function GET(req: NextRequest) {
         startDate: true,
         targetingJson: true,
       },
+      orderBy: { startDate: 'desc' },
+      take: 5000,
     });
 
     // Aggregate reach by region/country

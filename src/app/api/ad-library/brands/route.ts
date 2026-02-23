@@ -18,6 +18,7 @@ interface BrandsQueryParams {
   sortBy: SortField;
   sortOrder: SortOrder;
   search?: string;
+  priority?: number;
 }
 
 interface SerializedBrand {
@@ -62,6 +63,8 @@ function parseQueryParams(req: NextRequest): BrandsQueryParams {
   const status = searchParams.get('status') as IngestionStatus | null;
   const category = searchParams.get('category');
   const search = searchParams.get('search');
+  const priorityParam = searchParams.get('priority');
+  const priority = priorityParam ? parseInt(priorityParam, 10) : undefined;
 
   const sortBy = (searchParams.get('sortBy') ?? 'priority') as SortField;
   const sortOrder = (searchParams.get('sortOrder') ?? 'desc') as SortOrder;
@@ -81,6 +84,7 @@ function parseQueryParams(req: NextRequest): BrandsQueryParams {
     sortBy: finalSortBy,
     sortOrder: finalSortOrder,
     search: search || undefined,
+    priority: priority && !isNaN(priority) ? priority : undefined,
   };
 }
 
@@ -93,6 +97,10 @@ function buildWhereClause(params: BrandsQueryParams): Prisma.AdLibraryBrandWhere
 
   if (params.category) {
     where.category = params.category;
+  }
+
+  if (params.priority !== undefined) {
+    where.priority = params.priority;
   }
 
   if (params.search) {

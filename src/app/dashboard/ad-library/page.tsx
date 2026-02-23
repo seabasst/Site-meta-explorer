@@ -368,19 +368,12 @@ export default function AdLibraryDashboard() {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const [statsRes, analyticsRes] = await Promise.all([
-        fetch('/api/ad-library/stats'),
-        fetch('/api/ad-library/analytics'),
-      ]);
+      // Only fetch stats - analytics is too slow, skip it for now
+      const statsRes = await fetch('/api/ad-library/stats?fast=true');
 
       if (!statsRes.ok) throw new Error('Failed to fetch stats');
       const statsData = await statsRes.json();
       setStats(statsData);
-
-      if (analyticsRes.ok) {
-        const analyticsData = await analyticsRes.json();
-        setAnalytics(analyticsData);
-      }
 
       setError(null);
     } catch (err) {
@@ -408,8 +401,8 @@ export default function AdLibraryDashboard() {
 
   useEffect(() => {
     fetchStats();
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(fetchStats, 30000);
+    // Auto-refresh every 5 minutes (was 30s - too aggressive with large datasets)
+    const interval = setInterval(fetchStats, 300000);
     return () => clearInterval(interval);
   }, []);
 

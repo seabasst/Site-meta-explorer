@@ -107,9 +107,9 @@ class TokenManager {
 // Global token manager instance
 const tokenManager = new TokenManager();
 
-// Conservative rate limiting
+// Rate limiting configuration
 const DELAY_BETWEEN_REQUESTS = 2000;
-const BRANDS_PER_RUN = 2; // Process only 2 brands per cron run
+const BRANDS_PER_RUN = 10; // Process 10 brands per cron run
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 30000;
 
@@ -570,7 +570,7 @@ export async function GET(req: NextRequest) {
 
       // Wait between brands to avoid rate limits
       if (brands.indexOf(brand) < brands.length - 1) {
-        await sleep(30000); // 30 second pause between brands
+        await sleep(15000); // 15 second pause between brands
       }
     }
 
@@ -581,6 +581,113 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error('Cron ingestion error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Ingestion failed' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * POST /api/ad-library/cron/ingest
+ * Manual trigger for ingestion
+ *
+ * Body options:
+ * - { brandIds: string[] } - Process specific brands by ID
+ * - { dcongressOnly: true } - Process only D-Congress brands (priority=100)
+ * - { limit: number } - Override the number of brands to process (max 20)
+ * - {} - Process next pending brands (same as cron)
+ */
+export async function POST(req: NextRequest) {
+  if (!tokenManager.hasTokens()) {
+    return NextResponse.json(
+      { error: 'No Facebook access tokens configured' },
+      { status: 500 }
+    );
+  }
+
+  try {
+    const body = await req.json().catch(() => ({}));
+    const { brandIds, dcongressOnly, limit: requestedLimit } = body as {
+      brandIds?: string[];
+      dcongressOnly?: boolean;
+      limit?: number;
+    };
+
+    const limit = Math.min(requestedLimit || BRANDS_PER_RUN, 20); // Cap at 20
+
+    let brands;
+
+    if (brandIds && brandIds.length > 0) {
+      // Process specific brands
+      brands = await prisma.adLibraryBrand.findMany({
+        where: { id: { in: brandIds } },
+        take: limit,
+      });
+    } else if (dcongressOnly) {
+      // Process D-Congress brands only (priority=100)
+      brands = await prisma.adLibraryBrand.findMany({
+        where: {
+          priority: 100,
+          OR: [
+            { ingestionStatus: { in: ['pending', 'failed'] } },
+            { activeAdCount: 0 }, // Also re-process brands with no ads
+          ],
+          failCount: { lt: 3 },
+        },
+        orderBy: { priority: 'desc' },
+        take: limit,
+      });
+    } else {
+      // Default: process next pending brands
+      brands = await prisma.adLibraryBrand.findMany({
+        where: {
+          ingestionStatus: { in: ['pending', 'failed'] },
+          failCount: { lt: 3 },
+        },
+        orderBy: { priority: 'desc' },
+        take: limit,
+      });
+    }
+
+    if (brands.length === 0) {
+      return NextResponse.json({
+        message: 'No brands to process',
+        processed: 0,
+      });
+    }
+
+    console.log(`Manual trigger: Processing ${brands.length} brands (using ${tokenManager.getTotalTokens()} token(s))`);
+
+    const results = [];
+    for (const brand of brands) {
+      // Reset status to pending if we're re-processing
+      if (brand.ingestionStatus === 'active' && brand.activeAdCount === 0) {
+        await prisma.adLibraryBrand.update({
+          where: { id: brand.id },
+          data: { ingestionStatus: 'pending' },
+        });
+      }
+
+      const result = await processBrand(brand.id, brand.pageId, brand.pageName);
+      results.push(result);
+
+      // Wait between brands to avoid rate limits
+      if (brands.indexOf(brand) < brands.length - 1) {
+        await sleep(15000); // 15 second pause for manual triggers (faster than cron)
+      }
+    }
+
+    const successful = results.filter(r => r.success).length;
+    const failed = results.filter(r => !r.success).length;
+
+    return NextResponse.json({
+      message: `Processed ${brands.length} brands (${successful} successful, ${failed} failed)`,
+      tokensConfigured: tokenManager.getTotalTokens(),
+      results,
+    });
+  } catch (error) {
+    console.error('Manual ingestion error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Ingestion failed' },
       { status: 500 }
