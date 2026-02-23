@@ -113,22 +113,15 @@ const BRANDS_PER_RUN = 10; // Process 10 brands per cron run
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 30000;
 
-// Global countries for comprehensive coverage
+// Target countries - focused on Nordic/European markets for D-Congress brands
+// Using fewer countries reduces API response size significantly
 const TARGET_COUNTRIES = [
-  // Europe (EU + GB + others)
-  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
-  'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
-  'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'GB', 'CH', 'NO',
+  // Nordic countries (primary for D-Congress)
+  'SE', 'NO', 'DK', 'FI',
+  // Key European markets
+  'DE', 'GB', 'NL', 'FR', 'ES', 'IT', 'PL',
   // North America
-  'US', 'CA', 'MX',
-  // Asia-Pacific
-  'AU', 'NZ', 'JP', 'KR', 'SG', 'HK', 'TW', 'IN', 'PH', 'MY', 'ID', 'TH', 'VN',
-  // Middle East
-  'AE', 'SA', 'IL',
-  // South America
-  'BR', 'AR', 'CO', 'CL',
-  // Africa
-  'ZA', 'NG', 'EG',
+  'US',
 ];
 
 const AD_FIELDS = [
@@ -176,16 +169,21 @@ function getOneYearAgoDate(): string {
   return date.toISOString().split('T')[0]; // YYYY-MM-DD format
 }
 
+// Check if a string is a numeric page ID
+function isNumericPageId(pageId: string): boolean {
+  return /^\d+$/.test(pageId);
+}
+
 async function fetchAdsPage(
   pageId: string,
+  pageName: string,
   cursor?: string,
   retryCount = 0,
   limit = 100
-): Promise<{ ads: MetaAd[]; nextCursor?: string }> {
+): Promise<{ ads: MetaAd[]; nextCursor?: string; effectiveLimit: number }> {
   const token = tokenManager.getToken();
   const params = new URLSearchParams({
     access_token: token,
-    search_page_ids: pageId,
     ad_reached_countries: JSON.stringify(TARGET_COUNTRIES),
     ad_type: 'ALL',
     ad_active_status: 'ALL',
@@ -193,6 +191,15 @@ async function fetchAdsPage(
     fields: AD_FIELDS,
     limit: String(limit),
   });
+
+  // Use search_page_ids for numeric IDs, search_terms for usernames/names
+  if (isNumericPageId(pageId)) {
+    params.set('search_page_ids', pageId);
+  } else {
+    // Use brand name for search when we don't have a numeric ID
+    params.set('search_terms', pageName);
+    console.log(`Using search_terms for ${pageName} (non-numeric pageId: ${pageId})`);
+  }
 
   if (cursor) {
     params.set('after', cursor);
@@ -205,10 +212,10 @@ async function fetchAdsPage(
     const rateLimitCodes = [2, 4, 17, 613, 80004]; // 2 = temporary error
 
     // Handle "reduce data" error (code 1) by reducing limit
-    if (data.error.code === 1 && limit > 10) {
-      const reducedLimit = Math.floor(limit / 2);
+    if (data.error.code === 1 && limit > 5) {
+      const reducedLimit = Math.max(5, Math.floor(limit / 2));
       console.log(`Data too large, reducing limit from ${limit} to ${reducedLimit}...`);
-      return fetchAdsPage(pageId, cursor, retryCount, reducedLimit);
+      return fetchAdsPage(pageId, pageName, cursor, retryCount, reducedLimit);
     }
 
     if (rateLimitCodes.includes(data.error.code) && retryCount < MAX_RETRIES) {
@@ -218,14 +225,14 @@ async function fetchAdsPage(
       // If we have multiple tokens and not all are rate limited, retry immediately with new token
       if (tokenManager.getTotalTokens() > 1 && !tokenManager.allTokensRateLimited()) {
         console.log(`Switching to token ${tokenManager.getCurrentTokenIndex()}/${tokenManager.getTotalTokens()}, retrying immediately...`);
-        return fetchAdsPage(pageId, cursor, retryCount + 1, limit);
+        return fetchAdsPage(pageId, pageName, cursor, retryCount + 1, limit);
       }
 
       // All tokens exhausted, wait before retrying
       const waitTime = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
       console.log(`All tokens rate limited, waiting ${waitTime / 1000}s...`);
       await sleep(waitTime);
-      return fetchAdsPage(pageId, cursor, retryCount + 1, limit);
+      return fetchAdsPage(pageId, pageName, cursor, retryCount + 1, limit);
     }
     throw new Error(`API Error: ${data.error.message} (code: ${data.error.code})`);
   }
@@ -233,6 +240,7 @@ async function fetchAdsPage(
   return {
     ads: data.data || [],
     nextCursor: data.paging?.cursors?.after,
+    effectiveLimit: limit,
   };
 }
 
@@ -270,25 +278,50 @@ async function fetchAdsBySearchTerms(
   };
 }
 
-async function fetchAllAdsForBrand(pageId: string, pageName?: string): Promise<MetaAd[]> {
+const MAX_ADS_PER_BRAND = 1000; // Limit to prevent runaway queries
+const MAX_PAGES_FOR_SEARCH = 10; // Max API pages when using search_terms
+
+async function fetchAllAdsForBrand(pageId: string, pageName: string): Promise<MetaAd[]> {
   const allAds: MetaAd[] = [];
   const seenIds = new Set<string>();
   let cursor: string | undefined;
+  const usingSearchTerms = !isNumericPageId(pageId);
+  let pageCount = 0;
+  let currentLimit = 100; // Track effective limit across pages
 
-  // First try with page ID
+  // First try with page ID (or search_terms for non-numeric IDs)
   do {
-    const { ads, nextCursor } = await fetchAdsPage(pageId, cursor);
+    const { ads, nextCursor, effectiveLimit } = await fetchAdsPage(pageId, pageName, cursor, 0, currentLimit);
+    currentLimit = effectiveLimit; // Remember reduced limit for next page
+    pageCount++;
 
     for (const ad of ads) {
       if (!seenIds.has(ad.id)) {
+        // When using search_terms, filter to only include ads from this brand
+        if (usingSearchTerms) {
+          const adPageName = ad.page_name?.toLowerCase() || '';
+          const searchName = pageName.toLowerCase();
+          // Accept if page name closely matches brand name
+          if (!adPageName.includes(searchName) && !searchName.includes(adPageName)) {
+            continue; // Skip ads from other pages
+          }
+        }
         seenIds.add(ad.id);
         allAds.push(ad);
       }
     }
 
     cursor = nextCursor;
-    if (cursor) {
+
+    // Stop conditions: no more pages, reached max ads, or too many pages for search_terms
+    const shouldContinue = cursor &&
+      allAds.length < MAX_ADS_PER_BRAND &&
+      (!usingSearchTerms || pageCount < MAX_PAGES_FOR_SEARCH);
+
+    if (shouldContinue) {
       await sleep(DELAY_BETWEEN_REQUESTS);
+    } else {
+      cursor = undefined;
     }
   } while (cursor);
 
