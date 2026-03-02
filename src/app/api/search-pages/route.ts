@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get('q')?.trim() ?? '';
@@ -7,17 +8,50 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ results: [] });
   }
 
-  const accessToken = process.env.FACEBOOK_ACCESS_TOKEN;
-  if (!accessToken) {
-    return NextResponse.json(
-      { error: 'Facebook access token not configured' },
-      { status: 500 },
-    );
-  }
-
   try {
+    // First, search local database for brands we've already ingested
+    const localBrands = await prisma.adLibraryBrand.findMany({
+      where: {
+        OR: [
+          { pageName: { contains: q, mode: 'insensitive' } },
+          { pageId: { contains: q } },
+        ],
+        activeAdCount: { gt: 0 }, // Only show brands with ads
+      },
+      select: {
+        pageId: true,
+        pageName: true,
+        activeAdCount: true,
+        profilePicUrl: true,
+      },
+      orderBy: { activeAdCount: 'desc' },
+      take: 10,
+    });
+
+    // If we found local results, return them (marked as local)
+    if (localBrands.length > 0) {
+      const results = localBrands.map((brand) => ({
+        pageId: brand.pageId,
+        pageName: brand.pageName,
+        adCount: brand.activeAdCount,
+        iconUrl: brand.profilePicUrl || `https://graph.facebook.com/${brand.pageId}/picture?type=square`,
+        source: 'local',
+      }));
+
+      console.log(`[search-pages] Found ${results.length} local results for "${q}"`);
+      return NextResponse.json({ results, source: 'local' });
+    }
+
+    // No local results, fall back to Facebook API
+    console.log(`[search-pages] No local results for "${q}", trying Facebook API`);
+
+    const accessToken = process.env.FACEBOOK_ACCESS_TOKEN1 || process.env.FACEBOOK_ACCESS_TOKEN;
+    if (!accessToken) {
+      // Return empty results instead of error if no token
+      return NextResponse.json({ results: [], source: 'none' });
+    }
     // Search across multiple large markets for broader coverage
-    const countries = ['US', 'GB', 'NL', 'DE', 'FR'];
+    const countries = ['SE', 'NO', 'DK', 'FI', 'DE', 'GB', 'FR', 'NL'];  // Nordic + major EU
     const fetches = countries.map((country) => {
       const params = new URLSearchParams({
         access_token: accessToken,
@@ -85,9 +119,9 @@ export async function GET(request: NextRequest) {
       return b.adCount - a.adCount;
     });
 
-    const results = unique.slice(0, 10);
+    const results = unique.slice(0, 10).map(r => ({ ...r, source: 'api' }));
 
-    return NextResponse.json({ results });
+    return NextResponse.json({ results, source: 'api' });
   } catch (error) {
     console.error('[search-pages] Unexpected error:', error);
     return NextResponse.json(

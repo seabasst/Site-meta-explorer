@@ -392,10 +392,11 @@ const BRANDS_PER_RUN = 10; // Process 10 brands per cron run
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 30000;
 
-// Target countries - reduced to minimize API response size
-// Facebook's API often fails with "data too large" when requesting many countries
+// Target countries - Nordic + major EU markets
+// Balance between coverage and avoiding "data too large" errors
 const TARGET_COUNTRIES = [
-  'SE', 'NO', 'DK', 'FI',  // Nordic only - reduces data significantly
+  'SE', 'NO', 'DK', 'FI',  // Nordic
+  'DE', 'GB', 'FR', 'NL',  // Major EU markets
 ];
 
 // Core fields only - reduced to prevent "data too large" errors
