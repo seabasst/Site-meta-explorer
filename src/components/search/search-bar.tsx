@@ -16,12 +16,14 @@ interface SearchBarProps {
   onSelect: (pageId: string, pageName: string) => void;
   disabled?: boolean;
   placeholder?: string;
+  onRequestBrand?: (query: string) => void;
 }
 
 export function SearchBar({
   onSelect,
   disabled = false,
   placeholder = 'Search for a brand...',
+  onRequestBrand,
 }: SearchBarProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -182,9 +184,23 @@ export function SearchBar({
       {results.length === 0 && !isLoading && debouncedQuery.length >= 2 && (
         <div
           style={dropdownStyle}
-          className="py-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl text-center text-sm text-[var(--text-muted)]"
+          className="py-4 px-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl text-center text-sm"
         >
-          No pages found for &ldquo;{debouncedQuery}&rdquo;
+          <p className="text-[var(--text-muted)] mb-3">
+            No pages found for &ldquo;{debouncedQuery}&rdquo;
+          </p>
+          {onRequestBrand && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                onRequestBrand(debouncedQuery);
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-green)]/20 text-[var(--accent-green-light)] hover:bg-[var(--accent-green)]/30 transition-colors text-xs font-medium"
+            >
+              Request &ldquo;{debouncedQuery}&rdquo; to be tracked
+            </button>
+          )}
         </div>
       )}
     </div>

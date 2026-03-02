@@ -309,3 +309,53 @@ model IngestionJob {
   @@index([brandId, status])
   @@index([status, createdAt])
 }
+
+// =============================================================================
+// Roadmap & Feature Requests
+// =============================================================================
+
+model RoadmapRequest {
+  id          String   @id @default(cuid())
+
+  // Request info
+  type        String   // "brand" or "feature"
+  title       String   // Short title
+  description String?  // Details/reason
+
+  // Brand-specific (when type="brand")
+  pageUrl     String?  // Facebook page URL
+  pageId      String?  // Extracted page ID
+
+  // Status
+  status      String   @default("pending") // pending, planned, in_progress, completed, rejected
+  adminNotes  String?
+
+  // Submitter
+  userId      String
+  userEmail   String
+
+  // Engagement
+  upvoteCount Int      @default(0)
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  upvotes     RoadmapUpvote[]
+
+  @@index([type, status])
+  @@index([upvoteCount])
+}
+
+model RoadmapUpvote {
+  id        String   @id @default(cuid())
+  requestId String
+  userId    String
+  createdAt DateTime @default(now())
+
+  request   RoadmapRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, userId]) // One upvote per user per request
+  @@index([userId])
+}

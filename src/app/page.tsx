@@ -24,6 +24,7 @@ import { AdPreviewCard } from '@/components/ads/ad-preview-card';
 import { BrandAnalysis } from '@/components/analytics/brand-analysis';
 import { AccountSummary } from '@/components/summary/account-summary';
 import { SearchBar } from '@/components/search/search-bar';
+import { SubmitModal } from '@/components/roadmap/submit-modal';
 import { Play, Image as ImageIcon, Menu, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { SignInButton } from '@/components/auth/sign-in-button';
@@ -149,6 +150,10 @@ export default function Home() {
   // Save Brand state
   const [saving, setSaving] = useState(false);
   const [brandSaved, setBrandSaved] = useState(false);
+
+  // Roadmap request modal state
+  const [roadmapModalOpen, setRoadmapModalOpen] = useState(false);
+  const [roadmapInitialQuery, setRoadmapInitialQuery] = useState('');
 
   // Close export dropdown on outside click
   useEffect(() => {
@@ -475,6 +480,9 @@ export default function Home() {
               <a href="/feedback" className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]">
                 Feedback
               </a>
+              <a href="/roadmap" className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]">
+                Roadmap
+              </a>
             </div>
 
             {/* Right - Coming Soon CTA */}
@@ -510,6 +518,9 @@ export default function Home() {
             </a>
             <a href="/feedback" className="block px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)]">
               Feedback
+            </a>
+            <a href="/roadmap" className="block px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)]">
+              Roadmap
             </a>
           </div>
         </nav>
@@ -547,6 +558,10 @@ export default function Home() {
                         placeholder="Search for a brand (e.g. Nike, Adidas, Gymshark)..."
                         onSelect={(pageId, pageName) => {
                           setSelectedPage({ pageId, pageName });
+                        }}
+                        onRequestBrand={(query) => {
+                          setRoadmapInitialQuery(query);
+                          setRoadmapModalOpen(true);
                         }}
                       />
                     </div>
@@ -1571,6 +1586,34 @@ export default function Home() {
           </footer>
         </div>
       </main>
+
+      {/* Roadmap Request Modal */}
+      <SubmitModal
+        open={roadmapModalOpen}
+        onClose={() => {
+          setRoadmapModalOpen(false);
+          setRoadmapInitialQuery('');
+        }}
+        onSubmit={async (data) => {
+          const res = await fetch('/api/roadmap', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+          if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.error || 'Failed to submit request');
+          }
+          toast.success('Request submitted! Visit the roadmap to see it.', {
+            action: {
+              label: 'View Roadmap',
+              onClick: () => window.open('/roadmap', '_blank'),
+            },
+          });
+        }}
+        initialType="brand"
+        initialQuery={roadmapInitialQuery}
+      />
     </>
   );
 }
