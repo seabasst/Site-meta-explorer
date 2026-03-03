@@ -31,7 +31,6 @@ async function searchLocalDatabase(
         where: { pageId },
         include: {
           ads: {
-            where: { isActive: true },
             take: limit,
             orderBy: { startDate: 'desc' },
             include: { assets: true },
@@ -51,7 +50,6 @@ async function searchLocalDatabase(
         },
         include: {
           ads: {
-            where: { isActive: true },
             take: limit,
             orderBy: { startDate: 'desc' },
             include: { assets: true },
