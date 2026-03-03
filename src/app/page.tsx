@@ -68,16 +68,14 @@ function ActiveChartFilter({ label, onClear }: { label: string; onClear: () => v
   );
 }
 
-// Example brands with their Ad Library URLs (top EU e-commerce brands by ad volume)
+// Example brands with their Ad Library URLs
 const EXAMPLE_BRANDS = [
-  { name: 'Gymshark', domain: 'gymshark.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=129669023798560' },
-  { name: 'ASOS', domain: 'asos.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=10936503735' },
-  { name: 'NA-KD', domain: 'na-kd.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=612558662207964' },
-  { name: 'Alo Yoga', domain: 'aloyoga.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=163357535087' },
-  { name: 'Snipes', domain: 'snipes.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=92497166486' },
-  { name: 'Huel', domain: 'huel.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=282592881929497' },
-  { name: 'LOOKFANTASTIC', domain: 'lookfantastic.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=21631697312' },
-  { name: 'Primark', domain: 'primark.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=268505109890322' },
+  { name: 'Ninepine', domain: 'ninepine.co', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=829738024024491' },
+  { name: 'Zeeksack', domain: 'zeeksack.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=600002290036230' },
+  { name: 'Daniel Wellington', domain: 'danielwellington.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=215640775127795' },
+  { name: 'RevolutionRace', domain: 'revolutionrace.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=254718231329930' },
+  { name: 'Stronger', domain: 'stronger.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=1836637016477201' },
+  { name: 'CAIA Cosmetics', domain: 'caiacosmetics.com', adLibrary: 'https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&is_targeted_country=false&media_type=all&search_type=page&view_all_page_id=1653880254721745' },
 ];
 
 export default function Home() {
