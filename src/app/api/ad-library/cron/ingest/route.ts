@@ -622,7 +622,7 @@ async function fetchAdsBySearchTerms(
   };
 }
 
-const MAX_ADS_PER_BRAND = 1000; // Limit to prevent runaway queries
+const MAX_ADS_PER_BRAND = 2000; // Limit to prevent runaway queries
 const MAX_PAGES_FOR_SEARCH = 10; // Max API pages when using search_terms
 
 async function fetchAllAdsForBrand(pageId: string, pageName: string): Promise<MetaAd[]> {
