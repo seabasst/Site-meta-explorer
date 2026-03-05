@@ -21,7 +21,7 @@ async function searchLocalDatabase(
   pageId?: string,
   searchTerms?: string,
   limit: number = 100
-): Promise<{ result: FacebookApiResult; foundPageId: string } | null> {
+): Promise<{ result: FacebookApiResult; foundPageId: string; storedDemographics: FacebookApiResult['aggregatedDemographics'] | null } | null> {
   try {
     // Find brand by pageId or by name search
     let brand = null;
@@ -123,6 +123,9 @@ async function searchLocalDatabase(
       mediaTypeBreakdown.carouselPercentage = (mediaTypeBreakdown.carousel / ads.length) * 100;
     }
 
+    // Parse stored demographics if available
+    const storedDemographics = brand.demographicsJson as FacebookApiResult['aggregatedDemographics'] | null;
+
     return {
       result: {
         success: true,
@@ -135,7 +138,7 @@ async function searchLocalDatabase(
           eu_total_reach: a.euTotalReach,
         })),
         totalAdsFound: ads.length,
-        aggregatedDemographics: null,
+        aggregatedDemographics: storedDemographics,
         mediaTypeBreakdown,
         productAnalysis: null,
         spendAnalysis: null,
@@ -146,6 +149,7 @@ async function searchLocalDatabase(
         },
       },
       foundPageId: brand.pageId,
+      storedDemographics,
     };
   } catch (error) {
     console.error('[LocalDB] Search error:', error);
@@ -238,7 +242,16 @@ export async function POST(request: NextRequest) {
     if (localData) {
       console.log(`[LocalDB] Found ${localData.result.ads.length} ads for ${localData.result.pageName}`);
 
-      // Try to fetch fresh demographics from API (in parallel with response)
+      // Check if we have stored demographics
+      if (localData.storedDemographics) {
+        console.log(`[LocalDB] Using stored demographics: ${localData.storedDemographics.adsWithDemographics} ads`);
+        return NextResponse.json({
+          ...localData.result,
+          source: 'local',
+        });
+      }
+
+      // No stored demographics - try to fetch from API as fallback
       const accessToken = body.accessToken || process.env.FACEBOOK_ACCESS_TOKEN11 || process.env.FACEBOOK_ACCESS_TOKEN1;
 
       if (accessToken) {
@@ -250,16 +263,16 @@ export async function POST(request: NextRequest) {
         );
 
         if (demographics) {
-          console.log(`[LocalDB] Enriched with demographics: ${demographics.adsWithDemographics} ads`);
+          console.log(`[LocalDB] Enriched with live demographics: ${demographics.adsWithDemographics} ads`);
           return NextResponse.json({
             ...localData.result,
             aggregatedDemographics: demographics,
-            source: 'local+demographics',
+            source: 'local+live-demographics',
           });
         }
       }
 
-      // Return local data without demographics if API unavailable
+      // Return local data without demographics if none available
       return NextResponse.json({
         ...localData.result,
         source: 'local',
@@ -363,7 +376,16 @@ export async function GET(request: NextRequest) {
   if (localData) {
     console.log(`[LocalDB] GET: Found ${localData.result.ads.length} ads for ${localData.result.pageName}`);
 
-    // Try to fetch fresh demographics from API
+    // Check if we have stored demographics
+    if (localData.storedDemographics) {
+      console.log(`[LocalDB] GET: Using stored demographics: ${localData.storedDemographics.adsWithDemographics} ads`);
+      return NextResponse.json({
+        ...localData.result,
+        source: 'local',
+      });
+    }
+
+    // No stored demographics - try to fetch from API as fallback
     const accessToken = process.env.FACEBOOK_ACCESS_TOKEN11 || process.env.FACEBOOK_ACCESS_TOKEN1;
 
     if (accessToken) {
@@ -374,16 +396,16 @@ export async function GET(request: NextRequest) {
       );
 
       if (demographics) {
-        console.log(`[LocalDB] GET: Enriched with demographics: ${demographics.adsWithDemographics} ads`);
+        console.log(`[LocalDB] GET: Enriched with live demographics: ${demographics.adsWithDemographics} ads`);
         return NextResponse.json({
           ...localData.result,
           aggregatedDemographics: demographics,
-          source: 'local+demographics',
+          source: 'local+live-demographics',
         });
       }
     }
 
-    // Return local data without demographics if API unavailable
+    // Return local data without demographics if none available
     return NextResponse.json({
       ...localData.result,
       source: 'local',

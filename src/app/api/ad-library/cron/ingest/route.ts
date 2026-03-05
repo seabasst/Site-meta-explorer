@@ -407,6 +407,18 @@ const AD_FIELDS = [
   'ad_creative_bodies', 'ad_creative_link_titles', 'eu_total_reach',
 ].join(',');
 
+// Fields for demographics fetch (separate smaller request)
+const DEMOGRAPHICS_FIELDS = [
+  'id', 'eu_total_reach', 'age_country_gender_reach_breakdown',
+].join(',');
+
+// EU countries for demographics (required for demographic data)
+const EU_DEMOGRAPHICS_COUNTRIES = [
+  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
+  'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
+  'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+];
+
 interface MetaAd {
   id: string;
   ad_creation_time?: string;
@@ -708,6 +720,216 @@ async function fetchAllAdsForBrand(pageId: string, pageName: string): Promise<Me
   return allAds;
 }
 
+// =============================================================================
+// Demographics Fetching
+// =============================================================================
+
+interface DemographicsAd {
+  id: string;
+  eu_total_reach?: number;
+  age_country_gender_reach_breakdown?: Array<{
+    country: string;
+    age_gender_breakdowns: Array<{
+      age_range: string;
+      male: number;
+      female: number;
+      unknown: number;
+    }>;
+  }>;
+}
+
+interface AggregatedDemographics {
+  ageBreakdown: { age: string; percentage: number }[];
+  genderBreakdown: { gender: string; percentage: number }[];
+  ageGenderBreakdown: { age: string; gender: string; percentage: number }[];
+  regionBreakdown: { region: string; percentage: number }[];
+  totalReachAnalyzed: number;
+  adsWithDemographics: number;
+  adsWithoutReach: number;
+}
+
+async function fetchDemographicsForBrand(
+  pageId: string,
+  limit = 50
+): Promise<DemographicsAd[]> {
+  const token = tokenManager.getBestToken();
+
+  const params = new URLSearchParams({
+    access_token: token,
+    search_page_ids: pageId,
+    ad_reached_countries: JSON.stringify(EU_DEMOGRAPHICS_COUNTRIES),
+    ad_type: 'ALL',
+    ad_active_status: 'ACTIVE', // Only active ads for current demographics
+    fields: DEMOGRAPHICS_FIELDS,
+    limit: String(limit),
+  });
+
+  try {
+    const response = await fetch(`${BASE_URL}/${API_VERSION}/ads_archive?${params}`);
+    tokenManager.updateUsageFromHeaders(response.headers);
+
+    const data = await response.json();
+
+    if (data.error) {
+      console.log(`Demographics fetch error: ${data.error.message}`);
+      return [];
+    }
+
+    return data.data || [];
+  } catch (error) {
+    console.log(`Demographics fetch failed: ${error instanceof Error ? error.message : error}`);
+    return [];
+  }
+}
+
+function aggregateDemographicsFromAds(ads: DemographicsAd[]): AggregatedDemographics | null {
+  const adsWithData = ads.filter(ad =>
+    ad.age_country_gender_reach_breakdown &&
+    ad.age_country_gender_reach_breakdown.length > 0
+  );
+
+  if (adsWithData.length === 0) return null;
+
+  const ageMap = new Map<string, number>();
+  const genderMap = new Map<string, number>();
+  const ageGenderMap = new Map<string, number>();
+  const regionMap = new Map<string, number>();
+  let totalWeight = 0;
+  let adsWithoutReach = 0;
+
+  for (const ad of adsWithData) {
+    const breakdown = ad.age_country_gender_reach_breakdown!;
+    const weight = ad.eu_total_reach && ad.eu_total_reach > 0 ? ad.eu_total_reach : 1;
+    if (!ad.eu_total_reach || ad.eu_total_reach === 0) adsWithoutReach++;
+    totalWeight += weight;
+
+    // Process each country's breakdown
+    for (const countryData of breakdown) {
+      const countryCode = countryData.country.toUpperCase();
+
+      // Calculate total for this country to get percentages
+      let countryTotal = 0;
+      for (const ageData of countryData.age_gender_breakdowns) {
+        countryTotal += (ageData.male || 0) + (ageData.female || 0) + (ageData.unknown || 0);
+      }
+
+      if (countryTotal === 0) continue;
+
+      // Add to region map
+      const countryWeight = weight * (countryTotal > 0 ? 1 : 0);
+      regionMap.set(countryCode, (regionMap.get(countryCode) || 0) + countryWeight);
+
+      // Process age-gender breakdown
+      for (const ageData of countryData.age_gender_breakdowns) {
+        const age = ageData.age_range;
+        const maleCount = ageData.male || 0;
+        const femaleCount = ageData.female || 0;
+        const unknownCount = ageData.unknown || 0;
+        const ageTotal = maleCount + femaleCount + unknownCount;
+
+        if (ageTotal === 0) continue;
+
+        // Weight by reach and country proportion
+        const maleWeighted = (maleCount / countryTotal) * weight;
+        const femaleWeighted = (femaleCount / countryTotal) * weight;
+        const unknownWeighted = (unknownCount / countryTotal) * weight;
+
+        // Age totals
+        ageMap.set(age, (ageMap.get(age) || 0) + maleWeighted + femaleWeighted + unknownWeighted);
+
+        // Gender totals
+        genderMap.set('male', (genderMap.get('male') || 0) + maleWeighted);
+        genderMap.set('female', (genderMap.get('female') || 0) + femaleWeighted);
+        if (unknownWeighted > 0) {
+          genderMap.set('unknown', (genderMap.get('unknown') || 0) + unknownWeighted);
+        }
+
+        // Age-gender combinations
+        if (maleWeighted > 0) {
+          const keyMale = `${age}|male`;
+          ageGenderMap.set(keyMale, (ageGenderMap.get(keyMale) || 0) + maleWeighted);
+        }
+        if (femaleWeighted > 0) {
+          const keyFemale = `${age}|female`;
+          ageGenderMap.set(keyFemale, (ageGenderMap.get(keyFemale) || 0) + femaleWeighted);
+        }
+      }
+    }
+  }
+
+  if (totalWeight === 0) return null;
+
+  // Convert to percentages
+  const ageBreakdown = Array.from(ageMap.entries())
+    .map(([age, value]) => ({ age, percentage: (value / totalWeight) * 100 }))
+    .sort((a, b) => b.percentage - a.percentage);
+
+  const genderBreakdown = Array.from(genderMap.entries())
+    .map(([gender, value]) => ({ gender, percentage: (value / totalWeight) * 100 }))
+    .sort((a, b) => b.percentage - a.percentage);
+
+  const ageGenderBreakdown = Array.from(ageGenderMap.entries())
+    .map(([key, value]) => {
+      const [age, gender] = key.split('|');
+      return { age, gender, percentage: (value / totalWeight) * 100 };
+    })
+    .sort((a, b) => b.percentage - a.percentage);
+
+  const regionTotal = Array.from(regionMap.values()).reduce((a, b) => a + b, 0);
+  const regionBreakdown = Array.from(regionMap.entries())
+    .map(([region, value]) => ({ region, percentage: regionTotal > 0 ? (value / regionTotal) * 100 : 0 }))
+    .sort((a, b) => b.percentage - a.percentage);
+
+  return {
+    ageBreakdown,
+    genderBreakdown,
+    ageGenderBreakdown,
+    regionBreakdown,
+    totalReachAnalyzed: totalWeight,
+    adsWithDemographics: adsWithData.length,
+    adsWithoutReach,
+  };
+}
+
+async function fetchAndStoreDemographics(brandId: string, pageId: string, pageName: string): Promise<boolean> {
+  console.log(`  Fetching demographics for ${pageName}...`);
+
+  try {
+    const demographicsAds = await fetchDemographicsForBrand(pageId, 50);
+
+    if (demographicsAds.length === 0) {
+      console.log(`  No demographics data available for ${pageName}`);
+      return false;
+    }
+
+    const aggregated = aggregateDemographicsFromAds(demographicsAds);
+
+    if (!aggregated) {
+      console.log(`  Could not aggregate demographics for ${pageName}`);
+      return false;
+    }
+
+    // Store demographics in brand record
+    await prisma.adLibraryBrand.update({
+      where: { id: brandId },
+      data: {
+        demographicsJson: aggregated as object,
+        demographicsUpdatedAt: new Date(),
+      },
+    });
+
+    console.log(`  Stored demographics: ${aggregated.adsWithDemographics} ads analyzed, ${aggregated.ageBreakdown.length} age groups, ${aggregated.regionBreakdown.length} regions`);
+    return true;
+  } catch (error) {
+    console.log(`  Demographics fetch/store failed: ${error instanceof Error ? error.message : error}`);
+    return false;
+  }
+}
+
+// =============================================================================
+// Ad Processing
+// =============================================================================
+
 function detectDisplayFormat(ad: MetaAd): string {
   // Check for video indicators in snapshot URL or content
   const snapshotUrl = ad.ad_snapshot_url || '';
@@ -855,6 +1077,14 @@ async function processBrand(brandId: string, pageId: string, pageName: string) {
     }
     console.log(`Queued ${assetsQueued} assets for processing`);
 
+    // Fetch and store demographics (only for numeric page IDs)
+    let demographicsStored = false;
+    if (isNumericPageId(pageId)) {
+      demographicsStored = await fetchAndStoreDemographics(brandId, pageId, pageName);
+    } else {
+      console.log(`  Skipping demographics for ${pageName} (non-numeric pageId)`);
+    }
+
     // Update brand status
     const activeCount = ads.filter(a => !a.ad_delivery_stop_time).length;
     const totalReach = ads.reduce((sum, a) => sum + (a.eu_total_reach || 0), 0);
@@ -881,7 +1111,7 @@ async function processBrand(brandId: string, pageId: string, pageName: string) {
       },
     });
 
-    return { success: true, brand: pageName, ads: ads.length, created, updated };
+    return { success: true, brand: pageName, ads: ads.length, created, updated, demographicsStored };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`Failed to process ${pageName}: ${errorMessage}`);

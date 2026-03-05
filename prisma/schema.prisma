@@ -178,6 +178,10 @@ model AdLibraryBrand {
   priority        Int      @default(0)         // Higher = process first
   failCount       Int      @default(0)         // Number of consecutive failures (paused at 3+)
 
+  // Aggregated demographics (stored as JSON for flexibility)
+  demographicsJson     Json?     // Full AggregatedDemographics object
+  demographicsUpdatedAt DateTime? // When demographics were last fetched
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
