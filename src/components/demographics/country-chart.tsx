@@ -42,8 +42,15 @@ export function CountryChart({ data, onSegmentClick, activeFilter }: CountryChar
   const chartData = useMemo(() => {
     if (!data?.length) return [];
 
+    // Ensure all percentages are valid numbers, filter out invalid entries
+    const validData = data
+      .filter(c => typeof c.percentage === 'number' && !isNaN(c.percentage))
+      .map(c => ({ ...c, percentage: c.percentage || 0 }));
+
+    if (!validData.length) return [];
+
     // Sort and take top 6, group rest as "Other"
-    const sorted = [...data].sort((a, b) => b.percentage - a.percentage);
+    const sorted = [...validData].sort((a, b) => b.percentage - a.percentage);
     const top = sorted.slice(0, 6);
     const otherPct = sorted.slice(6).reduce((sum, c) => sum + c.percentage, 0);
     const otherCount = sorted.slice(6).length;

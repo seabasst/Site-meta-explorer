@@ -21,7 +21,9 @@ export function AgeGenderChart({ data, onSegmentClick, activeFilter }: AgeGender
 
     data.forEach(item => {
       const existing = groups.get(item.age) || { male: 0, female: 0, unknown: 0 };
-      existing[item.gender as keyof typeof existing] = item.percentage;
+      // Ensure percentage is a valid number, default to 0 if null/undefined/NaN
+      const pct = typeof item.percentage === 'number' && !isNaN(item.percentage) ? item.percentage : 0;
+      existing[item.gender as keyof typeof existing] = pct;
       groups.set(item.age, existing);
     });
 

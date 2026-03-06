@@ -96,20 +96,23 @@ export function AccountSummary({ result }: AccountSummaryProps) {
         </div>
         {topCountries.length > 0 ? (
           <div className="space-y-1.5">
-            {topCountries.map((country, idx) => (
-              <div key={country.region} className="flex items-center gap-2">
-                <div
-                  className="h-2 rounded-full bg-[var(--cat-landing)]"
-                  style={{
-                    width: `${Math.max(20, country.percentage)}%`,
-                    opacity: 1 - (idx * 0.25)
-                  }}
-                />
-                <span className="text-xs text-[var(--text-secondary)] whitespace-nowrap">
-                  {COUNTRY_NAMES[country.region] || country.region} ({country.percentage.toFixed(0)}%)
-                </span>
-              </div>
-            ))}
+            {topCountries.map((country, idx) => {
+              const pct = typeof country.percentage === 'number' ? country.percentage : 0;
+              return (
+                <div key={country.region} className="flex items-center gap-2">
+                  <div
+                    className="h-2 rounded-full bg-[var(--cat-landing)]"
+                    style={{
+                      width: `${Math.max(20, pct)}%`,
+                      opacity: 1 - (idx * 0.25)
+                    }}
+                  />
+                  <span className="text-xs text-[var(--text-secondary)] whitespace-nowrap">
+                    {COUNTRY_NAMES[country.region] || country.region} ({pct.toFixed(0)}%)
+                  </span>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="text-sm text-[var(--text-muted)]">No data</div>
@@ -125,7 +128,7 @@ export function AccountSummary({ result }: AccountSummaryProps) {
         <div className="space-y-2">
           <div>
             <span className="text-lg font-bold text-[var(--text-primary)]">{genderDisplay}</span>
-            {dominantGender && (
+            {dominantGender && typeof dominantGender.percentage === 'number' && (
               <span className="text-xs text-[var(--text-muted)] ml-2">
                 ({dominantGender.percentage.toFixed(0)}%)
               </span>

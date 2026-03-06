@@ -1271,7 +1271,7 @@ export default function Home() {
                               <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
                                 {(() => {
                                   const topSegment = apiResult.aggregatedDemographics.ageGenderBreakdown[0];
-                                  return topSegment ? (
+                                  return topSegment && typeof topSegment.percentage === 'number' ? (
                                     <span>Top: <span className="text-[var(--accent-green-light)]">{topSegment.gender} {topSegment.age}</span> ({topSegment.percentage.toFixed(1)}%)</span>
                                   ) : null;
                                 })()}
