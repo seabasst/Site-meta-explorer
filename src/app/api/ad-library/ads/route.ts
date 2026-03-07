@@ -61,6 +61,15 @@ interface AdLibraryAdResponse {
     category: string | null;
     country: string | null;
   };
+  assets: {
+    id: string;
+    assetType: string;
+    storedUrl: string | null;
+    thumbnailUrl: string | null;
+    originalUrl: string;
+    downloadStatus: string;
+    position: number;
+  }[];
 }
 
 interface PaginatedResponse {
@@ -189,7 +198,7 @@ function buildOrderByClause(
   sort: AdLibraryAdSortOptions
 ): Prisma.AdLibraryAdOrderByWithRelationInput {
   const { sortBy = 'createdAt', sortOrder = 'desc' } = sort;
-  return { [sortBy]: sortOrder };
+  return { [sortBy]: { sort: sortOrder, nulls: 'last' } };
 }
 
 /**
@@ -267,6 +276,18 @@ export async function GET(request: NextRequest) {
               category: true,
               country: true,
             },
+          },
+          assets: {
+            select: {
+              id: true,
+              assetType: true,
+              storedUrl: true,
+              thumbnailUrl: true,
+              originalUrl: true,
+              downloadStatus: true,
+              position: true,
+            },
+            orderBy: { position: 'asc' },
           },
         },
       }),
