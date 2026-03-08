@@ -169,7 +169,6 @@ export default function SavedAdsPage() {
 
 function SavedAdCard({ ad, darkMode, onUnsave }: { ad: Ad; darkMode: boolean; onUnsave: (adId: string) => void }) {
   const primaryAsset = ad.assets?.find((a) => a.downloadStatus === 'completed' && a.storedUrl);
-  const isFacebookRender = ad.snapshotUrl?.includes('render_ad');
 
   const renderPreview = () => {
     if (primaryAsset?.storedUrl) {
@@ -185,11 +184,6 @@ function SavedAdCard({ ad, darkMode, onUnsave }: { ad: Ad; darkMode: boolean; on
       }
       return (
         <img src={primaryAsset.storedUrl} alt={ad.title || 'Ad creative'} className="w-full h-full object-cover" loading="lazy" />
-      );
-    }
-    if (ad.snapshotUrl && isFacebookRender) {
-      return (
-        <iframe src={ad.snapshotUrl} sandbox="allow-scripts allow-same-origin" className="w-full h-full border-0 pointer-events-none" loading="lazy" title={ad.title || 'Ad preview'} />
       );
     }
     return (

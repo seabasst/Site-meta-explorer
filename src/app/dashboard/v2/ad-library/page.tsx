@@ -701,7 +701,6 @@ function generatePageNumbers(current: number, total: number): (number | '...')[]
 function AdCard({ ad, darkMode, isSaved, onToggleSave }: { ad: Ad; darkMode: boolean; isSaved?: boolean; onToggleSave?: (adId: string) => void }) {
   // Find the best available asset (prefer completed R2 downloads)
   const primaryAsset = ad.assets?.find(a => a.downloadStatus === 'completed' && a.storedUrl);
-  const isFacebookRender = ad.snapshotUrl?.includes('render_ad');
 
   const formatIcon = () => {
     switch (ad.displayFormat) {
@@ -738,20 +737,7 @@ function AdCard({ ad, darkMode, isSaved, onToggleSave }: { ad: Ad; darkMode: boo
       );
     }
 
-    // 2. Facebook render URL (iframe fallback)
-    if (ad.snapshotUrl && isFacebookRender) {
-      return (
-        <iframe
-          src={ad.snapshotUrl}
-          sandbox="allow-scripts allow-same-origin"
-          className="w-full h-full border-0 pointer-events-none"
-          loading="lazy"
-          title={ad.title || 'Ad preview'}
-        />
-      );
-    }
-
-    // 3. Fallback: show body text
+    // 2. Fallback: show body text
     return (
       <div className="w-full h-full flex flex-col items-center justify-center p-4">
         <ImageIcon className={`w-8 h-8 mb-3 ${darkMode ? 'text-slate-600' : 'text-slate-300'}`} />

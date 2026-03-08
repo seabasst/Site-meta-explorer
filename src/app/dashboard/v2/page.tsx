@@ -129,7 +129,7 @@ export default function DashboardV2Page() {
     try {
       const [statsRes, adsRes, dashRes] = await Promise.all([
         fetch('/api/ad-library/stats?fast=true'),
-        fetch('/api/ad-library/ads?sortBy=reachEstimate&sortOrder=desc&limit=8&isActive=true'),
+        fetch('/api/ad-library/ads?sortBy=reachEstimate&sortOrder=desc&limit=8&isActive=true&excludeFormats=carousel,dpa'),
         fetch('/api/dashboard/overview'),
       ]);
       if (statsRes.ok) setStats(await statsRes.json());
@@ -151,7 +151,7 @@ export default function DashboardV2Page() {
       active: 'startDate',
     } as const;
     const sortBy = sortMap[sortTab];
-    const params = new URLSearchParams({ sortBy, sortOrder: 'desc', limit: '8', isActive: 'true' });
+    const params = new URLSearchParams({ sortBy, sortOrder: 'desc', limit: '8', isActive: 'true', excludeFormats: 'carousel,dpa' });
     fetch(`/api/ad-library/ads?${params}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => { if (data) setAds(data.ads || []); })
@@ -404,7 +404,6 @@ export default function DashboardV2Page() {
 function AdCard({ ad }: { ad: Ad }) {
   const { darkMode } = useV2();
   const primaryAsset = ad.assets?.find(a => a.downloadStatus === 'completed' && a.storedUrl);
-  const isFacebookRender = ad.snapshotUrl?.includes('render_ad');
   const reachValue = ad.reachEstimate ?? ad.impressionsLower ?? null;
 
   const renderPreview = () => {
@@ -418,14 +417,6 @@ function AdCard({ ad }: { ad: Ad }) {
         );
       }
       return <img alt={ad.title || 'Ad'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={primaryAsset.storedUrl} loading="lazy" />;
-    }
-    // 2. Facebook render URL
-    if (ad.snapshotUrl && isFacebookRender) {
-      return <iframe src={ad.snapshotUrl} className="w-full h-full border-0 pointer-events-none" sandbox="allow-scripts allow-same-origin" loading="lazy" title={ad.title || 'Ad preview'} />;
-    }
-    // 3. Direct snapshot URL
-    if (ad.snapshotUrl) {
-      return <img alt={ad.title || 'Ad'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src={ad.snapshotUrl} loading="lazy" />;
     }
     // 4. Fallback text
     return (
