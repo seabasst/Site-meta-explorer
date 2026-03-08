@@ -24,6 +24,36 @@ model User {
   competitors TrackedBrand[] @relation("Competitors")
   snapshots   BrandSnapshot[]
   benchmarks  BenchmarkReport[]
+  savedAds        SavedAd[]
+  monitoredBrands MonitoredBrand[]
+}
+
+model SavedAd {
+  id     String @id @default(cuid())
+  userId String
+  adId   String // references AdLibraryAd.id
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ad   AdLibraryAd  @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, adId])
+  @@index([userId, createdAt])
+}
+
+model MonitoredBrand {
+  id      String @id @default(cuid())
+  userId  String
+  brandId String // references AdLibraryBrand.id
+
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brand AdLibraryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, brandId])
+  @@index([userId, createdAt])
 }
 
 model TrackedBrand {
@@ -185,8 +215,9 @@ model AdLibraryBrand {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  ads           AdLibraryAd[]
-  ingestionJobs IngestionJob[]
+  ads            AdLibraryAd[]
+  ingestionJobs  IngestionJob[]
+  monitoredBy    MonitoredBrand[]
 
   @@index([ingestionStatus, priority])
   @@index([category])
@@ -236,7 +267,8 @@ model AdLibraryAd {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  assets AdAsset[]
+  assets   AdAsset[]
+  savedBy  SavedAd[]
 
   @@index([brandId, isActive])
   @@index([brandId, startDate])

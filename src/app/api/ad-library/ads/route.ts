@@ -9,11 +9,15 @@ import { Prisma } from '@prisma/client';
 interface AdLibraryAdFilters {
   brandId?: string;
   displayFormat?: string;
+  displayFormats?: string[];
   publisherPlatforms?: string[];
   isActive?: boolean;
   startDateFrom?: string;
   startDateTo?: string;
   search?: string;
+  category?: string;
+  minDaysActive?: number;
+  maxDaysActive?: number;
 }
 
 interface AdLibraryAdSortOptions {
@@ -108,6 +112,15 @@ function parseQueryParams(searchParams: URLSearchParams): {
   const startDateFrom = searchParams.get('startDateFrom') || undefined;
   const startDateTo = searchParams.get('startDateTo') || undefined;
   const search = searchParams.get('search') || searchParams.get('q') || undefined;
+  const category = searchParams.get('category') || undefined;
+  const displayFormatsRaw = searchParams.get('displayFormats');
+  const displayFormats = displayFormatsRaw
+    ? displayFormatsRaw.split(',').map((f) => f.trim())
+    : undefined;
+  const minDaysActiveRaw = searchParams.get('minDaysActive');
+  const minDaysActive = minDaysActiveRaw ? parseInt(minDaysActiveRaw, 10) : undefined;
+  const maxDaysActiveRaw = searchParams.get('maxDaysActive');
+  const maxDaysActive = maxDaysActiveRaw ? parseInt(maxDaysActiveRaw, 10) : undefined;
 
   // Sorting
   const sortByRaw = searchParams.get('sortBy');
@@ -133,6 +146,10 @@ function parseQueryParams(searchParams: URLSearchParams): {
       startDateFrom,
       startDateTo,
       search,
+      category,
+      displayFormats,
+      minDaysActive: minDaysActive !== undefined && !isNaN(minDaysActive) ? minDaysActive : undefined,
+      maxDaysActive: maxDaysActive !== undefined && !isNaN(maxDaysActive) ? maxDaysActive : undefined,
     },
     sort: { sortBy, sortOrder },
     pagination: { page, limit },
@@ -150,8 +167,10 @@ function buildWhereClause(filters: AdLibraryAdFilters): Prisma.AdLibraryAdWhereI
     where.brandId = filters.brandId;
   }
 
-  // Display format filter
-  if (filters.displayFormat) {
+  // Display format filter (single or multi)
+  if (filters.displayFormats && filters.displayFormats.length > 0) {
+    where.displayFormat = { in: filters.displayFormats };
+  } else if (filters.displayFormat) {
     where.displayFormat = filters.displayFormat;
   }
 
@@ -175,6 +194,29 @@ function buildWhereClause(filters: AdLibraryAdFilters): Prisma.AdLibraryAdWhereI
     }
     if (filters.startDateTo) {
       where.startDate.lte = new Date(filters.startDateTo);
+    }
+  }
+
+  // Category (industry) filter — matches on the brand's category
+  if (filters.category) {
+    where.brand = {
+      ...(where.brand as Prisma.AdLibraryBrandWhereInput || {}),
+      category: { equals: filters.category, mode: 'insensitive' },
+    };
+  }
+
+  // Days active filter — calculated from startDate
+  if (filters.minDaysActive !== undefined || filters.maxDaysActive !== undefined) {
+    const now = new Date();
+    if (filters.maxDaysActive !== undefined) {
+      // Ad must have started at most maxDaysActive days ago → startDate >= now - maxDays
+      const from = new Date(now.getTime() - filters.maxDaysActive * 86400000);
+      where.startDate = { ...(where.startDate as object || {}), gte: from };
+    }
+    if (filters.minDaysActive !== undefined) {
+      // Ad must have started at least minDaysActive days ago → startDate <= now - minDays
+      const to = new Date(now.getTime() - filters.minDaysActive * 86400000);
+      where.startDate = { ...(where.startDate as object || {}), lte: to };
     }
   }
 

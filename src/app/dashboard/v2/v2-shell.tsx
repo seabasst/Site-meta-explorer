@@ -15,6 +15,8 @@ import {
   LayoutDashboard,
   Scale,
   Globe,
+  Download,
+  Heart,
 } from 'lucide-react';
 import { useV2 } from './v2-context';
 import { SignInButton } from '@/components/auth/sign-in-button';
@@ -41,8 +43,11 @@ function getFlag(code: string | null): string {
 const NAV_ITEMS = [
   { id: '/dashboard/v2', icon: LayoutDashboard, label: 'Dashboard' },
   { id: '/dashboard/v2/ad-library', icon: BookOpen, label: 'Ad Library' },
+  { id: '/dashboard/v2/saved', icon: Heart, label: 'Saved Ads' },
+  { id: '/dashboard/v2/brands', icon: Globe, label: 'Brands' },
   { id: '/dashboard/v2/benchmarks', icon: Scale, label: 'Benchmarking' },
   { id: '/dashboard/v2/competitors', icon: Users, label: 'Competitors' },
+  { id: '/dashboard/v2/downloads', icon: Download, label: 'Downloads' },
   { id: '/dashboard/v2/settings', icon: Settings, label: 'Settings' },
 ];
 
