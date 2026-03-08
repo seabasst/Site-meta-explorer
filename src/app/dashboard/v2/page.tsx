@@ -127,14 +127,12 @@ export default function DashboardV2Page() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [statsRes, adsRes, dashRes] = await Promise.all([
+      const [statsRes, adsRes] = await Promise.all([
         fetch('/api/ad-library/stats?fast=true'),
         fetch('/api/ad-library/ads?sortBy=reachEstimate&sortOrder=desc&limit=8&isActive=true&excludeFormats=carousel,dpa'),
-        fetch('/api/dashboard/overview'),
       ]);
       if (statsRes.ok) setStats(await statsRes.json());
       if (adsRes.ok) { const d = await adsRes.json(); setAds(d.ads || []); }
-      if (dashRes.ok) setDashboardData(await dashRes.json());
     } catch (err) {
       console.error('Failed to fetch data:', err);
     } finally {
