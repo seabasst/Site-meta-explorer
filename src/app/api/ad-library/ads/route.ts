@@ -10,6 +10,7 @@ interface AdLibraryAdFilters {
   brandId?: string;
   displayFormat?: string;
   displayFormats?: string[];
+  excludeFormats?: string[];
   publisherPlatforms?: string[];
   isActive?: boolean;
   startDateFrom?: string;
@@ -117,6 +118,10 @@ function parseQueryParams(searchParams: URLSearchParams): {
   const displayFormats = displayFormatsRaw
     ? displayFormatsRaw.split(',').map((f) => f.trim())
     : undefined;
+  const excludeFormatsRaw = searchParams.get('excludeFormats');
+  const excludeFormats = excludeFormatsRaw
+    ? excludeFormatsRaw.split(',').map((f) => f.trim())
+    : undefined;
   const minDaysActiveRaw = searchParams.get('minDaysActive');
   const minDaysActive = minDaysActiveRaw ? parseInt(minDaysActiveRaw, 10) : undefined;
   const maxDaysActiveRaw = searchParams.get('maxDaysActive');
@@ -148,6 +153,7 @@ function parseQueryParams(searchParams: URLSearchParams): {
       search,
       category,
       displayFormats,
+      excludeFormats,
       minDaysActive: minDaysActive !== undefined && !isNaN(minDaysActive) ? minDaysActive : undefined,
       maxDaysActive: maxDaysActive !== undefined && !isNaN(maxDaysActive) ? maxDaysActive : undefined,
     },
@@ -172,6 +178,8 @@ function buildWhereClause(filters: AdLibraryAdFilters): Prisma.AdLibraryAdWhereI
     where.displayFormat = { in: filters.displayFormats };
   } else if (filters.displayFormat) {
     where.displayFormat = filters.displayFormat;
+  } else if (filters.excludeFormats && filters.excludeFormats.length > 0) {
+    where.displayFormat = { notIn: filters.excludeFormats };
   }
 
   // Publisher platforms filter (hasSome - at least one platform matches)

@@ -136,6 +136,7 @@ export default function AdLibraryPage() {
 
   // Filters
   const [selectedFormats, setSelectedFormats] = useState<Set<string>>(new Set());
+  const [hideCarousel, setHideCarousel] = useState(true);
   const [statusFilter, setStatusFilter] = useState<'active' | 'all'>('active');
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [daysActiveFilter, setDaysActiveFilter] = useState<DaysRange | null>(null);
@@ -206,6 +207,8 @@ export default function AdLibraryPage() {
       }
       if (selectedFormats.size > 0) {
         params.set('displayFormats', Array.from(selectedFormats).join(','));
+      } else if (hideCarousel) {
+        params.set('excludeFormats', 'carousel,dpa');
       }
       if (categoryFilter) {
         params.set('category', categoryFilter);
@@ -249,7 +252,7 @@ export default function AdLibraryPage() {
     } finally {
       setAdsLoading(false);
     }
-  }, [page, statusFilter, selectedFormats, categoryFilter, daysActiveFilter, searchDebounce]);
+  }, [page, statusFilter, selectedFormats, hideCarousel, categoryFilter, daysActiveFilter, searchDebounce]);
 
   useEffect(() => {
     fetchAds();
@@ -258,7 +261,7 @@ export default function AdLibraryPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [statusFilter, selectedFormats, categoryFilter, daysActiveFilter, searchDebounce]);
+  }, [statusFilter, selectedFormats, hideCarousel, categoryFilter, daysActiveFilter, searchDebounce]);
 
   const activeFilterCount = (selectedFormats.size > 0 ? 1 : 0) +
     (categoryFilter ? 1 : 0) +
@@ -267,6 +270,7 @@ export default function AdLibraryPage() {
 
   const clearAllFilters = () => {
     setSelectedFormats(new Set());
+    setHideCarousel(true);
     setCategoryFilter('');
     setDaysActiveFilter(null);
     setStatusFilter('active');
@@ -493,6 +497,21 @@ export default function AdLibraryPage() {
               </button>
             ))}
           </FilterDropdown>
+
+          {/* Hide Carousel toggle */}
+          <button
+            onClick={() => setHideCarousel(!hideCarousel)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              hideCarousel
+                ? 'bg-[#1235e2]/20 text-[#1235e2]'
+                : darkMode
+                  ? 'bg-[#1235e2]/10 text-slate-300 hover:bg-[#1235e2]/20'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            {hideCarousel ? 'Carousel hidden' : 'Show all formats'}
+          </button>
 
           {/* Active filter chips */}
           {activeFilterCount > 0 && (
