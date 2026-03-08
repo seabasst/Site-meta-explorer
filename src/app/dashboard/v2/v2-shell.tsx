@@ -8,7 +8,6 @@ import {
   BookOpen,
   Settings,
   Users,
-  Search,
   Moon,
   Sun,
   Bell,
@@ -19,7 +18,6 @@ import {
   Heart,
 } from 'lucide-react';
 import { useV2 } from './v2-context';
-import { SignInButton } from '@/components/auth/sign-in-button';
 
 interface SidebarInsights {
   genderLabel?: string | null;
@@ -61,31 +59,8 @@ export function V2Shell({
   insights?: SidebarInsights;
 }) {
   const { darkMode, setDarkMode } = useV2();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const pathname = usePathname();
-
-  if (status === 'loading') {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-[#101322] text-white' : 'bg-[#f6f6f8] text-slate-900'}`}>
-        <div className="w-8 h-8 rounded-full border-2 border-[#1235e2] border-t-transparent animate-spin" />
-      </div>
-    );
-  }
-
-  if (!session) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-[#101322] text-white' : 'bg-[#f6f6f8] text-slate-900'}`}>
-        <div className="text-center">
-          <div className="bg-[#1235e2] p-3 rounded-xl text-white inline-flex mb-4">
-            <BarChart3 className="w-8 h-8" />
-          </div>
-          <h1 className="text-2xl font-bold mb-2">Ad Library Pro</h1>
-          <p className={`mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Sign in to access the analytics dashboard</p>
-          <SignInButton provider="email" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={`min-h-screen flex font-sans ${darkMode ? 'bg-[#101322] text-slate-100' : 'bg-[#f6f6f8] text-slate-900'}`}>
@@ -186,7 +161,7 @@ export function V2Shell({
               <Bell className="w-5 h-5" />
             </button>
             <div className="h-10 w-10 rounded-full bg-[#1235e2]/20 border-2 border-[#1235e2] flex items-center justify-center text-sm font-bold text-[#1235e2]">
-              {session.user?.name?.[0]?.toUpperCase() || session.user?.email?.[0]?.toUpperCase() || 'U'}
+              {session?.user?.name?.[0]?.toUpperCase() || session?.user?.email?.[0]?.toUpperCase() || 'U'}
             </div>
           </div>
         </header>
