@@ -8,6 +8,7 @@ import { Prisma } from '@prisma/client';
 
 interface AdLibraryAdFilters {
   brandId?: string;
+  brandPageId?: string;
   displayFormat?: string;
   displayFormats?: string[];
   excludeFormats?: string[];
@@ -103,6 +104,7 @@ function parseQueryParams(searchParams: URLSearchParams): {
 } {
   // Filters
   const brandId = searchParams.get('brandId') || undefined;
+  const brandPageId = searchParams.get('brandPageId') || undefined;
   const displayFormat = searchParams.get('displayFormat') || undefined;
   const publisherPlatformsRaw = searchParams.get('publisherPlatforms');
   const publisherPlatforms = publisherPlatformsRaw
@@ -145,6 +147,7 @@ function parseQueryParams(searchParams: URLSearchParams): {
   return {
     filters: {
       brandId,
+      brandPageId,
       displayFormat,
       publisherPlatforms,
       isActive,
@@ -171,6 +174,8 @@ function buildWhereClause(filters: AdLibraryAdFilters): Prisma.AdLibraryAdWhereI
   // Brand filter
   if (filters.brandId) {
     where.brandId = filters.brandId;
+  } else if (filters.brandPageId) {
+    where.brand = { pageId: filters.brandPageId };
   }
 
   // Display format filter (single or multi)

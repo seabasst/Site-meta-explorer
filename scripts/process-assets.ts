@@ -141,6 +141,14 @@ async function processAsset(asset: {
       },
     });
 
+    // Update ad displayFormat if video detected
+    if (extracted.type === 'video') {
+      await prisma.adLibraryAd.update({
+        where: { id: asset.ad.id },
+        data: { displayFormat: 'video' },
+      });
+    }
+
     return { success: true };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -156,6 +164,12 @@ async function main() {
   // Parse args
   const limitArg = process.argv.find(a => a.startsWith('--limit'));
   const limit = limitArg ? parseInt(limitArg.split('=')[1] || process.argv[process.argv.indexOf('--limit') + 1]) : DEFAULT_LIMIT;
+  const brandArg = process.argv.find(a => a.startsWith('--brand'));
+  const brandName = brandArg ? (brandArg.split('=')[1] || process.argv[process.argv.indexOf('--brand') + 1]) : undefined;
+  const minAdsArg = process.argv.find(a => a.startsWith('--min-ads'));
+  const minAds = minAdsArg ? parseInt(minAdsArg.split('=')[1] || process.argv[process.argv.indexOf('--min-ads') + 1]) : undefined;
+  const maxAdsArg = process.argv.find(a => a.startsWith('--max-ads'));
+  const maxAds = maxAdsArg ? parseInt(maxAdsArg.split('=')[1] || process.argv[process.argv.indexOf('--max-ads') + 1]) : undefined;
 
   console.log('Asset Processor');
   console.log('===============\n');
@@ -167,9 +181,34 @@ async function main() {
   }
   console.log('✓ R2 configured\n');
 
+  // Build brand filter
+  let brandIds: string[] | undefined;
+  if (brandName) {
+    const brand = await prisma.adLibraryBrand.findFirst({ where: { pageName: { contains: brandName, mode: 'insensitive' } } });
+    if (!brand) { console.error(`Brand "${brandName}" not found`); process.exit(1); }
+    brandIds = [brand.id];
+    console.log(`Filtering to brand: ${brand.pageName}\n`);
+  } else if (minAds !== undefined || maxAds !== undefined) {
+    const brands = await prisma.adLibraryBrand.findMany({
+      select: { id: true, pageName: true, _count: { select: { ads: true } } },
+    });
+    const filtered = brands.filter(b => {
+      if (minAds !== undefined && b._count.ads < minAds) return false;
+      if (maxAds !== undefined && b._count.ads > maxAds) return false;
+      return true;
+    });
+    brandIds = filtered.map(b => b.id);
+    console.log(`Filtering to ${filtered.length} brands with ${minAds ?? 0}-${maxAds ?? '∞'} ads:`);
+    filtered.forEach(b => console.log(`  ${b.pageName}: ${b._count.ads} ads`));
+    console.log();
+  }
+
   // Get pending assets
   const pendingAssets = await prisma.adAsset.findMany({
-    where: { downloadStatus: 'pending' },
+    where: {
+      downloadStatus: 'pending',
+      ...(brandIds ? { ad: { brandId: { in: brandIds } } } : {}),
+    },
     include: {
       ad: { select: { id: true, adId: true, brandId: true } },
     },

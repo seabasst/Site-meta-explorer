@@ -69,6 +69,7 @@ export async function processAsset(assetId: string): Promise<ProcessAssetResult>
         select: {
           id: true,
           brandId: true,
+          displayFormat: true,
         },
       },
     },
@@ -121,6 +122,14 @@ export async function processAsset(assetId: string): Promise<ProcessAssetResult>
           assetType: mediaType,
         },
       });
+
+      // Also update the ad's displayFormat if it differs
+      if (mediaType === 'video' && asset.ad.displayFormat !== 'video') {
+        await prisma.adLibraryAd.update({
+          where: { id: asset.ad.id },
+          data: { displayFormat: 'video' },
+        });
+      }
     }
 
     // Download from Meta CDN
