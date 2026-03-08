@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import {
   ChevronDown,
@@ -118,7 +117,6 @@ function formatFormatLabel(format: string | null): string {
 // ---------------------------------------------------------------------------
 
 export default function DashboardV2Page() {
-  const { data: session } = useSession();
   const { darkMode } = useV2();
   const [stats, setStats] = useState<AdLibraryStats | null>(null);
   const [ads, setAds] = useState<Ad[]>([]);
@@ -144,10 +142,9 @@ export default function DashboardV2Page() {
     }
   }, []);
 
-  useEffect(() => { if (session) fetchData(); }, [session, fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   useEffect(() => {
-    if (!session) return;
     const sortMap = {
       reach: 'reachEstimate',
       newest: 'startDate',
@@ -159,7 +156,7 @@ export default function DashboardV2Page() {
       .then(res => res.ok ? res.json() : null)
       .then(data => { if (data) setAds(data.ads || []); })
       .catch(() => {});
-  }, [sortTab, session]);
+  }, [sortTab]);
 
   // Build sidebar insights
   const ownSnapshot = dashboardData?.ownBrand?.snapshots?.[0] ?? null;

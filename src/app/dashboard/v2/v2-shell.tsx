@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import {
   BarChart3,
   BookOpen,
@@ -59,7 +58,6 @@ export function V2Shell({
   insights?: SidebarInsights;
 }) {
   const { darkMode, setDarkMode } = useV2();
-  const { data: session } = useSession();
   const pathname = usePathname();
 
   return (
@@ -161,7 +159,7 @@ export function V2Shell({
               <Bell className="w-5 h-5" />
             </button>
             <div className="h-10 w-10 rounded-full bg-[#1235e2]/20 border-2 border-[#1235e2] flex items-center justify-center text-sm font-bold text-[#1235e2]">
-              {session?.user?.name?.[0]?.toUpperCase() || session?.user?.email?.[0]?.toUpperCase() || 'U'}
+              U
             </div>
           </div>
         </header>
