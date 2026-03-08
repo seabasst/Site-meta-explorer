@@ -771,19 +771,6 @@ function AdCard({ ad, darkMode, isSaved, onToggleSave }: { ad: Ad; darkMode: boo
           {ad.isActive ? 'Active' : 'Ended'}
         </div>
 
-        {/* Save button - bottom right */}
-        {onToggleSave && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onToggleSave(ad.id); }}
-            className={`absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all ${
-              isSaved
-                ? 'bg-red-500 text-white shadow-lg'
-                : 'bg-black/40 backdrop-blur-md text-white/80 hover:bg-black/60 hover:text-white'
-            }`}
-          >
-            <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
-          </button>
-        )}
       </div>
 
       {/* Card Info */}
@@ -827,9 +814,22 @@ function AdCard({ ad, darkMode, isSaved, onToggleSave }: { ad: Ad; darkMode: boo
             </p>
           </div>
         </div>
+        {onToggleSave && (
+          <button
+            onClick={() => onToggleSave(ad.id)}
+            className={`flex items-center justify-center gap-1.5 w-full mt-3 pt-3 border-t text-xs font-semibold transition-colors ${
+              isSaved
+                ? darkMode ? 'border-[#1235e2]/10 text-red-400 hover:text-red-300' : 'border-slate-100 text-red-500 hover:text-red-400'
+                : darkMode ? 'border-[#1235e2]/10 text-slate-400 hover:text-[#1235e2]' : 'border-slate-100 text-slate-500 hover:text-[#1235e2]'
+            }`}
+          >
+            <Heart className={`w-3 h-3 ${isSaved ? 'fill-current' : ''}`} />
+            {isSaved ? 'Saved' : 'Save Ad'}
+          </button>
+        )}
         {ad.snapshotUrl && (
           <a href={ad.snapshotUrl} target="_blank" rel="noopener noreferrer"
-            className={`flex items-center justify-center gap-1.5 mt-3 pt-3 border-t text-xs font-semibold transition-colors ${
+            className={`flex items-center justify-center gap-1.5 mt-2 pt-2 border-t text-xs font-semibold transition-colors ${
               darkMode ? 'border-[#1235e2]/10 text-slate-400 hover:text-[#1235e2]' : 'border-slate-100 text-slate-500 hover:text-[#1235e2]'
             }`}>
             <ExternalLink className="w-3 h-3" /> View on Meta
