@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import html2canvas from 'html2canvas';
 import {
   Wand2,
   Sparkles,
@@ -15,6 +16,7 @@ import {
   Zap,
   ArrowLeft,
   Send,
+  Download,
 } from 'lucide-react';
 import { V2Shell, V2Card, V2SectionTitle, V2Skeleton, formatNumber } from '../v2-shell';
 import { useV2 } from '../v2-context';
@@ -568,7 +570,14 @@ export default function CreativeLabPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
             {generateResult.variations.map((v, i) => (
-              <AdVariationCard key={i} variation={v} index={i} darkMode={darkMode} />
+              <AdVariationCard
+                key={i}
+                variation={v}
+                index={i}
+                darkMode={darkMode}
+                brandName={variables.brand || 'Your Brand'}
+                colors={generateResult.template.colorSuggestions || ['#1235e2', '#ffffff', '#000000']}
+              />
             ))}
           </div>
 
@@ -717,18 +726,51 @@ function AdVariationCard({
   variation,
   index,
   darkMode,
+  brandName,
+  colors,
 }: {
   variation: GeneratedVariation;
   index: number;
   darkMode: boolean;
+  brandName: string;
+  colors: string[];
 }) {
   const [copied, setCopied] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
+  const creativeRef = useRef<HTMLDivElement>(null);
 
   const copyText = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
     setCopied(field);
     setTimeout(() => setCopied(null), 2000);
   };
+
+  const downloadCreative = async () => {
+    if (!creativeRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(creativeRef.current, {
+        scale: 2,
+        backgroundColor: null,
+        useCORS: true,
+      });
+      const link = document.createElement('a');
+      link.download = `ad-creative-${index + 1}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error('Download failed:', err);
+    }
+    setDownloading(false);
+  };
+
+  const primary = colors[0] || '#1235e2';
+  const secondary = colors[1] || '#ffffff';
+  const accent = colors[2] || '#000000';
+
+  // Determine if primary color is dark to choose text color
+  const primaryIsDark = isColorDark(primary);
+  const textOnPrimary = primaryIsDark ? '#ffffff' : '#000000';
 
   return (
     <V2Card className="p-6">
@@ -741,40 +783,112 @@ function AdVariationCard({
         </span>
       </div>
 
-      {/* Ad preview mockup */}
-      <div className={`rounded-xl overflow-hidden border mb-4 ${darkMode ? 'border-[#1235e2]/10' : 'border-slate-200'}`}>
-        {/* Simulated ad header */}
-        <div className={`px-4 py-2 flex items-center gap-2 ${darkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
-          <div className="w-8 h-8 rounded-full bg-[#1235e2]/20" />
-          <div>
-            <div className={`text-xs font-bold ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>Your Brand</div>
-            <div className={`text-[10px] ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Sponsored</div>
+      {/* Downloadable Ad Creative */}
+      <div ref={creativeRef} className="rounded-xl overflow-hidden mb-3" style={{ width: '100%', aspectRatio: '1 / 1' }}>
+        <div
+          className="w-full h-full flex flex-col justify-between p-6 relative overflow-hidden"
+          style={{ backgroundColor: primary }}
+        >
+          {/* Decorative shapes */}
+          <div
+            className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10"
+            style={{ backgroundColor: secondary, transform: 'translate(30%, -30%)' }}
+          />
+          <div
+            className="absolute bottom-0 left-0 w-24 h-24 rounded-full opacity-10"
+            style={{ backgroundColor: accent, transform: 'translate(-30%, 30%)' }}
+          />
+
+          {/* Brand name */}
+          <div className="relative z-10">
+            <p
+              className="text-xs font-bold uppercase tracking-[0.2em] opacity-80"
+              style={{ color: textOnPrimary }}
+            >
+              {brandName}
+            </p>
           </div>
-        </div>
 
-        {/* Primary text */}
-        <div className="px-4 py-3">
-          <CopyableText text={variation.primaryText} field="primary" copied={copied} onCopy={copyText} darkMode={darkMode} />
-        </div>
+          {/* Headline */}
+          <div className="relative z-10 flex-1 flex items-center">
+            <h2
+              className="text-xl font-black leading-tight"
+              style={{ color: textOnPrimary }}
+            >
+              {variation.headline}
+            </h2>
+          </div>
 
-        {/* Image placeholder */}
-        <div className={`h-40 flex items-center justify-center ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
-          <ImageIcon className={`w-8 h-8 ${darkMode ? 'text-slate-700' : 'text-slate-300'}`} />
-        </div>
-
-        {/* Headline + description + CTA */}
-        <div className={`px-4 py-3 ${darkMode ? 'bg-slate-800/30' : 'bg-slate-50'}`}>
-          <CopyableText text={variation.headline} field="headline" copied={copied} onCopy={copyText} darkMode={darkMode} className="font-bold mb-1" />
-          <CopyableText text={variation.description} field="desc" copied={copied} onCopy={copyText} darkMode={darkMode} className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`} />
-          <div className="mt-2">
-            <span className="inline-block px-3 py-1 bg-[#1235e2] text-white text-xs rounded font-medium">
+          {/* Description + CTA */}
+          <div className="relative z-10">
+            <p
+              className="text-xs mb-4 opacity-80 leading-relaxed"
+              style={{ color: textOnPrimary }}
+            >
+              {variation.description}
+            </p>
+            <span
+              className="inline-block px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider"
+              style={{
+                backgroundColor: secondary,
+                color: isColorDark(secondary) ? '#ffffff' : '#000000',
+              }}
+            >
               {variation.ctaButton}
             </span>
           </div>
         </div>
       </div>
+
+      {/* Download button */}
+      <button
+        onClick={downloadCreative}
+        disabled={downloading}
+        className={`w-full py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-2 transition-colors mb-4 ${
+          darkMode
+            ? 'bg-[#1235e2]/10 text-[#1235e2] hover:bg-[#1235e2]/20'
+            : 'bg-[#1235e2]/5 text-[#1235e2] hover:bg-[#1235e2]/10'
+        }`}
+      >
+        {downloading ? (
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        ) : (
+          <Download className="w-3.5 h-3.5" />
+        )}
+        Download as PNG
+      </button>
+
+      {/* Facebook post mockup */}
+      <div className={`rounded-xl overflow-hidden border ${darkMode ? 'border-[#1235e2]/10' : 'border-slate-200'}`}>
+        <div className={`px-4 py-2 flex items-center gap-2 ${darkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
+          <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: primary, color: textOnPrimary }}>
+            {brandName.charAt(0)}
+          </div>
+          <div>
+            <div className={`text-xs font-bold ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{brandName}</div>
+            <div className={`text-[10px] ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Sponsored</div>
+          </div>
+        </div>
+        <div className="px-4 py-2">
+          <CopyableText text={variation.primaryText} field={`primary-${index}`} copied={copied} onCopy={copyText} darkMode={darkMode} />
+        </div>
+        <div className="h-8 flex items-center justify-between px-4" style={{ backgroundColor: `${primary}15` }}>
+          <CopyableText text={variation.headline} field={`hl-${index}`} copied={copied} onCopy={copyText} darkMode={darkMode} className="font-bold text-xs flex-1" />
+          <span className="text-[10px] px-2 py-0.5 rounded font-medium shrink-0" style={{ backgroundColor: primary, color: textOnPrimary }}>
+            {variation.ctaButton}
+          </span>
+        </div>
+      </div>
     </V2Card>
   );
+}
+
+function isColorDark(hex: string): boolean {
+  const c = hex.replace('#', '');
+  const r = parseInt(c.substring(0, 2), 16);
+  const g = parseInt(c.substring(2, 4), 16);
+  const b = parseInt(c.substring(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 < 128;
 }
 
 function CopyableText({
