@@ -219,6 +219,7 @@ model AdLibraryBrand {
   ingestionJobs  IngestionJob[]
   monitoredBy    MonitoredBrand[]
   templates      AdTemplate[]
+  sovSnapshots   SovSnapshot[]
 
   @@index([ingestionStatus, priority])
   @@index([category])
@@ -346,6 +347,34 @@ model IngestionJob {
 
   @@index([brandId, status])
   @@index([status, createdAt])
+}
+
+// =============================================================================
+// Share of Voice Timeline
+// =============================================================================
+
+model SovSnapshot {
+  id        String   @id @default(cuid())
+  brandId   String
+  brand     AdLibraryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  // Snapshot date (normalized to week start — Monday)
+  weekStart DateTime
+
+  // Metrics at this point in time
+  activeAds    Int     @default(0)
+  totalReach   BigInt  @default(0)
+  estSpend     Float   @default(0)
+  videoCount   Int     @default(0)
+  imageCount   Int     @default(0)
+  carouselCount Int    @default(0)
+  newAdsCount  Int     @default(0) // Ads started this week
+
+  createdAt DateTime @default(now())
+
+  @@unique([brandId, weekStart])
+  @@index([weekStart])
+  @@index([brandId, weekStart])
 }
 
 // =============================================================================

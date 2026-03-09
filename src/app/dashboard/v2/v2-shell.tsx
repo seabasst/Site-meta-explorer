@@ -18,6 +18,7 @@ import {
   Heart,
   Layers,
   Wand2,
+  PieChart,
 } from 'lucide-react';
 import { useV2 } from './v2-context';
 import { ChatPanel, ChatToggle } from './chat-panel';
@@ -48,6 +49,7 @@ const NAV_ITEMS = [
   { id: '/dashboard/v2/brands', icon: Globe, label: 'Brands' },
   { id: '/dashboard/v2/categories', icon: Layers, label: 'Categories' },
   { id: '/dashboard/v2/creative-lab', icon: Wand2, label: 'Creative Lab' },
+  { id: '/dashboard/v2/share-of-voice', icon: PieChart, label: 'Share of Voice' },
   { id: '/dashboard/v2/benchmarks', icon: Scale, label: 'Benchmarking' },
   { id: '/dashboard/v2/competitors', icon: Users, label: 'Competitors' },
   { id: '/dashboard/v2/downloads', icon: Download, label: 'Downloads' },
