@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import Anthropic from '@anthropic-ai/sdk';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const client = new Anthropic();
 
@@ -212,13 +212,13 @@ Return ONLY valid JSON array, no markdown.`,
 
 export async function POST(request: NextRequest) {
   try {
-    const { category, brandId, limit = 20 } = await request.json();
+    const { category, brandId, limit = 10 } = await request.json();
 
     if (!category && !brandId) {
       return Response.json({ error: 'category or brandId required' }, { status: 400 });
     }
 
-    const cappedLimit = Math.min(limit, 50);
+    const cappedLimit = Math.min(limit, 30);
 
     // Build query for top ads with downloaded assets
     const where: Record<string, unknown> = {
@@ -269,8 +269,9 @@ export async function POST(request: NextRequest) {
       brand: string;
     }> = [];
 
+    // Separate cached vs needs-analysis
+    const needsAnalysis: typeof ads = [];
     for (const ad of ads) {
-      // Check if already analyzed
       if (ad.analysis) {
         const cached = await prisma.adAnalysis.findUnique({
           where: { adId: ad.id },
@@ -286,83 +287,83 @@ export async function POST(request: NextRequest) {
           continue;
         }
       }
-
-      // Get asset URL
-      const asset = ad.assets[0];
-      if (!asset?.storedKey) continue;
-
-      const assetUrl = `${R2_PUBLIC_URL}/${asset.storedKey}`;
-      const isVideo = asset.assetType === 'video';
-
-      try {
-        let analysis: AnalysisResult;
-        if (isVideo) {
-          // For videos, analyze using copy/metadata only (no vision)
-          analysis = await analyzeAdCopy({
-            body: ad.body,
-            title: ad.title,
-            brand: ad.brand.pageName,
-            format: ad.displayFormat,
-          });
-        } else {
-          // For images, use vision API
-          analysis = await analyzeAdImage(assetUrl, {
-            body: ad.body,
-            title: ad.title,
-            brand: ad.brand.pageName,
-            format: ad.displayFormat,
-          });
-        }
-
-        // Cache in DB
-        await prisma.adAnalysis.upsert({
-          where: { adId: ad.id },
-          create: {
-            adId: ad.id,
-            headline: analysis.headline,
-            messagingAngle: analysis.messagingAngle,
-            visualStyle: analysis.visualStyle,
-            colorPalette: analysis.colorPalette,
-            ctaStyle: analysis.ctaStyle,
-            targetAudience: analysis.targetAudience,
-            emotionalTone: analysis.emotionalTone,
-            creativityScore: analysis.creativityScore,
-            clarityScore: analysis.clarityScore,
-            persuasionScore: analysis.persuasionScore,
-            fullAnalysis: JSON.parse(JSON.stringify(analysis)),
-          },
-          update: {
-            headline: analysis.headline,
-            messagingAngle: analysis.messagingAngle,
-            visualStyle: analysis.visualStyle,
-            colorPalette: analysis.colorPalette,
-            ctaStyle: analysis.ctaStyle,
-            targetAudience: analysis.targetAudience,
-            emotionalTone: analysis.emotionalTone,
-            creativityScore: analysis.creativityScore,
-            clarityScore: analysis.clarityScore,
-            persuasionScore: analysis.persuasionScore,
-            fullAnalysis: JSON.parse(JSON.stringify(analysis)),
-          },
-        });
-
-        analysisResults.push({
-          adId: ad.id,
-          analysis,
-          adBody: ad.body,
-          adTitle: ad.title,
-          brand: ad.brand.pageName,
-        });
-      } catch (err) {
-        const errMsg = err instanceof Error ? err.message : String(err);
-        console.error(`Failed to analyze ad ${ad.adId}: ${errMsg}`);
-        // If it's an auth error, bail early
-        if (errMsg.includes('authentication') || errMsg.includes('api_key') || errMsg.includes('401')) {
-          return Response.json({ error: `AI API error: ${errMsg}` }, { status: 500 });
-        }
-        // Continue with next ad
+      if (ad.assets[0]?.storedKey) {
+        needsAnalysis.push(ad);
       }
     }
+
+    console.log(`[analyze] ${analysisResults.length} cached, ${needsAnalysis.length} to analyze`);
+
+    // Analyze in parallel batches of 5
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < needsAnalysis.length; i += BATCH_SIZE) {
+      const batch = needsAnalysis.slice(i, i + BATCH_SIZE);
+
+      const results = await Promise.allSettled(
+        batch.map(async (ad) => {
+          const asset = ad.assets[0];
+          const assetUrl = `${R2_PUBLIC_URL}/${asset.storedKey}`;
+          const isVideo = asset.assetType === 'video';
+
+          const analysis = isVideo
+            ? await analyzeAdCopy({
+                body: ad.body,
+                title: ad.title,
+                brand: ad.brand.pageName,
+                format: ad.displayFormat,
+              })
+            : await analyzeAdImage(assetUrl, {
+                body: ad.body,
+                title: ad.title,
+                brand: ad.brand.pageName,
+                format: ad.displayFormat,
+              });
+
+          // Cache in DB
+          const data = {
+            headline: analysis.headline,
+            messagingAngle: analysis.messagingAngle,
+            visualStyle: analysis.visualStyle,
+            colorPalette: analysis.colorPalette,
+            ctaStyle: analysis.ctaStyle,
+            targetAudience: analysis.targetAudience,
+            emotionalTone: analysis.emotionalTone,
+            creativityScore: analysis.creativityScore,
+            clarityScore: analysis.clarityScore,
+            persuasionScore: analysis.persuasionScore,
+            fullAnalysis: JSON.parse(JSON.stringify(analysis)),
+          };
+
+          await prisma.adAnalysis.upsert({
+            where: { adId: ad.id },
+            create: { adId: ad.id, ...data },
+            update: data,
+          });
+
+          return {
+            adId: ad.id,
+            analysis,
+            adBody: ad.body,
+            adTitle: ad.title,
+            brand: ad.brand.pageName,
+          };
+        })
+      );
+
+      for (const result of results) {
+        if (result.status === 'fulfilled') {
+          analysisResults.push(result.value);
+        } else {
+          const errMsg = result.reason?.message || String(result.reason);
+          console.error(`[analyze] Failed: ${errMsg}`);
+          if (errMsg.includes('authentication') || errMsg.includes('api_key') || errMsg.includes('401')) {
+            return Response.json({ error: `AI API error: ${errMsg}` }, { status: 500 });
+          }
+        }
+      }
+    }
+
+    console.log(`[analyze] Total analyzed: ${analysisResults.length}`);
 
     if (analysisResults.length === 0) {
       return Response.json(
