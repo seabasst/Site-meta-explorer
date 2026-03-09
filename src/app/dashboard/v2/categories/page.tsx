@@ -15,6 +15,7 @@ import {
   ArrowRight,
   TrendingUp,
   BarChart3,
+  CheckCircle2,
 } from 'lucide-react';
 import { V2Shell, V2Card, V2SectionTitle, V2Skeleton, formatNumber } from '../v2-shell';
 import { useV2 } from '../v2-context';
@@ -23,7 +24,8 @@ interface Category {
   slug: string;
   label: string;
   brandCount: number;
-  totalAds: number;
+  brandsIngested: number;
+  ingestionPct: number;
   totalActiveAds: number;
   totalReach: number;
   brands: string[];
@@ -68,7 +70,7 @@ export default function CategoriesPage() {
   }, [fetchCategories]);
 
   const totalBrands = categories.reduce((s, c) => s + c.brandCount, 0);
-  const totalAds = categories.reduce((s, c) => s + c.totalAds, 0);
+  const totalActiveAds = categories.reduce((s, c) => s + c.totalActiveAds, 0);
   const totalReach = categories.reduce((s, c) => s + c.totalReach, 0);
 
   return (
@@ -156,13 +158,7 @@ export default function CategoriesPage() {
                   }`}>
                     <div>
                       <p className={`text-[10px] uppercase font-bold tracking-wider mb-0.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                        Ads
-                      </p>
-                      <p className="text-sm font-bold">{formatNumber(cat.totalAds)}</p>
-                    </div>
-                    <div>
-                      <p className={`text-[10px] uppercase font-bold tracking-wider mb-0.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                        Active
+                        Active Ads
                       </p>
                       <p className="text-sm font-bold">{formatNumber(cat.totalActiveAds)}</p>
                     </div>
@@ -172,7 +168,33 @@ export default function CategoriesPage() {
                       </p>
                       <p className="text-sm font-bold">{formatNumber(cat.totalReach)}</p>
                     </div>
+                    <div>
+                      <p className={`text-[10px] uppercase font-bold tracking-wider mb-0.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                        Ingested
+                      </p>
+                      <p className="text-sm font-bold flex items-center gap-1">
+                        {cat.ingestionPct}%
+                        {cat.ingestionPct === 100 && (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                        )}
+                      </p>
+                    </div>
                   </div>
+
+                  {/* Ingestion progress bar */}
+                  {cat.ingestionPct < 100 && (
+                    <div className="mb-4">
+                      <div className={`h-1.5 w-full rounded-full overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-200'}`}>
+                        <div
+                          className="h-full bg-amber-500 transition-all duration-500 rounded-full"
+                          style={{ width: `${cat.ingestionPct}%` }}
+                        />
+                      </div>
+                      <p className={`text-[10px] mt-1 ${darkMode ? 'text-slate-600' : 'text-slate-400'}`}>
+                        {cat.brandsIngested}/{cat.brandCount} brands ingested
+                      </p>
+                    </div>
+                  )}
 
                   {/* Brand names preview */}
                   <div className="flex flex-wrap gap-1.5">
@@ -197,15 +219,15 @@ export default function CategoriesPage() {
             ))}
           </div>
 
-          {/* Total ads bar */}
+          {/* Active ads by category bar */}
           <div className="mt-10">
             <V2SectionTitle icon={<BarChart3 className="w-5 h-5 text-[#1235e2]" />}>
-              Ads by Category
+              Active Ads by Category
             </V2SectionTitle>
             <V2Card className="p-6">
               <div className="space-y-3">
                 {categories.map((cat) => {
-                  const pct = totalAds > 0 ? (cat.totalAds / totalAds) * 100 : 0;
+                  const pct = totalActiveAds > 0 ? (cat.totalActiveAds / totalActiveAds) * 100 : 0;
                   return (
                     <div key={cat.slug} className="flex items-center gap-4">
                       <div className="w-28 shrink-0 flex items-center gap-2 text-sm font-medium truncate">
@@ -220,7 +242,7 @@ export default function CategoriesPage() {
                           />
                         </div>
                         <span className={`text-sm font-semibold w-20 text-right shrink-0 ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
-                          {formatNumber(cat.totalAds)}
+                          {formatNumber(cat.totalActiveAds)}
                         </span>
                       </div>
                     </div>

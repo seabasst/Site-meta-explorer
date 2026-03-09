@@ -12,6 +12,7 @@ export async function GET() {
         pageName: true,
         activeAdCount: true,
         totalReach: true,
+        ingestionStatus: true,
         _count: { select: { ads: true } },
       },
     });
@@ -21,7 +22,7 @@ export async function GET() {
       string,
       {
         brandCount: number;
-        totalAds: number;
+        brandsIngested: number;
         totalActiveAds: number;
         totalReach: bigint;
         brands: string[];
@@ -32,14 +33,16 @@ export async function GET() {
       const cat = brand.category!;
       const existing = categoryMap.get(cat) || {
         brandCount: 0,
-        totalAds: 0,
+        brandsIngested: 0,
         totalActiveAds: 0,
         totalReach: BigInt(0),
         brands: [],
       };
 
       existing.brandCount++;
-      existing.totalAds += brand._count.ads;
+      if (brand.ingestionStatus === 'active' || brand.ingestionStatus === 'completed') {
+        existing.brandsIngested++;
+      }
       existing.totalActiveAds += brand.activeAdCount || 0;
       existing.totalReach += brand.totalReach || BigInt(0);
       existing.brands.push(brand.pageName);
@@ -47,19 +50,20 @@ export async function GET() {
       categoryMap.set(cat, existing);
     }
 
-    // Only include categories that have ads
+    // Only include categories that have ingested brands
     const categories = Array.from(categoryMap.entries())
-      .filter(([, stats]) => stats.totalAds > 0)
+      .filter(([, stats]) => stats.brandsIngested > 0)
       .map(([category, stats]) => ({
         slug: category,
         label: formatCategoryLabel(category),
         brandCount: stats.brandCount,
-        totalAds: stats.totalAds,
+        brandsIngested: stats.brandsIngested,
+        ingestionPct: Math.round((stats.brandsIngested / stats.brandCount) * 100),
         totalActiveAds: stats.totalActiveAds,
         totalReach: Number(stats.totalReach),
         brands: stats.brands.slice(0, 6),
       }))
-      .sort((a, b) => b.totalAds - a.totalAds);
+      .sort((a, b) => b.totalActiveAds - a.totalActiveAds);
 
     return Response.json(categories);
   } catch (error) {

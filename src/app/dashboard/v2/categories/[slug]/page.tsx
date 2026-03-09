@@ -39,7 +39,6 @@ interface CategoryData {
   slug: string;
   label: string;
   brandCount: number;
-  totalAds: number;
   totalActiveAds: number;
   totalReach: number;
   avgReach: number;
@@ -47,8 +46,8 @@ interface CategoryData {
   brands: BrandStat[];
 }
 
-type ChartMetric = 'reach' | 'activeAds' | 'spend' | 'totalAds';
-type SortKey = 'name' | 'totalAds' | 'activeAds' | 'totalReach' | 'avgReachPerAd' | 'estSpend' | 'videoPct' | 'avgAdAgeDays';
+type ChartMetric = 'reach' | 'activeAds' | 'spend';
+type SortKey = 'name' | 'activeAds' | 'totalReach' | 'avgReachPerAd' | 'estSpend' | 'videoPct' | 'avgAdAgeDays';
 
 function formatCurrency(num: number): string {
   if (num >= 1_000_000) return `$${(num / 1_000_000).toFixed(1)}M`;
@@ -119,7 +118,6 @@ export default function CategoryDetailPage() {
   const chartValue = (b: BrandStat): number => {
     if (chartMetric === 'reach') return b.totalReach;
     if (chartMetric === 'activeAds') return b.activeAds;
-    if (chartMetric === 'totalAds') return b.totalAds;
     return b.estSpend;
   };
   const chartLabel = (v: number): string => {
@@ -130,7 +128,7 @@ export default function CategoryDetailPage() {
 
   // Best/worst for table highlighting
   const metricKeys: SortKey[] = [
-    'totalAds', 'activeAds', 'totalReach', 'avgReachPerAd', 'estSpend', 'videoPct', 'avgAdAgeDays',
+    'activeAds', 'totalReach', 'avgReachPerAd', 'estSpend', 'videoPct', 'avgAdAgeDays',
   ];
   const bestWorst: Record<string, { best: number; worst: number }> = {};
   if (data.brands.length >= 2) {
@@ -186,11 +184,10 @@ export default function CategoryDetailPage() {
       </Link>
 
       {/* Overview cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
         <StatCard icon={<BarChart3 className="w-5 h-5" />} label="Brands" value={String(data.brandCount)} darkMode={darkMode} />
-        <StatCard icon={<TrendingUp className="w-5 h-5" />} label="Total Ads" value={formatNumber(data.totalAds)} darkMode={darkMode} />
         <StatCard icon={<Zap className="w-5 h-5" />} label="Active Ads" value={formatNumber(data.totalActiveAds)} darkMode={darkMode} />
-        <StatCard icon={<DollarSign className="w-5 h-5" />} label="Total Reach" value={formatNumber(data.totalReach)} darkMode={darkMode} />
+        <StatCard icon={<TrendingUp className="w-5 h-5" />} label="Total Reach" value={formatNumber(data.totalReach)} darkMode={darkMode} />
       </div>
 
       {/* Bar chart comparison */}
@@ -202,7 +199,6 @@ export default function CategoryDetailPage() {
               {([
                 { key: 'reach' as ChartMetric, label: 'Reach' },
                 { key: 'activeAds' as ChartMetric, label: 'Active Ads' },
-                { key: 'totalAds' as ChartMetric, label: 'Total Ads' },
                 { key: 'spend' as ChartMetric, label: 'Est. Spend' },
               ]).map((tab) => (
                 <button
@@ -307,11 +303,8 @@ export default function CategoryDetailPage() {
                   <th className="px-6 py-3 font-bold cursor-pointer hover:text-[#1235e2]" onClick={() => handleSort('name')}>
                     Brand{sortIndicator('name')}
                   </th>
-                  <th className="px-4 py-3 font-bold text-right cursor-pointer hover:text-[#1235e2]" onClick={() => handleSort('totalAds')}>
-                    Total Ads{sortIndicator('totalAds')}
-                  </th>
                   <th className="px-4 py-3 font-bold text-right cursor-pointer hover:text-[#1235e2]" onClick={() => handleSort('activeAds')}>
-                    Active{sortIndicator('activeAds')}
+                    Active Ads{sortIndicator('activeAds')}
                   </th>
                   <th className="px-4 py-3 font-bold text-right cursor-pointer hover:text-[#1235e2]" onClick={() => handleSort('totalReach')}>
                     Total Reach{sortIndicator('totalReach')}
@@ -341,9 +334,6 @@ export default function CategoryDetailPage() {
                       >
                         {b.name}
                       </Link>
-                    </td>
-                    <td className={`px-4 py-4 text-right ${cellClass('totalAds', b.totalAds)}`}>
-                      {formatNumber(b.totalAds)}
                     </td>
                     <td className={`px-4 py-4 text-right ${cellClass('activeAds', b.activeAds)}`}>
                       {formatNumber(b.activeAds)}
