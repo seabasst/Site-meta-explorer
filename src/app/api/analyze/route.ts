@@ -80,6 +80,54 @@ Return ONLY valid JSON, no markdown.`,
   return JSON.parse(jsonStr);
 }
 
+// Analyze a video ad using copy/metadata only (no vision)
+async function analyzeAdCopy(adContext: {
+  body?: string | null;
+  title?: string | null;
+  brand: string;
+  format?: string | null;
+}): Promise<AnalysisResult> {
+  const response = await client.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 1024,
+    messages: [
+      {
+        role: 'user',
+        content: `Analyze this Facebook/Meta video ad for ${adContext.brand} based on its copy.
+${adContext.body ? `Ad copy: "${adContext.body.slice(0, 500)}"` : 'No ad copy available.'}
+${adContext.title ? `Title: "${adContext.title}"` : ''}
+Format: ${adContext.format || 'video'}
+
+Return a JSON object with EXACTLY these fields:
+{
+  "headline": "the main headline or hook pattern used",
+  "messagingAngle": "one of: price-focused, emotional, urgency, social-proof, lifestyle, educational, humor, fear-of-missing-out",
+  "visualStyle": "one of: lifestyle, product-shot, UGC-style, minimal, illustration, destination, before-after, testimonial (infer from copy)",
+  "colorPalette": ["#333333", "#666666", "#999999"] (estimate brand-appropriate colors),
+  "ctaStyle": "description of the call-to-action approach",
+  "targetAudience": "inferred target audience in 10 words or less",
+  "emotionalTone": "one of: aspirational, urgent, playful, trustworthy, exciting, calm, bold, nostalgic",
+  "creativityScore": 1-10,
+  "clarityScore": 1-10,
+  "persuasionScore": 1-10,
+  "keyElements": ["element1", "element2", "element3"] (3 standout copy elements),
+  "whyItWorks": "one sentence on what makes this ad copy effective or ineffective"
+}
+
+Return ONLY valid JSON, no markdown.`,
+      },
+    ],
+  });
+
+  const text = response.content
+    .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+    .map((b) => b.text)
+    .join('');
+
+  const jsonStr = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  return JSON.parse(jsonStr);
+}
+
 // Generate templates from a batch of analyses
 async function generateTemplates(
   analyses: Array<{ analysis: AnalysisResult; adBody?: string | null; adTitle?: string | null; brand: string }>,
@@ -237,22 +285,32 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Get image URL
+      // Get asset URL
       const asset = ad.assets[0];
       if (!asset?.storedKey) continue;
 
-      const imageUrl = `${R2_PUBLIC_URL}/${asset.storedKey}`;
-
-      // Skip videos for now (vision works best with images)
-      if (asset.assetType === 'video') continue;
+      const assetUrl = `${R2_PUBLIC_URL}/${asset.storedKey}`;
+      const isVideo = asset.assetType === 'video';
 
       try {
-        const analysis = await analyzeAdImage(imageUrl, {
-          body: ad.body,
-          title: ad.title,
-          brand: ad.brand.pageName,
-          format: ad.displayFormat,
-        });
+        let analysis: AnalysisResult;
+        if (isVideo) {
+          // For videos, analyze using copy/metadata only (no vision)
+          analysis = await analyzeAdCopy({
+            body: ad.body,
+            title: ad.title,
+            brand: ad.brand.pageName,
+            format: ad.displayFormat,
+          });
+        } else {
+          // For images, use vision API
+          analysis = await analyzeAdImage(assetUrl, {
+            body: ad.body,
+            title: ad.title,
+            brand: ad.brand.pageName,
+            format: ad.displayFormat,
+          });
+        }
 
         // Cache in DB
         await prisma.adAnalysis.upsert({
