@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -17,6 +18,7 @@ import {
   Heart,
 } from 'lucide-react';
 import { useV2 } from './v2-context';
+import { ChatPanel, ChatToggle } from './chat-panel';
 
 interface SidebarInsights {
   genderLabel?: string | null;
@@ -59,6 +61,7 @@ export function V2Shell({
 }) {
   const { darkMode, setDarkMode } = useV2();
   const pathname = usePathname();
+  const [chatOpen, setChatOpen] = useState(false);
 
   return (
     <div className={`min-h-screen flex font-sans ${darkMode ? 'bg-[#101322] text-slate-100' : 'bg-[#f6f6f8] text-slate-900'}`}>
@@ -168,6 +171,10 @@ export function V2Shell({
           {children}
         </div>
       </main>
+
+      {/* Chat */}
+      <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatToggle onClick={() => setChatOpen(!chatOpen)} isOpen={chatOpen} />
     </div>
   );
 }
