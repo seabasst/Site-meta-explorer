@@ -218,6 +218,7 @@ model AdLibraryBrand {
   ads            AdLibraryAd[]
   ingestionJobs  IngestionJob[]
   monitoredBy    MonitoredBrand[]
+  templates      AdTemplate[]
 
   @@index([ingestionStatus, priority])
   @@index([category])
@@ -269,6 +270,7 @@ model AdLibraryAd {
 
   assets   AdAsset[]
   savedBy  SavedAd[]
+  analysis AdAnalysis?
 
   @@index([brandId, isActive])
   @@index([brandId, startDate])
@@ -344,6 +346,71 @@ model IngestionJob {
 
   @@index([brandId, status])
   @@index([status, createdAt])
+}
+
+// =============================================================================
+// AI Creative Analysis & Templates
+// =============================================================================
+
+model AdAnalysis {
+  id    String @id @default(cuid())
+  adId  String
+  ad    AdLibraryAd @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  // Analysis results
+  headline       String?  // Extracted headline pattern
+  messagingAngle String?  // e.g. "price-focused", "emotional", "urgency"
+  visualStyle    String?  // e.g. "lifestyle", "product-shot", "UGC"
+  colorPalette   String[] // Dominant colors
+  ctaStyle       String?  // CTA analysis
+  targetAudience String?  // Inferred target audience
+  emotionalTone  String?  // e.g. "aspirational", "urgent", "playful"
+  fullAnalysis   Json?    // Complete structured analysis from Claude
+
+  // Scoring
+  creativityScore Int?    // 1-10
+  clarityScore    Int?    // 1-10
+  persuasionScore Int?    // 1-10
+
+  createdAt DateTime @default(now())
+
+  @@unique([adId])
+  @@index([adId])
+}
+
+model AdTemplate {
+  id String @id @default(cuid())
+
+  // Source
+  category    String?  // Category this template was derived from
+  brandId     String?  // Optional: specific brand
+  brand       AdLibraryBrand? @relation(fields: [brandId], references: [id])
+  sourceAdIds String[] // Ad IDs that inspired this template
+
+  // Template content
+  name           String   // e.g. "Destination Dream - Airline Style"
+  description    String   // What this template is good for
+  messagingAngle String   // price, emotional, urgency, social-proof, etc.
+  visualStyle    String   // lifestyle, product, UGC, minimal, etc.
+
+  // Copy framework
+  headlineFormula String  // e.g. "Fly to {destination} from ${price}"
+  bodyFormula     String  // Template with placeholders
+  ctaText         String  // Recommended CTA
+
+  // Visual direction
+  colorSuggestions String[] // Recommended colors
+  imageryNotes     String   // What kind of imagery to use
+  layoutNotes      String   // Layout recommendations
+
+  // Metadata
+  formatRecommendation String? // image, video, carousel
+  platformNotes        String? // Platform-specific tips
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
 }
 
 // =============================================================================
