@@ -254,6 +254,8 @@ export async function POST(request: NextRequest) {
       take: cappedLimit,
     });
 
+    console.log(`[analyze] Found ${ads.length} ads for category=${category} brandId=${brandId}`);
+
     if (ads.length === 0) {
       return Response.json({ error: 'No ads with downloaded assets found' }, { status: 404 });
     }
@@ -352,13 +354,21 @@ export async function POST(request: NextRequest) {
           brand: ad.brand.pageName,
         });
       } catch (err) {
-        console.error(`Failed to analyze ad ${ad.adId}:`, err);
+        const errMsg = err instanceof Error ? err.message : String(err);
+        console.error(`Failed to analyze ad ${ad.adId}: ${errMsg}`);
+        // If it's an auth error, bail early
+        if (errMsg.includes('authentication') || errMsg.includes('api_key') || errMsg.includes('401')) {
+          return Response.json({ error: `AI API error: ${errMsg}` }, { status: 500 });
+        }
         // Continue with next ad
       }
     }
 
     if (analysisResults.length === 0) {
-      return Response.json({ error: 'No ads could be analyzed' }, { status: 500 });
+      return Response.json(
+        { error: 'No ads could be analyzed. Check server logs for details.' },
+        { status: 500 }
+      );
     }
 
     // Generate templates from analyses
