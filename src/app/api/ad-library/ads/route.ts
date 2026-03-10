@@ -169,7 +169,10 @@ function parseQueryParams(searchParams: URLSearchParams): {
  * Build Prisma where clause from filters
  */
 function buildWhereClause(filters: AdLibraryAdFilters): Prisma.AdLibraryAdWhereInput {
-  const where: Prisma.AdLibraryAdWhereInput = {};
+  const where: Prisma.AdLibraryAdWhereInput = {
+    // Only show ads that have at least one downloaded asset
+    assets: { some: { downloadStatus: 'completed' } },
+  };
 
   // Brand filter
   if (filters.brandId) {
