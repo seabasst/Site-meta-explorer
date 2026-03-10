@@ -67,6 +67,7 @@ interface GeneratedVariation {
   description: string;
   ctaButton: string;
   toneNote: string;
+  imagePrompt?: string;
 }
 
 interface GenerateResult {
@@ -737,6 +738,9 @@ function AdVariationCard({
 }) {
   const [copied, setCopied] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [aiImageUrl, setAiImageUrl] = useState<string | null>(null);
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
   const creativeRef = useRef<HTMLDivElement>(null);
 
   const copyText = (text: string, field: string) => {
@@ -764,6 +768,28 @@ function AdVariationCard({
     setDownloading(false);
   };
 
+  const generateAiImage = async () => {
+    if (!variation.imagePrompt) return;
+    setGeneratingImage(true);
+    setImageError(null);
+    try {
+      const res = await fetch('/api/analyze/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: variation.imagePrompt }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Failed' }));
+        throw new Error(err.error || 'Image generation failed');
+      }
+      const data = await res.json();
+      setAiImageUrl(data.imageUrl);
+    } catch (err) {
+      setImageError(err instanceof Error ? err.message : 'Image generation failed');
+    }
+    setGeneratingImage(false);
+  };
+
   const primary = colors[0] || '#1235e2';
   const secondary = colors[1] || '#ffffff';
   const accent = colors[2] || '#000000';
@@ -783,80 +809,110 @@ function AdVariationCard({
         </span>
       </div>
 
-      {/* Downloadable Ad Creative */}
+      {/* Ad Creative */}
       <div ref={creativeRef} className="rounded-xl overflow-hidden mb-3" style={{ width: '100%', aspectRatio: '1 / 1' }}>
-        <div
-          className="w-full h-full flex flex-col justify-between p-6 relative overflow-hidden"
-          style={{ backgroundColor: primary }}
-        >
-          {/* Decorative shapes */}
+        {aiImageUrl ? (
+          /* AI-generated image */
+          <div className="w-full h-full relative">
+            <img src={aiImageUrl} alt="AI generated ad creative" className="w-full h-full object-cover" />
+            {/* Overlay with headline + CTA */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 flex flex-col justify-between p-6">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">
+                {brandName}
+              </p>
+              <div>
+                <h2 className="text-xl font-black leading-tight text-white mb-3">
+                  {variation.headline}
+                </h2>
+                <p className="text-xs text-white/80 mb-4 leading-relaxed">
+                  {variation.description}
+                </p>
+                <span
+                  className="inline-block px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider"
+                  style={{ backgroundColor: primary, color: textOnPrimary }}
+                >
+                  {variation.ctaButton}
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Fallback: solid color creative */
           <div
-            className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10"
-            style={{ backgroundColor: secondary, transform: 'translate(30%, -30%)' }}
-          />
-          <div
-            className="absolute bottom-0 left-0 w-24 h-24 rounded-full opacity-10"
-            style={{ backgroundColor: accent, transform: 'translate(-30%, 30%)' }}
-          />
-
-          {/* Brand name */}
-          <div className="relative z-10">
-            <p
-              className="text-xs font-bold uppercase tracking-[0.2em] opacity-80"
-              style={{ color: textOnPrimary }}
-            >
-              {brandName}
-            </p>
+            className="w-full h-full flex flex-col justify-between p-6 relative overflow-hidden"
+            style={{ backgroundColor: primary }}
+          >
+            <div
+              className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10"
+              style={{ backgroundColor: secondary, transform: 'translate(30%, -30%)' }}
+            />
+            <div
+              className="absolute bottom-0 left-0 w-24 h-24 rounded-full opacity-10"
+              style={{ backgroundColor: accent, transform: 'translate(-30%, 30%)' }}
+            />
+            <div className="relative z-10">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-80" style={{ color: textOnPrimary }}>
+                {brandName}
+              </p>
+            </div>
+            <div className="relative z-10 flex-1 flex items-center">
+              <h2 className="text-xl font-black leading-tight" style={{ color: textOnPrimary }}>
+                {variation.headline}
+              </h2>
+            </div>
+            <div className="relative z-10">
+              <p className="text-xs mb-4 opacity-80 leading-relaxed" style={{ color: textOnPrimary }}>
+                {variation.description}
+              </p>
+              <span
+                className="inline-block px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider"
+                style={{ backgroundColor: secondary, color: isColorDark(secondary) ? '#ffffff' : '#000000' }}
+              >
+                {variation.ctaButton}
+              </span>
+            </div>
           </div>
-
-          {/* Headline */}
-          <div className="relative z-10 flex-1 flex items-center">
-            <h2
-              className="text-xl font-black leading-tight"
-              style={{ color: textOnPrimary }}
-            >
-              {variation.headline}
-            </h2>
-          </div>
-
-          {/* Description + CTA */}
-          <div className="relative z-10">
-            <p
-              className="text-xs mb-4 opacity-80 leading-relaxed"
-              style={{ color: textOnPrimary }}
-            >
-              {variation.description}
-            </p>
-            <span
-              className="inline-block px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider"
-              style={{
-                backgroundColor: secondary,
-                color: isColorDark(secondary) ? '#ffffff' : '#000000',
-              }}
-            >
-              {variation.ctaButton}
-            </span>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Download button */}
-      <button
-        onClick={downloadCreative}
-        disabled={downloading}
-        className={`w-full py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-2 transition-colors mb-4 ${
-          darkMode
-            ? 'bg-[#1235e2]/10 text-[#1235e2] hover:bg-[#1235e2]/20'
-            : 'bg-[#1235e2]/5 text-[#1235e2] hover:bg-[#1235e2]/10'
-        }`}
-      >
-        {downloading ? (
-          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-        ) : (
-          <Download className="w-3.5 h-3.5" />
+      {/* Action buttons */}
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={downloadCreative}
+          disabled={downloading}
+          className={`flex-1 py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-2 transition-colors ${
+            darkMode
+              ? 'bg-[#1235e2]/10 text-[#1235e2] hover:bg-[#1235e2]/20'
+              : 'bg-[#1235e2]/5 text-[#1235e2] hover:bg-[#1235e2]/10'
+          }`}
+        >
+          {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+          PNG
+        </button>
+        {variation.imagePrompt && (
+          <button
+            onClick={generateAiImage}
+            disabled={generatingImage}
+            className={`flex-1 py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-2 transition-colors ${
+              generatingImage
+                ? darkMode ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-50 text-purple-500'
+                : aiImageUrl
+                  ? darkMode ? 'bg-green-500/20 text-green-300 hover:bg-green-500/30' : 'bg-green-50 text-green-600 hover:bg-green-100'
+                  : darkMode ? 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20' : 'bg-purple-50 text-purple-600 hover:bg-purple-100'
+            }`}
+          >
+            {generatingImage ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="w-3.5 h-3.5" />
+            )}
+            {generatingImage ? 'Generating...' : aiImageUrl ? 'Regenerate' : 'AI Image'}
+          </button>
         )}
-        Download as PNG
-      </button>
+      </div>
+      {imageError && (
+        <p className="text-xs text-red-400 mb-3">{imageError}</p>
+      )}
 
       {/* Facebook post mockup */}
       <div className={`rounded-xl overflow-hidden border ${darkMode ? 'border-[#1235e2]/10' : 'border-slate-200'}`}>

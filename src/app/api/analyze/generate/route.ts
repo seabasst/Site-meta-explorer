@@ -47,6 +47,7 @@ Generate 3 variations of ad copy. For each variation, provide:
 2. Primary text (body copy, 2-4 sentences)
 3. Description (one line under the image)
 4. CTA button text
+5. Image prompt (a detailed prompt for an AI image generator to create the ad visual — describe the scene, style, mood, colors, subjects. Do NOT include any text/words in the image. Focus on photography style, lighting, composition.)
 
 Return JSON:
 {
@@ -56,7 +57,8 @@ Return JSON:
       "primaryText": "...",
       "description": "...",
       "ctaButton": "...",
-      "toneNote": "brief note on this variation's angle"
+      "toneNote": "brief note on this variation's angle",
+      "imagePrompt": "detailed image generation prompt for this specific ad variation"
     }
   ],
   "imageryDirection": "what the visual should show (1-2 sentences)",
