@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageSquare, X, Send, Loader2, Sparkles, Trash2, ChevronDown, ChevronRight, Check } from 'lucide-react';
+import { Send, Loader2, ChevronDown, ChevronRight, Check } from 'lucide-react';
 import { useV2 } from './v2-context';
 
 interface ThinkingStep {
@@ -17,23 +17,9 @@ interface Message {
   steps?: ThinkingStep[];
 }
 
+// Legacy exports kept for backwards compat
 export function ChatToggle({ onClick, isOpen }: { onClick: () => void; isOpen: boolean }) {
-  const { darkMode } = useV2();
-
-  return (
-    <button
-      onClick={onClick}
-      className={`fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center shadow-xl z-50 transition-all hover:scale-105 ${
-        isOpen
-          ? darkMode
-            ? 'bg-slate-700 text-slate-300'
-            : 'bg-slate-200 text-slate-600'
-          : 'bg-[#1235e2] text-white'
-      }`}
-    >
-      {isOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
-    </button>
-  );
+  return null;
 }
 
 function ThinkingSteps({ steps, darkMode }: { steps: ThinkingStep[]; darkMode: boolean }) {
@@ -109,7 +95,13 @@ function ThinkingSteps({ steps, darkMode }: { steps: ThinkingStep[]; darkMode: b
   );
 }
 
+// Legacy export kept for backwards compat
 export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  return null;
+}
+
+// Sidebar-embedded chat component
+export function SidebarChat() {
   const { darkMode } = useV2();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -128,8 +120,8 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   }, [messages, streamingContent, activeSteps, scrollToBottom]);
 
   useEffect(() => {
-    if (isOpen) inputRef.current?.focus();
-  }, [isOpen]);
+    inputRef.current?.focus();
+  }, []);
 
   const sendMessage = async () => {
     const trimmed = input.trim();
@@ -193,7 +185,6 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     ? { ...s, status: 'done' as const, summary: event.summary }
                     : s
                 );
-                // If no matching step found, add it as done
                 if (!steps.some((s) => s.tool === event.tool)) {
                   steps = [
                     ...steps,
@@ -214,7 +205,6 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                 break;
               }
               case 'done': {
-                // Finalize — mark all remaining steps as done
                 steps = steps.map((s) => ({ ...s, status: 'done' as const }));
                 setActiveSteps([...steps]);
                 break;
@@ -254,77 +244,21 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     }
   };
 
-  if (!isOpen) return null;
-
   const suggestions = [
-    'Analyze airline ad strategies in Europe',
-    'Which car rental brand dominates reach?',
-    'Compare Norwegian vs Finnair creative approach',
-    'What messaging angles work in fashion ads?',
+    'Analyze airline ad strategies',
+    'What messaging angles work?',
   ];
 
   return (
-    <div
-      className={`fixed top-0 right-0 w-[420px] h-full z-40 flex flex-col border-l shadow-2xl ${
-        darkMode ? 'bg-[#101322] border-[#1235e2]/20' : 'bg-white border-slate-200'
-      }`}
-    >
-      {/* Header */}
-      <div
-        className={`flex items-center justify-between px-5 py-4 border-b shrink-0 ${
-          darkMode ? 'border-[#1235e2]/20' : 'border-slate-200'
-        }`}
-      >
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1235e2] to-[#0a1f8f] flex items-center justify-center shadow-lg shadow-[#1235e2]/20">
-            <Sparkles className="w-4.5 h-4.5 text-white" />
-          </div>
-          <div>
-            <h3 className={`text-sm font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-              Hikaru
-            </h3>
-            <p className={`text-[11px] ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-              Creative Strategy AI
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-1">
-          {messages.length > 0 && (
-            <button
-              onClick={() => setMessages([])}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                darkMode ? 'hover:bg-slate-800 text-slate-500' : 'hover:bg-slate-100 text-slate-400'
-              }`}
-              title="Clear chat"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          )}
-          <button
-            onClick={onClose}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-              darkMode ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-500'
-            }`}
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
+    <>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
         {messages.length === 0 && !loading ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1235e2]/15 to-[#1235e2]/5 flex items-center justify-center mb-4 border border-[#1235e2]/10">
-              <Sparkles className="w-7 h-7 text-[#1235e2]" />
-            </div>
-            <p className={`text-sm font-semibold mb-1 ${darkMode ? 'text-slate-200' : 'text-slate-800'}`}>
-              Creative strategy, powered by data
+          <div className="text-center px-2 pt-2">
+            <p className={`text-[11px] mb-3 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+              Ask about ad strategies & insights
             </p>
-            <p className={`text-xs mb-6 leading-relaxed ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-              Analyze ad strategies, compare brands, and uncover creative insights
-            </p>
-            <div className="space-y-2 w-full">
+            <div className="space-y-1.5">
               {suggestions.map((s) => (
                 <button
                   key={s}
@@ -332,10 +266,10 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     setInput(s);
                     inputRef.current?.focus();
                   }}
-                  className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
+                  className={`w-full text-left px-2.5 py-2 rounded-lg text-[11px] transition-colors ${
                     darkMode
-                      ? 'bg-[#1235e2]/5 text-slate-400 hover:bg-[#1235e2]/10 hover:text-slate-300 border border-[#1235e2]/10 hover:border-[#1235e2]/20'
-                      : 'bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 border border-slate-100 hover:border-slate-200'
+                      ? 'bg-[#1235e2]/5 text-slate-400 hover:bg-[#1235e2]/10 border border-[#1235e2]/10'
+                      : 'bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-100'
                   }`}
                 >
                   {s}
@@ -352,12 +286,12 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                 )}
                 <div className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                    className={`max-w-[90%] rounded-xl px-3 py-2 text-[11px] leading-relaxed ${
                       msg.role === 'user'
-                        ? 'bg-[#1235e2] text-white rounded-br-md'
+                        ? 'bg-[#1235e2] text-white rounded-br-sm'
                         : darkMode
-                          ? 'bg-[#1235e2]/10 text-slate-200 rounded-bl-md'
-                          : 'bg-slate-100 text-slate-800 rounded-bl-md'
+                          ? 'bg-[#1235e2]/10 text-slate-200 rounded-bl-sm'
+                          : 'bg-slate-100 text-slate-800 rounded-bl-sm'
                     }`}
                   >
                     <MessageContent content={msg.content} darkMode={darkMode} isUser={msg.role === 'user'} />
@@ -365,36 +299,27 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                 </div>
               </div>
             ))}
-            {/* Streaming state */}
             {loading && (
               <div>
                 {activeSteps.length > 0 && <ThinkingSteps steps={activeSteps} darkMode={darkMode} />}
                 {streamingContent ? (
                   <div className="flex justify-start">
                     <div
-                      className={`max-w-[85%] rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed ${
+                      className={`max-w-[90%] rounded-xl rounded-bl-sm px-3 py-2 text-[11px] leading-relaxed ${
                         darkMode ? 'bg-[#1235e2]/10 text-slate-200' : 'bg-slate-100 text-slate-800'
                       }`}
                     >
                       <MessageContent content={streamingContent} darkMode={darkMode} isUser={false} />
-                      <span className="inline-block w-1.5 h-4 bg-[#1235e2] animate-pulse ml-0.5 align-text-bottom rounded-sm" />
+                      <span className="inline-block w-1 h-3 bg-[#1235e2] animate-pulse ml-0.5 align-text-bottom rounded-sm" />
                     </div>
                   </div>
                 ) : (
                   activeSteps.length === 0 && (
                     <div className="flex justify-start">
-                      <div
-                        className={`rounded-2xl rounded-bl-md px-4 py-3 ${
-                          darkMode ? 'bg-[#1235e2]/10' : 'bg-slate-100'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Loader2
-                            className="w-4 h-4 animate-spin text-[#1235e2]"
-                          />
-                          <span className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                            Thinking...
-                          </span>
+                      <div className={`rounded-xl rounded-bl-sm px-3 py-2 ${darkMode ? 'bg-[#1235e2]/10' : 'bg-slate-100'}`}>
+                        <div className="flex items-center gap-1.5">
+                          <Loader2 className="w-3 h-3 animate-spin text-[#1235e2]" />
+                          <span className={`text-[10px] ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Thinking...</span>
                         </div>
                       </div>
                     </div>
@@ -408,13 +333,9 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
       </div>
 
       {/* Input */}
-      <div
-        className={`px-4 py-3 border-t shrink-0 ${
-          darkMode ? 'border-[#1235e2]/20' : 'border-slate-200'
-        }`}
-      >
+      <div className={`px-3 py-2 border-t shrink-0 ${darkMode ? 'border-[#1235e2]/10' : 'border-slate-200'}`}>
         <div
-          className={`flex items-end gap-2 rounded-xl border px-3 py-2 ${
+          className={`flex items-end gap-1.5 rounded-lg border px-2 py-1.5 ${
             darkMode
               ? 'bg-[#1235e2]/5 border-[#1235e2]/20 focus-within:border-[#1235e2]/40'
               : 'bg-slate-50 border-slate-200 focus-within:border-[#1235e2]/40'
@@ -425,19 +346,19 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask Hikaru about ad strategies..."
+            placeholder="Ask Hikaru..."
             rows={1}
-            className={`flex-1 resize-none bg-transparent text-sm focus:outline-none py-1 max-h-24 ${
+            className={`flex-1 resize-none bg-transparent text-[11px] focus:outline-none py-0.5 max-h-16 ${
               darkMode
                 ? 'text-white placeholder:text-slate-500'
                 : 'text-slate-900 placeholder:text-slate-400'
             }`}
-            style={{ minHeight: '24px' }}
+            style={{ minHeight: '20px' }}
           />
           <button
             onClick={sendMessage}
             disabled={!input.trim() || loading}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+            className={`w-6 h-6 rounded flex items-center justify-center shrink-0 transition-colors ${
               input.trim() && !loading
                 ? 'bg-[#1235e2] text-white hover:bg-[#0f2bc4]'
                 : darkMode
@@ -445,14 +366,11 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                   : 'bg-slate-200 text-slate-400'
             }`}
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-3 h-3" />
           </button>
         </div>
-        <p className={`text-[10px] mt-1.5 text-center ${darkMode ? 'text-slate-600' : 'text-slate-400'}`}>
-          Hikaru · Powered by Claude
-        </p>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -169,27 +169,44 @@ async function generateTemplates(
     messages: [
       {
         role: 'user',
-        content: `You are an expert ad strategist. Analyze these ${analyses.length} top-performing ${category} ads and create 3-5 reusable ad templates.
+        content: `You are an expert Meta Ads strategist. Analyze these ${analyses.length} top-performing ${category} ads and create 5 reusable ad templates.
+
+IMPORTANT: Your templates MUST follow the Five Pillars of Creative Diversity for Meta Ads. Each template must vary across these pillars to give the advertiser maximum creative diversity in their ad account:
+
+**The Five Pillars:**
+1. FORMAT — Different ad formats reach users in different contexts. A person scrolling quickly through Stories responds differently than someone browsing their feed. Formats: Reels video, Stories, static image, carousel, lookbook.
+2. TONE & ANGLE — The same product can be marketed through fundamentally different emotional appeals. Angles: aspiration/lifestyle, problem-solving/practical benefits, expert/educational authority, social proof/testimonials, entertainment/humor.
+3. CUSTOMER JOURNEY PHASE — The algorithm needs creatives for the entire funnel. Phases: awareness (brand storytelling), consideration (product comparisons, reviews, education), conversion (limited offers, clear CTAs, urgency).
+4. VISUAL STYLE — The aesthetic approach signals different brand qualities. Styles: polished studio campaign imagery, handheld UGC-style phone video, minimalist product shots, selfie-style content, before-after, lifestyle photography.
+5. MESSENGER & VOICE — Who delivers the message matters as much as the message itself. Voices: founder narrative, influencer/creator haul, customer video review, brand product storytelling, expert recommendation.
 
 Ad analyses:
 ${JSON.stringify(summaryData, null, 2)}
 
-Create templates that capture the PATTERNS across these ads. Each template should be a formula that anyone can use.
+Create EXACTLY 5 templates — one emphasizing a different pillar as its primary differentiator, but each template should specify ALL five pillars.
 
 Return a JSON array of templates:
 [
   {
-    "name": "Short catchy template name (e.g. 'Destination Dream')",
+    "name": "Short catchy template name (e.g. 'Founder Story Reel')",
     "description": "When to use this template (1-2 sentences)",
+    "primaryPillar": "format | tone | journey | visual | messenger",
+    "pillarDetails": {
+      "format": "e.g. Reels vertical video, 15-30s",
+      "tone": "e.g. aspirational lifestyle",
+      "journeyPhase": "e.g. awareness",
+      "visualStyle": "e.g. polished studio",
+      "messenger": "e.g. founder narrative"
+    },
     "messagingAngle": "price-focused | emotional | urgency | social-proof | lifestyle | educational",
     "visualStyle": "lifestyle | product-shot | UGC-style | minimal | destination | testimonial",
-    "headlineFormula": "Formula with {placeholders} e.g. 'Fly to {destination} from {price}'",
+    "headlineFormula": "Formula with {placeholders} e.g. 'Why I started {brand}'",
     "bodyFormula": "Full ad copy template with {placeholders}. 2-3 sentences.",
     "ctaText": "Recommended CTA text",
     "colorSuggestions": ["#hex1", "#hex2", "#hex3"],
     "imageryNotes": "What imagery to use (1-2 sentences)",
     "layoutNotes": "How to layout the ad (1-2 sentences)",
-    "formatRecommendation": "image | video | carousel",
+    "formatRecommendation": "image | video | carousel | reel | story",
     "platformNotes": "Platform-specific tips"
   }
 ]
@@ -212,10 +229,20 @@ Return ONLY valid JSON array, no markdown.`,
 
 export async function POST(request: NextRequest) {
   try {
-    const { category, brandId, limit = 10 } = await request.json();
+    const { category, brandId, pageId, limit = 10 } = await request.json();
 
-    if (!category && !brandId) {
-      return Response.json({ error: 'category or brandId required' }, { status: 400 });
+    // Resolve pageId to brandId if provided
+    let resolvedBrandId = brandId;
+    if (pageId && !brandId) {
+      const brand = await prisma.adLibraryBrand.findUnique({
+        where: { pageId },
+        select: { id: true },
+      });
+      if (brand) resolvedBrandId = brand.id;
+    }
+
+    if (!category && !resolvedBrandId) {
+      return Response.json({ error: 'category, brandId, or pageId required' }, { status: 400 });
     }
 
     const cappedLimit = Math.min(limit, 30);
@@ -226,8 +253,8 @@ export async function POST(request: NextRequest) {
       assets: { some: { downloadStatus: 'completed', storedUrl: { not: null } } },
     };
 
-    if (brandId) {
-      where.brandId = brandId;
+    if (resolvedBrandId) {
+      where.brandId = resolvedBrandId;
     } else if (category) {
       where.brand = { category: { equals: category, mode: 'insensitive' } };
     }
@@ -254,7 +281,7 @@ export async function POST(request: NextRequest) {
       take: cappedLimit,
     });
 
-    console.log(`[analyze] Found ${ads.length} ads for category=${category} brandId=${brandId}`);
+    console.log(`[analyze] Found ${ads.length} ads for category=${category} brandId=${resolvedBrandId}`);
 
     if (ads.length === 0) {
       return Response.json({ error: 'No ads with downloaded assets found' }, { status: 404 });
@@ -378,24 +405,26 @@ export async function POST(request: NextRequest) {
 
     // Store templates
     const storedTemplates = await Promise.all(
-      templates.map(async (t) => {
+      templates.map(async (t: Record<string, unknown>) => {
         return prisma.adTemplate.create({
           data: {
             category: categoryName,
-            brandId: brandId || null,
+            ...(resolvedBrandId ? { brand: { connect: { id: resolvedBrandId } } } : {}),
             sourceAdIds: analysisResults.map((a) => a.adId),
-            name: t.name,
-            description: t.description,
-            messagingAngle: t.messagingAngle,
-            visualStyle: t.visualStyle,
-            headlineFormula: t.headlineFormula,
-            bodyFormula: t.bodyFormula,
-            ctaText: t.ctaText,
-            colorSuggestions: t.colorSuggestions,
-            imageryNotes: t.imageryNotes,
-            layoutNotes: t.layoutNotes,
-            formatRecommendation: t.formatRecommendation || null,
-            platformNotes: t.platformNotes || null,
+            name: t.name as string,
+            description: t.description as string,
+            messagingAngle: t.messagingAngle as string,
+            visualStyle: t.visualStyle as string,
+            primaryPillar: (t.primaryPillar as string) || null,
+            pillarDetails: t.pillarDetails ? JSON.parse(JSON.stringify(t.pillarDetails)) : null,
+            headlineFormula: t.headlineFormula as string,
+            bodyFormula: t.bodyFormula as string,
+            ctaText: t.ctaText as string,
+            colorSuggestions: t.colorSuggestions as string[],
+            imageryNotes: t.imageryNotes as string,
+            layoutNotes: t.layoutNotes as string,
+            formatRecommendation: (t.formatRecommendation as string) || null,
+            platformNotes: (t.platformNotes as string) || null,
           },
         });
       })

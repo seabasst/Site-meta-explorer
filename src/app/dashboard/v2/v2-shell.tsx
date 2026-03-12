@@ -19,9 +19,12 @@ import {
   Layers,
   Wand2,
   PieChart,
+  MessageSquare,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { useV2 } from './v2-context';
-import { ChatPanel, ChatToggle } from './chat-panel';
+import { SidebarChat } from './chat-panel';
 
 interface SidebarInsights {
   genderLabel?: string | null;
@@ -73,7 +76,7 @@ export function V2Shell({
     <div className={`min-h-screen flex font-sans ${darkMode ? 'bg-[#101322] text-slate-100' : 'bg-[#f6f6f8] text-slate-900'}`}>
       {/* Sidebar */}
       <aside className={`w-64 border-r flex flex-col h-screen sticky top-0 shrink-0 ${darkMode ? 'border-[#1235e2]/20 bg-[#101322]' : 'border-slate-200 bg-[#f6f6f8]'}`}>
-        <div className="p-6">
+        <div className="p-6 shrink-0">
           <div className="flex items-center gap-2 mb-8">
             <div className="bg-[#1235e2] p-1.5 rounded-lg text-white">
               <BarChart3 className="w-5 h-5" />
@@ -107,42 +110,30 @@ export function V2Shell({
           </nav>
         </div>
 
-        {/* Market Insights */}
-        <div className={`mt-auto p-4 border-t ${darkMode ? 'border-[#1235e2]/10' : 'border-slate-200'}`}>
-          <h3 className={`text-xs font-semibold mb-4 px-2 uppercase tracking-wider ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-            Market Insights
-          </h3>
-          <div className="space-y-4 px-2">
-            {insights?.genderLabel && (
-              <div>
-                <div className="flex justify-between text-xs mb-1.5">
-                  <span>Gender Reach</span>
-                  <span className="text-[#1235e2] font-medium">{insights.genderLabel}</span>
-                </div>
-                <div className={`h-1.5 w-full rounded-full overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-200'}`}>
-                  <div className="h-full bg-[#1235e2] transition-all duration-500" style={{ width: `${insights.genderPct ?? 0}%` }} />
-                </div>
+        {/* Hikaru Chat in sidebar */}
+        <div className={`mt-auto border-t flex flex-col ${darkMode ? 'border-[#1235e2]/10' : 'border-slate-200'} ${chatOpen ? 'flex-1 min-h-0' : ''}`}>
+          <button
+            onClick={() => setChatOpen(!chatOpen)}
+            className={`flex items-center justify-between w-full px-5 py-3 transition-colors ${
+              darkMode ? 'hover:bg-[#1235e2]/5' : 'hover:bg-slate-50'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#1235e2] to-[#0a1f8f] flex items-center justify-center">
+                <MessageSquare className="w-3.5 h-3.5 text-white" />
               </div>
-            )}
-            {insights?.countries && insights.countries.length > 0 && (
-              <div>
-                <p className="text-xs font-medium mb-2">Top Countries</p>
-                <div className="space-y-2">
-                  {insights.countries.map(c => (
-                    <div key={c.code} className="flex items-center justify-between text-[11px]">
-                      <span className="flex items-center gap-2">{getFlag(c.code)} {c.code}</span>
-                      <span>{c.pct}%</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="text-left">
+                <p className="text-xs font-bold leading-none">Hikaru</p>
+                <p className={`text-[10px] ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>AI Strategy</p>
               </div>
-            )}
-            {!insights?.genderLabel && (!insights?.countries || insights.countries.length === 0) && (
-              <p className={`text-xs ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                Set up your brand to see market insights.
-              </p>
-            )}
-          </div>
+            </div>
+            {chatOpen ? <ChevronDown className={`w-4 h-4 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} /> : <ChevronUp className={`w-4 h-4 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />}
+          </button>
+          {chatOpen && (
+            <div className="flex-1 min-h-0 flex flex-col">
+              <SidebarChat />
+            </div>
+          )}
         </div>
       </aside>
 
@@ -177,10 +168,6 @@ export function V2Shell({
           {children}
         </div>
       </main>
-
-      {/* Chat */}
-      <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} />
-      <ChatToggle onClick={() => setChatOpen(!chatOpen)} isOpen={chatOpen} />
     </div>
   );
 }
