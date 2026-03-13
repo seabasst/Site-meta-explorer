@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -20,11 +19,8 @@ import {
   Wand2,
   PieChart,
   MessageSquare,
-  ChevronDown,
-  ChevronUp,
 } from 'lucide-react';
 import { useV2 } from './v2-context';
-import { SidebarChat } from './chat-panel';
 
 interface SidebarInsights {
   genderLabel?: string | null;
@@ -55,6 +51,7 @@ const NAV_ITEMS = [
   { id: '/dashboard/v2/share-of-voice', icon: PieChart, label: 'Share of Voice' },
   { id: '/dashboard/v2/benchmarks', icon: Scale, label: 'Benchmarking' },
   { id: '/dashboard/v2/competitors', icon: Users, label: 'Competitors' },
+  { id: '/dashboard/v2/hikaru', icon: MessageSquare, label: 'Hikaru AI' },
   { id: '/dashboard/v2/downloads', icon: Download, label: 'Downloads' },
   { id: '/dashboard/v2/settings', icon: Settings, label: 'Settings' },
 ];
@@ -70,7 +67,6 @@ export function V2Shell({
 }) {
   const { darkMode, setDarkMode } = useV2();
   const pathname = usePathname();
-  const [chatOpen, setChatOpen] = useState(false);
 
   return (
     <div className={`min-h-screen flex font-sans ${darkMode ? 'bg-[#101322] text-slate-100' : 'bg-[#f6f6f8] text-slate-900'}`}>
@@ -110,31 +106,6 @@ export function V2Shell({
           </nav>
         </div>
 
-        {/* Hikaru Chat in sidebar */}
-        <div className={`mt-auto border-t flex flex-col ${darkMode ? 'border-[#1235e2]/10' : 'border-slate-200'} ${chatOpen ? 'flex-1 min-h-0' : ''}`}>
-          <button
-            onClick={() => setChatOpen(!chatOpen)}
-            className={`flex items-center justify-between w-full px-5 py-3 transition-colors ${
-              darkMode ? 'hover:bg-[#1235e2]/5' : 'hover:bg-slate-50'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#1235e2] to-[#0a1f8f] flex items-center justify-center">
-                <MessageSquare className="w-3.5 h-3.5 text-white" />
-              </div>
-              <div className="text-left">
-                <p className="text-xs font-bold leading-none">Hikaru</p>
-                <p className={`text-[10px] ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>AI Strategy</p>
-              </div>
-            </div>
-            {chatOpen ? <ChevronDown className={`w-4 h-4 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} /> : <ChevronUp className={`w-4 h-4 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />}
-          </button>
-          {chatOpen && (
-            <div className="flex-1 min-h-0 flex flex-col">
-              <SidebarChat />
-            </div>
-          )}
-        </div>
       </aside>
 
       {/* Main */}
