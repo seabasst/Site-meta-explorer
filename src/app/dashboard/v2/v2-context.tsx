@@ -7,10 +7,10 @@ interface V2ContextType {
   setDarkMode: (v: boolean) => void;
 }
 
-const V2Context = createContext<V2ContextType>({ darkMode: true, setDarkMode: () => {} });
+const V2Context = createContext<V2ContextType>({ darkMode: false, setDarkMode: () => {} });
 
 export function V2Provider({ children }: { children: ReactNode }) {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   return (
     <V2Context.Provider value={{ darkMode, setDarkMode }}>
       {children}

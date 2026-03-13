@@ -422,6 +422,10 @@ model AdTemplate {
   messagingAngle String   // price, emotional, urgency, social-proof, etc.
   visualStyle    String   // lifestyle, product, UGC, minimal, etc.
 
+  // Five Pillars of Creative Diversity
+  primaryPillar  String?  // format | tone | journey | visual | messenger
+  pillarDetails  Json?    // { format, tone, journeyPhase, visualStyle, messenger }
+
   // Copy framework
   headlineFormula String  // e.g. "Fly to {destination} from ${price}"
   bodyFormula     String  // Template with placeholders

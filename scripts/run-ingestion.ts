@@ -149,7 +149,7 @@ async function fetchAdsPage(
     search_page_ids: pageId,
     ad_reached_countries: JSON.stringify(TARGET_COUNTRIES),
     ad_type: 'ALL',
-    ad_active_status: 'ALL',
+    ad_active_status: 'ACTIVE',
     ad_delivery_date_min: getOneYearAgoDate(),
     fields: AD_FIELDS,
     limit: String(limit),
