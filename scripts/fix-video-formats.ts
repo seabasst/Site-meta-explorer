@@ -108,7 +108,7 @@ async function main() {
 
   const where = specificPageId
     ? { pageId: specificPageId }
-    : { ingestionStatus: 'active' };
+    : { ingestionStatus: { in: ['active', 'completed'] } };
 
   const brands = await prisma.adLibraryBrand.findMany({ where });
 

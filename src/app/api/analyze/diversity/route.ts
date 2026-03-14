@@ -190,10 +190,10 @@ export async function POST(request: NextRequest) {
 7. CONCEPT CLUSTER (conceptCluster): Assign a short 2-3 word lowercase hyphenated label for the core creative concept (e.g., "discount-offer", "customer-story", "product-demo", "lifestyle-aspiration", "seasonal-promo", "destination-showcase", "brand-awareness"). Ads with the SAME core concept MUST get the SAME label. Reuse labels across ads — normalize consistently.
 
 **FORMAT CLASSIFICATION RULES:**
-- The "displayFormat" field is UNRELIABLE — it often misclassifies videos as "image". Do NOT blindly trust it.
-- If "hasVideoAsset" is true, classify as "video" or "reel".
-- If "displayFormat" says "carousel", that IS reliable.
-- Infer from copy style: video/reel ads tend to have shorter copy or mention watching. Most brands run 20-40% video.
+- The "displayFormat" field is RELIABLE — trust it for format classification.
+- If displayFormat is "video", classify as "video" or "reel".
+- If displayFormat is "carousel", classify as "carousel".
+- If displayFormat is "image", classify as "static-image".
 
 Ads to classify:
 ${JSON.stringify(enrichedSummaries, null, 2)}
