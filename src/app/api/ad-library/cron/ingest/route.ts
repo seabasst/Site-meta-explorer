@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 const CRON_SECRET = process.env.CRON_SECRET;
 
 // Meta API config
-const API_VERSION = 'v19.0';
+const API_VERSION = 'v22.0';
 const BASE_URL = 'https://graph.facebook.com';
 
 // Token status types
@@ -931,21 +931,13 @@ async function fetchAndStoreDemographics(brandId: string, pageId: string, pageNa
 // =============================================================================
 
 function detectDisplayFormat(ad: MetaAd): string {
-  // Check for video indicators in snapshot URL or content
-  const snapshotUrl = ad.ad_snapshot_url || '';
-  if (snapshotUrl.includes('video') || snapshotUrl.includes('reel')) {
-    return 'video';
-  }
+  // Video detection via API media_type=video filter (set by processBrand)
+  if ((ad as any)._isVideo) return 'video';
 
-  // Check for carousel indicators:
-  // - Multiple distinct link titles with different URLs typically indicate carousel
-  // - Multiple link descriptions with different content
   const titles = ad.ad_creative_link_titles || [];
   const descriptions = ad.ad_creative_link_descriptions || [];
   const captions = ad.ad_creative_link_captions || [];
 
-  // Only mark as carousel if we have multiple DIFFERENT titles or descriptions
-  // (not just variations of the same ad)
   const uniqueTitles = new Set(titles.filter(t => t && t.length > 0));
   const uniqueDescriptions = new Set(descriptions.filter(d => d && d.length > 0));
 
@@ -953,8 +945,42 @@ function detectDisplayFormat(ad: MetaAd): string {
     return 'carousel';
   }
 
-  // Default to image for single-image ads
   return 'image';
+}
+
+async function fetchVideoAdIds(pageId: string): Promise<Set<string>> {
+  const videoIds = new Set<string>();
+  if (!isNumericPageId(pageId)) return videoIds;
+
+  let cursor: string | undefined;
+  try {
+    do {
+      const token = tokenManager.getToken();
+      const params = new URLSearchParams({
+        access_token: token,
+        search_page_ids: pageId,
+        ad_reached_countries: JSON.stringify(TARGET_COUNTRIES),
+        ad_type: 'ALL',
+        media_type: 'video',
+        fields: 'id',
+        limit: '100',
+      });
+      if (cursor) params.set('after', cursor);
+
+      const response = await fetch(`${BASE_URL}/${API_VERSION}/ads_archive?${params}`);
+      const data = await response.json();
+
+      if (data.error) break;
+
+      for (const ad of data.data || []) {
+        videoIds.add(ad.id);
+      }
+      cursor = data.paging?.cursors?.after;
+      if (cursor) await sleep(2000);
+    } while (cursor);
+  } catch { /* skip on error */ }
+
+  return videoIds;
 }
 
 async function upsertAd(ad: MetaAd, brandId: string): Promise<{ action: 'created' | 'updated'; adDbId: string }> {
@@ -1055,9 +1081,17 @@ async function processBrand(brandId: string, pageId: string, pageName: string) {
   });
 
   try {
-    // Fetch ads - try by page ID first, then by name if no results
-    const ads = await fetchAllAdsForBrand(pageId, pageName);
-    console.log(`Fetched ${ads.length} ads for ${pageName}`);
+    // Fetch ads and video IDs in parallel
+    const [ads, videoIds] = await Promise.all([
+      fetchAllAdsForBrand(pageId, pageName),
+      fetchVideoAdIds(pageId),
+    ]);
+    console.log(`Fetched ${ads.length} ads for ${pageName}, ${videoIds.size} detected as video`);
+
+    // Tag video ads
+    for (const ad of ads) {
+      if (videoIds.has(ad.id)) (ad as any)._isVideo = true;
+    }
 
     // Update job progress
     await prisma.ingestionJob.update({

@@ -13,7 +13,7 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
 // Meta API config
-const API_VERSION = 'v19.0';
+const API_VERSION = 'v22.0';
 const BASE_URL = 'https://graph.facebook.com';
 
 // Token rotation manager
@@ -209,8 +209,8 @@ async function fetchAllAdsForBrand(pageId: string): Promise<MetaAd[]> {
 }
 
 function detectDisplayFormat(ad: MetaAd): string {
-  const snapshotUrl = ad.ad_snapshot_url || '';
-  if (snapshotUrl.includes('video') || snapshotUrl.includes('reel')) return 'video';
+  // Video detection via API media_type=video filter (set by processBrand)
+  if ((ad as any)._isVideo) return 'video';
 
   const titles = ad.ad_creative_link_titles || [];
   const descriptions = ad.ad_creative_link_descriptions || [];
@@ -267,6 +267,45 @@ async function upsertAd(ad: MetaAd, brandId: string): Promise<'created' | 'updat
   }
 }
 
+async function fetchVideoAdIds(pageId: string): Promise<Set<string>> {
+  const videoIds = new Set<string>();
+  let cursor: string | undefined;
+  const token = tokenManager.getToken();
+
+  try {
+    do {
+      const params = new URLSearchParams({
+        access_token: token,
+        search_page_ids: pageId,
+        ad_reached_countries: JSON.stringify(TARGET_COUNTRIES),
+        ad_type: 'ALL',
+        media_type: 'video',
+        fields: 'id',
+        limit: '100',
+      });
+      if (cursor) params.set('after', cursor);
+
+      const response = await fetch(`${BASE_URL}/${API_VERSION}/ads_archive?${params}`);
+      const data = await response.json();
+
+      if (data.error) {
+        console.log(`  Video detection API error: ${data.error.message}`);
+        break;
+      }
+
+      for (const ad of data.data || []) {
+        videoIds.add(ad.id);
+      }
+      cursor = data.paging?.cursors?.after;
+      if (cursor) await sleep(DELAY_BETWEEN_REQUESTS);
+    } while (cursor);
+  } catch (e) {
+    console.log(`  Video detection failed: ${e instanceof Error ? e.message : e}`);
+  }
+
+  return videoIds;
+}
+
 async function processBrand(brand: { id: string; pageId: string; pageName: string }) {
   console.log(`\nProcessing: ${brand.pageName} (${brand.pageId})`);
 
@@ -275,10 +314,20 @@ async function processBrand(brand: { id: string; pageId: string; pageName: strin
   });
 
   try {
-    const ads = await fetchAllAdsForBrand(brand.pageId);
-    console.log(`  Fetched ${ads.length} ads (last 1 year)`);
+    const [ads, videoIds] = await Promise.all([
+      fetchAllAdsForBrand(brand.pageId),
+      fetchVideoAdIds(brand.pageId),
+    ]);
+    console.log(`  Fetched ${ads.length} ads (last 1 year), ${videoIds.size} detected as video`);
 
     await prisma.ingestionJob.update({ where: { id: job.id }, data: { adsFetched: ads.length } });
+
+    // Override displayFormat for video ads
+    for (const ad of ads) {
+      if (videoIds.has(ad.id)) {
+        (ad as any)._isVideo = true;
+      }
+    }
 
     let created = 0, updated = 0;
     for (const ad of ads) {
