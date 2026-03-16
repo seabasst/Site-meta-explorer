@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-06)
+See: .planning/PROJECT.md (updated 2026-03-16)
 
-**Core value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
-**Current focus:** Phase 33 — Benchmark Foundation
+**Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
+**Current focus:** v5.0 Product Refocus — defining requirements
 
 ## Current Position
 
-Phase: 33 of 36 (Benchmark Foundation)
-Plan: 01 of 02 complete
-Status: In progress
-Last activity: 2026-02-06 — Completed 33-01-PLAN.md
+Phase: Not started (run /gsd:define-requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-16 — Milestone v5.0 started
 
-Progress: ███░░░░░░░░░░░░░░░░░░░░░░ 22% (v4.0)
+Progress: ░░░░░░░░░░░░░░░░░░░░░░░░░ 0% (v5.0)
 
 ## Milestones
 
@@ -26,7 +26,8 @@ Progress: ███░░░░░░░░░░░░░░░░░░░░�
 | v2.1 Polish & UX | Complete (Phases 14-17.2) | 2026-02-01 |
 | v3.0 Brand Tracking | Complete (Phases 24-27) | 2026-02-02 |
 | v3.1 Competitive Intelligence | Complete (Phases 28-31) | 2026-02-03 |
-| v4.0 Analytics Platform | In Progress (Phases 32-36) | — |
+| v4.0 Analytics Platform | Partial (Phase 32 complete, 33-36 superseded by v5.0) | — |
+| v5.0 Product Refocus | In Progress | — |
 
 ## Performance Metrics
 
@@ -40,22 +41,14 @@ Progress: ███░░░░░░░░░░░░░░░░░░░░�
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-All v3.1 decisions confirmed as Good.
 
-**32-01 Decisions:**
-- Union approach for countryTrend: all top-5 countries from any snapshot included, 0 for missing
-- Flat keys for age/gender data points (Recharts-compatible)
-- Unix epoch milliseconds for timestamps
-
-**32-02 Decisions:**
-- Chart placement: after observations, before key metrics
-- 300px chart height for consistency with existing charts
-- Empty state guidance for < 3 snapshots
-
-**33-01 Decisions:**
-- batchSize=2 with 2s delay for safe rate limiting
-- Promise.allSettled for partial success handling
-- Minimum 2 successful brands required (1 baseline + 1 competitor)
+**v5.0 Decisions:**
+- Hide Competitors/Benchmarking/Compare from sidebar (keep code, may delete later)
+- Gray out Downloads (not available yet)
+- Rename Ad Library → Inspiration with sub-items (Saved Ads, Brands, Categories)
+- Creative Lab is hero feature, placed just below Dashboard
+- Dashboard = configurable analytics over full ad database, not personal ads
+- V1 (/) kept as freemium entry point
 
 ### Roadmap Evolution
 
@@ -65,7 +58,8 @@ All v3.1 decisions confirmed as Good.
 - v2.1: Phases 14-17.2 (ad preview, charts, export, mobile, gap closure)
 - v3.0: Phases 24-27 (brand storage, dashboard, re-analysis, deletion)
 - v3.1: Phases 28-31 (hooks, hook UI, comparison, observations)
-- v4.0: Phases 32-36 (trends, benchmarks, dashboard UX, performance)
+- v4.0: Phase 32 (trends); Phases 33-36 superseded by v5.0
+- v5.0: Product refocus (sidebar, fix broken features, dashboard rework, Hikaru AI)
 
 ### Pending Todos
 
@@ -73,11 +67,12 @@ None.
 
 ### Blockers/Concerns
 
+- Facebook access tokens may be expired on Vercel (demographics fallback failing)
 - Google OAuth requires user to configure credentials in .env.local
 - Stripe account/keys required for payment integration
 
 ## Session Continuity
 
-Last session: 2026-02-06T12:46:00Z
-Stopped at: Completed 33-01-PLAN.md
+Last session: 2026-03-16
+Stopped at: Milestone v5.0 initialized, ready for requirements
 Resume file: None
