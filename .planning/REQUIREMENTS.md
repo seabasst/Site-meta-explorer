@@ -1,44 +1,57 @@
-# Requirements: Ad Library Demographics Analyzer
+# Requirements: Ad Library Intelligence Platform
 
-**Defined:** 2026-02-05
-**Core Value:** Surface who competitors are reaching with their ads — demographics and geography aggregated from their top performers.
+**Defined:** 2026-03-16
+**Core Value:** Help brands and agencies see what competitors are running and how they're reaching their audiences — browse, save, analyze, compare.
 
-## v4.0 Requirements
+## v5.0 Requirements
 
-Requirements for v4.0 Analytics Platform. Each maps to roadmap phases.
+Requirements for v5.0 Product Refocus. Each maps to roadmap phases.
 
-### Trend Analysis
+### Navigation & Structure
 
-- [x] **TREND-01**: User can view demographic trend charts showing how age, gender, and country distribution change across historical snapshots for a saved brand
+- [ ] **NAV-01**: Sidebar restructured with Inspiration section (Ad Library + Saved Ads + Brands + Categories as sub-items), Creative Lab as hero below Dashboard, Hikaru AI prominent
+- [ ] **NAV-02**: "Ad Library" renamed to "Inspiration" throughout navigation
+- [ ] **NAV-03**: Competitors, Benchmarking, Compare hidden from sidebar (code preserved)
+- [ ] **NAV-04**: Downloads shown in sidebar but grayed out with "not available yet" indicator
 
-### Competitive Benchmarking
+### Bug Fixes
 
-- [ ] **BENCH-01**: User can create a benchmark report comparing up to 5 competitor pages against one baseline brand
-- [ ] **BENCH-02**: System can batch-fetch multiple ad library pages with rate limit management
-- [ ] **BENCH-03**: User can see aggregated benchmark metrics (average demographics across competitors) with over/under-indexing vs baseline
-- [ ] **BENCH-04**: User can save benchmark reports as persistent entities with brands and baseline designation
+- [ ] **FIX-01**: Saved Ads tied to authenticated user — saves persist per account, graceful fallback when unauthenticated
+- [ ] **FIX-02**: Brand detail pages load correctly (no more 404)
+- [ ] **FIX-03**: Category detail pages load correctly (no more 404)
+- [ ] **FIX-04**: Demographics fallback handles token expiry gracefully with user-visible error state
 
-### Dashboard UX
+### Dashboard
 
-- [ ] **DASH-01**: Dashboard has improved navigation structure
-- [ ] **DASH-02**: Brand cards display richer metrics and visual improvements
-- [ ] **DASH-03**: User can filter, tag, and organize saved brands
+- [ ] **DASH-01**: Dashboard reworked as configurable analytics view over full ad database (not a duplicate of Ad Library)
+- [ ] **DASH-02**: Dashboard supports filters and sorting across the ad database
+- [ ] **DASH-03**: User can save and load dashboard configurations
 
-### Performance & Quality
+### Hikaru AI
 
-- [ ] **PERF-01**: Analysis, re-analysis, and page loads are faster
-- [ ] **QUAL-01**: Hook grouping uses improved fuzzy matching for similar phrases
-- [ ] **QUAL-02**: Demographic weighting and missing data handling are more accurate
+- [ ] **HIKA-01**: Hikaru AI produces richer output with embedded graphs, charts, and visual answers
 
-## v4.1 Requirements
+### Landing Page
+
+- [ ] **LAND-01**: Landing page at `/` showcasing the tool's value proposition with clear CTA
+- [ ] **LAND-02**: Landing page includes try-out access to V1 dashboard as freemium teaser
+- [ ] **LAND-03**: Landing page upsells V2 dashboard at $99/month with feature preview/glimpse
+
+## v5.1 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
 
-### Benchmark Management
+### Competitive Benchmarking
 
-- **BENCH-05**: User can view a benchmark dashboard listing all saved benchmark reports
-- **BENCH-06**: User can re-analyze a saved benchmark to get fresh data
-- **BENCH-07**: User can track benchmark trends over time
+- **BENCH-01**: Benchmark report comparing up to 5 competitors vs one baseline brand
+- **BENCH-02**: Batch-fetch multiple ad library pages with rate limit management
+- **BENCH-03**: Aggregated benchmark metrics with over/under-indexing vs baseline
+- **BENCH-04**: Save benchmark reports as persistent entities
+
+### Performance & Quality
+
+- **PERF-01**: Performance optimization pass for analysis, re-analysis, and page loads
+- **QUAL-01**: Improved fuzzy hook matching for similar phrases
 
 ## Out of Scope
 
@@ -47,10 +60,12 @@ Explicitly excluded. Documented to prevent scope creep.
 | Feature | Reason |
 |---------|--------|
 | Scheduled re-analysis | Requires background jobs infrastructure |
-| N-way brand comparison (3+) | Keep existing 2-brand comparison; benchmarks handle multi-brand |
-| AI/LLM insights | Rule-based observations sufficient for v4.0 |
+| AI/LLM insights | Rule-based observations sufficient for now |
 | Video hook transcription | Different infrastructure problem |
 | Real-time competitor monitoring | Major infrastructure investment |
+| Team/organization accounts | Single user only |
+| Mobile app | Web responsive only |
+| Enterprise tier | Keep Free + Pro for now |
 
 ## Traceability
 
@@ -58,23 +73,27 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TREND-01 | Phase 32 | Complete |
-| BENCH-01 | Phase 33 | Pending |
-| BENCH-02 | Phase 33 | Pending |
-| BENCH-03 | Phase 34 | Pending |
-| BENCH-04 | Phase 33 | Pending |
-| DASH-01 | Phase 35 | Pending |
-| DASH-02 | Phase 35 | Pending |
-| DASH-03 | Phase 35 | Pending |
-| PERF-01 | Phase 36 | Pending |
-| QUAL-01 | Phase 36 | Pending |
-| QUAL-02 | Phase 36 | Pending |
+| NAV-01 | — | Pending |
+| NAV-02 | — | Pending |
+| NAV-03 | — | Pending |
+| NAV-04 | — | Pending |
+| FIX-01 | — | Pending |
+| FIX-02 | — | Pending |
+| FIX-03 | — | Pending |
+| FIX-04 | — | Pending |
+| DASH-01 | — | Pending |
+| DASH-02 | — | Pending |
+| DASH-03 | — | Pending |
+| HIKA-01 | — | Pending |
+| LAND-01 | — | Pending |
+| LAND-02 | — | Pending |
+| LAND-03 | — | Pending |
 
 **Coverage:**
-- v4.0 requirements: 11 total
-- Mapped to phases: 11
-- Unmapped: 0 ✓
+- v5.0 requirements: 15 total
+- Mapped to phases: 0
+- Unmapped: 15 ⚠️
 
 ---
-*Requirements defined: 2026-02-05*
-*Last updated: 2026-02-06 after Phase 32 completion*
+*Requirements defined: 2026-03-16*
+*Last updated: 2026-03-16 after v5.0 Product Refocus definition*
