@@ -158,6 +158,18 @@ async function searchLocalDatabase(
 }
 
 /**
+ * Get the first available Facebook access token from env.
+ */
+function getAccessToken(bodyToken?: string): string | undefined {
+  if (bodyToken) return bodyToken;
+  for (let i = 1; i <= 10; i++) {
+    const token = process.env[`FACEBOOK_ACCESS_TOKEN${i}`];
+    if (token) return token;
+  }
+  return process.env.FACEBOOK_ACCESS_TOKEN;
+}
+
+/**
  * Fetch demographics from Facebook API for a specific page.
  * Uses a small sample of ads to get demographic data efficiently.
  */
@@ -179,9 +191,10 @@ async function fetchDemographicsOnly(
     if (result.success) {
       return result.aggregatedDemographics;
     }
+    console.error('[Demographics] API returned success=false for', pageId, 'error:', result.error);
     return null;
   } catch (error) {
-    console.error('[Demographics] Fetch error:', error);
+    console.error('[Demographics] Fetch error for', pageId, ':', error instanceof Error ? error.message : error);
     return null;
   }
 }
@@ -252,7 +265,7 @@ export async function POST(request: NextRequest) {
       }
 
       // No stored demographics - try to fetch from API as fallback
-      const accessToken = body.accessToken || process.env.FACEBOOK_ACCESS_TOKEN11 || process.env.FACEBOOK_ACCESS_TOKEN1;
+      const accessToken = getAccessToken(body.accessToken);
 
       if (accessToken) {
         // Fetch demographics for the found brand
@@ -282,7 +295,7 @@ export async function POST(request: NextRequest) {
     // Fall back to Facebook API - now we need the token
     console.log('[LocalDB] No local data found, falling back to Facebook API');
 
-    const accessToken = body.accessToken || process.env.FACEBOOK_ACCESS_TOKEN1;
+    const accessToken = getAccessToken(body.accessToken);
 
     if (!accessToken) {
       return NextResponse.json(
@@ -386,7 +399,7 @@ export async function GET(request: NextRequest) {
     }
 
     // No stored demographics - try to fetch from API as fallback
-    const accessToken = process.env.FACEBOOK_ACCESS_TOKEN11 || process.env.FACEBOOK_ACCESS_TOKEN1;
+    const accessToken = getAccessToken();
 
     if (accessToken) {
       const demographics = await fetchDemographicsOnly(
@@ -415,7 +428,7 @@ export async function GET(request: NextRequest) {
   // Fall back to Facebook API - now we need the token
   console.log('[LocalDB] GET: No local data found, falling back to Facebook API');
 
-  const accessToken = process.env.FACEBOOK_ACCESS_TOKEN1;
+  const accessToken = getAccessToken();
 
   if (!accessToken) {
     return NextResponse.json(

@@ -31,13 +31,17 @@ function SignInForm() {
     e.preventDefault()
     setIsLoading(true)
 
-    await signIn("credentials", {
+    const result = await signIn("credentials", {
       email,
       password,
-      callbackUrl,
+      redirect: false,
     })
 
-    setIsLoading(false)
+    if (result?.ok) {
+      window.location.href = callbackUrl
+    } else {
+      setIsLoading(false)
+    }
   }
 
   const handleGoogleSignIn = () => {
