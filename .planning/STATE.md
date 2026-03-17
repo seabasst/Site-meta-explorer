@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-16)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 42 in progress — Landing Page
+**Current focus:** v5.0 complete — all phases shipped
 
 ## Current Position
 
-Phase: 42 of 42 (Landing Page)
-Plan: 01 of 2 (Route prep and Stripe fix) - Complete
-Status: In progress, ready for Plan 02
-Last activity: 2026-03-17 — Completed 42-01-PLAN.md
+Phase: 42 of 42 (Landing Page) - Complete
+Plan: 02 of 2 (Landing page build) - Complete
+Status: v5.0 milestone complete, all 5 phases executed and verified
+Last activity: 2026-03-17 — Phase 42 verified and complete
 
-Progress: ██████████████████░░░░░░░ 76% (v5.0 — 10/11 plans estimated)
+Progress: █████████████████████████ 100% (v5.0 — 11/11 plans complete)
 
 ## Milestones
 
@@ -27,12 +27,12 @@ Progress: ██████████████████░░░░░�
 | v3.0 Brand Tracking | Complete (Phases 24-27) | 2026-02-02 |
 | v3.1 Competitive Intelligence | Complete (Phases 28-31) | 2026-02-03 |
 | v4.0 Analytics Platform | Partial (Phase 32 complete, 33-36 superseded) | — |
-| v5.0 Product Refocus | In Progress — Phases 38-42 | — |
+| v5.0 Product Refocus | Complete — Phases 38-42 | 2026-03-17 |
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 68
+- Total plans completed: 69
 - Average duration: —
 - Total execution time: —
 
@@ -48,8 +48,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Rename Ad Library → Inspiration with sub-items (Saved Ads, Brands, Categories)
 - Creative Lab is hero feature, placed just below Dashboard
 - Dashboard = configurable analytics over full ad database, not personal ads
-- V1 (/) kept as freemium entry point (now moved to /analyser)
-- LANDING-01: V1 Ad Analyser moved to /analyser, root route cleared for landing page
+- V1 moved to /analyser, root route is landing page
+- LANDING: 3-tier pricing (Free $0 / Standard $49 / Pro $149) — Pro includes Creative Lab, pillar analysis, Hikaru AI
 - Saved Ads: signIn() button prompt for unauth users (not inline login modal)
 - Category slugs: normalize at API boundary (lowercase+underscores), not in DB
 - Brand detail page uses pageSize=24, Previous/Next pagination, no further ad linking
@@ -80,5 +80,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 42-01-PLAN.md (route prep and Stripe fix)
+Stopped at: v5.0 milestone complete — all phases executed and verified
 Resume file: None

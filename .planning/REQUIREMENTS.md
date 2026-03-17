@@ -9,10 +9,10 @@ Requirements for v5.0 Product Refocus. Each maps to roadmap phases.
 
 ### Navigation & Structure
 
-- [ ] **NAV-01**: Sidebar restructured with Inspiration section (Ad Library + Saved Ads + Brands + Categories as sub-items), Creative Lab as hero below Dashboard, Hikaru AI prominent
-- [ ] **NAV-02**: "Ad Library" renamed to "Inspiration" throughout navigation
-- [ ] **NAV-03**: Competitors, Benchmarking, Compare hidden from sidebar (code preserved)
-- [ ] **NAV-04**: Downloads shown in sidebar but grayed out with "not available yet" indicator
+- [x] **NAV-01**: Sidebar restructured with Inspiration section (Ad Library + Saved Ads + Brands + Categories as sub-items), Creative Lab as hero below Dashboard, Hikaru AI prominent
+- [x] **NAV-02**: "Ad Library" renamed to "Inspiration" throughout navigation
+- [x] **NAV-03**: Competitors, Benchmarking, Compare hidden from sidebar (code preserved)
+- [x] **NAV-04**: Downloads shown in sidebar but grayed out with "not available yet" indicator
 
 ### Bug Fixes
 
@@ -33,9 +33,9 @@ Requirements for v5.0 Product Refocus. Each maps to roadmap phases.
 
 ### Landing Page
 
-- [ ] **LAND-01**: Landing page at `/` showcasing the tool's value proposition with clear CTA
-- [ ] **LAND-02**: Landing page includes try-out access to V1 dashboard as freemium teaser
-- [ ] **LAND-03**: Landing page upsells V2 dashboard at $99/month with feature preview/glimpse
+- [x] **LAND-01**: Landing page at `/` showcasing the tool's value proposition with clear CTA
+- [x] **LAND-02**: Landing page includes try-out access to V1 dashboard as freemium teaser
+- [x] **LAND-03**: Landing page upsells V2 dashboard with 3-tier pricing (Free/$49/$149) and feature preview
 
 ## v5.1 Requirements
 
@@ -77,17 +77,17 @@ Which phases cover which requirements. Updated by create-roadmap.
 | FIX-02 | Phase 38 | Complete |
 | FIX-03 | Phase 38 | Complete |
 | FIX-04 | Phase 38 | Complete |
-| NAV-01 | Phase 39 | Pending |
-| NAV-02 | Phase 39 | Pending |
-| NAV-03 | Phase 39 | Pending |
-| NAV-04 | Phase 39 | Pending |
+| NAV-01 | Phase 39 | Complete |
+| NAV-02 | Phase 39 | Complete |
+| NAV-03 | Phase 39 | Complete |
+| NAV-04 | Phase 39 | Complete |
 | DASH-01 | Phase 40 | Complete |
 | DASH-02 | Phase 40 | Complete |
 | DASH-03 | Phase 40 | Complete |
-| HIKA-01 | Phase 41 | Pending |
-| LAND-01 | Phase 42 | Pending |
-| LAND-02 | Phase 42 | Pending |
-| LAND-03 | Phase 42 | Pending |
+| HIKA-01 | Phase 41 | Complete |
+| LAND-01 | Phase 42 | Complete |
+| LAND-02 | Phase 42 | Complete |
+| LAND-03 | Phase 42 | Complete |
 
 **Coverage:**
 - v5.0 requirements: 15 total
@@ -96,4 +96,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-03-16*
-*Last updated: 2026-03-17 after Phase 40 completion*
+*Last updated: 2026-03-17 after Phase 42 completion*

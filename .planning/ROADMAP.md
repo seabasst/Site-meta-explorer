@@ -27,7 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 39: Navigation Restructure** - Sidebar reorg with Inspiration section, hide/gray unused features
 - [x] **Phase 40: Dashboard Rework** - Configurable analytics view with filters, sorting, saveable configs
 - [x] **Phase 41: Hikaru AI Enhancement** - Richer output with graphs, charts, and visual answers
-- [ ] **Phase 42: Landing Page** - Value proposition, freemium teaser, Pro upsell at $99/mo
+- [x] **Phase 42: Landing Page** - Value proposition, freemium teaser, 3-tier pricing ($0/$49/$149)
 
 ## Phase Details
 
@@ -100,8 +100,8 @@ Plans:
 **Research**: Complete (42-RESEARCH.md)
 **Plans**: 2 plans
 Plans:
-- [ ] 42-01-PLAN.md — Move V1 to /analyser route and fix Stripe redirect URLs
-- [ ] 42-02-PLAN.md — Build landing page with hero, features, V2 preview, and pricing
+- [x] 42-01-PLAN.md — Move V1 to /analyser route and fix Stripe redirect URLs
+- [x] 42-02-PLAN.md — Build landing page with hero, features, V2 preview, and pricing
 
 ## Progress
 
@@ -114,7 +114,7 @@ Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42
 | 39. Navigation Restructure | 1/1 | Complete | 2026-03-17 |
 | 40. Dashboard Rework | 3/3 | Complete | 2026-03-17 |
 | 41. Hikaru AI Enhancement | 2/2 | Complete | 2026-03-17 |
-| 42. Landing Page | 0/2 | Not started | - |
+| 42. Landing Page | 2/2 | Complete | 2026-03-17 |
 
 ---
 *Created: 2026-03-17*
