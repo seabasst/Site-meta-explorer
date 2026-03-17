@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { V2Shell } from '../v2-shell';
 import { useV2 } from '../v2-context';
+import { HikaruChart, type ChartSpec } from './hikaru-charts';
 
 interface ThinkingStep {
   tool: string;
@@ -94,11 +95,59 @@ function ThinkingSteps({ steps, darkMode }: { steps: ThinkingStep[]; darkMode: b
   );
 }
 
-function MessageContent({ content, darkMode, isUser }: { content: string; darkMode: boolean; isUser: boolean }) {
-  if (isUser) return <>{content}</>;
+type ContentBlock =
+  | { type: 'text'; content: string }
+  | { type: 'chart'; spec: ChartSpec }
+  | { type: 'chart-placeholder' };
 
-  const lines = content.split('\n');
-  const blocks: { type: 'line' | 'table'; lines: string[] }[] = [];
+function parseContentBlocks(content: string, isStreaming: boolean): ContentBlock[] {
+  const blocks: ContentBlock[] = [];
+  const chartRegex = /:::chart\n([\s\S]*?)\n:::/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = chartRegex.exec(content)) !== null) {
+    // Text before chart
+    if (match.index > lastIndex) {
+      blocks.push({ type: 'text', content: content.slice(lastIndex, match.index) });
+    }
+    // Chart block — parse JSON
+    try {
+      const spec = JSON.parse(match[1]) as ChartSpec;
+      blocks.push({ type: 'chart', spec });
+    } catch {
+      // Graceful degradation: show raw as code block
+      blocks.push({ type: 'text', content: '```\n' + match[0] + '\n```' });
+    }
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Remaining text after last chart
+  const remaining = content.slice(lastIndex);
+  if (remaining) {
+    // Check if there's an unclosed :::chart (still streaming)
+    if (isStreaming && remaining.includes(':::chart') && !remaining.includes(':::chart\n')) {
+      // Opening tag just started, not enough yet
+      blocks.push({ type: 'text', content: remaining.replace(/:::chart.*$/, '') });
+      blocks.push({ type: 'chart-placeholder' });
+    } else if (isStreaming && remaining.match(/:::chart\n[\s\S]*$/)) {
+      // Chart block started but not closed — show placeholder
+      const chartStart = remaining.indexOf(':::chart');
+      if (chartStart > 0) {
+        blocks.push({ type: 'text', content: remaining.slice(0, chartStart) });
+      }
+      blocks.push({ type: 'chart-placeholder' });
+    } else {
+      blocks.push({ type: 'text', content: remaining });
+    }
+  }
+
+  return blocks;
+}
+
+function renderTextBlock(text: string, darkMode: boolean) {
+  const lines = text.split('\n');
+  const lineBlocks: { type: 'line' | 'table'; lines: string[] }[] = [];
   let currentTable: string[] | null = null;
 
   for (const line of lines) {
@@ -107,17 +156,17 @@ function MessageContent({ content, darkMode, isUser }: { content: string; darkMo
       currentTable.push(line);
     } else {
       if (currentTable) {
-        blocks.push({ type: 'table', lines: currentTable });
+        lineBlocks.push({ type: 'table', lines: currentTable });
         currentTable = null;
       }
-      blocks.push({ type: 'line', lines: [line] });
+      lineBlocks.push({ type: 'line', lines: [line] });
     }
   }
-  if (currentTable) blocks.push({ type: 'table', lines: currentTable });
+  if (currentTable) lineBlocks.push({ type: 'table', lines: currentTable });
 
   return (
     <div className="space-y-2">
-      {blocks.map((block, blockIdx) => {
+      {lineBlocks.map((block, blockIdx) => {
         if (block.type === 'table') {
           const parsedRows = block.lines
             .map((row) => row.split('|').slice(1, -1).map((c) => c.trim()))
@@ -153,6 +202,40 @@ function MessageContent({ content, darkMode, isUser }: { content: string; darkMo
         );
         if (!line.trim()) return <div key={blockIdx} className="h-1.5" />;
         return <p key={blockIdx}><InlineFormat text={line} /></p>;
+      })}
+    </div>
+  );
+}
+
+function MessageContent({ content, darkMode, isUser, isStreaming = false }: {
+  content: string; darkMode: boolean; isUser: boolean; isStreaming?: boolean
+}) {
+  if (isUser) return <>{content}</>;
+
+  const contentBlocks = parseContentBlocks(content, isStreaming);
+
+  return (
+    <div className="space-y-2">
+      {contentBlocks.map((block, idx) => {
+        if (block.type === 'text') {
+          return <div key={idx}>{renderTextBlock(block.content, darkMode)}</div>;
+        }
+        if (block.type === 'chart') {
+          return <HikaruChart key={idx} spec={block.spec} darkMode={darkMode} />;
+        }
+        if (block.type === 'chart-placeholder') {
+          return (
+            <div key={idx} className={`rounded-xl border p-4 my-3 flex items-center gap-2 ${
+              darkMode ? 'bg-[#1235e2]/5 border-[#1235e2]/10' : 'bg-white border-slate-200'
+            }`}>
+              <Loader2 className="w-4 h-4 animate-spin text-[#1235e2]" />
+              <span className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                Generating chart...
+              </span>
+            </div>
+          );
+        }
+        return null;
       })}
     </div>
   );
@@ -370,7 +453,7 @@ export default function HikaruPage() {
                           <Sparkles className="w-4 h-4 text-white" />
                         </div>
                         <div className={`flex-1 text-sm leading-relaxed ${darkMode ? 'text-slate-200' : 'text-slate-700'}`}>
-                          <MessageContent content={streamingContent} darkMode={darkMode} isUser={false} />
+                          <MessageContent content={streamingContent} darkMode={darkMode} isUser={false} isStreaming={true} />
                           <span className="inline-block w-1.5 h-4 bg-[#1235e2] animate-pulse ml-0.5 align-text-bottom rounded-sm" />
                         </div>
                       </div>
