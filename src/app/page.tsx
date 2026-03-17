@@ -25,7 +25,7 @@ import { BrandAnalysis } from '@/components/analytics/brand-analysis';
 import { AccountSummary } from '@/components/summary/account-summary';
 import { SearchBar } from '@/components/search/search-bar';
 import { SubmitModal } from '@/components/roadmap/submit-modal';
-import { Play, Image as ImageIcon, Menu, X } from 'lucide-react';
+import { Play, Image as ImageIcon, Menu, X, AlertTriangle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
@@ -1316,8 +1316,30 @@ export default function Home() {
                       </div>
                     )}
 
-                    {/* No demographics available */}
-                    {!apiResult.aggregatedDemographics && (
+                    {/* Demographics unavailable - token expired */}
+                    {!apiResult.aggregatedDemographics && apiResult.demographicsError === 'token_expired' && (
+                      <div className="rounded-xl p-8 text-center border bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-700">
+                        <AlertTriangle className="w-12 h-12 mx-auto text-amber-500 dark:text-amber-400 mb-4" />
+                        <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">Demographics Temporarily Unavailable</h3>
+                        <p className="text-sm text-amber-700 dark:text-amber-300 max-w-md mx-auto">
+                          Facebook access token needs renewal. Demographic data will return once the token is refreshed.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Demographics unavailable - API error */}
+                    {!apiResult.aggregatedDemographics && apiResult.demographicsError === 'api_error' && (
+                      <div className="rounded-xl p-8 text-center border bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-700">
+                        <AlertTriangle className="w-12 h-12 mx-auto text-amber-500 dark:text-amber-400 mb-4" />
+                        <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">Demographics Temporarily Unavailable</h3>
+                        <p className="text-sm text-amber-700 dark:text-amber-300 max-w-md mx-auto">
+                          Could not fetch demographic data from Facebook. Please try again later.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* No demographics available - genuinely no data */}
+                    {!apiResult.aggregatedDemographics && apiResult.demographicsError !== 'token_expired' && apiResult.demographicsError !== 'api_error' && (
                       <div className="glass rounded-xl p-8 text-center">
                         <svg className="w-12 h-12 mx-auto text-[var(--text-muted)] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -1325,7 +1347,7 @@ export default function Home() {
                         <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">No Demographic Data Available</h3>
                         <p className="text-sm text-[var(--text-muted)] max-w-md mx-auto">
                           Demographics are only available for ads targeting EU countries due to DSA transparency requirements.
-                          Try selecting "EU Only" in the region filter for demographic insights.
+                          Try selecting &quot;EU Only&quot; in the region filter for demographic insights.
                         </p>
                       </div>
                     )}
