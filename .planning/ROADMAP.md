@@ -6,14 +6,14 @@ Transform from experiment to focused product — fix broken features, restructur
 
 ## Milestones
 
-- ✅ **v1.0 MVP** - Phases 1-7 (shipped)
-- ✅ **v1.1 UX Polish** - Phases 8-12 (shipped)
-- ✅ **v2.0 Auth & Payments** - Phases 13-18 (shipped)
-- ✅ **v2.1 Interactive Analytics** - Phases 19-22 (shipped)
-- ✅ **v3.0 Brand Tracking** - Phases 23-26 (shipped)
-- ✅ **v3.1 Competitive Intelligence** - Phases 27-31 (shipped)
-- ✅ **v4.0 Analytics Platform** - Phases 32-37 (shipped)
-- 🚧 **v5.0 Product Refocus** - Phases 38-42 (in progress)
+- v1.0 MVP - Phases 1-7 (shipped)
+- v1.1 UX Polish - Phases 8-12 (shipped)
+- v2.0 Auth & Payments - Phases 13-18 (shipped)
+- v2.1 Interactive Analytics - Phases 19-22 (shipped)
+- v3.0 Brand Tracking - Phases 23-26 (shipped)
+- v3.1 Competitive Intelligence - Phases 27-31 (shipped)
+- v4.0 Analytics Platform - Phases 32-37 (shipped)
+- **v5.0 Product Refocus** - Phases 38-42 (in progress)
 
 ## Phases
 
@@ -57,7 +57,9 @@ Plans:
   3. Competitors, Benchmarking, Compare are hidden from sidebar (code preserved)
   4. Downloads appears in sidebar but grayed out with "not available yet" indicator
 **Research**: Unlikely — UI restructure of existing sidebar component
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 39-01-PLAN.md — Restructure sidebar with Inspiration section, hide/disable features
 
 ### Phase 40: Dashboard Rework
 **Goal**: Dashboard is a configurable analytics view over the full ad database, not a duplicate of Ad Library
@@ -94,12 +96,12 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 38 → 39 → 40 → 41 → 42
+Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 38. Bug Fixes | 3/3 | Complete | 2026-03-17 |
-| 39. Navigation Restructure | 0/TBD | Not started | - |
+| 39. Navigation Restructure | 0/1 | Not started | - |
 | 40. Dashboard Rework | 0/TBD | Not started | - |
 | 41. Hikaru AI Enhancement | 0/TBD | Not started | - |
 | 42. Landing Page | 0/TBD | Not started | - |
