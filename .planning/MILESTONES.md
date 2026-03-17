@@ -1,4 +1,32 @@
-# Project Milestones: Ad Library Demographics Analyzer
+# Project Milestones: Ad Library Intelligence Platform
+
+## v5.0 Product Refocus (Shipped: 2026-03-17)
+
+**Delivered:** Transformed from experiment to focused product — fixed all broken features, restructured navigation around Inspiration concept, reworked dashboard as configurable analytics view, enhanced Hikaru AI with embedded charts, and built a landing page with 3-tier pricing to drive conversion.
+
+**Phases completed:** 38-43 (12 plans total)
+
+**Key accomplishments:**
+
+- Fixed all broken features: Saved Ads auth, Brand/Category 404s, demographics error states with three-state handling
+- Restructured sidebar with Inspiration section, hidden unused features, grayed out Downloads
+- Reworked dashboard as configurable analytics view with KPI cards, charts, filters, and saveable configs
+- Enhanced Hikaru AI with embedded chart rendering via :::chart fenced block protocol (4 chart types)
+- Built landing page with hero, feature showcase, V2 preview, and 3-tier pricing (Free/$49/$149)
+- Closed integration gaps — URL param hydration for drill-down flows between Dashboard/Categories and Ad Library
+
+**Stats:**
+
+- 54 files created/modified, +7,872 / -2,164 lines
+- ~48,359 total lines of TypeScript
+- 6 phases, 12 plans
+- 1 day (2026-03-17)
+
+**Git range:** `d240ecd` → `f2d7105`
+
+**What's next:** TBD — discuss next milestone
+
+---
 
 ## v3.1 Competitive Intelligence (Shipped: 2026-02-03)
 

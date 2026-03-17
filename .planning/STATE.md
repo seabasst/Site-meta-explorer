@@ -2,17 +2,17 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-16)
+See: .planning/PROJECT.md (updated 2026-03-17)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** v5.0 complete — all phases shipped
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 43 of 43 (Ad Library Deep-Link Filters) - Complete
-Plan: All plans complete
-Status: Phase 43 verified — all must-haves passed
-Last activity: 2026-03-17 — Phase 43 complete
+Phase: Next milestone not yet planned
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-17 — v5.0 milestone complete
 
 Progress: █████████████████████████ 100% (v5.0 — 12/12 plans complete)
 
@@ -27,12 +27,12 @@ Progress: ███████████████████████�
 | v3.0 Brand Tracking | Complete (Phases 24-27) | 2026-02-02 |
 | v3.1 Competitive Intelligence | Complete (Phases 28-31) | 2026-02-03 |
 | v4.0 Analytics Platform | Partial (Phase 32 complete, 33-36 superseded) | — |
-| v5.0 Product Refocus | Complete — Phases 38-43 | 2026-03-17 |
+| v5.0 Product Refocus | Complete (Phases 38-43) | 2026-03-17 |
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 70
+- Total plans completed: 82
 - Average duration: —
 - Total execution time: —
 
@@ -41,26 +41,6 @@ Progress: ███████████████████████�
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-
-**v5.0 Decisions:**
-- Hide Competitors/Benchmarking/Compare from sidebar (keep code, may delete later)
-- Gray out Downloads (not available yet)
-- Rename Ad Library → Inspiration with sub-items (Saved Ads, Brands, Categories)
-- Creative Lab is hero feature, placed just below Dashboard
-- Dashboard = configurable analytics over full ad database, not personal ads
-- V1 moved to /analyser, root route is landing page
-- LANDING: 3-tier pricing (Free $0 / Standard $49 / Pro $149) — Pro includes Creative Lab, pillar analysis, Hikaru AI
-- Saved Ads: signIn() button prompt for unauth users (not inline login modal)
-- Category slugs: normalize at API boundary (lowercase+underscores), not in DB
-- Brand detail page uses pageSize=24, Previous/Next pagination, no further ad linking
-- demographicsError: optional typed field on API response (token_expired | api_error | null)
-- Inspiration section always expanded (no collapse toggle)
-- Disabled nav items rendered as div with opacity-40, cursor-not-allowed, and tooltip
-- DASH-01: Dashboard shows aggregated analytics (KPI cards, charts, table) instead of ad cards
-- DASH-02: Filters sync to URL search params for shareable filtered views
-- DASH-03: localStorage config persistence with 10-config limit, URL param sync on load
-- HIKARU-01: Charts self-contained with darkMode prop, no V2Card/useV2 dependency
-- HIKARU-02: :::chart fenced block protocol for AI chart emission
 
 ### Roadmap Evolution
 
@@ -73,12 +53,12 @@ None.
 
 ### Blockers/Concerns
 
-- Facebook access tokens may be expired on Vercel (demographics fallback failing)
+- Facebook access tokens may be expired on Vercel (demographics fallback handles gracefully)
 - Google OAuth requires user to configure credentials in .env.local
 - Stripe account/keys required for payment integration
 
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: v5.0 milestone complete — all 6 phases executed and verified
+Stopped at: v5.0 milestone archived — ready for next milestone planning
 Resume file: None
