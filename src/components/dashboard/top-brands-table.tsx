@@ -113,7 +113,7 @@ export function TopBrandsTable({ data }: TopBrandsTableProps) {
             >
               <td className="px-6 py-4">
                 <Link
-                  href={`/dashboard/v2/ad-library?brand=${brand.pageId}`}
+                  href={`/dashboard/v2/ad-library?brandPageId=${brand.pageId}`}
                   className="font-medium hover:text-[#1235e2] transition-colors"
                 >
                   {brand.pageName}
