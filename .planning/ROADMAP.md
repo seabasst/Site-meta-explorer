@@ -114,7 +114,7 @@ Plans:
   2. TopBrandsTable links use correct param name (`brandPageId`, not `brand`)
   3. Category Detail "View Ads" links land on Ad Library with brand filter applied
 **Research**: Not needed — root cause identified in audit
-**Plans**: TBD
+\*\*Plans\*\*: 1 plan
 Plans:
 - [ ] 43-01-PLAN.md — Hydrate Ad Library filters from URL params + fix TopBrandsTable param name
 
