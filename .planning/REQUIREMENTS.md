@@ -73,27 +73,27 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NAV-01 | — | Pending |
-| NAV-02 | — | Pending |
-| NAV-03 | — | Pending |
-| NAV-04 | — | Pending |
-| FIX-01 | — | Pending |
-| FIX-02 | — | Pending |
-| FIX-03 | — | Pending |
-| FIX-04 | — | Pending |
-| DASH-01 | — | Pending |
-| DASH-02 | — | Pending |
-| DASH-03 | — | Pending |
-| HIKA-01 | — | Pending |
-| LAND-01 | — | Pending |
-| LAND-02 | — | Pending |
-| LAND-03 | — | Pending |
+| FIX-01 | Phase 38 | Pending |
+| FIX-02 | Phase 38 | Pending |
+| FIX-03 | Phase 38 | Pending |
+| FIX-04 | Phase 38 | Pending |
+| NAV-01 | Phase 39 | Pending |
+| NAV-02 | Phase 39 | Pending |
+| NAV-03 | Phase 39 | Pending |
+| NAV-04 | Phase 39 | Pending |
+| DASH-01 | Phase 40 | Pending |
+| DASH-02 | Phase 40 | Pending |
+| DASH-03 | Phase 40 | Pending |
+| HIKA-01 | Phase 41 | Pending |
+| LAND-01 | Phase 42 | Pending |
+| LAND-02 | Phase 42 | Pending |
+| LAND-03 | Phase 42 | Pending |
 
 **Coverage:**
 - v5.0 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15 ⚠️
+- Mapped to phases: 15
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-16*
-*Last updated: 2026-03-16 after v5.0 Product Refocus definition*
+*Last updated: 2026-03-17 after v5.0 roadmap creation*
