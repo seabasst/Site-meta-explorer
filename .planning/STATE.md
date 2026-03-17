@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-03-16)
 
 ## Current Position
 
-Phase: 43 of 43 (Ad Library Deep-Link Filters) - Planned
-Plan: Not yet planned
-Status: Gap closure phase added from v5.0 audit — ready to plan
-Last activity: 2026-03-17 — Phase 43 added to roadmap
+Phase: 43 of 43 (Ad Library Deep-Link Filters) - In Progress
+Plan: 43-01 complete (URL param hydration)
+Status: Plan 43-01 shipped — Ad Library reads brandPageId from URL, TopBrandsTable links fixed
+Last activity: 2026-03-17 — Plan 43-01 executed
 
 Progress: ███████████████████████░░ 92% (v5.0 — 11/12 plans complete)
 
@@ -80,5 +80,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: v5.0 milestone complete — all phases executed and verified
+Stopped at: Phase 43 plan 43-01 complete — URL param hydration shipped
 Resume file: None
