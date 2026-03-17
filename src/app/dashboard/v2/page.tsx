@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Database,
   TrendingUp,
@@ -14,6 +15,7 @@ import { FormatDistributionChart } from '@/components/dashboard/format-distribut
 import { AdsTimelineChart } from '@/components/dashboard/ads-timeline-chart';
 import { PlatformBreakdownChart } from '@/components/dashboard/platform-breakdown-chart';
 import { TopBrandsTable } from '@/components/dashboard/top-brands-table';
+import { DashboardFilters } from '@/components/dashboard/dashboard-filters';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -46,23 +48,47 @@ interface TopBrand {
 }
 
 // ---------------------------------------------------------------------------
-// Page
+// Inner Page (uses useSearchParams)
 // ---------------------------------------------------------------------------
 
-export default function DashboardV2Page() {
+function DashboardContent() {
   const { darkMode } = useV2();
+  const searchParams = useSearchParams();
   const [fastStats, setFastStats] = useState<AdLibraryStats | null>(null);
   const [fullStats, setFullStats] = useState<AdLibraryStats | null>(null);
   const [fastLoading, setFastLoading] = useState(true);
   const [fullLoading, setFullLoading] = useState(true);
 
+  // Derive filter query string from URL params
+  const filterQuery = useCallback(() => {
+    const params = new URLSearchParams();
+    const displayFormat = searchParams.get('displayFormat');
+    const category = searchParams.get('category');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    const isActive = searchParams.get('isActive');
+
+    if (displayFormat) params.set('displayFormat', displayFormat);
+    if (category) params.set('category', category);
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    if (isActive) params.set('isActive', isActive);
+
+    return params.toString();
+  }, [searchParams]);
+
   const fetchData = useCallback(async () => {
+    const filters = filterQuery();
+    const separator = filters ? '&' : '';
+
     // Phase 1: Fast stats for KPI cards
     setFastLoading(true);
     setFullLoading(true);
 
     try {
-      const fastRes = await fetch('/api/ad-library/stats?fast=true');
+      const fastRes = await fetch(
+        `/api/ad-library/stats?fast=true${separator}${filters}`
+      );
       if (fastRes.ok) {
         setFastStats(await fastRes.json());
       }
@@ -74,7 +100,9 @@ export default function DashboardV2Page() {
 
     // Phase 2: Full stats for charts and tables
     try {
-      const fullRes = await fetch('/api/ad-library/stats');
+      const fullRes = await fetch(
+        `/api/ad-library/stats${filters ? `?${filters}` : ''}`
+      );
       if (fullRes.ok) {
         setFullStats(await fullRes.json());
       }
@@ -83,7 +111,7 @@ export default function DashboardV2Page() {
     } finally {
       setFullLoading(false);
     }
-  }, []);
+  }, [filterQuery]);
 
   useEffect(() => {
     fetchData();
@@ -91,8 +119,29 @@ export default function DashboardV2Page() {
 
   const stats = fullStats || fastStats;
 
+  // Derive categories and formats from stats for the filter dropdowns
+  const categories = Array.from(
+    new Set(
+      (fullStats?.topBrandsByAdCount ?? fastStats?.topBrandsByAdCount ?? [])
+        .map((b) => b.category)
+        .filter((c): c is string => !!c)
+    )
+  ).sort();
+
+  const formats = (fullStats?.adsByFormat ?? fastStats?.adsByFormat ?? [])
+    .map((f) => f.format)
+    .filter((f) => f !== 'unknown')
+    .sort();
+
   return (
-    <V2Shell title="Analytics Dashboard">
+    <>
+      {/* Filter Bar */}
+      <DashboardFilters
+        categories={categories}
+        formats={formats}
+        loading={fastLoading}
+      />
+
       {fastLoading ? (
         <V2Skeleton rows={4} />
       ) : (
@@ -142,7 +191,7 @@ export default function DashboardV2Page() {
             )}
           </div>
 
-          {/* Charts Row 2: Platform Breakdown + Placeholder */}
+          {/* Charts Row 2: Platform Breakdown */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {fullLoading ? (
               <>
@@ -161,14 +210,14 @@ export default function DashboardV2Page() {
                         darkMode ? 'text-slate-400' : 'text-slate-500'
                       }`}
                     >
-                      Filters coming soon
+                      More insights coming soon
                     </p>
                     <p
                       className={`text-xs mt-1 ${
                         darkMode ? 'text-slate-500' : 'text-slate-400'
                       }`}
                     >
-                      Date range, brand, and format filters
+                      Additional analytics widgets
                     </p>
                   </div>
                 </V2Card>
@@ -185,6 +234,20 @@ export default function DashboardV2Page() {
           ) : null}
         </>
       )}
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Page (wrapped in Suspense for useSearchParams)
+// ---------------------------------------------------------------------------
+
+export default function DashboardV2Page() {
+  return (
+    <V2Shell title="Analytics Dashboard">
+      <Suspense fallback={<V2Skeleton rows={4} />}>
+        <DashboardContent />
+      </Suspense>
     </V2Shell>
   );
 }
