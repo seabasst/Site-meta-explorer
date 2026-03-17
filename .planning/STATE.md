@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-16)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 40 complete — Dashboard Rework done
+**Current focus:** Phase 41 in progress — Hikaru AI Enhancement
 
 ## Current Position
 
-Phase: 40 of 42 (Dashboard Rework)
-Plan: 03 of 3 (Config Manager) - Complete
-Status: Phase complete, ready for Phase 41
-Last activity: 2026-03-17 — Phase 40 verified and complete
+Phase: 41 of 42 (Hikaru AI Enhancement)
+Plan: 01 of 3 (Chart Component Library) - Complete
+Status: In progress, ready for Plan 02
+Last activity: 2026-03-17 — Completed 41-01-PLAN.md
 
-Progress: ██████████████░░░░░░░░░░░ 55% (v5.0 — 7/11 plans estimated)
+Progress: ████████████████░░░░░░░░░ 62% (v5.0 — 8/11 plans estimated)
 
 ## Milestones
 
@@ -32,7 +32,7 @@ Progress: ██████████████░░░░░░░░░�
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 65
+- Total plans completed: 66
 - Average duration: —
 - Total execution time: —
 
@@ -58,6 +58,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - DASH-01: Dashboard shows aggregated analytics (KPI cards, charts, table) instead of ad cards
 - DASH-02: Filters sync to URL search params for shareable filtered views
 - DASH-03: localStorage config persistence with 10-config limit, URL param sync on load
+- HIKARU-01: Charts self-contained with darkMode prop, no V2Card/useV2 dependency
+- HIKARU-02: :::chart fenced block protocol for AI chart emission
 
 ### Roadmap Evolution
 
@@ -77,5 +79,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Phase 40 complete — all 3 plans executed and verified
+Stopped at: Completed 41-01-PLAN.md (Chart Component Library)
 Resume file: None
