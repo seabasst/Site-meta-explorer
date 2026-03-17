@@ -40,8 +40,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Brand detail pages load correctly (no 404)
   3. Category detail pages load correctly (no 404)
   4. Demographics fallback shows user-visible error state when tokens expire instead of failing silently
-**Research**: Unlikely — standard bug fixes in existing codebase
-**Plans**: TBD
+**Research**: Complete (38-RESEARCH.md)
+**Plans**: 3 plans
+Plans:
+- [ ] 38-01-PLAN.md — Saved Ads auth fallback + Category slug normalization (FIX-01, FIX-03)
+- [ ] 38-02-PLAN.md — Brand detail page creation (FIX-02)
+- [ ] 38-03-PLAN.md — Demographics error state for token expiry (FIX-04)
 
 ### Phase 39: Navigation Restructure
 **Goal**: Sidebar restructured around Inspiration concept, unused features hidden, Downloads grayed out
@@ -94,7 +98,7 @@ Phases execute in numeric order: 38 → 39 → 40 → 41 → 42
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 38. Bug Fixes | 0/TBD | Not started | - |
+| 38. Bug Fixes | 0/3 | Planned | - |
 | 39. Navigation Restructure | 0/TBD | Not started | - |
 | 40. Dashboard Rework | 0/TBD | Not started | - |
 | 41. Hikaru AI Enhancement | 0/TBD | Not started | - |
