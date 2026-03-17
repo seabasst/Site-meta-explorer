@@ -113,7 +113,7 @@ export default function ComingSoonPage() {
               Ad Analyser
             </a>
             <a
-              href="/"
+              href="/analyser"
               className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]"
             >
               Back to Analyser
@@ -151,7 +151,7 @@ export default function ComingSoonPage() {
                 </h3>
                 <p className="text-sm text-[var(--text-secondary)]">
                   We&apos;ll send you an invite when Pro launches. Keep using the{' '}
-                  <a href="/" className="text-[var(--accent-green-light)] hover:underline">free analyser</a>{' '}
+                  <a href="/analyser" className="text-[var(--accent-green-light)] hover:underline">free analyser</a>{' '}
                   in the meantime.
                 </p>
               </div>
@@ -240,7 +240,7 @@ export default function ComingSoonPage() {
               Pro adds the tracking, monitoring, and comparison layer on top.
             </p>
             <a
-              href="/"
+              href="/analyser"
               className="inline-flex items-center gap-2 mt-6 px-4 py-2 text-sm font-medium rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)] transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
