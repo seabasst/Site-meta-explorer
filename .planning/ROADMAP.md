@@ -23,7 +23,7 @@ Transform from experiment to focused product — fix broken features, restructur
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 38: Bug Fixes** - Fix Saved Ads auth, Brand/Category 404s, demographics fallback
+- [x] **Phase 38: Bug Fixes** - Fix Saved Ads auth, Brand/Category 404s, demographics fallback
 - [ ] **Phase 39: Navigation Restructure** - Sidebar reorg with Inspiration section, hide/gray unused features
 - [ ] **Phase 40: Dashboard Rework** - Configurable analytics view with filters, sorting, saveable configs
 - [ ] **Phase 41: Hikaru AI Enhancement** - Richer output with graphs, charts, and visual answers
@@ -43,9 +43,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Research**: Complete (38-RESEARCH.md)
 **Plans**: 3 plans
 Plans:
-- [ ] 38-01-PLAN.md — Saved Ads auth fallback + Category slug normalization (FIX-01, FIX-03)
-- [ ] 38-02-PLAN.md — Brand detail page creation (FIX-02)
-- [ ] 38-03-PLAN.md — Demographics error state for token expiry (FIX-04)
+- [x] 38-01-PLAN.md — Saved Ads auth fallback + Category slug normalization (FIX-01, FIX-03)
+- [x] 38-02-PLAN.md — Brand detail page creation (FIX-02)
+- [x] 38-03-PLAN.md — Demographics error state for token expiry (FIX-04)
 
 ### Phase 39: Navigation Restructure
 **Goal**: Sidebar restructured around Inspiration concept, unused features hidden, Downloads grayed out
@@ -98,7 +98,7 @@ Phases execute in numeric order: 38 → 39 → 40 → 41 → 42
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 38. Bug Fixes | 0/3 | Planned | - |
+| 38. Bug Fixes | 3/3 | Complete | 2026-03-17 |
 | 39. Navigation Restructure | 0/TBD | Not started | - |
 | 40. Dashboard Rework | 0/TBD | Not started | - |
 | 41. Hikaru AI Enhancement | 0/TBD | Not started | - |

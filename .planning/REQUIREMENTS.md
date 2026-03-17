@@ -16,10 +16,10 @@ Requirements for v5.0 Product Refocus. Each maps to roadmap phases.
 
 ### Bug Fixes
 
-- [ ] **FIX-01**: Saved Ads tied to authenticated user — saves persist per account, graceful fallback when unauthenticated
-- [ ] **FIX-02**: Brand detail pages load correctly (no more 404)
-- [ ] **FIX-03**: Category detail pages load correctly (no more 404)
-- [ ] **FIX-04**: Demographics fallback handles token expiry gracefully with user-visible error state
+- [x] **FIX-01**: Saved Ads tied to authenticated user — saves persist per account, graceful fallback when unauthenticated
+- [x] **FIX-02**: Brand detail pages load correctly (no more 404)
+- [x] **FIX-03**: Category detail pages load correctly (no more 404)
+- [x] **FIX-04**: Demographics fallback handles token expiry gracefully with user-visible error state
 
 ### Dashboard
 
@@ -73,10 +73,10 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FIX-01 | Phase 38 | Pending |
-| FIX-02 | Phase 38 | Pending |
-| FIX-03 | Phase 38 | Pending |
-| FIX-04 | Phase 38 | Pending |
+| FIX-01 | Phase 38 | Complete |
+| FIX-02 | Phase 38 | Complete |
+| FIX-03 | Phase 38 | Complete |
+| FIX-04 | Phase 38 | Complete |
 | NAV-01 | Phase 39 | Pending |
 | NAV-02 | Phase 39 | Pending |
 | NAV-03 | Phase 39 | Pending |
@@ -96,4 +96,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-03-16*
-*Last updated: 2026-03-17 after v5.0 roadmap creation*
+*Last updated: 2026-03-17 after Phase 38 completion*
