@@ -16,6 +16,7 @@ import { AdsTimelineChart } from '@/components/dashboard/ads-timeline-chart';
 import { PlatformBreakdownChart } from '@/components/dashboard/platform-breakdown-chart';
 import { TopBrandsTable } from '@/components/dashboard/top-brands-table';
 import { DashboardFilters } from '@/components/dashboard/dashboard-filters';
+import { ConfigManager } from '@/components/dashboard/config-manager';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -141,6 +142,11 @@ function DashboardContent() {
         formats={formats}
         loading={fastLoading}
       />
+
+      {/* Config Manager - save/load filter presets */}
+      <div className="flex justify-end mb-6 -mt-4">
+        <ConfigManager />
+      </div>
 
       {fastLoading ? (
         <V2Skeleton rows={4} />
