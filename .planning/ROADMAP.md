@@ -26,7 +26,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 38: Bug Fixes** - Fix Saved Ads auth, Brand/Category 404s, demographics fallback
 - [x] **Phase 39: Navigation Restructure** - Sidebar reorg with Inspiration section, hide/gray unused features
 - [x] **Phase 40: Dashboard Rework** - Configurable analytics view with filters, sorting, saveable configs
-- [ ] **Phase 41: Hikaru AI Enhancement** - Richer output with graphs, charts, and visual answers
+- [x] **Phase 41: Hikaru AI Enhancement** - Richer output with graphs, charts, and visual answers
 - [ ] **Phase 42: Landing Page** - Value proposition, freemium teaser, Pro upsell at $99/mo
 
 ## Phase Details
@@ -97,8 +97,11 @@ Plans:
   1. Landing page at `/` presents clear value proposition with compelling CTA
   2. Landing page includes try-out access to V1 dashboard as freemium teaser
   3. Landing page upsells V2 dashboard at $99/month with feature preview/glimpse
-**Research**: Unlikely — standard landing page with existing V1 integration
-**Plans**: TBD
+**Research**: Complete (42-RESEARCH.md)
+**Plans**: 2 plans
+Plans:
+- [ ] 42-01-PLAN.md — Move V1 to /analyser route and fix Stripe redirect URLs
+- [ ] 42-02-PLAN.md — Build landing page with hero, features, V2 preview, and pricing
 
 ## Progress
 
@@ -111,7 +114,7 @@ Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42
 | 39. Navigation Restructure | 1/1 | Complete | 2026-03-17 |
 | 40. Dashboard Rework | 3/3 | Complete | 2026-03-17 |
 | 41. Hikaru AI Enhancement | 2/2 | Complete | 2026-03-17 |
-| 42. Landing Page | 0/TBD | Not started | - |
+| 42. Landing Page | 0/2 | Not started | - |
 
 ---
 *Created: 2026-03-17*
