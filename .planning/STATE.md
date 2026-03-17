@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-16)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 39 — Navigation Restructure
+**Current focus:** Phase 39 complete — Navigation Restructure done
 
 ## Current Position
 
 Phase: 39 of 42 (Navigation Restructure)
-Plan: 01 of 1 (Sidebar Nav Restructure) - Task 1 complete, awaiting checkpoint
-Status: In progress
-Last activity: 2026-03-17 — 39-01 Task 1 committed, checkpoint pending
+Plan: 01 of 1 (Sidebar Nav Restructure) - Complete
+Status: Phase complete, ready for Phase 40
+Last activity: 2026-03-17 — Completed 39-01-PLAN.md
 
-Progress: █████░░░░░░░░░░░░░░░░░░░░ 20% (v5.0 — 3/15 plans)
+Progress: █████████░░░░░░░░░░░░░░░░ 36% (v5.0 — 4/11 plans estimated)
 
 ## Milestones
 
@@ -32,7 +32,7 @@ Progress: █████░░░░░░░░░░░░░░░░░░�
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 61
+- Total plans completed: 62
 - Average duration: —
 - Total execution time: —
 
@@ -53,6 +53,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Category slugs: normalize at API boundary (lowercase+underscores), not in DB
 - Brand detail page uses pageSize=24, Previous/Next pagination, no further ad linking
 - demographicsError: optional typed field on API response (token_expired | api_error | null)
+- Inspiration section always expanded (no collapse toggle)
+- Disabled nav items rendered as div with opacity-40, cursor-not-allowed, and tooltip
 
 ### Roadmap Evolution
 
@@ -72,5 +74,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: 39-01 Task 1 committed, awaiting human-verify checkpoint
-Resume file: .planning/phases/39-navigation-restructure/39-01-PLAN.md
+Stopped at: Completed 39-01-PLAN.md (Phase 39 complete)
+Resume file: None

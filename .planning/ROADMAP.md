@@ -24,7 +24,7 @@ Transform from experiment to focused product — fix broken features, restructur
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 38: Bug Fixes** - Fix Saved Ads auth, Brand/Category 404s, demographics fallback
-- [ ] **Phase 39: Navigation Restructure** - Sidebar reorg with Inspiration section, hide/gray unused features
+- [x] **Phase 39: Navigation Restructure** - Sidebar reorg with Inspiration section, hide/gray unused features
 - [ ] **Phase 40: Dashboard Rework** - Configurable analytics view with filters, sorting, saveable configs
 - [ ] **Phase 41: Hikaru AI Enhancement** - Richer output with graphs, charts, and visual answers
 - [ ] **Phase 42: Landing Page** - Value proposition, freemium teaser, Pro upsell at $99/mo
@@ -53,13 +53,13 @@ Plans:
 **Requirements**: NAV-01, NAV-02, NAV-03, NAV-04
 **Success Criteria** (what must be TRUE):
   1. Sidebar shows Inspiration section with Ad Library, Saved Ads, Brands, Categories as sub-items
-  2. "Ad Library" renamed to "Inspiration" in navigation
+  2. "Inspiration" section header in sidebar groups Ad Library, Saved Ads, Brands, Categories as sub-items
   3. Competitors, Benchmarking, Compare are hidden from sidebar (code preserved)
   4. Downloads appears in sidebar but grayed out with "not available yet" indicator
 **Research**: Unlikely — UI restructure of existing sidebar component
 **Plans**: 1 plan
 Plans:
-- [ ] 39-01-PLAN.md — Restructure sidebar with Inspiration section, hide/disable features
+- [x] 39-01-PLAN.md — Restructure sidebar with Inspiration section, hide/disable features
 
 ### Phase 40: Dashboard Rework
 **Goal**: Dashboard is a configurable analytics view over the full ad database, not a duplicate of Ad Library
@@ -101,7 +101,7 @@ Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 38. Bug Fixes | 3/3 | Complete | 2026-03-17 |
-| 39. Navigation Restructure | 0/1 | Not started | - |
+| 39. Navigation Restructure | 1/1 | Complete | 2026-03-17 |
 | 40. Dashboard Rework | 0/TBD | Not started | - |
 | 41. Hikaru AI Enhancement | 0/TBD | Not started | - |
 | 42. Landing Page | 0/TBD | Not started | - |
