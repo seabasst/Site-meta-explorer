@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-16)
 ## Current Position
 
 Phase: 38 of 42 (Bug Fixes)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-03-17 — Completed 38-01-PLAN.md (Saved Ads auth + Category slug fixes)
+Last activity: 2026-03-17 — Completed 38-02-PLAN.md (Brand detail page)
 
-Progress: █░░░░░░░░░░░░░░░░░░░░░░░░ 7% (v5.0 — 1/15 plans)
+Progress: ██░░░░░░░░░░░░░░░░░░░░░░░ 13% (v5.0 — 2/15 plans)
 
 ## Milestones
 
@@ -32,7 +32,7 @@ Progress: █░░░░░░░░░░░░░░░░░░░░░░�
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 59
+- Total plans completed: 60
 - Average duration: —
 - Total execution time: —
 
@@ -51,6 +51,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - V1 (/) kept as freemium entry point
 - Saved Ads: signIn() button prompt for unauth users (not inline login modal)
 - Category slugs: normalize at API boundary (lowercase+underscores), not in DB
+- Brand detail page uses pageSize=24, Previous/Next pagination, no further ad linking
 
 ### Roadmap Evolution
 
@@ -70,5 +71,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 38-01-PLAN.md, ready for 38-02
+Stopped at: Completed 38-02-PLAN.md, ready for 38-03
 Resume file: None
