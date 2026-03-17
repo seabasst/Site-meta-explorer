@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-16)
 ## Current Position
 
 Phase: 38 of 42 (Bug Fixes)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-03-17 — v5.0 roadmap created (5 phases, 15 requirements)
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-03-17 — Completed 38-01-PLAN.md (Saved Ads auth + Category slug fixes)
 
-Progress: ░░░░░░░░░░░░░░░░░░░░░░░░░ 0% (v5.0)
+Progress: █░░░░░░░░░░░░░░░░░░░░░░░░ 7% (v5.0 — 1/15 plans)
 
 ## Milestones
 
@@ -49,6 +49,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Creative Lab is hero feature, placed just below Dashboard
 - Dashboard = configurable analytics over full ad database, not personal ads
 - V1 (/) kept as freemium entry point
+- Saved Ads: signIn() button prompt for unauth users (not inline login modal)
+- Category slugs: normalize at API boundary (lowercase+underscores), not in DB
 
 ### Roadmap Evolution
 
@@ -68,5 +70,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: v5.0 roadmap created, ready to plan Phase 38
+Stopped at: Completed 38-01-PLAN.md, ready for 38-02
 Resume file: None
