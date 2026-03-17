@@ -2,22 +2,20 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { LucideIcon } from 'lucide-react';
 import {
   BarChart3,
   BookOpen,
   Settings,
-  Users,
   Moon,
   Sun,
   Bell,
   LayoutDashboard,
-  Scale,
   Globe,
   Download,
   Heart,
   Layers,
   Wand2,
-  PieChart,
   MessageSquare,
 } from 'lucide-react';
 import { useV2 } from './v2-context';
@@ -41,20 +39,57 @@ function getFlag(code: string | null): string {
   return countryFlags[code.toUpperCase()] || '🌍';
 }
 
-const NAV_ITEMS = [
-  { id: '/dashboard/v2', icon: LayoutDashboard, label: 'Dashboard' },
-  { id: '/dashboard/v2/ad-library', icon: BookOpen, label: 'Ad Library' },
-  { id: '/dashboard/v2/saved', icon: Heart, label: 'Saved Ads' },
-  { id: '/dashboard/v2/brands', icon: Globe, label: 'Brands' },
-  { id: '/dashboard/v2/categories', icon: Layers, label: 'Categories' },
-  { id: '/dashboard/v2/creative-lab', icon: Wand2, label: 'Creative Lab' },
+type NavItem = {
+  id: string;
+  icon: LucideIcon;
+  label: string;
+  disabled?: boolean;
+  disabledLabel?: string;
+};
+
+type NavSection = {
+  label?: string;
+  items: NavItem[];
+};
+
+const NAV_SECTIONS: NavSection[] = [
+  {
+    // Top-level items (no section header)
+    items: [
+      { id: '/dashboard/v2', icon: LayoutDashboard, label: 'Dashboard' },
+      { id: '/dashboard/v2/creative-lab', icon: Wand2, label: 'Creative Lab' },
+    ],
+  },
+  {
+    label: 'Inspiration',
+    items: [
+      { id: '/dashboard/v2/ad-library', icon: BookOpen, label: 'Ad Library' },
+      { id: '/dashboard/v2/saved', icon: Heart, label: 'Saved Ads' },
+      { id: '/dashboard/v2/brands', icon: Globe, label: 'Brands' },
+      { id: '/dashboard/v2/categories', icon: Layers, label: 'Categories' },
+    ],
+  },
+  {
+    // Standalone items
+    items: [
+      { id: '/dashboard/v2/hikaru', icon: MessageSquare, label: 'Hikaru AI' },
+    ],
+  },
+  {
+    // Disabled items
+    items: [
+      { id: '/dashboard/v2/downloads', icon: Download, label: 'Downloads', disabled: true, disabledLabel: '(soon)' },
+    ],
+  },
+];
+
+/* HIDDEN: Features removed from sidebar, preserved for future use
   { id: '/dashboard/v2/share-of-voice', icon: PieChart, label: 'Share of Voice' },
   { id: '/dashboard/v2/benchmarks', icon: Scale, label: 'Benchmarking' },
   { id: '/dashboard/v2/competitors', icon: Users, label: 'Competitors' },
-  { id: '/dashboard/v2/hikaru', icon: MessageSquare, label: 'Hikaru AI' },
-  { id: '/dashboard/v2/downloads', icon: Download, label: 'Downloads' },
-  { id: '/dashboard/v2/settings', icon: Settings, label: 'Settings' },
-];
+*/
+
+const SETTINGS_ITEM: NavItem = { id: '/dashboard/v2/settings', icon: Settings, label: 'Settings' };
 
 export function V2Shell({
   children,
@@ -72,38 +107,89 @@ export function V2Shell({
     <div className={`min-h-screen flex font-sans ${darkMode ? 'bg-[#101322] text-slate-100' : 'bg-[#f6f6f8] text-slate-900'}`}>
       {/* Sidebar */}
       <aside className={`w-64 border-r flex flex-col h-screen sticky top-0 shrink-0 ${darkMode ? 'border-[#1235e2]/20 bg-[#101322]' : 'border-slate-200 bg-[#f6f6f8]'}`}>
-        <div className="p-6 shrink-0">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="bg-[#1235e2] p-1.5 rounded-lg text-white">
-              <BarChart3 className="w-5 h-5" />
-            </div>
-            <div>
-              <h1 className="text-base font-bold leading-none">Ad Library Pro</h1>
-              <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Analysis Tool</p>
-            </div>
+        <div className="p-6 shrink-0 flex items-center gap-2 mb-0">
+          <div className="bg-[#1235e2] p-1.5 rounded-lg text-white">
+            <BarChart3 className="w-5 h-5" />
           </div>
+          <div>
+            <h1 className="text-base font-bold leading-none">Ad Library Pro</h1>
+            <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Analysis Tool</p>
+          </div>
+        </div>
 
-          <nav className="space-y-1">
-            {NAV_ITEMS.map(item => {
-              const active = pathname === item.id || (item.id !== '/dashboard/v2' && pathname.startsWith(item.id));
-              return (
-                <Link
-                  key={item.id}
-                  href={item.id}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                    active
-                      ? 'bg-[#1235e2]/10 text-[#1235e2] font-medium'
-                      : darkMode
-                        ? 'text-slate-400 hover:bg-[#1235e2]/5'
-                        : 'text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  {item.label}
-                </Link>
-              );
-            })}
+        <div className="flex-1 overflow-y-auto px-6 pb-2">
+          <nav className="space-y-4">
+            {NAV_SECTIONS.map((section, sIdx) => (
+              <div key={sIdx}>
+                {section.label && (
+                  <div className={`text-xs font-semibold uppercase tracking-wider mb-2 px-3 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {section.label}
+                  </div>
+                )}
+                <div className={`space-y-1 ${section.label ? 'pl-2' : ''}`}>
+                  {section.items.map(item => {
+                    if (item.disabled) {
+                      return (
+                        <div
+                          key={item.id}
+                          title="Not available yet"
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg opacity-40 cursor-not-allowed ${
+                            darkMode ? 'text-slate-400' : 'text-slate-600'
+                          }`}
+                        >
+                          <item.icon className="w-5 h-5" />
+                          {item.label}
+                          {item.disabledLabel && (
+                            <span className={`text-xs ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>{item.disabledLabel}</span>
+                          )}
+                        </div>
+                      );
+                    }
+                    const active = pathname === item.id || (item.id !== '/dashboard/v2' && pathname.startsWith(item.id));
+                    return (
+                      <Link
+                        key={item.id}
+                        href={item.id}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                          active
+                            ? 'bg-[#1235e2]/10 text-[#1235e2] font-medium'
+                            : darkMode
+                              ? 'text-slate-400 hover:bg-[#1235e2]/5'
+                              : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
+        </div>
+
+        {/* Settings pinned to bottom */}
+        <div className={`shrink-0 border-t px-6 py-4 ${darkMode ? 'border-[#1235e2]/20' : 'border-slate-200'}`}>
+          {(() => {
+            const active = pathname === SETTINGS_ITEM.id || pathname.startsWith(SETTINGS_ITEM.id);
+            const Icon = SETTINGS_ITEM.icon;
+            return (
+              <Link
+                href={SETTINGS_ITEM.id}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                  active
+                    ? 'bg-[#1235e2]/10 text-[#1235e2] font-medium'
+                    : darkMode
+                      ? 'text-slate-400 hover:bg-[#1235e2]/5'
+                      : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                {SETTINGS_ITEM.label}
+              </Link>
+            );
+          })()}
         </div>
 
       </aside>
