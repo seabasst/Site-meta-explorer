@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-16)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 39 complete — Navigation Restructure done
+**Current focus:** Phase 40 in progress — Dashboard Rework
 
 ## Current Position
 
-Phase: 39 of 42 (Navigation Restructure)
-Plan: 01 of 1 (Sidebar Nav Restructure) - Complete
-Status: Phase complete, ready for Phase 40
-Last activity: 2026-03-17 — Completed 39-01-PLAN.md
+Phase: 40 of 42 (Dashboard Rework)
+Plan: 01 complete (Analytics Widgets)
+Status: In progress
+Last activity: 2026-03-17 — Completed 40-01-PLAN.md
 
-Progress: █████████░░░░░░░░░░░░░░░░ 36% (v5.0 — 4/11 plans estimated)
+Progress: ██████████░░░░░░░░░░░░░░░ 40% (v5.0 — 5/11 plans estimated)
 
 ## Milestones
 
@@ -32,7 +32,7 @@ Progress: █████████░░░░░░░░░░░░░░�
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 62
+- Total plans completed: 63
 - Average duration: —
 - Total execution time: —
 
@@ -55,6 +55,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - demographicsError: optional typed field on API response (token_expired | api_error | null)
 - Inspiration section always expanded (no collapse toggle)
 - Disabled nav items rendered as div with opacity-40, cursor-not-allowed, and tooltip
+- DASH-01: Dashboard shows aggregated analytics (KPI cards, charts, table) instead of ad cards
 
 ### Roadmap Evolution
 
@@ -74,5 +75,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 39-01-PLAN.md (Phase 39 complete)
+Stopped at: Completed 40-01-PLAN.md (Analytics Widgets)
 Resume file: None
