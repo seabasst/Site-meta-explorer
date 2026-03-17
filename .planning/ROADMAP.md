@@ -83,8 +83,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Hikaru AI responses include embedded graphs and charts when answering data questions
   2. Visual answers are interactive and consistent with the dashboard's chart style
-**Research**: Likely — need to determine how to render charts within chat responses, what chart types to support
-**Plans**: TBD
+**Research**: Complete (41-RESEARCH.md)
+**Plans**: 2 plans
+Plans:
+- [ ] 41-01-PLAN.md — Chart component library and system prompt enhancement
+- [ ] 41-02-PLAN.md — Wire chart rendering into chat message flow
 
 ### Phase 42: Landing Page
 **Goal**: Landing page at `/` showcases the tool and drives conversion from free to Pro
@@ -107,7 +110,7 @@ Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42
 | 38. Bug Fixes | 3/3 | Complete | 2026-03-17 |
 | 39. Navigation Restructure | 1/1 | Complete | 2026-03-17 |
 | 40. Dashboard Rework | 3/3 | Complete | 2026-03-17 |
-| 41. Hikaru AI Enhancement | 0/TBD | Not started | - |
+| 41. Hikaru AI Enhancement | 0/2 | Not started | - |
 | 42. Landing Page | 0/TBD | Not started | - |
 
 ---
