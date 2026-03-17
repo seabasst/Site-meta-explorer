@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-16)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 41 complete — Hikaru AI Enhancement done
+**Current focus:** Phase 42 in progress — Landing Page
 
 ## Current Position
 
-Phase: 41 of 42 (Hikaru AI Enhancement)
-Plan: 02 of 2 (Wire chart rendering) - Complete
-Status: Phase complete, ready for Phase 42
-Last activity: 2026-03-17 — Phase 41 verified and complete
+Phase: 42 of 42 (Landing Page)
+Plan: 01 of 2 (Route prep and Stripe fix) - Complete
+Status: In progress, ready for Plan 02
+Last activity: 2026-03-17 — Completed 42-01-PLAN.md
 
-Progress: ██████████████████░░░░░░░ 73% (v5.0 — 9/11 plans estimated)
+Progress: ██████████████████░░░░░░░ 76% (v5.0 — 10/11 plans estimated)
 
 ## Milestones
 
@@ -32,7 +32,7 @@ Progress: ██████████████████░░░░░�
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 67
+- Total plans completed: 68
 - Average duration: —
 - Total execution time: —
 
@@ -48,7 +48,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Rename Ad Library → Inspiration with sub-items (Saved Ads, Brands, Categories)
 - Creative Lab is hero feature, placed just below Dashboard
 - Dashboard = configurable analytics over full ad database, not personal ads
-- V1 (/) kept as freemium entry point
+- V1 (/) kept as freemium entry point (now moved to /analyser)
+- LANDING-01: V1 Ad Analyser moved to /analyser, root route cleared for landing page
 - Saved Ads: signIn() button prompt for unauth users (not inline login modal)
 - Category slugs: normalize at API boundary (lowercase+underscores), not in DB
 - Brand detail page uses pageSize=24, Previous/Next pagination, no further ad linking
@@ -79,5 +80,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Phase 41 complete — all 2 plans executed and verified
+Stopped at: Completed 42-01-PLAN.md (route prep and Stripe fix)
 Resume file: None
