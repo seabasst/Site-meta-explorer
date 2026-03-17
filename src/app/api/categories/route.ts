@@ -54,7 +54,7 @@ export async function GET() {
     const categories = Array.from(categoryMap.entries())
       .filter(([, stats]) => stats.brandsIngested > 0)
       .map(([category, stats]) => ({
-        slug: category,
+        slug: category.toLowerCase().replace(/\s+/g, '_'),
         label: formatCategoryLabel(category),
         brandCount: stats.brandCount,
         brandsIngested: stats.brandsIngested,

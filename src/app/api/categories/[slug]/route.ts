@@ -9,10 +9,11 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
+    const categoryName = slug.replace(/_/g, ' ');
 
     // Get all brands in this category with their ad stats
     const brands = await prisma.adLibraryBrand.findMany({
-      where: { category: { equals: slug, mode: 'insensitive' } },
+      where: { category: { equals: categoryName, mode: 'insensitive' } },
       select: {
         id: true,
         pageName: true,
@@ -27,7 +28,7 @@ export async function GET(
     });
 
     if (brands.length === 0) {
-      return Response.json({ error: `No brands found in category "${slug}"` }, { status: 404 });
+      return Response.json({ error: `No brands found in category "${categoryName}"` }, { status: 404 });
     }
 
     // Get detailed stats for each brand
