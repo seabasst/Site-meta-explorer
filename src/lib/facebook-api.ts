@@ -150,6 +150,7 @@ export interface FacebookApiResult {
   rawAdBodies: Array<{ id: string; ad_creative_bodies: string[]; eu_total_reach: number }>;
   totalAdsFound: number;
   aggregatedDemographics: AggregatedDemographics | null;
+  demographicsError?: 'token_expired' | 'api_error' | null;
   mediaTypeBreakdown: MediaTypeBreakdown | null;
   productAnalysis: ProductMarketMatrix | null;
   spendAnalysis: SpendAnalysis | null;

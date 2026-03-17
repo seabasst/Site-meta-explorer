@@ -172,12 +172,13 @@ function getAccessToken(bodyToken?: string): string | undefined {
 /**
  * Fetch demographics from Facebook API for a specific page.
  * Uses a small sample of ads to get demographic data efficiently.
+ * Returns both the demographics data and any error context.
  */
 async function fetchDemographicsOnly(
   pageId: string,
   accessToken: string,
   countries: string[]
-): Promise<FacebookApiResult['aggregatedDemographics']> {
+): Promise<{ demographics: FacebookApiResult['aggregatedDemographics']; error: 'token_expired' | 'api_error' | null }> {
   try {
     // Fetch a small sample with demographics field
     const result = await fetchFacebookAds({
@@ -189,13 +190,25 @@ async function fetchDemographicsOnly(
     });
 
     if (result.success) {
-      return result.aggregatedDemographics;
+      return { demographics: result.aggregatedDemographics, error: null };
     }
-    console.error('[Demographics] API returned success=false for', pageId, 'error:', result.error);
-    return null;
+    // Check for token/OAuth errors
+    const errorMsg = ('error' in result ? result.error : '') || '';
+    const errorCode = ('code' in result ? result.code : 0) || 0;
+    if (errorCode === 190 || /token|OAuthException|oauth/i.test(errorMsg)) {
+      console.error('[Demographics] Token expired for', pageId, 'error:', errorMsg);
+      return { demographics: null, error: 'token_expired' };
+    }
+    console.error('[Demographics] API returned success=false for', pageId, 'error:', errorMsg);
+    return { demographics: null, error: 'api_error' };
   } catch (error) {
-    console.error('[Demographics] Fetch error for', pageId, ':', error instanceof Error ? error.message : error);
-    return null;
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('[Demographics] Fetch error for', pageId, ':', errorMsg);
+    // Check if the caught error indicates token issues
+    if (/token|OAuthException|oauth/i.test(errorMsg)) {
+      return { demographics: null, error: 'token_expired' };
+    }
+    return { demographics: null, error: 'api_error' };
   }
 }
 
@@ -260,6 +273,7 @@ export async function POST(request: NextRequest) {
         console.log(`[LocalDB] Using stored demographics: ${localData.storedDemographics.adsWithDemographics} ads`);
         return NextResponse.json({
           ...localData.result,
+          demographicsError: null,
           source: 'local',
         });
       }
@@ -269,25 +283,34 @@ export async function POST(request: NextRequest) {
 
       if (accessToken) {
         // Fetch demographics for the found brand
-        const demographics = await fetchDemographicsOnly(
+        const demoResult = await fetchDemographicsOnly(
           localData.foundPageId,
           accessToken,
           countries
         );
 
-        if (demographics) {
-          console.log(`[LocalDB] Enriched with live demographics: ${demographics.adsWithDemographics} ads`);
+        if (demoResult.demographics) {
+          console.log(`[LocalDB] Enriched with live demographics: ${demoResult.demographics.adsWithDemographics} ads`);
           return NextResponse.json({
             ...localData.result,
-            aggregatedDemographics: demographics,
+            aggregatedDemographics: demoResult.demographics,
+            demographicsError: null,
             source: 'local+live-demographics',
           });
         }
+
+        // Demographics fetch failed - include error context
+        return NextResponse.json({
+          ...localData.result,
+          demographicsError: demoResult.error,
+          source: 'local',
+        });
       }
 
-      // Return local data without demographics if none available
+      // No access token available - return local data without demographics
       return NextResponse.json({
         ...localData.result,
+        demographicsError: null,
         source: 'local',
       });
     }
@@ -338,6 +361,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       ...result,
+      demographicsError: null,
       source: 'api',
     });
   } catch (error) {
@@ -394,6 +418,7 @@ export async function GET(request: NextRequest) {
       console.log(`[LocalDB] GET: Using stored demographics: ${localData.storedDemographics.adsWithDemographics} ads`);
       return NextResponse.json({
         ...localData.result,
+        demographicsError: null,
         source: 'local',
       });
     }
@@ -402,25 +427,34 @@ export async function GET(request: NextRequest) {
     const accessToken = getAccessToken();
 
     if (accessToken) {
-      const demographics = await fetchDemographicsOnly(
+      const demoResult = await fetchDemographicsOnly(
         localData.foundPageId,
         accessToken,
         countries
       );
 
-      if (demographics) {
-        console.log(`[LocalDB] GET: Enriched with live demographics: ${demographics.adsWithDemographics} ads`);
+      if (demoResult.demographics) {
+        console.log(`[LocalDB] GET: Enriched with live demographics: ${demoResult.demographics.adsWithDemographics} ads`);
         return NextResponse.json({
           ...localData.result,
-          aggregatedDemographics: demographics,
+          aggregatedDemographics: demoResult.demographics,
+          demographicsError: null,
           source: 'local+live-demographics',
         });
       }
+
+      // Demographics fetch failed - include error context
+      return NextResponse.json({
+        ...localData.result,
+        demographicsError: demoResult.error,
+        source: 'local',
+      });
     }
 
-    // Return local data without demographics if none available
+    // No access token available - return local data without demographics
     return NextResponse.json({
       ...localData.result,
+      demographicsError: null,
       source: 'local',
     });
   }
@@ -454,6 +488,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     ...result,
+    demographicsError: null,
     source: 'api',
   });
 }
