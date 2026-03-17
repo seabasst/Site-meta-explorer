@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 40: Dashboard Rework** - Configurable analytics view with filters, sorting, saveable configs
 - [x] **Phase 41: Hikaru AI Enhancement** - Richer output with graphs, charts, and visual answers
 - [x] **Phase 42: Landing Page** - Value proposition, freemium teaser, 3-tier pricing ($0/$49/$149)
-- [ ] **Phase 43: Ad Library Deep-Link Filters** - Fix URL param hydration so Dashboard/Category drill-downs work
+- [x] **Phase 43: Ad Library Deep-Link Filters** - Fix URL param hydration so Dashboard/Category drill-downs work
 
 ## Phase Details
 
@@ -116,7 +116,7 @@ Plans:
 **Research**: Not needed — root cause identified in audit
 \*\*Plans\*\*: 1 plan
 Plans:
-- [ ] 43-01-PLAN.md — Hydrate Ad Library filters from URL params + fix TopBrandsTable param name
+- [x] 43-01-PLAN.md — Hydrate Ad Library filters from URL params + fix TopBrandsTable param name
 
 ## Progress
 
@@ -130,7 +130,7 @@ Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42 -> 43
 | 40. Dashboard Rework | 3/3 | Complete | 2026-03-17 |
 | 41. Hikaru AI Enhancement | 2/2 | Complete | 2026-03-17 |
 | 42. Landing Page | 2/2 | Complete | 2026-03-17 |
-| 43. Ad Library Deep-Link Filters | 0/1 | Planned | — |
+| 43. Ad Library Deep-Link Filters | 1/1 | Complete | 2026-03-17 |
 
 ---
 *Created: 2026-03-17*

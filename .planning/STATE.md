@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-16)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** v5.0 gap closure — Phase 43 added from audit
+**Current focus:** v5.0 complete — all phases shipped
 
 ## Current Position
 
-Phase: 43 of 43 (Ad Library Deep-Link Filters) - In Progress
-Plan: 43-01 complete (URL param hydration)
-Status: Plan 43-01 shipped — Ad Library reads brandPageId from URL, TopBrandsTable links fixed
-Last activity: 2026-03-17 — Plan 43-01 executed
+Phase: 43 of 43 (Ad Library Deep-Link Filters) - Complete
+Plan: All plans complete
+Status: Phase 43 verified — all must-haves passed
+Last activity: 2026-03-17 — Phase 43 complete
 
-Progress: ███████████████████████░░ 92% (v5.0 — 11/12 plans complete)
+Progress: █████████████████████████ 100% (v5.0 — 12/12 plans complete)
 
 ## Milestones
 
@@ -27,12 +27,12 @@ Progress: ███████████████████████�
 | v3.0 Brand Tracking | Complete (Phases 24-27) | 2026-02-02 |
 | v3.1 Competitive Intelligence | Complete (Phases 28-31) | 2026-02-03 |
 | v4.0 Analytics Platform | Partial (Phase 32 complete, 33-36 superseded) | — |
-| v5.0 Product Refocus | In Progress — Phases 38-43 (gap closure) | — |
+| v5.0 Product Refocus | Complete — Phases 38-43 | 2026-03-17 |
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 69
+- Total plans completed: 70
 - Average duration: —
 - Total execution time: —
 
@@ -80,5 +80,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Phase 43 plan 43-01 complete — URL param hydration shipped
+Stopped at: v5.0 milestone complete — all 6 phases executed and verified
 Resume file: None
