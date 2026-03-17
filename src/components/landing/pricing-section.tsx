@@ -10,16 +10,21 @@ const FREE_FEATURES = [
   'Ad copy preview',
 ];
 
-const PRO_FEATURES = [
+const STANDARD_FEATURES = [
   'Everything in Free',
   'Analytics Dashboard with KPIs',
-  'Creative Lab & pillar analysis',
   'Full Ad Library (50,000+ ads)',
   'Advanced filters & sorting',
   'Saved Ads & swipe files',
   'Brand tracking & categories',
-  'Hikaru AI with interactive charts',
   'Downloads & exports (coming soon)',
+];
+
+const PRO_FEATURES = [
+  'Everything in Standard',
+  'Creative Lab & pillar analysis',
+  'Hikaru AI with interactive charts',
+  'Priority support',
 ];
 
 export function PricingSection() {
@@ -38,13 +43,13 @@ export function PricingSection() {
             Start free, go Pro when you need more
           </h2>
           <p className="text-base md:text-lg text-slate-500 leading-relaxed">
-            The analyser is free forever. Upgrade to Pro for the full competitive
+            The analyser is free forever. Upgrade for the full competitive
             intelligence platform.
           </p>
         </div>
 
         {/* Pricing cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
           {/* FREE tier */}
           <div className="rounded-2xl bg-white/60 p-1 border border-slate-200/60">
             <div className="rounded-[calc(1rem-2px)] bg-white p-7 md:p-8 h-full flex flex-col">
@@ -82,6 +87,52 @@ export function PricingSection() {
             </div>
           </div>
 
+          {/* STANDARD tier */}
+          <div className="rounded-2xl bg-white/60 p-1 border border-slate-200/60">
+            <div className="rounded-[calc(1rem-2px)] bg-white p-7 md:p-8 h-full flex flex-col">
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-[#101322] tracking-tight mb-1">
+                  Standard
+                </h3>
+                <p className="text-sm text-slate-500">
+                  Full ad intelligence platform
+                </p>
+              </div>
+
+              <div className="flex items-baseline gap-1 mb-8">
+                <span className="text-4xl font-bold text-[#101322] tracking-tight">
+                  $49
+                </span>
+                <span className="text-sm text-slate-400 font-medium">/month</span>
+              </div>
+
+              <ProCTA
+                className="text-sm px-6 py-3 w-full mb-8"
+                label="Get Started"
+              />
+
+              <ul className="space-y-3 flex-1">
+                {STANDARD_FEATURES.map((feature, idx) => (
+                  <li key={feature} className="flex items-start gap-3">
+                    <Check
+                      className={`w-4 h-4 mt-0.5 shrink-0 ${
+                        idx === 0 ? 'text-slate-400' : 'text-[#1235e2]'
+                      }`}
+                      strokeWidth={2}
+                    />
+                    <span
+                      className={`text-sm ${
+                        idx === 0 ? 'text-slate-500 font-medium' : 'text-slate-600'
+                      }`}
+                    >
+                      {feature}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
           {/* PRO tier */}
           <div className="relative rounded-2xl bg-[#1235e2]/[0.06] p-1 border border-[#1235e2]/20 shadow-[0_8px_40px_-12px_rgba(18,53,226,0.15)]">
             {/* Popular badge */}
@@ -94,16 +145,16 @@ export function PricingSection() {
             <div className="rounded-[calc(1rem-2px)] bg-white p-7 md:p-8 h-full flex flex-col shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]">
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-[#101322] tracking-tight mb-1">
-                  Ad Library Pro
+                  Pro
                 </h3>
                 <p className="text-sm text-slate-500">
-                  Full competitive intelligence
+                  Creative intelligence & AI
                 </p>
               </div>
 
               <div className="flex items-baseline gap-1 mb-8">
                 <span className="text-4xl font-bold text-[#101322] tracking-tight">
-                  $99
+                  $149
                 </span>
                 <span className="text-sm text-slate-400 font-medium">/month</span>
               </div>

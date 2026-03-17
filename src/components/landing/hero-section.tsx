@@ -61,7 +61,7 @@ export function HeroSection() {
               href="#pricing"
               className="inline-flex items-center gap-2 text-slate-300 hover:text-white text-base font-medium px-6 py-3.5 rounded-full border border-white/10 hover:border-white/20 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
             >
-              Get Pro &mdash; $99/mo
+              Plans from $49/mo
             </Link>
           </div>
         </div>
