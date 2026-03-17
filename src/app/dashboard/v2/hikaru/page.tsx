@@ -178,12 +178,12 @@ function renderTextBlock(text: string, darkMode: boolean) {
             <div key={blockIdx} className={`rounded-lg overflow-hidden border my-3 ${darkMode ? 'border-[#1235e2]/15' : 'border-slate-200'}`}>
               <div className={`grid font-semibold text-sm ${darkMode ? 'bg-[#1235e2]/10 text-slate-300' : 'bg-slate-100 text-slate-700'}`}
                 style={{ gridTemplateColumns: `repeat(${headerRow.length}, minmax(0, 1fr))` }}>
-                {headerRow.map((cell, j) => <div key={j} className="px-3 py-2.5 truncate">{cell}</div>)}
+                {headerRow.map((cell, j) => <div key={j} className="px-3 py-2.5 truncate"><InlineFormat text={cell} /></div>)}
               </div>
               {dataRows.map((cells, i) => (
                 <div key={i} className={`grid text-sm ${i % 2 === 0 ? (darkMode ? 'bg-transparent' : 'bg-white') : (darkMode ? 'bg-[#1235e2]/5' : 'bg-slate-50')}`}
                   style={{ gridTemplateColumns: `repeat(${headerRow.length}, minmax(0, 1fr))` }}>
-                  {cells.map((cell, j) => <div key={j} className={`px-3 py-2 truncate ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{cell}</div>)}
+                  {cells.map((cell, j) => <div key={j} className={`px-3 py-2 truncate ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}><InlineFormat text={cell} /></div>)}
                 </div>
               ))}
             </div>
@@ -191,13 +191,31 @@ function renderTextBlock(text: string, darkMode: boolean) {
         }
 
         const line = block.lines[0];
-        if (line.startsWith('### ')) return <p key={blockIdx} className="font-bold text-sm uppercase tracking-wide mt-3">{line.slice(4)}</p>;
-        if (line.startsWith('## ')) return <p key={blockIdx} className="font-bold text-base mt-3">{line.slice(3)}</p>;
-        if (line.startsWith('# ')) return <p key={blockIdx} className="font-bold text-lg mt-3">{line.slice(2)}</p>;
+        const headingMatch = line.match(/^(#{1,6})\s+(.*)/);
+        if (headingMatch) {
+          const level = headingMatch[1].length;
+          const headingText = headingMatch[2];
+          const styles: Record<number, string> = {
+            1: 'font-bold text-lg mt-3',
+            2: 'font-bold text-base mt-3',
+            3: 'font-bold text-sm uppercase tracking-wide mt-3',
+            4: 'font-semibold text-sm mt-2',
+            5: 'font-semibold text-xs mt-2',
+            6: 'font-medium text-xs mt-2 opacity-80',
+          };
+          return <p key={blockIdx} className={styles[level]}><InlineFormat text={headingText} /></p>;
+        }
         if (line.startsWith('- ') || line.startsWith('* ')) return (
           <p key={blockIdx} className="pl-4">
             <span className="text-[#1235e2] mr-1.5">-</span>
             <InlineFormat text={line.slice(2)} />
+          </p>
+        );
+        const numberedMatch = line.match(/^(\d+)\.\s+(.*)/);
+        if (numberedMatch) return (
+          <p key={blockIdx} className="pl-4">
+            <span className="text-[#1235e2] mr-1.5 font-semibold">{numberedMatch[1]}.</span>
+            <InlineFormat text={numberedMatch[2]} />
           </p>
         );
         if (!line.trim()) return <div key={blockIdx} className="h-1.5" />;
@@ -242,16 +260,68 @@ function MessageContent({ content, darkMode, isUser, isStreaming = false }: {
 }
 
 function InlineFormat({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  // Handle **bold**, *italic*, and `code` inline formatting
+  const parts = text.split(/(\*\*.+?\*\*|\*[^*]+\*|`[^`]+`)/g);
   return (
     <>
       {parts.map((part, i) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
         }
+        if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
+          return <em key={i}>{part.slice(1, -1)}</em>;
+        }
+        if (part.startsWith('`') && part.endsWith('`') && part.length > 2) {
+          return <code key={i} className="px-1.5 py-0.5 rounded bg-black/10 text-[0.9em] font-mono">{part.slice(1, -1)}</code>;
+        }
         return <span key={i}>{part}</span>;
       })}
     </>
+  );
+}
+
+const FOLLOW_UPS: Record<string, { label: string; prompt: string }[]> = {
+  default: [
+    { label: 'Break it down by format', prompt: 'Can you break that down by ad format (image vs video vs carousel)?' },
+    { label: 'Show me the top brands', prompt: 'Which brands are performing best in this area? Show me a comparison.' },
+    { label: 'What trends stand out?', prompt: 'What trends or patterns stand out from this data?' },
+  ],
+};
+
+function FollowUpSuggestions({ darkMode, onSelect, lastMessage }: {
+  darkMode: boolean; onSelect: (prompt: string) => void; lastMessage: string;
+}) {
+  const suggestions = FOLLOW_UPS.default;
+  // Generate contextual follow-ups based on last AI response
+  const contextual = lastMessage.toLowerCase();
+  const dynamicSuggestions = [
+    contextual.includes('brand') || contextual.includes('competitor')
+      ? { label: 'Deep dive on top brand', prompt: 'Tell me more about the top brand\'s strategy — what makes their ads effective?' }
+      : suggestions[0],
+    contextual.includes('chart') || contextual.includes('data') || contextual.includes('trend')
+      ? { label: 'Compare time periods', prompt: 'How does this compare to the previous period? Show me the trend over time.' }
+      : suggestions[1],
+    contextual.includes('format') || contextual.includes('video') || contextual.includes('image')
+      ? { label: 'Best creative angles', prompt: 'What creative angles and messaging are working best for these formats?' }
+      : suggestions[2],
+  ];
+
+  return (
+    <div className="flex flex-wrap gap-2 mt-3 ml-11">
+      {dynamicSuggestions.map((s) => (
+        <button
+          key={s.label}
+          onClick={() => onSelect(s.prompt)}
+          className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
+            darkMode
+              ? 'border-[#1235e2]/20 text-slate-400 hover:bg-[#1235e2]/10 hover:text-slate-300 hover:border-[#1235e2]/30'
+              : 'border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-300'
+          }`}
+        >
+          {s.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -287,6 +357,7 @@ export default function HikaruPage() {
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput('');
+    if (inputRef.current) inputRef.current.style.height = 'auto';
     setLoading(true);
     setActiveSteps([]);
     setStreamingContent('');
@@ -440,6 +511,10 @@ export default function HikaruPage() {
                             <MessageContent content={msg.content} darkMode={darkMode} isUser={false} />
                           </div>
                         </div>
+                        {/* Follow-up suggestions after last assistant message */}
+                        {i === messages.length - 1 && !loading && (
+                          <FollowUpSuggestions darkMode={darkMode} onSelect={sendMessage} lastMessage={msg.content} />
+                        )}
                       </div>
                     )}
                   </div>
@@ -491,16 +566,22 @@ export default function HikaruPage() {
               <textarea
                 ref={inputRef}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  // Auto-expand
+                  const el = e.target;
+                  el.style.height = 'auto';
+                  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+                }}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask Hikaru about ad strategies, competitor analysis, creative insights..."
                 rows={1}
-                className={`flex-1 resize-none bg-transparent text-sm focus:outline-none py-1 max-h-32 ${
+                className={`flex-1 resize-none bg-transparent text-sm focus:outline-none py-1 ${
                   darkMode
                     ? 'text-white placeholder:text-slate-500'
                     : 'text-slate-900 placeholder:text-slate-400'
                 }`}
-                style={{ minHeight: '24px' }}
+                style={{ minHeight: '24px', maxHeight: '160px' }}
               />
               <button
                 onClick={() => sendMessage()}
