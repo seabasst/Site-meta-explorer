@@ -13,7 +13,7 @@ Transform from experiment to focused product — fix broken features, restructur
 - v3.0 Brand Tracking - Phases 23-26 (shipped)
 - v3.1 Competitive Intelligence - Phases 27-31 (shipped)
 - v4.0 Analytics Platform - Phases 32-37 (shipped)
-- **v5.0 Product Refocus** - Phases 38-42 (in progress)
+- **v5.0 Product Refocus** - Phases 38-43 (in progress)
 
 ## Phases
 
@@ -28,6 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 40: Dashboard Rework** - Configurable analytics view with filters, sorting, saveable configs
 - [x] **Phase 41: Hikaru AI Enhancement** - Richer output with graphs, charts, and visual answers
 - [x] **Phase 42: Landing Page** - Value proposition, freemium teaser, 3-tier pricing ($0/$49/$149)
+- [ ] **Phase 43: Ad Library Deep-Link Filters** - Fix URL param hydration so Dashboard/Category drill-downs work
 
 ## Phase Details
 
@@ -103,10 +104,24 @@ Plans:
 - [x] 42-01-PLAN.md — Move V1 to /analyser route and fix Stripe redirect URLs
 - [x] 42-02-PLAN.md — Build landing page with hero, features, V2 preview, and pricing
 
+### Phase 43: Ad Library Deep-Link Filters
+**Goal**: Ad Library page hydrates filter state from URL search params so drill-downs from Dashboard and Category Detail work
+**Depends on**: Phase 40, Phase 38 (both complete — this closes integration gaps between them)
+**Requirements**: None (gap closure — fixes integration between DASH-02 and FIX-03)
+**Gap Closure**: Closes audit gaps from v5.0-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. Navigating to `/dashboard/v2/ad-library?brandPageId=123` pre-fills the brand filter and shows filtered results
+  2. TopBrandsTable links use correct param name (`brandPageId`, not `brand`)
+  3. Category Detail "View Ads" links land on Ad Library with brand filter applied
+**Research**: Not needed — root cause identified in audit
+**Plans**: TBD
+Plans:
+- [ ] 43-01-PLAN.md — Hydrate Ad Library filters from URL params + fix TopBrandsTable param name
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42
+Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42 -> 43
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -115,6 +130,7 @@ Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42
 | 40. Dashboard Rework | 3/3 | Complete | 2026-03-17 |
 | 41. Hikaru AI Enhancement | 2/2 | Complete | 2026-03-17 |
 | 42. Landing Page | 2/2 | Complete | 2026-03-17 |
+| 43. Ad Library Deep-Link Filters | 0/1 | Planned | — |
 
 ---
 *Created: 2026-03-17*
