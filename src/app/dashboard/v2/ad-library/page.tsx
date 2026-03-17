@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useSession, signIn } from 'next-auth/react';
 import {
   BookOpen,
@@ -112,6 +113,8 @@ function formatFormatLabel(format: string | null): string {
 
 export default function AdLibraryPage() {
   const { darkMode } = useV2();
+  const searchParams = useSearchParams();
+  const urlBrandPageId = searchParams.get('brandPageId') || '';
 
   // Data state
   const [stats, setStats] = useState<AdLibraryStats | null>(null);
@@ -142,7 +145,7 @@ export default function AdLibraryPage() {
   const [statusFilter, setStatusFilter] = useState<'active' | 'all'>('active');
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [daysActiveFilter, setDaysActiveFilter] = useState<DaysRange | null>(null);
-  const [brandFilter, setBrandFilter] = useState<string>('');
+  const [brandFilter, setBrandFilter] = useState<string>(urlBrandPageId);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
 
