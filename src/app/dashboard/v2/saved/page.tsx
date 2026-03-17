@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSession, signIn } from 'next-auth/react';
 import Link from 'next/link';
 import {
   Heart,
+  LogIn,
   Play,
   Image as ImageIcon,
   Layers,
@@ -46,6 +48,7 @@ interface Ad {
 
 export default function SavedAdsPage() {
   const { darkMode } = useV2();
+  const { data: session, status } = useSession();
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -53,6 +56,7 @@ export default function SavedAdsPage() {
   const [total, setTotal] = useState(0);
 
   const fetchSaved = useCallback(async () => {
+    if (!session?.user) return;
     setLoading(true);
     try {
       const res = await fetch(`/api/ad-library/saved?page=${page}&limit=24`);
@@ -67,11 +71,15 @@ export default function SavedAdsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [page, session?.user]);
 
   useEffect(() => {
-    fetchSaved();
-  }, [fetchSaved]);
+    if (session?.user) {
+      fetchSaved();
+    } else if (status !== 'loading') {
+      setLoading(false);
+    }
+  }, [fetchSaved, session?.user, status]);
 
   const unsaveAd = async (adId: string) => {
     setAds((prev) => prev.filter((a) => a.id !== adId));
@@ -87,10 +95,32 @@ export default function SavedAdsPage() {
     }
   };
 
-  if (loading) {
+  if (status === 'loading' || (session?.user && loading)) {
     return (
       <V2Shell title="Saved Ads">
         <V2Skeleton rows={4} />
+      </V2Shell>
+    );
+  }
+
+  if (!session?.user) {
+    return (
+      <V2Shell title="Saved Ads">
+        <V2Card className="p-12 text-center">
+          <LogIn className={`w-12 h-12 mx-auto mb-4 ${darkMode ? 'text-slate-600' : 'text-slate-300'}`} />
+          <p className={`text-lg font-medium mb-2 ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+            Sign in to view your saved ads
+          </p>
+          <p className={`mb-4 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+            Save ads from the Ad Library to build your inspiration collection
+          </p>
+          <button
+            onClick={() => signIn()}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1235e2] text-white rounded-lg text-sm font-medium hover:bg-[#0f2bc4] transition-colors"
+          >
+            Sign In
+          </button>
+        </V2Card>
       </V2Shell>
     );
   }
