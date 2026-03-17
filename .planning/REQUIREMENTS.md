@@ -23,9 +23,9 @@ Requirements for v5.0 Product Refocus. Each maps to roadmap phases.
 
 ### Dashboard
 
-- [ ] **DASH-01**: Dashboard reworked as configurable analytics view over full ad database (not a duplicate of Ad Library)
-- [ ] **DASH-02**: Dashboard supports filters and sorting across the ad database
-- [ ] **DASH-03**: User can save and load dashboard configurations
+- [x] **DASH-01**: Dashboard reworked as configurable analytics view over full ad database (not a duplicate of Ad Library)
+- [x] **DASH-02**: Dashboard supports filters and sorting across the ad database
+- [x] **DASH-03**: User can save and load dashboard configurations
 
 ### Hikaru AI
 
@@ -81,9 +81,9 @@ Which phases cover which requirements. Updated by create-roadmap.
 | NAV-02 | Phase 39 | Pending |
 | NAV-03 | Phase 39 | Pending |
 | NAV-04 | Phase 39 | Pending |
-| DASH-01 | Phase 40 | Pending |
-| DASH-02 | Phase 40 | Pending |
-| DASH-03 | Phase 40 | Pending |
+| DASH-01 | Phase 40 | Complete |
+| DASH-02 | Phase 40 | Complete |
+| DASH-03 | Phase 40 | Complete |
 | HIKA-01 | Phase 41 | Pending |
 | LAND-01 | Phase 42 | Pending |
 | LAND-02 | Phase 42 | Pending |
@@ -96,4 +96,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-03-16*
-*Last updated: 2026-03-17 after Phase 38 completion*
+*Last updated: 2026-03-17 after Phase 40 completion*

@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 38: Bug Fixes** - Fix Saved Ads auth, Brand/Category 404s, demographics fallback
 - [x] **Phase 39: Navigation Restructure** - Sidebar reorg with Inspiration section, hide/gray unused features
-- [ ] **Phase 40: Dashboard Rework** - Configurable analytics view with filters, sorting, saveable configs
+- [x] **Phase 40: Dashboard Rework** - Configurable analytics view with filters, sorting, saveable configs
 - [ ] **Phase 41: Hikaru AI Enhancement** - Richer output with graphs, charts, and visual answers
 - [ ] **Phase 42: Landing Page** - Value proposition, freemium teaser, Pro upsell at $99/mo
 
@@ -72,9 +72,9 @@ Plans:
 **Research**: Complete (40-RESEARCH.md)
 **Plans**: 3 plans
 Plans:
-- [ ] 40-01-PLAN.md — Analytics widgets and dashboard page rework (DASH-01)
-- [ ] 40-02-PLAN.md — Filter bar with URL sync and stats API extension (DASH-02)
-- [ ] 40-03-PLAN.md — Dashboard configuration save/load via localStorage (DASH-03)
+- [x] 40-01-PLAN.md — Analytics widgets and dashboard page rework (DASH-01)
+- [x] 40-02-PLAN.md — Filter bar with URL sync and stats API extension (DASH-02)
+- [x] 40-03-PLAN.md — Dashboard configuration save/load via localStorage (DASH-03)
 
 ### Phase 41: Hikaru AI Enhancement
 **Goal**: Hikaru AI produces richer, more visual answers with embedded charts and graphs
@@ -106,7 +106,7 @@ Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42
 |-------|----------------|--------|-----------|
 | 38. Bug Fixes | 3/3 | Complete | 2026-03-17 |
 | 39. Navigation Restructure | 1/1 | Complete | 2026-03-17 |
-| 40. Dashboard Rework | 0/3 | Not started | - |
+| 40. Dashboard Rework | 3/3 | Complete | 2026-03-17 |
 | 41. Hikaru AI Enhancement | 0/TBD | Not started | - |
 | 42. Landing Page | 0/TBD | Not started | - |
 
