@@ -167,19 +167,25 @@ function parseDateRange(
  * - brandId: Filter stats for a single brand (optional)
  * - startDate: ISO date string for date range filter (optional)
  * - endDate: ISO date string for date range filter (optional)
+ * - category: Filter by brand category, case-insensitive (optional)
+ * - displayFormat: Filter by ad display format, comma-separated for multiple (optional)
+ * - isActive: Filter by active status "true"/"false" (optional)
  */
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const brandId = searchParams.get('brandId');
     const fastMode = searchParams.get('fast') === 'true';
+    const category = searchParams.get('category');
+    const displayFormat = searchParams.get('displayFormat');
+    const isActiveParam = searchParams.get('isActive');
     const { start: startDate, end: endDate } = parseDateRange(
       searchParams.get('startDate'),
       searchParams.get('endDate')
     );
 
     // Check cache first
-    const cacheKey = `stats:${fastMode ? 'fast' : 'full'}:${brandId || 'all'}:${startDate?.toISOString() || ''}:${endDate?.toISOString() || ''}`;
+    const cacheKey = `stats:${fastMode ? 'fast' : 'full'}:${brandId || 'all'}:${startDate?.toISOString() || ''}:${endDate?.toISOString() || ''}:${category || ''}:${displayFormat || ''}:${isActiveParam || ''}`;
     const cached = getCached<AdLibraryStats>(cacheKey);
     if (cached) {
       return NextResponse.json(serializeBigInt(cached));
@@ -196,18 +202,48 @@ export async function GET(req: Request) {
     // Build brand filter
     const brandFilter = brandId ? { brandId } : {};
 
+    // Build category filter (join through brand relation)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const categoryFilter: Record<string, any> = {};
+    if (category) {
+      categoryFilter.brand = { category: { equals: category, mode: 'insensitive' } };
+    }
+
+    // Build displayFormat filter
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const formatFilter: Record<string, any> = {};
+    if (displayFormat) {
+      const formats = displayFormat.split(',').map(f => f.trim()).filter(Boolean);
+      if (formats.length === 1) {
+        formatFilter.displayFormat = formats[0];
+      } else if (formats.length > 1) {
+        formatFilter.displayFormat = { in: formats };
+      }
+    }
+
+    // Build isActive filter
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const activeFilter: Record<string, any> = {};
+    if (isActiveParam === 'true' || isActiveParam === 'false') {
+      activeFilter.isActive = isActiveParam === 'true';
+    }
+
     // ==========================================================================
     // Brand Statistics
     // ==========================================================================
 
+    // Build brand where clause incorporating category filter
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const brandWhereClause: Record<string, any> = {};
+    if (brandId) brandWhereClause.id = brandId;
+    if (category) brandWhereClause.category = { equals: category, mode: 'insensitive' };
+
     const [totalBrands, brandsByStatusRaw] = await Promise.all([
-      brandId
-        ? prisma.adLibraryBrand.count({ where: { id: brandId } })
-        : prisma.adLibraryBrand.count(),
+      prisma.adLibraryBrand.count({ where: brandWhereClause }),
       prisma.adLibraryBrand.groupBy({
         by: ['ingestionStatus'],
         _count: { id: true },
-        ...(brandId ? { where: { id: brandId } } : {}),
+        ...(Object.keys(brandWhereClause).length > 0 ? { where: brandWhereClause } : {}),
       }),
     ]);
 
@@ -220,7 +256,7 @@ export async function GET(req: Request) {
     // Ad Statistics
     // ==========================================================================
 
-    const adWhereClause = { ...brandFilter, ...dateFilter };
+    const adWhereClause = { ...brandFilter, ...dateFilter, ...categoryFilter, ...formatFilter, ...activeFilter };
 
     const [
       totalAds,
@@ -359,7 +395,7 @@ export async function GET(req: Request) {
     let topBrandsByAdCount: TopBrand[] = [];
     if (!fastMode) {
       const topBrandsRaw = await prisma.adLibraryBrand.findMany({
-        where: brandId ? { id: brandId } : {},
+        where: brandWhereClause,
         orderBy: { activeAdCount: 'desc' },
         take: 10,
         select: {
@@ -400,6 +436,9 @@ export async function GET(req: Request) {
       const adsWithDates = await prisma.adLibraryAd.findMany({
         where: {
           ...brandFilter,
+          ...categoryFilter,
+          ...formatFilter,
+          ...activeFilter,
           startDate: {
             gte: startDate || thirtyDaysAgo,
             ...(endDate ? { lte: endDate } : {}),
