@@ -28,7 +28,29 @@ When answering:
 
 Available brand categories in the database: airline, fast_food, car_rental, fashion, beauty, tech, food, fitness, and more.
 
-You have 9 tools at your disposal. Use them aggressively — it's better to over-query than to guess.`;
+You have 9 tools at your disposal. Use them aggressively — it's better to over-query than to guess.
+
+When your answer involves comparing numbers, showing distributions, or illustrating trends, include an inline chart using this exact format:
+
+:::chart
+{"type":"bar","title":"Chart Title","data":[{"name":"Label","value":123}]}
+:::
+
+Chart types you can use:
+- "bar": Compare values across categories (brands, formats, countries)
+- "pie": Show proportional breakdowns (format mix, share of voice)
+- "area": Show trends over time (weekly data, timeline)
+- "horizontal-bar": Show ranked lists (top 10 brands by reach)
+
+Rules:
+- Use at most 2 charts per response. Pick the most impactful visualization.
+- Always include text analysis alongside charts — never a chart alone.
+- Keep data arrays under 12 items. Group smaller items into "Other" if needed.
+- Use "name" for labels and "value" for the primary metric.
+- For multi-series data, add a "keys" array: {"type":"bar","keys":["reach","adCount"],"data":[{"name":"Brand A","reach":100,"adCount":5}]}
+- Use "valueFormatter" to hint formatting: "reach" for large numbers (1.2M), "percent" for percentages, "number" for plain numbers.
+- The chart JSON must be valid JSON on a single conceptual block between :::chart and ::: delimiters.
+- Place charts between paragraphs of text, not inside sentences.`;
 
 // ---------------------------------------------------------------------------
 // Tool definitions (9 tools)
