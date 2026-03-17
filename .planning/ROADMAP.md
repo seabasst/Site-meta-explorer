@@ -86,8 +86,8 @@ Plans:
 **Research**: Complete (41-RESEARCH.md)
 **Plans**: 2 plans
 Plans:
-- [ ] 41-01-PLAN.md — Chart component library and system prompt enhancement
-- [ ] 41-02-PLAN.md — Wire chart rendering into chat message flow
+- [x] 41-01-PLAN.md — Chart component library and system prompt enhancement
+- [x] 41-02-PLAN.md — Wire chart rendering into chat message flow
 
 ### Phase 42: Landing Page
 **Goal**: Landing page at `/` showcases the tool and drives conversion from free to Pro
@@ -110,7 +110,7 @@ Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42
 | 38. Bug Fixes | 3/3 | Complete | 2026-03-17 |
 | 39. Navigation Restructure | 1/1 | Complete | 2026-03-17 |
 | 40. Dashboard Rework | 3/3 | Complete | 2026-03-17 |
-| 41. Hikaru AI Enhancement | 0/2 | Not started | - |
+| 41. Hikaru AI Enhancement | 2/2 | Complete | 2026-03-17 |
 | 42. Landing Page | 0/TBD | Not started | - |
 
 ---

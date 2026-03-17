@@ -29,7 +29,7 @@ Requirements for v5.0 Product Refocus. Each maps to roadmap phases.
 
 ### Hikaru AI
 
-- [ ] **HIKA-01**: Hikaru AI produces richer output with embedded graphs, charts, and visual answers
+- [x] **HIKA-01**: Hikaru AI produces richer output with embedded graphs, charts, and visual answers
 
 ### Landing Page
 
