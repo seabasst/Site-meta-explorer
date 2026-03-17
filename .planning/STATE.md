@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-16)
 ## Current Position
 
 Phase: 40 of 42 (Dashboard Rework)
-Plan: 01 complete (Analytics Widgets)
+Plan: 02 complete (Dashboard Filters)
 Status: In progress
-Last activity: 2026-03-17 — Completed 40-01-PLAN.md
+Last activity: 2026-03-17 — Completed 40-02-PLAN.md
 
-Progress: ██████████░░░░░░░░░░░░░░░ 40% (v5.0 — 5/11 plans estimated)
+Progress: ██████████░░░░░░░░░░░░░░░ 45% (v5.0 — 6/11 plans estimated)
 
 ## Milestones
 
@@ -56,6 +56,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Inspiration section always expanded (no collapse toggle)
 - Disabled nav items rendered as div with opacity-40, cursor-not-allowed, and tooltip
 - DASH-01: Dashboard shows aggregated analytics (KPI cards, charts, table) instead of ad cards
+- DASH-02: Filters sync to URL search params for shareable filtered views
 
 ### Roadmap Evolution
 
@@ -75,5 +76,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-17
-Stopped at: Completed 40-01-PLAN.md (Analytics Widgets)
+Stopped at: Completed 40-02-PLAN.md (Dashboard Filters)
 Resume file: None
