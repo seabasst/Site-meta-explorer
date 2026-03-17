@@ -69,8 +69,12 @@ Plans:
   1. Dashboard shows analytics overview (charts, metrics, summaries) over the full ad database
   2. User can filter and sort the analytics view across the ad database
   3. User can save and load dashboard configurations
-**Research**: Likely — need to determine analytics metrics, chart types, and configuration persistence approach
-**Plans**: TBD
+**Research**: Complete (40-RESEARCH.md)
+**Plans**: 3 plans
+Plans:
+- [ ] 40-01-PLAN.md — Analytics widgets and dashboard page rework (DASH-01)
+- [ ] 40-02-PLAN.md — Filter bar with URL sync and stats API extension (DASH-02)
+- [ ] 40-03-PLAN.md — Dashboard configuration save/load via localStorage (DASH-03)
 
 ### Phase 41: Hikaru AI Enhancement
 **Goal**: Hikaru AI produces richer, more visual answers with embedded charts and graphs
@@ -102,7 +106,7 @@ Phases execute in numeric order: 38 -> 39 -> 40 -> 41 -> 42
 |-------|----------------|--------|-----------|
 | 38. Bug Fixes | 3/3 | Complete | 2026-03-17 |
 | 39. Navigation Restructure | 1/1 | Complete | 2026-03-17 |
-| 40. Dashboard Rework | 0/TBD | Not started | - |
+| 40. Dashboard Rework | 0/3 | Not started | - |
 | 41. Hikaru AI Enhancement | 0/TBD | Not started | - |
 | 42. Landing Page | 0/TBD | Not started | - |
 
