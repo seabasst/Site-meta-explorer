@@ -59,8 +59,8 @@ export async function createCheckoutSession() {
         quantity: 1,
       },
     ],
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/?upgrade=success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/?upgrade=cancelled`,
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/v2?upgrade=success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/v2?upgrade=cancelled`,
     metadata: {
       userId: user.id,
     },
@@ -94,7 +94,7 @@ export async function createPortalSession() {
   // Create billing portal session
   const portalSession = await stripe.billingPortal.sessions.create({
     customer: user.stripeCustomerId,
-    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/`,
+    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/v2`,
   });
 
   redirect(portalSession.url);
