@@ -8,7 +8,7 @@ import { LandingFooter } from '@/components/landing/landing-footer';
 export const metadata = {
   title: 'Ad Library Pro — Competitive Ad Intelligence',
   description:
-    'Browse, save, and analyze competitor Facebook ads. Free analyser tool plus Pro dashboard with AI-powered insights for $99/month.',
+    'Browse, save, and analyze competitor Facebook ads. Free analyser tool plus Pro dashboard with AI-powered insights. Plans from $49/month.',
 };
 
 export default function LandingPage() {
