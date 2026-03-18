@@ -11,7 +11,7 @@ Align V1 analyser page with V2 dashboard and landing page branding. Two phases: 
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 44: V1 Navigation & Brand Identity** - Add branded header, remove old nav, fix CTAs
-- [ ] **Phase 45: V1 Theme Update** - Swap green→blue palette, align typography and spacing
+- [x] **Phase 45: V1 Theme Update** - Swap green→blue palette, align typography and spacing
 
 ## Phase Details
 
@@ -44,7 +44,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 45-01-PLAN.md — Update CSS variables and analyser page: green-to-blue palette, typography, spacing, transitions
+- [x] 45-01-PLAN.md — Update CSS variables and analyser page: green-to-blue palette, typography, spacing, transitions
 
 ## Progress
 
@@ -54,4 +54,4 @@ Phases execute in numeric order: 44 → 45
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 44. V1 Navigation & Brand Identity | 1/1 | ✓ Complete | 2026-03-18 |
-| 45. V1 Theme Update | 0/1 | Not started | - |
+| 45. V1 Theme Update | 1/1 | ✓ Complete | 2026-03-18 |

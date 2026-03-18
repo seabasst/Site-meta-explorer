@@ -9,10 +9,10 @@ Requirements for v5.1 release. Each maps to roadmap phases.
 
 ### Color & Typography
 
-- [ ] **THEME-01**: V1 page uses `#1235e2` blue color family instead of green accent palette
-- [ ] **THEME-02**: V1 heading and body font sizes match V2's typographic scale (text-sm labels, text-base body, consistent heading weights)
-- [ ] **THEME-03**: V1 cards use `rounded-lg`, buttons/pills use `rounded-full`, spacing follows V2's `gap-3`/`gap-4`/`gap-6` rhythm
-- [ ] **THEME-04**: Page background applies `transition-colors duration-200` to prevent jarring flash between surfaces
+- [x] **THEME-01**: V1 page uses `#1235e2` blue color family instead of green accent palette
+- [x] **THEME-02**: V1 heading and body font sizes match V2's typographic scale (text-sm labels, text-base body, consistent heading weights)
+- [x] **THEME-03**: V1 cards use `rounded-lg`, buttons/pills use `rounded-full`, spacing follows V2's `gap-3`/`gap-4`/`gap-6` rhythm
+- [x] **THEME-04**: Page background applies `transition-colors duration-200` to prevent jarring flash between surfaces
 
 ### Brand Identity & Navigation
 
@@ -65,10 +65,10 @@ Which phases cover which requirements. Updated by create-roadmap.
 | NAV-03 | Phase 44 | Complete |
 | NAV-04 | Phase 44 | Complete |
 | NAV-05 | Phase 44 | Complete |
-| THEME-01 | Phase 45 | Pending |
-| THEME-02 | Phase 45 | Pending |
-| THEME-03 | Phase 45 | Pending |
-| THEME-04 | Phase 45 | Pending |
+| THEME-01 | Phase 45 | Complete |
+| THEME-02 | Phase 45 | Complete |
+| THEME-03 | Phase 45 | Complete |
+| THEME-04 | Phase 45 | Complete |
 
 **Coverage:**
 - v1 requirements: 9 total
