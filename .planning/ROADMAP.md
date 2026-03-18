@@ -1,57 +1,19 @@
-# Roadmap: Ad Library Pro — v5.1 Visual Consistency
+# Roadmap: Ad Library Pro
 
-## Overview
+## Milestones
 
-Align V1 analyser page with V2 dashboard and landing page branding. Two phases: first settle layout and navigation (header, brand identity, CTAs), then update V1's color palette, typography, and spacing to match V2's design system.
+- ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-01-25)
+- ✅ **v1.1 Polish** — Phase 5 (shipped 2026-01-25, phases 6-9 superseded by v2.1)
+- ✅ **v2.0 Payments & Auth** — Phases 10-13 (shipped 2026-01-27)
+- ✅ **v2.1 Polish & UX** — Phases 14-17.2 (shipped 2026-02-01)
+- ✅ **v3.0 Brand Tracking** — Phases 24-27 (shipped 2026-02-02)
+- ✅ **v3.1 Competitive Intelligence** — Phases 28-31 (shipped 2026-02-03)
+- ✅ **v5.0 Product Refocus** — Phases 38-43 (shipped 2026-03-17)
+- ✅ **v5.1 Visual Consistency** — Phases 44-45 (shipped 2026-03-18)
 
-## Phases
+## Next Milestone
 
-**Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+TBD — run `/gsd:discuss-milestone` to plan next milestone.
 
-- [x] **Phase 44: V1 Navigation & Brand Identity** - Add branded header, remove old nav, fix CTAs
-- [x] **Phase 45: V1 Theme Update** - Swap green→blue palette, align typography and spacing
-
-## Phase Details
-
-### Phase 44: V1 Navigation & Brand Identity
-**Goal**: V1 analyser page has consistent branding with landing page and V2 dashboard
-**Depends on**: Nothing (first phase in milestone)
-**Requirements**: NAV-01, NAV-02, NAV-03, NAV-04, NAV-05
-**Success Criteria** (what must be TRUE):
-  1. V1 displays BarChart3 icon + "Ad Library Pro" brand lockup in header
-  2. V1 header has logo linking to `/` and upgrade CTA pill linking to `/#pricing`
-  3. Old navigation links (How it works, About, Contact, Feedback, Roadmap) are removed
-  4. All CTAs on V1 point to `/#pricing` instead of `/coming-soon`
-  5. Contextual upgrade card appears below analysis results prompting users to explore V2 dashboard
-**Research**: Complete (44-RESEARCH.md)
-**Plans:** 1 plan
-
-Plans:
-- [x] 44-01-PLAN.md — Replace nav with branded header, clean up dead code, add upgrade card
-
-### Phase 45: V1 Theme Update
-**Goal**: V1 visual design matches V2's color palette, typography, and spacing
-**Depends on**: Phase 44
-**Requirements**: THEME-01, THEME-02, THEME-03, THEME-04
-**Success Criteria** (what must be TRUE):
-  1. V1 uses `#1235e2` blue color family instead of green accent palette
-  2. V1 heading and body font sizes match V2's typographic scale (text-sm labels, text-base body, consistent heading weights)
-  3. V1 cards use `rounded-lg`, buttons/pills use `rounded-full`, spacing follows V2's `gap-3`/`gap-4`/`gap-6` rhythm
-  4. Page background applies `transition-colors duration-200` for smooth surface transitions
-**Research**: Not needed — color and typography swaps are straightforward
-**Plans:** 1 plan
-
-Plans:
-- [x] 45-01-PLAN.md — Update CSS variables and analyser page: green-to-blue palette, typography, spacing, transitions
-
-## Progress
-
-**Execution Order:**
-Phases execute in numeric order: 44 → 45
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 44. V1 Navigation & Brand Identity | 1/1 | ✓ Complete | 2026-03-18 |
-| 45. V1 Theme Update | 1/1 | ✓ Complete | 2026-03-18 |
+---
+*Last updated: 2026-03-18 after v5.1 completion*

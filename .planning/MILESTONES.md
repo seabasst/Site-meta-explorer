@@ -1,5 +1,32 @@
 # Project Milestones: Ad Library Intelligence Platform
 
+## v5.1 Visual Consistency (Shipped: 2026-03-18)
+
+**Delivered:** Unified V1 analyser page with V2 design system — replaced old navigation with branded header, swapped green accent palette to blue, and aligned typography, spacing, and transitions for a cohesive cross-surface experience.
+
+**Phases completed:** 44-45 (2 plans total)
+
+**Key accomplishments:**
+
+- Replaced old V1 nav (5 dead links, hamburger menu) with branded header matching landing page identity
+- Added BarChart3 + "Ad Library Pro" brand lockup with Get Pro CTA pill linking to /#pricing
+- Added contextual upgrade card below analysis results prompting V2 dashboard adoption
+- Swapped all 39 green/emerald accents to #1235e2 blue family across V1 analyser
+- Aligned card radii (rounded-lg), pill radii (rounded-full), and spacing to V2 rhythm
+- Added smooth transition-colors duration-200 surface transitions
+
+**Stats:**
+
+- 12 files changed, +1,200 / -182 lines
+- 2 phases, 2 plans
+- 1 day (2026-03-18)
+
+**Git range:** `5343412` → `3379968`
+
+**What's next:** TBD — discuss next milestone
+
+---
+
 ## v5.0 Product Refocus (Shipped: 2026-03-17)
 
 **Delivered:** Transformed from experiment to focused product — fixed all broken features, restructured navigation around Inspiration concept, reworked dashboard as configurable analytics view, enhanced Hikaru AI with embedded charts, and built a landing page with 3-tier pricing to drive conversion.

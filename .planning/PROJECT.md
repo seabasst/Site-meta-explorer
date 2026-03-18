@@ -45,14 +45,13 @@ Help brands and agencies see what competitors are running and how they're reachi
 - ✓ Rename Ad Library → Inspiration in navigation — v5.0
 - ✓ Landing page with 3-tier pricing — v5.0
 - ✓ V1 moved to /analyser as freemium entry point — v5.0
+- ✓ V1 Theme Update — green-to-blue palette, typography, spacing, transitions — v5.1
+- ✓ V1 Navigation Header — branded header with BarChart3 lockup and Get Pro CTA — v5.1
+- ✓ Contextual upgrade card below V1 analysis results — v5.1
 
 ### Active
 
-#### v5.1 Visual Consistency
-
-- [ ] V1 Theme Update — Update `/analyser` page color palette, dark/light mode, typography, and spacing to match V2 design system
-- [ ] V1 Navigation Header — Add minimal branded header to /analyser with link back to landing page and CTA to upgrade to V2 dashboard
-- [ ] Landing Page Tweaks — Minor copy, layout, or styling adjustments flagged during development
+(None — define requirements for next milestone)
 
 ### Planned (v4.5 Industry Benchmarks — Admin Only)
 
@@ -115,18 +114,21 @@ Help brands and agencies see what competitors are running and how they're reachi
 ## Context
 
 **Current State:**
-- Shipped v5.0 Product Refocus with 48,359 LOC TypeScript
+- Shipped v5.1 Visual Consistency with ~49,377 LOC TypeScript
 - Tech stack: Next.js 16, React 19, Recharts, Tailwind CSS v4, Auth.js, Stripe, Prisma + Neon PostgreSQL
 - Deployed to Vercel at facebookadexplorer.kirimedia.co
 - Cloudflare R2 for ad asset storage
 - 514 brands in database, ingestion pipeline with 3 token rotation
 - Landing page at `/` with 3-tier pricing (Free/$49/$149)
-- V1 public analyser at `/analyser` as freemium entry point
+- V1 public analyser at `/analyser` — branded header, blue design system, upgrade card
 - V2 dashboard at `/dashboard/v2` with analytics, AI chat, and ad library
+- Consistent brand identity (BarChart3 lockup, #1235e2 blue) across all surfaces
 
 **Known Issues:**
 - "More insights coming soon" placeholder widget in dashboard (cosmetic)
 - Facebook access tokens may be expired on Vercel (demographics fallback handles gracefully)
+- Unused imports in V1 page.tsx (tree-shaken in production)
+- --accent-green CSS vars preserved for 46 files outside V1 scope
 
 ---
-*Last updated: 2026-03-18 after v5.1 milestone start*
+*Last updated: 2026-03-18 after v5.1 milestone*
