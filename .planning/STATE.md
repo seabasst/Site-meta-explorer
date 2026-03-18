@@ -2,19 +2,28 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-17)
+See: .planning/PROJECT.md (updated 2026-03-18)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Planning next milestone
+**Current focus:** v5.1 Visual Consistency
+
+## Current Milestone: v5.1 Visual Consistency
+
+**Goal:** Bring V1 analyser page in line with the V2 design system so the whole product feels cohesive.
+
+**Target features:**
+- V1 Theme Update (colors, dark/light mode, typography, spacing)
+- V1 Navigation Header (branded header with landing page link + upgrade CTA)
+- Landing Page Tweaks (minor adjustments flagged during dev)
 
 ## Current Position
 
-Phase: Next milestone not yet planned
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-03-17 — v5.0 milestone complete
+Phase: Not started (run /gsd:create-roadmap)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-18 — Milestone v5.1 started
 
-Progress: █████████████████████████ 100% (v5.0 — 12/12 plans complete)
+Progress: ░░░░░░░░░░░░░░░░░░░░░░░░░ 0%
 
 ## Milestones
 
@@ -28,6 +37,7 @@ Progress: ███████████████████████�
 | v3.1 Competitive Intelligence | Complete (Phases 28-31) | 2026-02-03 |
 | v4.0 Analytics Platform | Partial (Phase 32 complete, 33-36 superseded) | — |
 | v5.0 Product Refocus | Complete (Phases 38-43) | 2026-03-17 |
+| v5.1 Visual Consistency | In Progress | — |
 
 ## Performance Metrics
 
@@ -46,6 +56,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 - v1.0–v4.0: Phases 1-37
 - v5.0: Phases 38-43 (bug fixes, nav restructure, dashboard rework, Hikaru AI, landing page, gap closure)
+- v5.1: TBD (visual consistency)
 
 ### Pending Todos
 
@@ -59,6 +70,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-17
-Stopped at: v5.0 milestone archived — ready for next milestone planning
+Last session: 2026-03-18
+Stopped at: v5.1 milestone initialized — ready for requirements/roadmap
 Resume file: None

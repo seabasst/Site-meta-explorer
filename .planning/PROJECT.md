@@ -48,7 +48,11 @@ Help brands and agencies see what competitors are running and how they're reachi
 
 ### Active
 
-(None — define requirements for next milestone with `/gsd:define-requirements`)
+#### v5.1 Visual Consistency
+
+- [ ] V1 Theme Update — Update `/analyser` page color palette, dark/light mode, typography, and spacing to match V2 design system
+- [ ] V1 Navigation Header — Add minimal branded header to /analyser with link back to landing page and CTA to upgrade to V2 dashboard
+- [ ] Landing Page Tweaks — Minor copy, layout, or styling adjustments flagged during development
 
 ### Planned (v4.5 Industry Benchmarks — Admin Only)
 
@@ -125,4 +129,4 @@ Help brands and agencies see what competitors are running and how they're reachi
 - Facebook access tokens may be expired on Vercel (demographics fallback handles gracefully)
 
 ---
-*Last updated: 2026-03-17 after v5.0 milestone completion*
+*Last updated: 2026-03-18 after v5.1 milestone start*
