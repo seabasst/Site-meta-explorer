@@ -60,21 +60,21 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| THEME-01 | — | Pending |
-| THEME-02 | — | Pending |
-| THEME-03 | — | Pending |
-| THEME-04 | — | Pending |
-| NAV-01 | — | Pending |
-| NAV-02 | — | Pending |
-| NAV-03 | — | Pending |
-| NAV-04 | — | Pending |
-| NAV-05 | — | Pending |
+| NAV-01 | Phase 44 | Pending |
+| NAV-02 | Phase 44 | Pending |
+| NAV-03 | Phase 44 | Pending |
+| NAV-04 | Phase 44 | Pending |
+| NAV-05 | Phase 44 | Pending |
+| THEME-01 | Phase 45 | Pending |
+| THEME-02 | Phase 45 | Pending |
+| THEME-03 | Phase 45 | Pending |
+| THEME-04 | Phase 45 | Pending |
 
 **Coverage:**
 - v1 requirements: 9 total
-- Mapped to phases: 0
-- Unmapped: 9 ⚠️
+- Mapped to phases: 9
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-18*
-*Last updated: 2026-03-18 after initial definition*
+*Last updated: 2026-03-18 after roadmap creation*
