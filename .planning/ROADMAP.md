@@ -40,11 +40,11 @@ Plans:
   2. V1 heading and body font sizes match V2's typographic scale (text-sm labels, text-base body, consistent heading weights)
   3. V1 cards use `rounded-lg`, buttons/pills use `rounded-full`, spacing follows V2's `gap-3`/`gap-4`/`gap-6` rhythm
   4. Page background applies `transition-colors duration-200` for smooth surface transitions
-**Research**: Unlikely — color and typography swaps are straightforward
-**Plans**: TBD
+**Research**: Not needed — color and typography swaps are straightforward
+**Plans:** 1 plan
 
 Plans:
-- [ ] 45-01: TBD
+- [ ] 45-01-PLAN.md — Update CSS variables and analyser page: green-to-blue palette, typography, spacing, transitions
 
 ## Progress
 
@@ -54,4 +54,4 @@ Phases execute in numeric order: 44 → 45
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 44. V1 Navigation & Brand Identity | 1/1 | ✓ Complete | 2026-03-18 |
-| 45. V1 Theme Update | 0/TBD | Not started | - |
+| 45. V1 Theme Update | 0/1 | Not started | - |
