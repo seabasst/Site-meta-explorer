@@ -1,606 +1,375 @@
-# Architecture Patterns
+# Architecture Research
 
-**Domain:** Competitive Intelligence features for Ad Library Demographics Analyzer
-**Researched:** 2026-02-02
-**Confidence:** HIGH (based on direct codebase analysis; no external sources needed)
+**Domain:** Ad intelligence platform -- visual consistency / design system unification
+**Researched:** 2026-03-18
+**Confidence:** HIGH (based on direct codebase analysis + established Tailwind v4 patterns)
 
-## Existing Architecture Summary
+## Current State Analysis
 
-The current system follows this pattern:
+The app has **three distinct styling regimes** that need unification:
+
+| Surface | Route | Theme Mechanism | Color Palette | Dark Mode |
+|---------|-------|-----------------|---------------|-----------|
+| V1 Analyser | `/analyser` | CSS custom properties (`var(--bg-primary)`, `var(--accent-green)`, etc.) | Green/amber Kiri Media brand (`#1a3933`, `#f59e0b`) | None |
+| V2 Dashboard | `/dashboard/v2/*` | Hardcoded Tailwind classes with ternary (`darkMode ? 'bg-[#101322]' : 'bg-[#f6f6f8]'`) | Blue Ad Library Pro (`#1235e2`, `#101322`, `#f6f6f8`) | Yes, via React context (`useV2().darkMode`) |
+| Landing Page | `/` | Hardcoded Tailwind classes | Blue (`#1235e2`, dark bg `#101322`) | Forced dark |
+
+**Key problems:**
+1. V1 uses CSS custom properties defined in `globals.css` -- a green/amber palette completely different from V2's blue palette
+2. V2 has 385 occurrences of hardcoded hex values (`#1235e2`, `#101322`, `#f6f6f8`) across 31 files
+3. V1 analyser has 163 occurrences of `var(--` referencing the old Kiri Media green tokens
+4. Dark mode is V2-only, managed by React state (`V2Context`) not CSS class -- incompatible with the `.dark` variant already configured in `globals.css`
+5. Landing page and V2 already share the blue palette visually, but with no shared token layer
+
+## System Overview
 
 ```
-Facebook Graph API
-      |
-      v
-facebook-api.ts (fetch + transform ads)
-      |
-      v
-demographic-aggregator.ts (weighted combination)
-      |
-      v
-snapshot-builder.ts (extract scalar + JSON fields)
-      |
-      v
-Prisma (BrandSnapshot with scalar metrics + demographicsJson blob)
-      |
-      v
-/api/dashboard/overview (combined payload: brands + snapshots + trends)
-      |
-      v
-useTrackedBrands() hook (single fetch, single state object)
-      |
-      v
-Dashboard page (OwnBrandCard, CompetitorCard, ComparisonTable, TrendChart, DemographicsComparison)
+                    PROPOSED ARCHITECTURE
+  +----------------------------------------------------------+
+  |  globals.css                                              |
+  |  :root { --brand: #1235e2; --bg-dark: #101322; ... }     |
+  |  .dark { --brand: #1235e2; --bg-dark: ...; ... }          |
+  +----------------------------------------------------------+
+         |                    |                    |
+  +------v------+    +-------v-------+    +-------v-------+
+  | Landing (/) |    | Analyser (/a) |    | Dashboard (/d)|
+  | forced dark |    | uses tokens   |    | uses tokens   |
+  | no shell    |    | + top nav     |    | + sidebar     |
+  +-------------+    +-------+-------+    +-------+-------+
+                             |                    |
+                     +-------v--------------------v-------+
+                     |  Shared Components                  |
+                     |  - AppHeader (top nav bar)          |
+                     |  - ThemeToggle                      |
+                     |  - V2Card, V2SectionTitle           |
+                     |  - Chart wrappers                   |
+                     +-------------------------------------+
 ```
 
-**Key architectural facts:**
-- `BrandSnapshot.demographicsJson` stores the full `AggregatedDemographics` object (age, gender, ageGender, region breakdowns)
-- `ad_creative_bodies` is fetched per ad but only the first entry is stored as `creativeBody` on `FacebookAdResult` -- it is NOT persisted to any snapshot or database model
-- The existing `TrendChart` only tracks scalar metrics (totalReach, activeAdsCount, estimatedSpendUsd) over time
-- The existing `DemographicsComparison` reads from `demographicsJson` on the latest snapshot only (no historical comparison)
-- The existing `AdCopyAnalysis` component does client-side text analysis on raw ad results -- not on stored data
+## Component Responsibilities
 
----
+| Component | Responsibility | Current Location | Action |
+|-----------|---------------|------------------|--------|
+| `globals.css` tokens | Single source of truth for all colors, spacing, radii | `src/app/globals.css` | **Rewrite** -- replace green Kiri tokens with blue Ad Library Pro tokens |
+| `ThemeProvider` | Manages dark/light mode via CSS class on `<html>` | Does not exist (V2 uses React state) | **Create** -- replace `V2Context.darkMode` with class-based toggle |
+| `AppHeader` | Shared top navigation bar across analyser + landing | Does not exist (each page has its own nav) | **Create** -- extract from landing-nav + analyser nav |
+| `V2Shell` | Dashboard sidebar + header layout | `src/app/dashboard/v2/v2-shell.tsx` | **Refactor** -- consume tokens instead of hardcoded hex |
+| `V2Card` | Reusable card with theme-aware styling | `src/app/dashboard/v2/v2-shell.tsx` | **Migrate** to `src/components/ui/card.tsx`, consume tokens |
+| `LandingNav` | Landing page top nav | `src/components/landing/landing-nav.tsx` | **Replace** with `AppHeader` or thin wrapper around it |
+| Analyser nav | Inline nav in analyser page | `src/app/analyser/page.tsx` (lines 435-525) | **Replace** with `AppHeader` |
 
-## Recommended Architecture for v3.1 Features
+## Recommended Structure for Shared Design System
 
-### Overall Approach
+### Layer 1: Design Tokens in CSS Custom Properties
 
-**Extend, don't replace.** The existing snapshot pipeline (fetch -> aggregate -> store -> display) is sound. Each v3.1 feature plugs into this pipeline at the right point:
+This is the foundation. All colors, surfaces, borders referenced via tokens -- never hardcoded hex in component classNames.
 
-| Feature | Extraction Point | Storage | Display |
-|---------|-----------------|---------|---------|
-| Creative hooks | snapshot-builder.ts (new extraction) | New `CreativeHook` model | New HooksPanel component |
-| Trend charts | Already stored in `demographicsJson` per snapshot | No new model -- query existing snapshots | New DemographicTrendChart component |
-| Brand comparison | Already stored in snapshots | No new model -- query two brands' snapshots | New BrandComparisonView component |
-| Pattern observations | Computed at read-time from snapshots | No storage (derived) | New PatternObservations component |
+```css
+/* globals.css -- REPLACE existing :root block */
+:root {
+  /* Brand */
+  --brand: #1235e2;
+  --brand-hover: #0f2bc0;
+  --brand-subtle: rgba(18, 53, 226, 0.1);
+  --brand-muted: rgba(18, 53, 226, 0.05);
 
----
+  /* Surfaces -- light mode */
+  --surface-page: #f6f6f8;
+  --surface-card: #ffffff;
+  --surface-elevated: #ffffff;
+  --surface-overlay: rgba(255, 255, 255, 0.9);
 
-## Data Model Changes
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
 
-### New Prisma Model: `CreativeHook`
+  /* Borders */
+  --border-default: #e2e8f0;
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-brand: rgba(18, 53, 226, 0.2);
 
-```prisma
-model CreativeHook {
-  id              String   @id @default(cuid())
-  createdAt       DateTime @default(now())
+  /* Semantic */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+}
 
-  // The extracted hook text (first sentence or line of ad copy)
-  hookText        String
-  // Normalized form for grouping (lowercased, trimmed, punctuation stripped)
-  normalizedText  String
-  // How many ads used this exact normalized hook
-  adCount         Int      @default(1)
-  // Sum of reach across ads using this hook
-  totalReach      BigInt   @default(0)
-  // Weighted frequency score: adCount * log(totalReach)
-  // Precomputed for sorting
-  weightedScore   Float    @default(0)
+.dark {
+  --surface-page: #101322;
+  --surface-card: rgba(18, 53, 226, 0.05);
+  --surface-elevated: #1a1d35;
+  --surface-overlay: rgba(16, 19, 34, 0.9);
 
-  // Relation to snapshot (hooks are per-snapshot, not standalone)
-  snapshotId      String
-  snapshot        BrandSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
 
-  @@index([snapshotId, weightedScore])
-  @@unique([snapshotId, normalizedText])
+  --border-default: rgba(18, 53, 226, 0.2);
+  --border-subtle: rgba(255, 255, 255, 0.06);
 }
 ```
 
-**Why a separate model instead of JSON blob:** Creative hooks need to be queried, sorted, and compared across brands. Storing them as structured rows enables SQL-level sorting by `weightedScore` and cross-brand queries without deserializing blobs.
+**Why CSS custom properties, not Tailwind config:** The project already uses Tailwind v4 with `@theme inline` in globals.css. Tailwind v4's `@theme` directive reads CSS custom properties directly -- no `tailwind.config.js` needed. The project already has this pattern on line 79 of globals.css. Extending it is the natural path.
 
-### Schema Change: `BrandSnapshot`
+### Layer 2: Tailwind v4 Theme Mapping
 
-Add relation to `CreativeHook`:
+Wire tokens into Tailwind utility classes via the existing `@theme inline` block:
 
-```prisma
-model BrandSnapshot {
-  // ... existing fields ...
-  creativeHooks   CreativeHook[]
+```css
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-subtle: var(--brand-subtle);
+  --color-surface-page: var(--surface-page);
+  --color-surface-card: var(--surface-card);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-default: var(--border-default);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-brand: var(--border-brand);
 }
 ```
 
-No other schema changes needed. The `demographicsJson` blob already contains the full breakdown data needed for trend charts and pattern observations.
+This enables classes like `bg-surface-page`, `text-brand`, `border-border-default` -- semantic, theme-aware, no ternaries needed.
 
----
+### Layer 3: Theme Provider (Class-Based Dark Mode)
 
-## New Lib Modules
+Replace the React-state-based `V2Context.darkMode` with a proper CSS-class-based system:
 
-### 1. `src/lib/hook-extractor.ts` -- Creative Hook Extraction
-
-**Purpose:** Extract the opening line/hook from `ad_creative_bodies` and group similar hooks.
-
-**Data flow:**
-```
-FacebookAdResult[] (with creativeBody + euTotalReach)
-      |
-      v
-extractHooks(ads) -> HookGroup[]
-      |
-      v
-Each HookGroup: { hookText, normalizedText, adCount, totalReach, weightedScore }
-```
-
-**Extraction logic:**
-1. For each ad with `creativeBody`, extract the first sentence (split on `.`, `!`, `?`, or `\n`, take first non-empty segment, max 150 chars)
-2. Normalize: lowercase, strip leading/trailing punctuation and whitespace, collapse internal whitespace
-3. Group by `normalizedText`, accumulate `adCount` and `totalReach`
-4. Compute `weightedScore = adCount * Math.log10(Math.max(totalReach, 1))`
-5. Sort by `weightedScore` descending, return top 50
-
-**Interface:**
 ```typescript
-export interface HookGroup {
-  hookText: string;        // Original casing, first occurrence
-  normalizedText: string;  // Grouping key
-  adCount: number;
-  totalReach: bigint;
-  weightedScore: number;
+// src/components/providers/theme-provider.tsx
+'use client';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+
+type Theme = 'light' | 'dark';
+
+interface ThemeContextType {
+  theme: Theme;
+  setTheme: (t: Theme) => void;
+  toggleTheme: () => void;
 }
 
-export function extractHooks(ads: FacebookAdResult[]): HookGroup[];
-```
+const ThemeContext = createContext<ThemeContextType>({
+  theme: 'light',
+  setTheme: () => {},
+  toggleTheme: () => {},
+});
 
-### 2. `src/lib/pattern-observer.ts` -- Rule-Based Pattern Detection
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setThemeState] = useState<Theme>('light');
 
-**Purpose:** Generate factual, auto-generated observations from demographic data.
+  useEffect(() => {
+    const stored = localStorage.getItem('theme') as Theme | null;
+    if (stored) {
+      setThemeState(stored);
+      document.documentElement.classList.toggle('dark', stored === 'dark');
+    }
+  }, []);
 
-**Data flow:**
-```
-BrandSnapshot[] (ordered by date, for one brand)
-      |
-      v
-observePatterns(snapshots) -> PatternObservation[]
-```
-
-**Rules engine (no ML, pure threshold-based):**
-
-| Rule | Input | Trigger | Output |
-|------|-------|---------|--------|
-| Gender skew | Latest snapshot genderBreakdown | Any gender > 60% | "Skews {gender} ({pct}%)" |
-| Age concentration | Latest snapshot ageBreakdown | Top age range > 35% | "Concentrated in {age} ({pct}%)" |
-| Country dominance | Latest snapshot regionBreakdown | Top country > 50% | "Heavily focused on {country} ({pct}%)" |
-| Gender shift | Compare latest vs previous snapshot | Gender delta > 5pp | "Gender mix shifting: {gender} {direction} {delta}pp" |
-| Age shift | Compare latest vs previous | Top age range changed | "Audience aging/younging: top range moved {old} -> {new}" |
-| Country shift | Compare latest vs previous | Top country changed | "Top country shifted {old} -> {new}" |
-| Reach growth | Compare latest vs previous | Reach delta > 20% | "Reach {grew/declined} {pct}% since last snapshot" |
-| Spend change | Compare latest vs previous | Spend delta > 25% | "Estimated spend {increased/decreased} {pct}%" |
-
-**Interface:**
-```typescript
-export interface PatternObservation {
-  type: 'skew' | 'concentration' | 'shift' | 'growth';
-  category: 'gender' | 'age' | 'country' | 'reach' | 'spend';
-  severity: 'notable' | 'significant';  // notable = informational, significant = large change
-  message: string;                       // Human-readable summary
-  data: Record<string, unknown>;         // Supporting data for tooltip/detail
-}
-
-export function observePatterns(snapshots: BrandSnapshot[]): PatternObservation[];
-```
-
-**Why no storage:** Patterns are cheap to compute (< 1ms for typical data) and change every time a new snapshot is taken. Storing them would create staleness issues. Compute on read.
-
----
-
-## New API Endpoints
-
-### 1. `POST /api/dashboard/snapshots` -- MODIFY existing
-
-**Change:** After creating `BrandSnapshot`, also extract hooks and store as `CreativeHook` rows.
-
-```
-Existing flow:
-  fetchFacebookAds() -> buildSnapshotFromApiResult() -> prisma.brandSnapshot.create()
-
-New flow:
-  fetchFacebookAds() -> buildSnapshotFromApiResult() -> prisma.brandSnapshot.create()
-                     -> extractHooks(result.ads) -> prisma.creativeHook.createMany()
-```
-
-This happens inside the existing transaction. No new endpoint needed for hook creation.
-
-### 2. `GET /api/dashboard/snapshots` -- MODIFY existing
-
-**Change:** Add optional `?include=hooks` query parameter. When present, include `creativeHooks` in snapshot response (sorted by weightedScore desc, limit 30).
-
-**Change:** Add optional `?include=demographics` query parameter. When present, include full `demographicsJson` for each snapshot (currently only returned for latest snapshot via overview endpoint).
-
-### 3. `GET /api/dashboard/overview` -- MODIFY existing
-
-**Change:** Include `creativeHooks` from the latest snapshot for each brand (top 10 per brand, for dashboard preview). Add to the existing overview payload.
-
-### 4. `GET /api/dashboard/compare` -- NEW endpoint
-
-**Purpose:** Return side-by-side data for two brands optimized for comparison view.
-
-**Parameters:** `?brandA={id}&brandB={id}`
-
-**Response:**
-```typescript
-{
-  brandA: {
-    brand: TrackedBrand;
-    latestSnapshot: BrandSnapshot;     // with demographicsJson
-    topHooks: CreativeHook[];          // top 15
+  const setTheme = (t: Theme) => {
+    setThemeState(t);
+    localStorage.setItem('theme', t);
+    document.documentElement.classList.toggle('dark', t === 'dark');
   };
-  brandB: {
-    brand: TrackedBrand;
-    latestSnapshot: BrandSnapshot;
-    topHooks: CreativeHook[];
-  };
-  patterns: {
-    brandA: PatternObservation[];
-    brandB: PatternObservation[];
-  };
+
+  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 }
+
+export const useTheme = () => useContext(ThemeContext);
 ```
 
-**Why a dedicated endpoint:** The comparison view needs both brands' full demographic JSON + hooks + patterns in a single request. Fetching this through the overview endpoint would over-fetch (all brands) or under-fetch (missing demographicsJson for non-latest snapshots). A dedicated endpoint keeps the response focused.
+**Why class-based:** The project already has `@custom-variant dark (&:is(.dark *));` on line 5 of globals.css and a `.dark { }` block with shadcn/ui tokens. The infrastructure is there but unused. Class-based toggling means Tailwind's `dark:` variant works automatically, CSS custom properties swap automatically, and zero JavaScript ternaries needed in templates.
 
-### 5. `GET /api/dashboard/trends` -- NEW endpoint
+### Layer 4: Shared Layout Components
 
-**Purpose:** Return demographic breakdown time series for one brand.
-
-**Parameters:** `?brandId={id}&limit=20`
-
-**Response:**
-```typescript
-{
-  brand: { id, pageName };
-  snapshots: Array<{
-    id: string;
-    snapshotDate: string;
-    // Full breakdowns for charting
-    ageBreakdown: { age: string; percentage: number }[];
-    genderBreakdown: { gender: string; percentage: number }[];
-    regionBreakdown: { region: string; percentage: number }[];
-    // Scalar metrics (already available)
-    totalReach: number;
-    activeAdsCount: number;
-    estimatedSpendUsd: number;
-  }>;
-}
-```
-
-**Implementation:** Query `BrandSnapshot` with `demographicsJson` included, parse and return the breakdowns. The `demographicsJson` blob already contains everything needed.
-
----
-
-## Component Hierarchy
-
-### Dashboard Page Integration
+**AppHeader** -- shared top navigation for non-dashboard pages:
 
 ```
-DashboardPage (existing)
-  |-- OwnBrandCard (existing)
-  |-- CompetitorGrid (existing)
-  |-- ComparisonTable (existing)
-  |-- TrendChart (existing -- scalar metrics)
-  |-- DemographicTrendChart (NEW -- age/gender/country over time)
-  |-- DemographicsComparison (existing)
-  |-- HooksPanel (NEW -- top hooks across all tracked brands)
-  |-- PatternObservations (NEW -- auto-generated insights)
++--[Logo]--[Analyser]--[About]--[Contact]--[Feedback]--spacer--[ThemeToggle]--[Get Pro]--+
 ```
 
-### Brand Detail Page Integration
+This replaces:
+- The inline nav in `analyser/page.tsx` (lines 435-525)
+- `LandingNav` component (which is close but landing-specific)
+
+**Implementation location:** `src/components/layout/app-header.tsx`
+
+The V2 dashboard keeps its sidebar shell (`V2Shell`) but refactored to consume tokens instead of hardcoded hex. The header inside V2Shell already has the right structure.
+
+## Data Flow (Theme State)
 
 ```
-BrandDetailPage (existing /dashboard/[brandId])
-  |-- MetricBoxes (existing)
-  |-- GenderDistribution (existing)
-  |-- AgeRangeDistribution (existing)
-  |-- CountryDistribution (existing)
-  |-- HooksList (NEW -- this brand's hooks from latest snapshot)
-  |-- DemographicTrendChart (NEW -- this brand's demographic trends)
-  |-- PatternObservations (NEW -- this brand's patterns)
-  |-- SnapshotHistory (existing)
+User clicks toggle
+        |
+        v
+ThemeProvider.toggleTheme()
+        |
+        +---> localStorage.setItem('theme', 'dark')
+        +---> document.documentElement.classList.add('dark')
+        |
+        v
+CSS custom properties swap (:root -> .dark)
+        |
+        v
+All Tailwind utilities auto-update
+(bg-surface-page, text-text-primary, border-border-default, dark:... variants)
+        |
+        v
+No component re-renders needed for styling
+(only ThemeProvider children re-render for toggle icon state)
 ```
 
-### New Comparison Page
+**Migration path for V2Shell:** Replace `const { darkMode } = useV2()` + ternary pattern with token-based classes. The ternary `darkMode ? 'bg-[#101322]' : 'bg-[#f6f6f8]'` becomes simply `bg-surface-page`. The 385 hardcoded hex occurrences across 31 V2 files get replaced with semantic token classes.
 
+**V2Context removal:** Once all V2 components consume theme via CSS tokens (not React state), `V2Context` can be removed entirely. The `useTheme()` hook remains available for the toggle button icon, but styling itself needs no JavaScript.
+
+## Build Order (Suggested)
+
+Order matters because each step creates the foundation for the next:
+
+### Step 1: Design Tokens + Theme Provider (foundation)
+- Rewrite `:root` and `.dark` blocks in `globals.css` with unified blue palette tokens
+- Extend `@theme inline` block with semantic Tailwind mappings
+- Create `ThemeProvider` component with class-based toggle
+- Wire `ThemeProvider` into root `layout.tsx`
+- **No visual changes yet** -- old CSS variables still exist alongside new ones
+
+### Step 2: AppHeader Component (shared navigation)
+- Create `src/components/layout/app-header.tsx` using new tokens
+- Integrate into `/analyser` route, replacing inline nav
+- Integrate into landing page, replacing `LandingNav`
+- V2 dashboard keeps its own header (inside V2Shell) -- this is intentional, sidebar layouts need different headers
+
+### Step 3: V2 Dashboard Token Migration (biggest task)
+- Refactor `V2Shell` to use token classes instead of hardcoded hex
+- Replace `useV2().darkMode` ternary pattern across all 31 dashboard files
+- Pattern: `darkMode ? 'bg-[#101322]' : 'bg-[#f6f6f8]'` becomes `bg-surface-page`
+- Pattern: `darkMode ? 'border-[#1235e2]/20' : 'border-slate-200'` becomes `border-border-default`
+- Remove `V2Context` and `V2Provider` after migration
+
+### Step 4: Analyser Page Token Migration
+- Replace 163 `var(--bg-primary)`, `var(--accent-green)` etc. with new unified tokens
+- This changes the analyser's visual identity from green/amber to blue -- intentional for brand unification
+- Largest single file change but mechanically straightforward (find-replace CSS variable names)
+
+### Step 5: Landing Page Polish
+- Already uses the blue palette -- minor tweaks to use token classes instead of hardcoded hex
+- Ensure forced-dark behavior works with new ThemeProvider (add `dark` class to landing layout)
+
+### Step 6: Cleanup
+- Remove old Kiri Media green token definitions from `globals.css`
+- Remove unused CSS classes (`.gradient-mesh`, `.noise-overlay` if no longer needed)
+- Remove `v2-context.tsx`
+
+## Architectural Patterns
+
+### Pattern 1: Semantic Token Naming
+
+**Use semantic names, not color names.** `--surface-page` not `--bg-dark-blue`. This decouples the token from the specific color, making future palette changes trivial.
+
+Naming convention:
 ```
-/dashboard/compare?a={brandId}&b={brandId} (NEW page)
-  |-- ComparisonHeader (brand names, links)
-  |-- SideBySideMetrics (scalar comparison -- reuse MetricBox)
-  |-- SideBySideDemographics (NEW -- mirrored bar charts)
-  |   |-- MirroredAgeChart (two Recharts BarCharts, one reversed)
-  |   |-- MirroredGenderChart
-  |   |-- MirroredCountryChart
-  |-- SideBySideHooks (NEW -- two columns of hooks)
-  |-- ComparisonPatterns (NEW -- patterns for both brands)
-```
-
-### New Components Detail
-
-#### `HooksPanel` (dashboard-level, all brands)
-- **Props:** `brands: TrackedBrand[]` (with hooks attached to latest snapshot)
-- **Displays:** Horizontal scrollable cards, one per brand. Each card shows top 5 hooks with adCount and reach.
-- **Interaction:** Click hook to see all ads using it (future -- for now, just display)
-
-#### `HooksList` (brand-level, single brand)
-- **Props:** `hooks: CreativeHook[]`
-- **Displays:** Vertical list sorted by weightedScore. Each row: hook text, ad count badge, reach bar.
-- **Interaction:** None initially (static display)
-
-#### `DemographicTrendChart` (reusable for dashboard + detail)
-- **Props:** `snapshots: TrendDemographicSnapshot[]`, `metric: 'age' | 'gender' | 'country'`
-- **Displays:** Recharts `AreaChart` (stacked areas) showing breakdown percentages over time
-- **Metric toggle:** Buttons to switch between age/gender/country (same pattern as existing TrendChart's metric toggle)
-- **For age:** Stacked areas, one per age bracket (18-24, 25-34, 35-44, 45-54, 55-64, 65+)
-- **For gender:** Stacked areas, male/female/unknown
-- **For country:** Stacked areas, top 5 countries + "other"
-
-#### `MirroredAgeChart` / `MirroredGenderChart` / `MirroredCountryChart`
-- **Props:** `brandA: DemographicBreakdown`, `brandB: DemographicBreakdown`
-- **Displays:** Two `BarChart` components positioned to mirror each other (brand A bars go left, brand B bars go right, shared Y axis labels in the middle)
-- **Pattern:** This is a common comparison visualization. Recharts supports this via negative values on one side.
-
-#### `PatternObservations`
-- **Props:** `observations: PatternObservation[]`
-- **Displays:** Card list. Each card has an icon by type (skew/shift/growth), severity indicator (color), and the message text.
-- **Ordering:** Significant observations first, then notable.
-
----
-
-## Data Flow Per Feature
-
-### Feature 1: Creative Hooks Extraction
-
-```
-[Snapshot creation time]
-POST /api/dashboard/snapshots
-  -> fetchFacebookAds() returns FacebookAdResult[] (each has .creativeBody)
-  -> extractHooks(result.ads) returns HookGroup[]
-  -> prisma.$transaction:
-       brandSnapshot.create(snapshotData)
-       creativeHook.createMany(hookGroups.map(h => ({ ...h, snapshotId })))
-
-[Read time]
-GET /api/dashboard/overview
-  -> Include creativeHooks (top 10) on each brand's latest snapshot
-  -> useTrackedBrands() hook gets hooks in the payload
-  -> HooksPanel renders them
+--surface-*    : background surfaces (page, card, elevated, overlay)
+--text-*       : text colors (primary, secondary, muted, inverse)
+--border-*     : border colors (default, subtle, brand)
+--brand*       : brand accent colors
 ```
 
-### Feature 2: Demographic Trend Charts
+### Pattern 2: Zero-Ternary Dark Mode
 
-```
-[No new write -- data already exists in demographicsJson per snapshot]
-
-[Read time]
-GET /api/dashboard/trends?brandId=X&limit=20
-  -> Query BrandSnapshot with demographicsJson for this brand
-  -> Parse JSON, extract age/gender/region breakdowns per snapshot
-  -> Return structured time-series array
-
-[Display]
-DemographicTrendChart fetches via useSWR or useEffect
-  -> Renders Recharts AreaChart with stacked breakdowns
+Instead of:
+```tsx
+// BAD: 385 occurrences of this pattern in V2
+className={`${darkMode ? 'bg-[#101322] text-slate-100' : 'bg-[#f6f6f8] text-slate-900'}`}
 ```
 
-### Feature 3: Side-by-Side Brand Comparison
-
-```
-[Navigation]
-User clicks "Compare" button on CompetitorCard or dashboard
-  -> router.push('/dashboard/compare?a=brandAId&b=brandBId')
-
-[Read time]
-GET /api/dashboard/compare?brandA=X&brandB=Y
-  -> Parallel queries for both brands' latest snapshots + hooks
-  -> Run observePatterns() for each brand
-  -> Return combined payload
-
-[Display]
-ComparisonPage renders mirrored charts from both snapshots
+Use:
+```tsx
+// GOOD: CSS handles the theme swap
+className="bg-surface-page text-text-primary"
 ```
 
-### Feature 4: Pattern Observations
+The CSS custom properties swap values when `.dark` is on `<html>`. Components never need to know what theme is active.
+
+### Pattern 3: Layout Boundary Separation
+
+Three layout zones, each with its own shell but sharing tokens:
 
 ```
-[No storage -- computed at read time]
-
-[Compute]
-observePatterns(snapshots) in pattern-observer.ts
-  -> Called server-side in API handlers (compare endpoint, trends endpoint)
-  -> Also callable client-side if snapshots are already loaded
-
-[Display]
-PatternObservations component renders cards
-  -> Used on brand detail page (single brand)
-  -> Used on comparison page (both brands)
+/ (landing)           -> No shell, AppHeader + full-width sections
+/analyser             -> No shell, AppHeader + centered content (max-w-7xl)
+/dashboard/v2/*       -> V2Shell (sidebar + internal header) + content area
 ```
 
----
-
-## Build Order and Dependencies
-
-```
-Phase 1: Data Foundation (hooks extraction + storage)
-  |-- hook-extractor.ts (new lib module, no dependencies)
-  |-- CreativeHook Prisma model (schema change + migration)
-  |-- Modify POST /api/dashboard/snapshots (depends on both above)
-  |
-  v
-Phase 2: Trend Data Access (API endpoints for demographic time series)
-  |-- GET /api/dashboard/trends (new endpoint, reads existing data)
-  |-- Modify GET /api/dashboard/overview (include hooks in payload)
-  |-- Modify GET /api/dashboard/snapshots (add ?include= params)
-  |
-  v
-Phase 3: Pattern Engine (observation rules)
-  |-- pattern-observer.ts (new lib module, no dependencies)
-  |
-  v
-Phase 4: Comparison Infrastructure
-  |-- GET /api/dashboard/compare (new endpoint, uses pattern-observer)
-  |
-  v
-Phase 5: UI -- Hooks Display
-  |-- HooksList component (brand detail page)
-  |-- HooksPanel component (dashboard page)
-  |-- Modify useTrackedBrands types to include hooks
-  |
-  v
-Phase 6: UI -- Demographic Trend Charts
-  |-- DemographicTrendChart component (Recharts AreaChart)
-  |-- Custom hook: useDemographicTrends(brandId)
-  |-- Integrate into brand detail page
-  |-- Integrate into dashboard page
-  |
-  v
-Phase 7: UI -- Pattern Observations
-  |-- PatternObservations component
-  |-- Integrate into brand detail page
-  |
-  v
-Phase 8: UI -- Comparison Page
-  |-- /dashboard/compare page
-  |-- MirroredAgeChart, MirroredGenderChart, MirroredCountryChart
-  |-- SideBySideHooks, ComparisonPatterns
-  |-- Navigation: "Compare" buttons on dashboard
-```
-
-**Why this order:**
-1. **Data first, UI second** -- hooks extraction must be in place before any UI can display them
-2. **Trend endpoint before trend chart** -- the chart needs data to render
-3. **Pattern engine before comparison page** -- comparison page shows patterns for both brands
-4. **Independent UI phases** -- hooks display, trend charts, and patterns can be developed in parallel after their data dependencies are met
-5. **Comparison page last** -- it composes all other features (hooks, demographics, patterns) into a single view
-
----
-
-## Patterns to Follow
-
-### Pattern 1: Extend Snapshot Pipeline
-**What:** All new data extraction happens inside the existing snapshot creation flow. When `POST /api/dashboard/snapshots` runs, it already fetches all ads. Hook extraction runs on the same `FacebookAdResult[]` -- no second API call needed.
-**Why:** Avoids rate limit issues, keeps data temporally consistent (hooks are from the same moment as demographics).
-
-### Pattern 2: JSON Blob for Flexible Breakdowns, Rows for Queryable Data
-**What:** Continue storing demographic breakdowns as JSON (they are always read as a unit). Store hooks as rows (they need sorting, filtering, cross-brand queries).
-**Why:** JSON blobs are efficient for "read the whole thing" patterns. Rows are efficient for "sort by X, filter by Y" patterns.
-
-### Pattern 3: Compute-on-Read for Derived Insights
-**What:** Pattern observations are not stored. They are computed when the API endpoint is called.
-**Why:** Observations depend on the relationship between snapshots and would go stale whenever a new snapshot is taken. Computing them is trivially fast (< 1ms).
-
-### Pattern 4: Dedicated Endpoints for Complex Views
-**What:** The comparison view gets its own endpoint (`/api/dashboard/compare`) rather than trying to compose from multiple existing endpoints.
-**Why:** Reduces waterfall requests on the client. The comparison page would otherwise need 4+ sequential fetches (brand A snapshot, brand B snapshot, brand A hooks, brand B hooks, patterns for each).
-
-### Pattern 5: Metric Toggle UI Pattern
-**What:** Reuse the same toggle button strip pattern from the existing `TrendChart` for the new `DemographicTrendChart` (age | gender | country toggle).
-**Why:** Visual consistency. Users already understand this interaction pattern.
-
----
+The AppHeader is shared between landing and analyser. The dashboard has its own header inside V2Shell. This is correct -- do not try to force one header component across both layouts. Sidebar-based dashboards need a different header (page title, notifications, avatar).
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Storing Raw Ad Copy in the Database
-**What:** Temptation to store all `ad_creative_bodies` for every ad in every snapshot.
-**Why bad:** 500 ads x avg 200 chars = 100KB per snapshot. With 10 brands x 30 snapshots = 30MB of text data in SQLite. More importantly, raw ad copy is not useful for analytics -- extracted hooks are.
-**Instead:** Extract hooks at snapshot time, store only the grouped/aggregated hooks.
+### Anti-Pattern 1: Global Dark Mode Toggle Affecting Landing Page
+**What:** Making the landing page respect user's dark/light preference.
+**Why bad:** The landing page is marketing material. It should always be dark (current behavior). Forced dark is intentional -- it looks more premium and matches the product screenshots.
+**Instead:** Add `dark` class to the landing layout specifically, independent of user preference.
 
-### Anti-Pattern 2: Client-Side Demographic Trend Computation
-**What:** Fetching all snapshots with full `demographicsJson` to the client and computing trends there.
-**Why bad:** Each snapshot's `demographicsJson` can be 2-5KB. 20 snapshots x 10 brands = 200-500KB of JSON to parse client-side. And the data needs transformation (pivot from per-snapshot to per-date-series).
-**Instead:** Server endpoint parses and pivots the data. Client receives chart-ready arrays.
+### Anti-Pattern 2: Migrating Everything to shadcn/ui Tokens
+**What:** Using the existing shadcn/ui oklch tokens (`--background`, `--foreground`, `--card`, etc.) as the unified system.
+**Why bad:** The shadcn tokens are generic and the oklch values in the codebase are defaults, not customized. The product has a specific blue brand identity that should be first-class, not mapped through an abstraction layer designed for generic component libraries.
+**Instead:** Define project-specific semantic tokens that directly express the Ad Library Pro design language. The shadcn `--background`/`--foreground` tokens can be aliased to the new tokens for compatibility with any shadcn/ui components used.
 
-### Anti-Pattern 3: Over-Normalizing Demographics into Separate Tables
-**What:** Creating `AgeBreakdown`, `GenderBreakdown`, `CountryBreakdown` models with foreign keys to `BrandSnapshot`.
-**Why bad:** These breakdowns are always read together, never queried individually. Normalizing them adds complexity (joins, N+1 risk) without query benefit.
-**Instead:** Keep as JSON blob. The existing `demographicsJson` approach is correct.
+### Anti-Pattern 3: Partial Migration (Token + Hardcoded Mix)
+**What:** Adding tokens but leaving some hardcoded hex values "for later."
+**Why bad:** Creates confusion about which is the source of truth. New developers (or AI agents) will copy whichever pattern they find first. Theme toggle will produce inconsistent results where some elements respond and others do not.
+**Instead:** Complete the migration per-file. If touching a file, convert ALL hardcoded values in that file to tokens.
 
-### Anti-Pattern 4: Real-Time Pattern Computation on the Client
-**What:** Sending all snapshot data to the client and running pattern rules in React.
-**Why bad:** The pattern engine needs access to multiple snapshots and their parsed demographics. Sending all this data for client-side processing wastes bandwidth and exposes internal data structures.
-**Instead:** Compute patterns server-side in the API endpoint. Return only the observation messages + metadata.
+### Anti-Pattern 4: Trying to Share V2Shell With Analyser
+**What:** Wrapping the analyser page in V2Shell to get the sidebar.
+**Why bad:** The analyser is a standalone tool with a different UX paradigm (single-page form -> results). A sidebar with "Dashboard", "Ad Library", "Saved Ads" navigation is irrelevant and confusing in that context.
+**Instead:** Analyser gets AppHeader (top nav) only. It links to the dashboard but does not live inside it.
 
----
+## File Structure (Proposed)
 
-## Type System Extensions
-
-### Extend `TrackedBrandSnapshot` (client-side type in use-tracked-brands.ts)
-
-```typescript
-export interface TrackedBrandSnapshot {
-  // ... existing fields ...
-  creativeHooks?: CreativeHookSummary[];  // Optional, included when fetched
-}
-
-export interface CreativeHookSummary {
-  hookText: string;
-  adCount: number;
-  totalReach: number;
-  weightedScore: number;
-}
+```
+src/
+  app/
+    globals.css              # Unified tokens (:root + .dark)
+    layout.tsx               # Wraps with ThemeProvider
+    page.tsx                 # Landing (forced dark)
+    analyser/
+      page.tsx               # Uses AppHeader + tokens
+    dashboard/v2/
+      layout.tsx             # No more V2Provider needed
+      v2-shell.tsx           # Refactored to use tokens
+  components/
+    layout/
+      app-header.tsx         # Shared top nav (landing + analyser)
+    providers/
+      theme-provider.tsx     # Class-based dark/light toggle
+      session-provider.tsx   # Existing
+    ui/                      # Existing shadcn components
+    ...                      # Existing feature components
 ```
 
-### New Types for Trend Data
+## Confidence Assessment
 
-```typescript
-export interface DemographicTrendPoint {
-  snapshotDate: string;
-  ageBreakdown: { age: string; percentage: number }[];
-  genderBreakdown: { gender: string; percentage: number }[];
-  regionBreakdown: { region: string; percentage: number }[];
-}
-
-export interface DemographicTrendData {
-  brandId: string;
-  brandName: string;
-  points: DemographicTrendPoint[];
-}
-```
-
-### New Types for Comparison
-
-```typescript
-export interface BrandComparisonData {
-  brandA: BrandComparisonSide;
-  brandB: BrandComparisonSide;
-}
-
-export interface BrandComparisonSide {
-  brand: { id: string; pageName: string; adLibraryUrl: string };
-  snapshot: TrackedBrandSnapshot;
-  hooks: CreativeHookSummary[];
-  patterns: PatternObservation[];
-}
-```
-
----
-
-## Scalability Considerations
-
-| Concern | Current (< 100 users) | At 1K users | Mitigation |
-|---------|----------------------|-------------|------------|
-| Snapshot storage | ~10 snapshots/brand, fine | ~30 snapshots/brand, still fine with indexes | Index on `[trackedBrandId, snapshotDate]` (already exists) |
-| CreativeHook rows | ~50 hooks/snapshot, negligible | ~50 hooks x 30 snapshots x 10 brands = 15K rows/user | Index on `[snapshotId, weightedScore]`. Consider pruning hooks from old snapshots. |
-| demographicsJson parsing | Trivial | Server-side parsing of 20 JSON blobs per trends request | Keep limit parameter, default 20 snapshots |
-| Pattern computation | < 1ms | < 1ms (pure arithmetic on small arrays) | No concern |
-| Comparison endpoint | 2 parallel DB queries | Same | No concern |
-
----
-
-## Migration Checklist
-
-1. Add `CreativeHook` model to `prisma/schema.prisma`
-2. Add `creativeHooks CreativeHook[]` relation to `BrandSnapshot`
-3. Run `npx prisma migrate dev --name add-creative-hooks`
-4. Existing snapshots will have no hooks (graceful: UI shows "No hooks available -- re-analyze to extract")
-5. No data migration needed for trends or patterns (they read existing `demographicsJson`)
-
----
+| Aspect | Confidence | Reason |
+|--------|------------|--------|
+| Token architecture (CSS custom properties + Tailwind v4 @theme) | HIGH | Directly observed in codebase; Tailwind v4 is designed for this pattern |
+| Class-based dark mode replacing React-state dark mode | HIGH | Infrastructure already exists in globals.css (`.dark` block, `@custom-variant`) |
+| Build order | HIGH | Clear dependency chain observed from codebase analysis |
+| Migration scope (385 hex occurrences in V2, 163 var references in V1) | HIGH | Directly measured via grep |
+| AppHeader extraction feasibility | MEDIUM | Landing nav and analyser nav have different link sets; may need conditional rendering or composition pattern |
 
 ## Sources
 
-- Direct codebase analysis (HIGH confidence): all files read directly from repository
-- Prisma schema: `/Users/sebastian/Codingprojects/Sitemap-experiment/prisma/schema.prisma`
-- Snapshot builder: `/Users/sebastian/Codingprojects/Sitemap-experiment/src/lib/snapshot-builder.ts`
-- Facebook API client: `/Users/sebastian/Codingprojects/Sitemap-experiment/src/lib/facebook-api.ts`
-- Dashboard overview endpoint: `/Users/sebastian/Codingprojects/Sitemap-experiment/src/app/api/dashboard/overview/route.ts`
-- Existing trend chart: `/Users/sebastian/Codingprojects/Sitemap-experiment/src/components/dashboard/trend-chart.tsx`
-- Existing ad copy analysis: `/Users/sebastian/Codingprojects/Sitemap-experiment/src/components/analytics/ad-copy-analysis.tsx`
-- Existing comparison components: demographics-comparison.tsx, comparison-table.tsx
+- Direct codebase analysis of `globals.css`, `v2-shell.tsx`, `v2-context.tsx`, `landing-nav.tsx`, `analyser/page.tsx`, `layout.tsx`
+- Tailwind CSS v4 `@theme` directive usage already present in the project at `globals.css:79`
+- Existing `.dark` variant configuration at `globals.css:5`

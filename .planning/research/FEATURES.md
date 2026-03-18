@@ -1,198 +1,156 @@
-# Feature Landscape: v3.1 Competitive Intelligence
+# Feature Research
 
-**Domain:** Ad Intelligence / Competitive Analysis SaaS
-**Researched:** 2026-02-02
-**Overall confidence:** MEDIUM-HIGH (features grounded in competitor analysis + existing codebase data model)
+**Domain:** Ad intelligence platform -- visual consistency across V1 (analyser), V2 (dashboard), and landing page
+**Researched:** 2026-03-18
+**Confidence:** HIGH (based on codebase analysis + SaaS design patterns)
 
-## Table Stakes
+## Current State Analysis
 
-Features users expect from any ad intelligence tool offering competitive analysis. Missing = product feels incomplete or half-baked.
+Three distinct visual surfaces exist today, each with its own identity:
 
-### TS-1: Demographic Trend Charts (Time-Series)
+| Surface | Theme | Colors | Typography | Navigation |
+|---------|-------|--------|------------|------------|
+| **Landing (/)** | Dark-only | `#101322` bg, `#1235e2` primary, white text | Instrument Serif (hero) + DM Sans | Fixed top bar: logo + "Try Free" + "Get Pro" pill |
+| **V1 (/analyser)** | Light-only | Green palette (`#1a3933` accent, `#f8f8f5` bg), uses CSS custom properties | DM Sans | Sticky top bar: "Ad Analyser" text logo, How it works/About/Contact/Feedback/Roadmap, "Pro -- Coming Soon" CTA |
+| **V2 (/dashboard/v2)** | Dark/Light toggle | Dark: `#101322` bg, `#1235e2` primary. Light: `#f6f6f8` bg, `#1235e2` primary | DM Sans | Sidebar with BarChart3 icon logo + "Ad Library Pro" brand |
 
-| Aspect | Detail |
-|--------|--------|
-| **Why Expected** | Pathmatics, SocialPeta, and Sensor Tower all show historical trend lines. Any tool with historical snapshots that does NOT show trends over time frustrates users -- they have the data, why can they not see it change? The app already stores multiple `BrandSnapshot` records per brand with `snapshotDate` and full `demographicsJson`. Not surfacing this as a chart is a missed obvious step. |
-| **Complexity** | Medium |
-| **What competitors do** | Pathmatics: line charts of spend/impressions over time with daily granularity. SocialPeta: advertiser ranking trend charts. Kantar: media mix trend overlays. All use line/area charts with selectable date ranges. |
-| **Expected UX** | Line chart (or stacked area chart) with X-axis = snapshot dates, Y-axis = percentage. Separate charts or tabs for: (1) age distribution over time, (2) gender split over time, (3) top countries over time. Users expect to select a brand, see its demographic shifts across all stored snapshots. Tooltip on hover showing exact values per snapshot. Date range selector if many snapshots exist. |
-| **Data dependency** | Requires 2+ snapshots for the same brand. Data already exists: `BrandSnapshot.demographicsJson` stores full age/gender/region breakdowns per snapshot, indexed by `[trackedBrandId, snapshotDate]`. No schema changes needed. |
-| **Key decisions** | (1) Chart type: line chart (cleaner for few snapshots) vs stacked area (better for composition). Recommend **line chart** with one line per age group / gender / country -- it works with as few as 2 data points. (2) Where to show: brand detail page `[brandId]/page.tsx`, new "Trends" tab or section below current snapshot view. |
-| **Risk** | LOW. Straightforward Recharts implementation over existing data. The main UX risk is brands with only 1 snapshot showing an empty/useless chart -- handle with "Re-analyze to track changes over time" prompt. |
+**Key inconsistencies:**
+1. V1 uses a completely different color palette (greens) vs V2/Landing (blues)
+2. V1 brand text says "Ad Analyser" -- V2 and Landing say "Ad Library Pro"
+3. V1 CTA says "Pro -- Coming Soon" -- Landing has "Get Pro" linking to pricing
+4. V1 has no dark mode support
+5. V1 nav has 5 links (How it works, About, Contact, Feedback, Roadmap) -- most irrelevant to the V2 product direction
+6. Landing nav and V2 sidebar both use the BarChart3 icon + blue pill logo; V1 has plain text
 
-### TS-2: Side-by-Side Brand Comparison
+---
 
-| Aspect | Detail |
-|--------|--------|
-| **Why Expected** | Pathmatics lets users compare up to 20 advertisers side by side. Moat (before shutdown) offered competitive benchmarking with brand-vs-brand views. AdSpy/BigSpy offer comparison filters. Any brand tracking dashboard that shows multiple brands but cannot compare them side by side is missing the core value proposition of tracking competitors. |
-| **Complexity** | Medium |
-| **What competitors do** | Pathmatics: up to 20 brands in parallel columns, share-of-voice charts, spend comparison. SocialPeta: brand-vs-brand with audience overlap analysis. Moat: side-by-side creative and metric comparison. Most tools use paired/grouped bar charts or butterfly charts for demographic comparison. |
-| **Expected UX** | User selects exactly 2 brands from their saved brands (dropdown or card picker). View shows mirrored/paired charts: (1) **Butterfly chart** for age-gender distribution -- Brand A bars extend left, Brand B bars extend right, shared age-range axis in center. This is the gold standard for demographic comparison (population pyramid pattern). (2) Paired horizontal bars for country distribution. (3) Summary metrics table (total reach, ad count, spend, dominant demo) side by side. The existing `DemographicsComparison` component already renders stacked bars per brand -- this feature elevates it to a dedicated full-page comparison view with richer chart types. |
-| **Data dependency** | Requires 2+ saved brands with at least 1 snapshot each. Uses latest `BrandSnapshot.demographicsJson` for each brand. No schema changes. |
-| **Key decisions** | (1) Butterfly chart vs simple paired bars. Recommend **butterfly chart** -- it is the recognized pattern for demographic comparison (see Data Viz Project, Zoho Analytics, Qlik all support it). Recharts does not have a native butterfly chart, but it can be built with two stacked `BarChart` components or a single chart with negative values for Brand A. (2) Limit to 2 brands (butterfly) or support N brands (grouped bars). Recommend **start with 2** -- butterfly is cleaner and more impactful than N-way grouped bars. (3) Entry point: dedicated `/dashboard/compare` route with brand picker, or inline in dashboard. |
-| **Risk** | MEDIUM. Butterfly chart in Recharts requires custom implementation (negative value trick or dual chart layout). Not a standard Recharts component. Budget extra time for chart engineering. |
+## Feature Landscape
 
-## Differentiators
+### Table Stakes (Users Expect These)
 
-Features that set the product apart. Not expected by users, but valued when present. These are competitive advantages.
+Features that, if missing, make the product feel unfinished or untrustworthy. A user navigating from landing to analyser to dashboard should not feel like they landed on a different product.
 
-### DF-1: Ad Creative Hooks / Opening Lines Extraction
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| **Unified color palette on V1** | Green palette screams "different product." Users lose trust when pages look disconnected. Reducing cognitive load is the #1 design consistency principle. | Low | Replace `--accent-green` family with `#1235e2` blue family. Keep CSS var structure, just swap values. |
+| **Consistent brand identity on V1** | "Ad Analyser" vs "Ad Library Pro" is confusing. Same logo lockup (BarChart3 icon + "Ad Library Pro") must appear everywhere. | Low | Replace text-only logo with the same icon+text lockup used in landing-nav.tsx and v2-shell.tsx. |
+| **Dark/light mode on V1** | V2 has it, landing is dark-only, V1 is light-only. Users who toggle dark mode in V2 then visit V1 get a jarring flash. | Medium | V1 needs to read and respect the same dark mode state. Use V2's dark palette (`#101322` bg, slate text scale). |
+| **Typography alignment** | V1 already uses DM Sans (shared globals.css), but font weights and sizes may drift. | Low | Audit heading/body sizes. Ensure V1 body text, headings, and labels match V2's scale (text-sm for labels, text-base for body). |
+| **Consistent spacing and border radii** | V1 uses mixed radius values and spacing. V2 has a tighter system. | Low | Standardize to V2's `rounded-lg` (cards), `rounded-full` (pills/buttons), and `gap-3`/`gap-4`/`gap-6` spacing rhythm. |
+| **Correct CTA destination** | V1 currently links to `/coming-soon`. Landing links to `#pricing`. This mismatch confuses users about the product's state. | Low | V1 CTA should link to landing page pricing section (`/#pricing`) or directly to V2 dashboard. |
 
-| Aspect | Detail |
-|--------|--------|
-| **Value Proposition** | Foreplay's Spyder is the ONLY major tool that auto-extracts hooks from ad copy, and it charges $99-249/month for the privilege. This is a genuine differentiator in the market. Most ad spy tools (AdSpy, BigSpy, Minea) treat ad text as searchable but do not extract, group, or analyze the text patterns. Offering hook extraction on Facebook Ad Library data -- which is free and public -- is a strong competitive wedge. |
-| **Complexity** | Medium-High |
-| **What competitors do** | **Foreplay Spyder**: Dedicated "Hooks" tab, auto-transcribes video hooks, extracts opening lines, lets users browse hundreds of hooks, pin favorites, export to CSV. **Bestever**: Scores hook engagement, detects hook fatigue, compares hooks to top performers. **Everyone else**: Ad copy is shown raw; users must manually read and pattern-match. No grouping, no frequency analysis, no reach weighting. |
-| **Expected UX** | (1) **Extraction**: For each ad, extract the first sentence (or first N characters up to first sentence break) from `ad_creative_bodies[0]`. This is the "hook." (2) **Grouping**: Cluster similar hooks using fuzzy string matching or simple normalization (lowercase, strip emojis, collapse whitespace). Show groups ranked by frequency. (3) **Frequency weighted by reach**: Each hook group shows: count of ads using it, total reach of those ads, average reach per ad. This surfaces hooks that are not just common but effective. (4) **Display**: Card or list view, each hook group shows the canonical phrase, frequency badge, reach metric, and expandable list of actual ads using it. (5) **Filter/search**: Users should be able to search hooks or filter by reach threshold. |
-| **Data dependency** | `FacebookAdResult.creativeBody` (mapped from `ad_creative_bodies[0]`) is already fetched and available in the API result. However, it is NOT currently stored in `BrandSnapshot` -- the snapshot only stores aggregated demographic metrics. For hooks analysis to work on saved brands (not just live analysis), the raw ad texts would need to be stored. **Two options**: (A) store hooks at snapshot time (new `hooksJson` field on `BrandSnapshot`), or (B) only show hooks during live analysis (no persistence). Recommend (A) for saved brands. |
-| **Key decisions** | (1) NLP approach: simple first-sentence extraction (split on `.` `!` `?` or first 100 chars) vs LLM-based extraction. Recommend **simple extraction first** -- no AI dependency, deterministic, fast. LLM refinement can come later. (2) Grouping algorithm: exact match after normalization vs fuzzy matching (Levenshtein distance). Recommend **normalized exact match first** (lowercase, strip punctuation/emojis, trim) -- covers 80% of cases. Fuzzy can be a v3.2 enhancement. (3) Storage: new JSON field on BrandSnapshot vs separate HookGroup table. Recommend **JSON field** for simplicity -- `hooksJson` storing `Array<{ hook: string, count: number, totalReach: number, adIds: string[] }>`. |
-| **Risk** | MEDIUM. Quality of extraction depends heavily on ad copy structure. Some ads have no clear "hook" (single word, emoji-only, or very short text). Need graceful handling of edge cases. Grouping accuracy with simple normalization may be low for paraphrased hooks (e.g., "Stop doing X" vs "Why you should stop doing X"). Accept this limitation for v3.1 and flag fuzzy matching for v3.2. |
+### Differentiators (Make V1-to-V2 Transition Feel Premium)
 
-### DF-2: Rule-Based Pattern Observations (Auto-Generated Insights)
+Features that are not strictly expected but make the product feel polished, intentional, and worth paying for. These are what separate "we updated the colors" from "this feels like a real product."
 
-| Aspect | Detail |
-|--------|--------|
-| **Value Proposition** | Most ad intelligence tools present data but leave interpretation to the user. AI-powered insight tools (Improvado, Adverity, Polymer) charge enterprise prices ($500+/month) for automated pattern detection. Offering rule-based factual observations (not AI-generated) is a lightweight alternative that adds significant perceived value. Phrases like "Skews 25-34 male" or "Top country shifted DE to FR since last analysis" make users feel the tool is doing analytical work for them. |
-| **Complexity** | Medium |
-| **What competitors do** | **Pathmatics/Sensor Tower**: AI-powered insights with natural language summaries of trends. **Improvado**: Conversational AI agent for data querying. **Polymer**: Statistically significant pattern highlighting. **PowerAdSpy**: AI audience analysis recommendations. These are all AI/ML-heavy. **No one in this tier** (sub-$50/month) offers even rule-based observations. This is a blue ocean at the lower price point. |
-| **Expected UX** | (1) **Observation cards**: Small, scannable text blocks displayed alongside demographic charts. Each observation is a single factual statement derived from the data. (2) **Types of observations**: - **Dominant skew**: "Audience skews 25-34 male (42% of reach)" - **Gender imbalance**: "67% female audience -- significantly above platform average" - **Geographic concentration**: "80% of reach concentrated in top 2 countries (DE, FR)" - **Temporal shift** (requires 2+ snapshots): "Top country shifted from DE to FR since [date]" - **Age shift**: "25-34 age group grew from 30% to 45% over last 3 analyses" - **Hook pattern**: "Most common hook pattern used in 12 of 47 ads" (3) **Confidence/strength indicator**: Simple visual indicator (strong/moderate/weak pattern) based on data volume and magnitude of observation. (4) **Placement**: Summary section at top of brand detail page, before charts. Users see insights first, then can drill into charts. |
-| **Data dependency** | All observations derived from existing `BrandSnapshot` fields. Single-snapshot observations use current snapshot data. Temporal observations require 2+ snapshots and compare latest vs previous (or latest vs oldest). Hook observations require DF-1 to be implemented first. |
-| **Key decisions** | (1) Rule engine approach: hardcoded rules in TypeScript vs configurable rule definitions. Recommend **hardcoded rules** for v3.1 -- there will be at most 8-12 rules, not worth abstracting. (2) Threshold values: what counts as "skewed"? Recommend >60% for gender skew, >35% for age group dominance, >50% for geographic concentration. These can be tuned. (3) Temporal comparison: compare latest snapshot to immediately previous vs to first snapshot. Recommend **latest vs previous** -- more actionable for "what changed recently." (4) Observation limit: show all applicable or cap at top N. Recommend **top 5 most interesting** ranked by magnitude of the signal. |
-| **Risk** | LOW-MEDIUM. Risk is not technical but editorial: observations that state the obvious ("Your brand runs ads in Germany" for a German brand) feel dumb. Need threshold tuning to ensure observations are genuinely insightful. Build in a minimum significance threshold. |
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| **V1 header with branded logo + upgrade CTA** | A minimal header with the BarChart3 logo, link home, and a prominent "Upgrade to Pro" or "Open Dashboard" CTA creates a clear upgrade funnel. Best freemium SaaS practice: every free surface subtly signals the paid product exists. | Low-Medium | Replace V1's 5-link nav with: [Logo link to /] ... [Upgrade CTA pill]. The Appcues pattern: "subtle but persistent reminder" without interrupting workflow. |
+| **Contextual upgrade prompt below results** | After a user completes a free analysis, show a tasteful card: "Want to track this brand over time? Save ads, get AI insights." Links to V2 dashboard or pricing. | Low | More effective than banner -- users have just gotten value and are primed to want more. Conversion-centered design principle. |
+| **Smooth theme transition animations** | When navigating between pages, avoid a hard flash from dark to light. Use `transition-colors duration-200` on body/background. | Low | CSS-only. Prevents the jarring "flash" when moving between surfaces. |
+| **Shared dark mode persistence** | Dark mode preference set in V2 automatically applies to V1 (and vice versa). Single localStorage key or cookie. | Low | V2 already uses `useV2()` context for darkMode. V1 can read the same localStorage key directly. |
+| **Landing page minor polish** | Small alignment/copy tweaks to tighten the landing-to-analyser-to-dashboard funnel. Ensure CTAs are consistent ("Try Free Analyser" and "Get Pro Dashboard"). | Low | Copy and spacing only. No structural changes. |
 
-## Anti-Features
+### Anti-Features (Do NOT Build for v5.1)
 
-Features to explicitly NOT build for v3.1. Common mistakes in this domain.
+Common temptations that would bloat this milestone beyond its scope. The goal is visual consistency, not new functionality.
 
-### AF-1: AI/LLM-Powered Natural Language Insights
+| Anti-Feature | Why Tempting | Why Problematic | Alternative |
+|--------------|-------------|-----------------|-------------|
+| **Full design system / component library extraction** | "While we're updating colors, let's build a proper design system with Storybook." | Massive scope creep. The V1 page is a freemium entry point, not a growing surface. It does not need a component library. | Update CSS variables and hardcoded colors in V1. Document the palette in a comment block. |
+| **V1 feature parity with V2** | "Users on V1 should be able to toggle dark mode with a button like V2." | V1 is the free tool, not the dashboard. Adding UI controls to V1 increases maintenance surface. | V1 reads dark mode preference silently from localStorage. No toggle UI on V1 itself -- the system preference or V2 setting controls it. |
+| **Rebuilding V1 page structure** | "The analyser is a 500-line monolith, let's refactor it into components." | Refactoring is not visual consistency. It adds risk and testing burden with no user-visible benefit for this milestone. | Scope to CSS/styling changes and header component swap only. Refactor in a future milestone if needed. |
+| **Adding new pages or routes** | "We should add an /upgrade page or /features comparison page." | New routes = new content = new maintenance. Not needed for visual consistency. | Use existing landing page pricing section as the upgrade destination. |
+| **Animated page transitions between V1 and V2** | "Let's add a smooth crossfade when users navigate from analyser to dashboard." | Requires layout groups, shared state, or View Transitions API. High complexity for low impact. | Simple `transition-colors` on body background is sufficient. |
+| **V1 sidebar navigation** | "V1 should have a sidebar like V2 for consistency." | V1 is a single-purpose tool (paste URL, get analysis). Adding sidebar navigation implies it is a multi-page app, which it is not. | Keep V1 as a single-page tool with a minimal top header. |
 
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Using GPT/Claude API to generate natural language analysis of demographics | Adds API cost per analysis, latency, unpredictable output quality, hallucination risk for factual claims about data. Enterprise tools charge $500+/month partly because of this cost. At sub-$50/month pricing, LLM inference cost could exceed revenue per user. Also creates a dependency on external AI API availability. | Rule-based observations (DF-2) that are deterministic, free to compute, instant, and guaranteed factual. If a rule says "skews 25-34 male," it is verifiably true from the data. LLM output cannot make this guarantee. |
-
-### AF-2: Fuzzy/Semantic Hook Clustering
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Using embeddings or NLP to cluster semantically similar hooks (e.g., grouping "Stop using X" with "Why you should quit X") | Significant engineering complexity (embedding model, vector similarity, clustering algorithm). Unclear ROI -- most ad hooks within a single brand are either identical or very different. Semantic clustering adds value primarily across thousands of brands, not within a single brand's 20-100 ads. | Simple normalized string matching for v3.1. Group hooks that are textually identical after lowercasing and punctuation stripping. Flag semantic clustering as a v3.2+ enhancement once user feedback confirms demand. |
-
-### AF-3: Real-Time Competitor Monitoring / Alerts
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Background jobs that automatically re-analyze saved brands on a schedule and send email/push alerts when demographics change | Requires background job infrastructure (cron, queue), significantly increases API usage against Facebook (rate limits: 200 calls/hour), needs notification system (email/push), and ongoing compute costs. This is a major infrastructure investment for a feature that is better suited to v4.0+. | Manual re-analysis (already built in v3.0) with the new temporal observations (DF-2) surfacing what changed since last analysis. Users trigger re-analysis when they want fresh data. |
-
-### AF-4: N-Way Brand Comparison (3+ Brands)
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Supporting comparison of 3, 4, or more brands simultaneously | Butterfly charts only work with 2 datasets. Grouped bar charts for 4+ brands become visually cluttered and hard to read. Pathmatics supports 20-brand comparison but has a dedicated enterprise UX team. The engineering cost of making N-way comparison usable does not justify the value for v3.1. | 2-brand comparison (TS-2) with butterfly charts. Clean, focused, immediately useful. If users request N-way, consider grouped bar charts in v3.2. |
-
-### AF-5: Video Hook Transcription
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Transcribing video ad audio to extract spoken hooks (like Foreplay Spyder does) | Requires speech-to-text API (Whisper, etc.), video download infrastructure, significant compute cost, and the Facebook Ad Library API provides `ad_snapshot_url` but not direct video file URLs. Downloading and transcribing videos at scale is a fundamentally different infrastructure problem. | Extract hooks from `ad_creative_bodies` text only. This is the ad copy text that Facebook already provides via the API. Most Facebook ads have text hooks in the creative body, even if the video has a different spoken hook. |
+---
 
 ## Feature Dependencies
 
 ```
-TS-1: Trend Charts ──────────────────────┐
-  (standalone, uses existing snapshots)   │
-                                          ├──> DF-2: Pattern Observations
-TS-2: Brand Comparison                    │    (uses trends for temporal observations,
-  (standalone, uses existing snapshots)   │     uses hooks for hook observations)
-                                          │
-DF-1: Hook Extraction ───────────────────┘
-  (standalone for live analysis,
-   needs schema change for persistence)
+Unified color palette (V1)
+  |
+  +-- Dark/light mode (V1)  [depends on palette being blue-based first]
+  |     |
+  |     +-- Shared dark mode persistence  [depends on V1 supporting dark mode]
+  |
+  +-- Consistent brand identity (V1)  [can happen in parallel with palette]
+        |
+        +-- V1 header with branded logo + upgrade CTA  [depends on brand lockup being defined]
+
+Landing page tweaks  [independent -- can happen in parallel with all above]
+
+Contextual upgrade prompt  [independent -- can be added after header work]
 ```
 
-**Dependency details:**
-- **TS-1 (Trends)** and **TS-2 (Comparison)** are fully independent of each other and of DF-1. They use existing `BrandSnapshot` data with no schema changes.
-- **DF-1 (Hooks)** is independent for live analysis (data already in API result). Requires a new `hooksJson` field on `BrandSnapshot` if hooks should persist for saved brands.
-- **DF-2 (Observations)** depends on the data from TS-1 (temporal observations compare snapshots over time) and optionally DF-1 (hook pattern observations). However, DF-2 can ship with a subset of rules that only use single-snapshot data, making it partially independent.
-
-**Recommended build order:**
-1. TS-1 (Trend Charts) -- immediate value, no schema changes
-2. TS-2 (Brand Comparison) -- immediate value, no schema changes
-3. DF-1 (Hook Extraction) -- schema migration needed, medium-high complexity
-4. DF-2 (Pattern Observations) -- depends on others being available for full rule set
-
-## MVP Recommendation
-
-For v3.1 MVP, implement all 4 features but phase them:
-
-**Phase A (foundations, highest ROI):**
-1. **TS-1: Trend Charts** -- lowest complexity, uses existing data, biggest "wow" factor for users who have re-analyzed brands
-2. **TS-2: Brand Comparison** -- expected feature for any competitive intelligence tool, butterfly chart is visually impressive
-
-**Phase B (differentiation):**
-3. **DF-1: Hook Extraction** -- unique in the free/low-cost tier, requires schema migration
-4. **DF-2: Pattern Observations** -- ties everything together with auto-generated insights
-
-**Defer to post-v3.1:**
-- Fuzzy hook clustering (AF-2): Wait for user feedback on simple grouping
-- N-way comparison (AF-4): Start with 2-brand, expand based on demand
-- Video transcription (AF-5): Fundamentally different infrastructure
-- Real-time monitoring (AF-3): Major infrastructure investment
-
-## UX Pattern Reference
-
-### Trend Charts (TS-1)
-- **Chart type:** Multi-line chart (Recharts `LineChart` with multiple `Line` elements)
-- **Interaction:** Hover tooltips, clickable legend to toggle series
-- **Layout:** Tabbed sections (Age | Gender | Country) on brand detail page
-- **Empty state:** "Re-analyze this brand to track changes over time" with CTA button
-- **Precedent:** Google Analytics audience reports, Pathmatics spend trend charts
-
-### Brand Comparison (TS-2)
-- **Chart type:** Butterfly/population pyramid chart (negative-value bar trick in Recharts)
-- **Interaction:** Brand picker (2 dropdowns or cards), charts update on selection
-- **Layout:** Dedicated `/dashboard/compare` page or modal. Brand A on left, Brand B on right. Shared axis labels in center.
-- **Empty state:** "Save 2+ brands to compare them" with link to analysis page
-- **Precedent:** Population pyramids (UN, census.gov), Pathmatics brand comparison
-
-### Hook Extraction (DF-1)
-- **Display:** Card list, each card = one hook group. Shows: hook text, frequency badge, reach metric bar
-- **Interaction:** Click to expand and see all ads using that hook. Search/filter bar at top.
-- **Layout:** New "Hooks" tab on brand detail page (alongside Demographics, Trends)
-- **Empty state:** "No text hooks found in ads" (some ads are image-only with no creative body)
-- **Precedent:** Foreplay Spyder Hooks tab, tag cloud visualizations
-
-### Pattern Observations (DF-2)
-- **Display:** Compact insight cards with icon + single sentence + optional metric badge
-- **Interaction:** Non-interactive (read-only observations). Optional: click to scroll to relevant chart section.
-- **Layout:** Summary row at top of brand detail page, above charts. Horizontally scrollable card strip on mobile.
-- **Empty state:** Hidden entirely when no significant patterns detected (do not show "No insights found")
-- **Precedent:** Google Analytics Intelligence alerts, Polymer highlights, Apple Health summaries
-
-## Complexity Summary
-
-| Feature | Complexity | Schema Change | New Routes | New Components | Estimated Effort |
-|---------|-----------|---------------|------------|----------------|-----------------|
-| TS-1: Trend Charts | Medium | None | GET snapshots history (exists) | TrendChart, TrendTabs | 2-3 tasks |
-| TS-2: Brand Comparison | Medium | None | None (client-side) | ComparisonView, ButterflyChart, BrandPicker | 2-3 tasks |
-| DF-1: Hook Extraction | Medium-High | `hooksJson` on BrandSnapshot | None (computed at analysis time) | HooksList, HookCard, HookExtractor (lib) | 3-4 tasks |
-| DF-2: Pattern Observations | Medium | None | None (computed client-side) | ObservationCard, ObservationEngine (lib) | 2-3 tasks |
-
-## Sources
-
-- [Pathmatics by Sensor Tower - Features](https://sensortower.com/product/digital-advertising/pathmatics) (MEDIUM confidence - marketing page, feature claims)
-- [Foreplay Spyder Ad Spy - Hook Extraction](https://www.foreplay.co/spyder-ad-spy) (HIGH confidence - product page with feature details)
-- [Foreplay Spyder 2.0 - Auto Hook Extraction](https://www.foreplay.co/post/spyder-2-0) (HIGH confidence - product announcement)
-- [SocialPeta Features](https://socialpeta.com/features) (MEDIUM confidence - marketing page)
-- [Butterfly Chart - Data Viz Project](https://datavizproject.com/data-type/butterfly-chart/) (HIGH confidence - reference documentation)
-- [Butterfly Chart - ChartExpo](https://chartexpo.com/blog/butterfly-chart) (HIGH confidence - visualization guide)
-- [NN/g Comparison Tables](https://www.nngroup.com/articles/comparison-tables/) (HIGH confidence - UX research authority)
-- [NN/g Choosing Chart Types](https://www.nngroup.com/articles/choosing-chart-types/) (HIGH confidence - UX research authority)
-- [Moat Alternatives - Bestever](https://www.bestever.ai/post/moat-ads) (MEDIUM confidence - competitor blog)
-- [Facebook Ad Library API Guide](https://admanage.ai/blog/facebook-ads-library-api) (MEDIUM confidence - third-party guide)
-- [Improvado AI Reporting Tools](https://improvado.io/blog/top-ai-reporting-tools) (MEDIUM confidence - vendor content)
-- [Ad Intelligence Tools - SuperAds](https://www.superads.ai/blog/ad-intelligence-tools) (LOW confidence - vendor listicle)
-- [Ad Intelligence Tools - Madgicx](https://madgicx.com/blog/ad-intelligence-tools) (LOW confidence - vendor listicle)
+**Critical path:** Color palette swap must happen before dark mode support, because adding dark mode with the green palette would mean building something you immediately throw away.
 
 ---
 
-*Research completed: 2026-02-02*
-*Researcher: Claude (gsd-research-project)*
+## MVP Definition
+
+### v5.1 Must Have
+
+These are the items that, if shipped, make v5.1 feel complete:
+
+1. **V1 color palette swap** -- Replace green accent family with `#1235e2` blue family in CSS variables. Update any hardcoded green values in the analyser page.
+2. **V1 brand identity** -- Replace "Ad Analyser" text with BarChart3 icon + "Ad Library Pro" lockup matching landing-nav and v2-shell.
+3. **V1 navigation header replacement** -- Minimal header: [Logo -> /] + [Upgrade CTA pill -> /#pricing]. Remove How it works/About/Contact/Feedback/Roadmap links (these are secondary pages, not core nav).
+4. **V1 dark mode support** -- Read darkMode preference from same localStorage key V2 uses. Apply V2's dark palette. No toggle UI on V1.
+5. **CTA consistency** -- V1 CTA points to `/#pricing` instead of `/coming-soon`. Copy reads "Get Pro" or "Open Dashboard" (matching landing page language).
+6. **Landing page minor tweaks** -- Any copy/spacing inconsistencies between landing CTAs and V1/V2 terminology.
+
+### Defer to Later
+
+- **V1 page refactor** -- Structural code quality improvements. Not user-visible.
+- **Design token extraction** -- Formalizing CSS variables into a shared design token file. Nice-to-have but not blocking.
+- **V1 mobile nav redesign** -- Current mobile hamburger works. Polish later.
+- **Animated transitions** -- View Transitions API or framer-motion page transitions. Future milestone.
+- **Storybook / component library** -- Only worthwhile if V1 grows in scope, which is not planned.
+
+---
+
+## Feature Prioritization Matrix
+
+| Feature | User Impact | Effort | Risk | Priority |
+|---------|------------|--------|------|----------|
+| V1 color palette swap | HIGH (eliminates "two different products" feeling) | LOW (CSS var changes) | LOW | P0 |
+| V1 brand identity | HIGH (name consistency) | LOW (copy icon lockup from landing-nav) | LOW | P0 |
+| V1 nav header replacement | HIGH (funnel improvement + declutter) | LOW-MED (new component, remove old nav) | LOW | P0 |
+| V1 dark mode | MEDIUM (prevents jarring flash for dark-mode users) | MEDIUM (conditional classes throughout V1 page) | LOW-MED (V1 is a big file, many style references) | P1 |
+| Shared dark mode persistence | LOW-MEDIUM (convenience) | LOW (read localStorage) | LOW | P1 |
+| CTA destination fix | MEDIUM (fixes broken funnel) | LOW (href change) | LOW | P0 |
+| Landing page copy tweaks | LOW-MEDIUM (polish) | LOW (text changes) | LOW | P2 |
+| Contextual upgrade prompt | MEDIUM (conversion optimization) | LOW (new small component) | LOW | P2 |
+| Theme transition smoothing | LOW (prevents flash) | LOW (CSS transition) | LOW | P2 |
+
+---
+
+## Competitor Feature Analysis
+
+How do similar SaaS ad intelligence tools handle their free-to-paid surface?
+
+| Product | Free Surface | Paid Surface | Consistency Approach | Upgrade Pattern |
+|---------|-------------|-------------|---------------------|-----------------|
+| **AdSpy** | Search page with limited results | Same page, unlocked filters | Single surface, gated features | Inline "Upgrade" on locked filters |
+| **BigSpy** | Dashboard with watermarked results | Same dashboard, clean results | Unified UI, tier-gated | Persistent top banner + inline locks |
+| **Meta Ad Library** | Public, free | N/A | Single surface (not SaaS) | N/A |
+| **Foreplay** | Swipe file with limits | Full dashboard + boards | Different nav depth but same visual language | "Upgrade" in sidebar |
+| **Motion (creative analytics)** | No free tier | Full product | N/A | N/A |
+
+**Pattern observed:** The most polished ad intelligence tools use a single visual surface with tier-gated features rather than visually distinct free/paid pages. When they do have separate surfaces, the brand identity, color palette, and navigation style are always consistent.
+
+**Implication for this project:** V1 and V2 being visually distinct is acceptable (V1 is simpler by design), but they MUST share the same brand identity, color palette, and navigation language. The visual gap today is too large -- it looks like two different products.
+
+---
+
+## Sources
+
+- Codebase analysis: `src/app/globals.css` (CSS variables and theme definitions), `src/app/analyser/page.tsx` (V1 page structure and styling), `src/components/landing/landing-nav.tsx` (landing navigation), `src/app/dashboard/v2/v2-shell.tsx` (V2 shell and dark mode), `src/components/landing/hero-section.tsx` (landing theme)
+- [SaaS UI Design Guide - The Alien Design](https://www.thealien.design/insights/saas-ui-design) -- design consistency principles
+- [Navigation UX Best Practices for SaaS - Pencil & Paper](https://www.pencilandpaper.io/articles/ux-pattern-analysis-navigation) -- navigation patterns for multi-surface products
+- [Freemium Upgrade Prompts - Appcues](https://www.appcues.com/blog/best-freemium-upgrade-prompts) -- upgrade prompt design patterns
+- [Conversion-Centered Design for SaaS Upgrades - The Good](https://thegood.com/insights/saas-upgrades/) -- CTA and conversion principles
+- [SaaS Navigation Menu Design - Lollypop](https://lollypop.design/blog/2025/december/saas-navigation-menu-design/) -- minimal header patterns
+- [Freemium Conversion Tips 2025 - 5W PR](https://www.5wpr.com/new/how-freemium-models-drive-conversions-in-saas-tips-for-2025/) -- freemium-to-paid strategy

@@ -1,157 +1,150 @@
 # Project Research Summary
 
-**Project:** Ad Library Demographics Analyzer
-**Domain:** Ad Intelligence / Competitive Analysis SaaS
-**Researched:** 2026-02-02
-**Milestone:** v3.1 Competitive Intelligence
+**Project:** Ad Library Pro — v5.1 Visual Consistency
+**Domain:** Ad intelligence platform — visual consistency retrofit
+**Researched:** 2026-03-18
 **Confidence:** HIGH
 
 ## Executive Summary
 
-The v3.1 Competitive Intelligence milestone adds four features to the existing brand tracking system: ad creative hook extraction, demographic trend charts, side-by-side brand comparison, and rule-based pattern observations. Research across stack, features, architecture, and pitfalls dimensions reveals that **zero new npm dependencies are needed** -- all features can be built with the existing stack (Next.js 16, React 19, Recharts, Tailwind 4, Prisma) plus ~200-300 lines of custom TypeScript utilities.
+The v5.1 milestone is a consolidation effort, not a technology adoption. The project already has all the right pieces — Tailwind CSS v4 with `@theme inline`, `@custom-variant dark`, and `next-themes` installed — but they are not connected. Three separate theming systems coexist: V1 uses CSS custom properties with a green palette, V2 uses 308+ inline `darkMode ?` ternaries with hardcoded hex, and shadcn/ui uses oklch variables with `.dark` class. The fix is wiring these into a single token-based system.
 
-The recommended approach is **data-first, UI-second**: start with a data foundation phase (schema migration for creative hooks, JSON normalizer for snapshot consistency), then build API endpoints, then UI components. Trend charts and brand comparison can proceed in parallel since they're independent, while pattern observations should come last because they benefit from temporal and hook data being available.
+The biggest risk is not technical complexity but scope discipline. The temptation to refactor V2's 308 ternaries, rebuild V1's monolithic page, or extract a full design system will derail the milestone. V5.1 should focus narrowly: define unified tokens, add a shared header to V1, swap V1's green palette to blue, and add V1 dark mode support. V2 ternary cleanup can come later.
 
-Key risks center on **multilingual hook text** (EU ads in 10+ languages), **sparse irregular time-series** (Recharts has documented issues with non-uniform data), **JSON schema drift** across snapshots from different app versions, and **rule-based observations generating obvious or misleading statements**. All have concrete prevention strategies documented in PITFALLS.md.
+The critical ordering constraint: design tokens and dark mode infrastructure must be established before any component-level theming. Shipping partial dark mode (themed nav + unthemed content) is worse than no dark mode.
 
 ## Key Findings
 
 ### Recommended Stack
 
-No new libraries needed. The existing stack covers all requirements. See STACK.md for full analysis.
+No new dependencies needed. The project already has `next-themes` (^0.4.6, only used by sonner.tsx), Tailwind v4 with `@theme inline` and `@custom-variant dark (&:is(.dark *))`, and CSS custom properties throughout. The work is consolidation:
 
-**Key decisions:**
-- **Hook extraction:** Custom regex + Dice bigram similarity (~40 LOC) -- NLP libraries (compromise, wink-nlp) are overkill for short ad copy
-- **Trend charts:** Recharts already installed -- use `AreaChart` with `stackOffset="expand"` for composition views
-- **Comparison:** CSS Grid + existing chart components reused with lifted hover state
-- **Pattern observations:** Custom rule engine with template literals (~150 LOC) -- no template engine or LLM needed
+- **CSS custom properties in `:root`/`.dark`**: Define unified `--ds-*` (or `--surface-*`, `--text-*`, `--brand-*`) tokens
+- **`@theme inline`**: Register tokens as Tailwind utilities (`bg-surface-page`, `text-text-primary`)
+- **`next-themes`**: Wire into root layout to manage `.dark` class on `<html>`, replacing V2's React state approach
+- **Avoid**: New config files, CSS-in-JS, oklch conversion, or custom context providers for dark mode
 
 ### Expected Features
 
-See FEATURES.md for detailed analysis with competitor benchmarking.
+**Must have (table stakes):**
+- Unified blue color palette on V1 (eliminates "two different products" feeling)
+- Consistent brand identity — BarChart3 icon + "Ad Library Pro" everywhere (not "Ad Analyser")
+- V1 navigation header with logo + upgrade CTA (replace 5-link nav)
+- V1 dark mode support (reads same preference as V2)
+- CTA fix — V1 points to `/#pricing` not `/coming-soon`
 
-**Table stakes:**
-- **Trend charts** -- Pathmatics, SocialPeta, Sensor Tower all show time-series. Data already exists in snapshots; not charting it is a missed obvious step.
-- **Brand comparison** -- Any brand tracking dashboard that can't compare brands side-by-side is missing its core value prop. Butterfly chart (population pyramid pattern) is the gold standard for 2-brand demographic comparison.
+**Should have (differentiators):**
+- Contextual upgrade prompt after free analysis results
+- Smooth theme transition animations (`transition-colors`)
+- Shared dark mode persistence via localStorage
 
-**Differentiators:**
-- **Hook extraction** -- Only Foreplay Spyder ($99-249/mo) auto-extracts hooks. Offering this on free public Ad Library data is a strong competitive wedge.
-- **Pattern observations** -- Enterprise tools charge $500+/mo for AI insights. Rule-based factual observations are free to compute, deterministic, and no one sub-$50/mo offers them.
-
-**Anti-features (do NOT build for v3.1):**
-- AI/LLM-powered insights (cost, latency, hallucination risk)
-- Fuzzy/semantic hook clustering (over-engineering for v3.1)
-- N-way brand comparison (butterfly charts only work with 2)
-- Video hook transcription (different infrastructure problem)
-- Real-time competitor monitoring (major infra investment)
+**Defer:**
+- V2 ternary cleanup (308 occurrences, separate milestone)
+- V1 page refactoring (monolith is fine for now)
+- Design system extraction / Storybook
+- V1 sidebar navigation (V1 is single-purpose, not a dashboard)
 
 ### Architecture Approach
 
-All features plug into the existing snapshot pipeline. See ARCHITECTURE.md for data models, API endpoints, component hierarchy, and data flows.
+Three layout zones sharing one token layer, each with its own shell:
 
-**New data model:**
-- `CreativeHook` Prisma model -- stores extracted hooks per snapshot with grouping and reach-weighted scoring
+```
+globals.css (unified tokens: :root + .dark)
+    |
+    +-- Landing (/) — forced dark, AppHeader, full-width
+    +-- Analyser (/analyser) — AppHeader + centered content
+    +-- Dashboard (/dashboard/v2) — V2Shell (sidebar) + tokens
+```
 
-**New API endpoints:**
-- `GET /api/dashboard/trends` -- demographic breakdown time series for one brand
-- `GET /api/dashboard/compare` -- side-by-side data for two brands (dedicated to avoid request waterfall)
-
-**New lib modules:**
-- `src/lib/hook-extractor.ts` -- extract + group hooks from ad creative bodies
-- `src/lib/pattern-observer.ts` -- rule-based observation engine
-
-**Key pattern:** Hooks stored as DB rows (queryable). Demographics stay as JSON blobs (read-as-unit). Observations computed at read-time (cheap, always fresh).
+**Major components:**
+1. **Design tokens** in `globals.css` `:root`/`.dark` — single source of truth
+2. **`@theme inline`** mappings — tokens → Tailwind utilities
+3. **ThemeProvider** (via `next-themes`) — manages `.dark` class on `<html>`
+4. **AppHeader** — shared top nav for landing + analyser (V2 keeps its sidebar header)
 
 ### Critical Pitfalls
 
-See PITFALLS.md for all 8 pitfalls with prevention strategies.
-
-1. **Multilingual hook grouping** -- EU ads in 10+ languages; string similarity fails across languages. Group by detected language first, then apply structural pattern classification.
-2. **Sparse time-series in Recharts** -- Must use `type="number"` + `scale="time"` with Unix epoch ms and manual tick generation. Recharts auto-ticks break with irregular data (GitHub issues #414, #2126).
-3. **demographicsJson schema drift** -- No versioning on JSON blobs. Old and new snapshots may have different shapes. Write a normalizer function as prerequisite before any trend features.
-4. **Rule-based observations generating noise** -- "Captain Obvious" problem (restating what charts show) and false significance (reporting 0.3pp shifts). Need minimum delta thresholds and surprise-value ranking.
-5. **ad_creative_bodies is an array** -- Current code only reads `[0]`. Multi-variant ads silently lose creative text. Must iterate all elements for hook extraction.
+1. **Two incompatible dark mode systems** — V2 uses React context ternaries, globals.css has unused `.dark` class. Must choose ONE approach for V1 (CSS class-based recommended) and sync via side effect.
+2. **CSS variable collision** — Changing `:root` variables affects ALL pages including landing. Must namespace new tokens (`--ds-*`) or scope carefully.
+3. **Recharts hardcoded colors** — Charts use literal hex for fills/strokes/ticks. Will be invisible or unreadable in dark mode. Every chart needs an audit.
+4. **Navigation header breaks V1 layout** — V1 is a monolithic page with its own header. Inserting a shared nav creates double-header. Extract to `analyser/layout.tsx`.
+5. **Partial dark mode is worse than none** — Dark header + light content looks broken. Ship V1 dark mode as atomic unit.
 
 ## Implications for Roadmap
 
 Based on research, suggested phase structure:
 
-### Phase 1: Data Foundation & Hook Extraction
-**Rationale:** Schema migration and data extraction must land before any UI. Hooks require a new Prisma model and expanding `ad_creative_bodies` beyond `[0]`. JSON normalizer is prerequisite for trend charts.
-**Delivers:** `CreativeHook` model, `hook-extractor.ts` lib, JSON schema normalizer, expanded creative body extraction
-**Addresses:** DF-1 (hooks) data layer, Pitfall #3 (schema drift), Pitfall #6 (array handling)
-**Avoids:** Building UI before data is available
+### Phase 1: Design Tokens + Theme Infrastructure
+**Rationale:** Everything depends on this — tokens are the foundation, theme provider is the mechanism.
+**Delivers:** Unified CSS custom properties in `:root`/`.dark`, `@theme inline` mappings, `next-themes` wired into root layout.
+**Addresses:** Token strategy (ARCHITECTURE), variable collision prevention (PITFALLS #3), dark mode persistence (PITFALLS UX1)
+**Avoids:** Two incompatible dark mode systems (PITFALLS #1)
+**No visual changes** — old variables coexist with new ones.
 
-### Phase 2: Trend Charts
-**Rationale:** Uses existing snapshot data with no schema changes (after normalizer from Phase 1). Highest immediate value for users with multiple snapshots. Independent of comparison and hooks UI.
-**Delivers:** `DemographicTrendChart` component, `GET /api/dashboard/trends` endpoint, trend tabs on brand detail page
-**Addresses:** TS-1 (trend charts)
-**Avoids:** Pitfall #2 (sparse time-series) via d3-scale ticks and minimum 3-snapshot requirement
+### Phase 2: V1 Navigation Header + Brand Identity
+**Rationale:** Layout structure must be settled before component theming. Header is the most visible brand consistency element.
+**Delivers:** `AppHeader` component, V1 layout.tsx extraction, brand lockup (BarChart3 + "Ad Library Pro"), CTA fix to `/#pricing`.
+**Addresses:** Brand fragmentation (FEATURES table stakes), navigation declutter (FEATURES)
+**Avoids:** Layout height breaks (PITFALLS #4), double-header (PITFALLS #4)
 
-### Phase 3: Brand Comparison
-**Rationale:** Independent of other features. Butterfly/grouped bar chart is visually impressive and table stakes for competitive intelligence tools.
-**Delivers:** `/dashboard/compare` page, `GET /api/dashboard/compare` endpoint, mirrored demographic charts, brand picker
-**Addresses:** TS-2 (brand comparison)
-**Avoids:** Pitfall #5 (mismatched granularity) via confidence indicators and shared axis scales, Pitfall #7 (butterfly chart hacks) via grouped BarChart approach
+### Phase 3: V1 Theme Migration
+**Rationale:** With tokens defined and layout settled, swap V1's green palette to blue and add dark mode support.
+**Delivers:** V1 uses unified tokens, dark mode works on V1, Recharts themed for both modes.
+**Addresses:** Color palette unification (FEATURES P0), dark mode (FEATURES P1), chart theming (PITFALLS #2)
+**Avoids:** Partial dark mode (PITFALLS UX2) — ships as atomic unit
 
-### Phase 4: Pattern Observations
-**Rationale:** Should be LAST because it benefits from temporal data (trend charts) and hook data. Rules are more valuable when more data dimensions exist.
-**Delivers:** `pattern-observer.ts` rule engine, `PatternObservations` component, insight cards on brand detail page
-**Addresses:** DF-2 (pattern observations)
-**Avoids:** Pitfall #4 (obvious/misleading statements) via minimum delta thresholds and surprise-value ranking
+### Phase 4: Landing Page Polish + Cleanup
+**Rationale:** Landing page comes last because it depends on knowing the final V1/V2 look. Cleanup removes old tokens.
+**Delivers:** Landing page CTA/copy alignment, removal of old green Kiri Media tokens, minor polish.
+**Addresses:** Landing page tweaks (PROJECT.md requirement), landing inconsistency (PITFALLS UX3)
 
 ### Phase Ordering Rationale
 
-- **Data before UI** -- Phase 1 (data foundation) must complete before Phases 2-4 can display anything
-- **Independent features in parallel** -- Phases 2 (trends) and 3 (comparison) have no mutual dependencies and could theoretically be built concurrently
-- **Observations last** -- Pattern rules benefit from having trend data and hooks available; more data = more useful observations
-- **Pitfall prevention built in** -- Each phase directly addresses the pitfalls mapped to its feature area
+- **Tokens before components:** Every component change depends on tokens existing. Doing tokens first means zero wasted work.
+- **Header before theme:** Layout structure changes (adding nav, extracting layout.tsx) should happen before color/theme work to avoid merge conflicts and double-work.
+- **V1 dark mode as atomic unit:** Per PITFALLS UX2, partial dark mode looks broken. V1 theme + dark mode must ship together.
+- **Landing last:** It already uses the blue palette. Minor alignment after V1 is settled.
 
 ### Research Flags
 
 Phases likely needing deeper research during planning:
-- **Phase 3 (Comparison):** Recharts butterfly/grouped bar implementation specifics; verify negative-value approach vs dual-chart layout
-- **Phase 1 (Hooks):** Multilingual language detection library compatibility with Next.js/Vercel edge runtime
+- **Phase 3 (V1 Theme):** Recharts dark mode theming is tedious — needs file-by-file audit of chart components. 163 CSS variable references to update.
 
 Phases with standard patterns (skip research-phase):
-- **Phase 2 (Trends):** Recharts LineChart/AreaChart patterns are well-documented and already used in the codebase
-- **Phase 4 (Observations):** Pure TypeScript rule engine, no external dependencies or novel patterns
+- **Phase 1 (Tokens):** Well-documented Tailwind v4 patterns, infrastructure already exists
+- **Phase 2 (Header):** Standard Next.js layout extraction, existing nav components to reference
+- **Phase 4 (Polish):** Copy/CSS changes only
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Zero new deps; verified existing codebase has all needed patterns |
-| Features | MEDIUM-HIGH | Competitor analysis confirms table stakes/differentiators; UX specifics need refinement during planning |
-| Architecture | HIGH | Based on direct codebase analysis of existing models, endpoints, and components |
-| Pitfalls | HIGH | Verified against actual code (e.g., `[0]`-only extraction) and documented Recharts issues |
+| Stack | HIGH | No new deps needed. All tools already installed and partially configured. |
+| Features | HIGH | Based on direct codebase analysis — every inconsistency is observable in source. |
+| Architecture | HIGH | Tailwind v4 `@theme inline` already in use; dependency chain clear from grep counts. |
+| Pitfalls | HIGH | Specific to this codebase — 308 ternaries, 163 var references, 385 hardcoded hex measured directly. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Prisma provider discrepancy:** Schema says `postgresql`, PROJECT.md says SQLite -- need to verify actual deployment database before assuming JSON querying capabilities
-- **Hook extraction quality:** What percentage of Facebook ads have meaningful `ad_creative_bodies` text? Needs empirical testing with real data during Phase 1
-- **Observation thresholds:** Specific percentages for "what counts as interesting" need user testing; ship with reasonable defaults and tune
-- **Butterfly chart feasibility:** Recharts grouped BarChart vs negative-value approach needs prototyping during Phase 3 planning
+- **Should V1 support dark mode toggle, or only read preference?** Research recommends: read from localStorage/system preference, no toggle UI on V1 itself.
+- **Should landing page stay forced-dark or respect user preference?** Research recommends: keep forced dark (marketing material).
+- **Font stack alignment:** V1 uses DM Sans via Google Fonts import, layout.tsx loads Geist via `next/font`. Shared nav needs one consistent font.
+- **V2 ternary cleanup scope:** Not in v5.1, but the 308 ternaries create a visible inconsistency in code quality. Flag for v5.2.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Codebase analysis: `facebook-api.ts`, `snapshot-builder.ts`, `demographic-aggregator.ts`, Prisma schema, dashboard components
-- Recharts GitHub Issues: #414, #956, #2126, #1137 (time-series handling)
-- Foreplay Spyder product pages (hook extraction feature verification)
-- Data Viz Project / ChartExpo (butterfly chart patterns)
-- NN/g UX research (comparison tables, chart type selection)
+- Direct codebase analysis: `globals.css`, `v2-shell.tsx`, `v2-context.tsx`, `landing-nav.tsx`, `analyser/page.tsx`
+- Tailwind CSS v4 official docs (dark mode, @theme directive)
+- next-themes GitHub docs (v0.4.6)
 
 ### Secondary (MEDIUM confidence)
-- Pathmatics/Sensor Tower marketing pages (competitor feature claims)
-- SocialPeta feature pages
-- Facebook Ad Library API documentation (field structure)
-
-### Tertiary (LOW confidence)
-- Ad intelligence vendor listicles (SuperAds, Madgicx) -- used for market landscape only
+- SaaS UI design patterns (The Alien Design, Pencil & Paper, Appcues)
+- Competitor analysis (AdSpy, BigSpy, Foreplay patterns)
+- Community Tailwind v4 + next-themes integration guides
 
 ---
-*Research completed: 2026-02-02*
+*Research completed: 2026-03-18*
 *Ready for roadmap: yes*

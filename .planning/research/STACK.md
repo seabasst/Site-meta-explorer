@@ -1,314 +1,300 @@
-# Technology Stack: v3.1 Competitive Intelligence
+# Stack Research: Visual Consistency Theming
 
-**Project:** Ad Library Demographics Analyzer
-**Researched:** 2026-02-02
-**Scope:** New libraries/approaches needed for v3.1 features only (existing stack is settled)
-
-## Existing Stack (No Changes Needed)
-
-| Technology | Version | Status |
-|------------|---------|--------|
-| Next.js | 16.1.2 | Keep |
-| React | 19.2.3 | Keep |
-| Recharts | ^3.6.0 | Keep (consider bumping to 3.7.0) |
-| Tailwind CSS | 4 | Keep |
-| shadcn/ui + Radix | current | Keep |
-| Prisma + PostgreSQL | 7.3.0 | Keep |
-| Zod | ^4.3.6 | Keep |
-| TypeScript | ^5 | Keep |
-
----
-
-## New Stack Additions for v3.1
-
-### Feature 1: Ad Creative Hooks Extraction + Similarity Grouping
-
-**What the feature needs:** Extract the first sentence/hook from `creativeBody` text already fetched from the Facebook API, then group similar hooks by string similarity, and display frequency weighted by reach.
-
-#### Recommended: No New Dependencies
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Sentence extraction | Custom regex/heuristic | Ad copy is short (1-3 sentences). A regex splitting on `.!?\n` handles 95%+ of cases. No NLP library needed for extracting the first sentence from a Facebook ad body. |
-| String similarity | Custom Dice coefficient (~30 LOC) | The Dice/Sorensen coefficient on bigrams is the standard algorithm for short-string similarity. It is trivially implementable in ~30 lines of TypeScript. Adding a dependency for this is unnecessary. |
-| Grouping/clustering | Custom greedy clustering | For grouping similar hooks: iterate sorted-by-frequency, assign each to the first existing cluster where similarity > threshold (e.g., 0.6), or create a new cluster. This is a simple greedy pass, not k-means. Ad datasets are small (50-500 ads per brand), so O(n^2) comparison is fine. |
-
+**Domain:** Ad intelligence platform -- visual consistency across V1/V2
+**Researched:** 2026-03-18
 **Confidence:** HIGH
 
-**Why NOT use NLP libraries:**
+## Executive Summary
 
-| Library | Version | Why Not |
-|---------|---------|---------|
-| compromise | 14.14.5 | Overkill. Adds ~200KB+ for POS tagging, grammar parsing we do not need. Ad copy is short text, not prose. Sentence extraction from 1-3 sentence ad bodies is a simple split. |
-| wink-nlp | 2.4.0 | Requires a ~1MB language model download (wink-eng-lite-web-model). Powerful but unnecessary for splitting short ad text into sentences. |
-| natural | 8.1.0 | Node.js only (no tree-shaking), large package with tokenizers/stemmers/classifiers we do not need. Its TF-IDF and Dice coefficient are useful algorithms but trivially reimplementable for this narrow use case. |
-| cmpstr | 3.2.1 | Clean API with many algorithms, but adding a dependency for a single 30-line function (Dice bigram similarity) is not justified. |
-| string-comparison | 1.3.0 | Last published 2 years ago. Same reasoning as cmpstr. |
+The project already has most of the right pieces in place. The gap is not missing technology -- it is fragmented usage of what exists. V2 uses a custom `darkMode` boolean via React context with hardcoded hex values (`#101322`, `#f6f6f8`, `#1235e2`), while V1/landing use CSS custom properties from `:root` with a completely different color palette (green-tinted Kiri Media branding). The `globals.css` already uses Tailwind v4 `@theme inline` and `@custom-variant dark`, but the V2 shell ignores both of these in favor of inline ternaries.
 
-**Implementation approach:**
+The fix is consolidation, not new libraries. Define the V2 design system colors as CSS custom properties, wire them through `@theme inline`, replace the V2 context-based `darkMode` with the standard `next-themes` + `.dark` class approach that the codebase already partially supports, then update V1 to consume the same tokens.
 
-```typescript
-// Hook extraction: first sentence from ad creative body
-function extractHook(creativeBody: string): string | null {
-  if (!creativeBody?.trim()) return null;
-  // Split on sentence boundaries, take first non-empty
-  const sentences = creativeBody.split(/(?<=[.!?])\s+|\n+/).filter(Boolean);
-  return sentences[0]?.trim() || null;
+## Current State Analysis
+
+### What exists today
+
+| Mechanism | Where Used | How It Works |
+|-----------|-----------|--------------|
+| CSS custom properties in `:root` | V1/landing pages | Green Kiri Media palette (`--bg-primary`, `--text-primary`, `--accent-green`) |
+| `.dark` class override in `globals.css` | shadcn/ui components (button, sonner) | oklch-based variables (`--background`, `--foreground`, etc.) |
+| `@custom-variant dark (&:is(.dark *))` | `globals.css` line 5 | Already configured for class-based dark mode |
+| `@theme inline` block | `globals.css` lines 79-120 | Maps CSS vars to Tailwind utilities, but only for shadcn tokens |
+| `next-themes` package | Installed (`^0.4.6`), only used by `sonner.tsx` | Not wired into layout or V2 |
+| Custom React context (`useV2`) | V2 shell and all V2 pages | `darkMode` boolean state, hardcoded hex ternaries everywhere |
+
+### The problem
+
+Three separate theming systems coexist:
+1. **V1/landing:** `:root` CSS variables (green palette, no dark mode)
+2. **V2 dashboard:** Hardcoded hex values via `darkMode ? '#101322' : '#f6f6f8'` ternaries
+3. **shadcn/ui components:** oklch CSS variables with `.dark` class overrides
+
+None of these talk to each other. The V2 approach is the most brittle -- every component has 15+ inline ternaries checking `darkMode`.
+
+## Recommended Approach
+
+### Step 1: Define unified design tokens as CSS custom properties
+
+Add V2 design system colors to `:root` and `.dark` in `globals.css`:
+
+```css
+:root {
+  /* V2 Design System */
+  --ds-primary: #1235e2;
+  --ds-bg: #f6f6f8;
+  --ds-bg-card: #ffffff;
+  --ds-bg-elevated: #ffffff;
+  --ds-border: #e2e8f0;
+  --ds-border-accent: rgba(18, 53, 226, 0.2);
+  --ds-text: #0f172a;
+  --ds-text-muted: #64748b;
+  --ds-text-secondary: #475569;
+  /* ... existing Kiri Media vars stay for V1 during migration ... */
 }
 
-// Dice coefficient for bigram similarity
-function diceSimilarity(a: string, b: string): number {
-  const bigrams = (s: string) => {
-    const lower = s.toLowerCase();
-    const set = new Set<string>();
-    for (let i = 0; i < lower.length - 1; i++) set.add(lower.slice(i, i + 2));
-    return set;
-  };
-  const setA = bigrams(a), setB = bigrams(b);
-  let intersection = 0;
-  for (const bg of setA) if (setB.has(bg)) intersection++;
-  return (2 * intersection) / (setA.size + setB.size) || 0;
-}
-
-// Greedy clustering
-function clusterHooks(hooks: { text: string; reach: number }[], threshold = 0.6) {
-  const clusters: { representative: string; items: typeof hooks; totalReach: number }[] = [];
-  for (const hook of hooks.sort((a, b) => b.reach - a.reach)) {
-    const match = clusters.find(c => diceSimilarity(c.representative, hook.text) >= threshold);
-    if (match) {
-      match.items.push(hook);
-      match.totalReach += hook.reach;
-    } else {
-      clusters.push({ representative: hook.text, items: [hook], totalReach: hook.reach });
-    }
-  }
-  return clusters.sort((a, b) => b.totalReach - a.totalReach);
+.dark {
+  --ds-bg: #101322;
+  --ds-bg-card: rgba(18, 53, 226, 0.05);
+  --ds-bg-elevated: rgba(18, 53, 226, 0.1);
+  --ds-border: rgba(18, 53, 226, 0.2);
+  --ds-border-accent: rgba(18, 53, 226, 0.3);
+  --ds-text: #f1f5f9;
+  --ds-text-muted: #94a3b8;
+  --ds-text-secondary: #cbd5e1;
 }
 ```
 
-This is approximately 40 lines of TypeScript with zero dependencies. The ad creative text is already available in `FacebookAdResult.creativeBody` and reach in `FacebookAdResult.euTotalReach`.
+### Step 2: Register tokens in `@theme inline`
 
----
+```css
+@theme inline {
+  --color-ds-primary: var(--ds-primary);
+  --color-ds-bg: var(--ds-bg);
+  --color-ds-bg-card: var(--ds-bg-card);
+  --color-ds-border: var(--ds-border);
+  --color-ds-text: var(--ds-text);
+  --color-ds-text-muted: var(--ds-text-muted);
+  /* ... */
+}
+```
 
-### Feature 2: Trend Charts (Demographic Shifts Over Time)
+This creates utility classes like `bg-ds-bg`, `text-ds-text`, `border-ds-border` that automatically switch between light and dark.
 
-**What the feature needs:** Visualize how age distribution, gender split, and top countries change across historical snapshots for a brand.
-
-#### Recommended: Use Existing Recharts (Already Installed)
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Charting library | Recharts ^3.6.0 (already installed) | The app already uses Recharts with LineChart, AreaChart patterns. The existing `TrendChart` component already shows reach/ads/spend over time using LineChart. Demographic trends are the same pattern with different data keys. |
-| Data transformation | Custom utility function | Transform `BrandSnapshot.demographicsJson` time series into the flat `{ date, "18-24": X, "25-34": Y, ... }` format Recharts expects. |
-| Chart types | LineChart for age/gender trends, AreaChart (stacked) for composition view | LineChart shows absolute changes. AreaChart with `stackOffset="expand"` normalizes to 100% for composition view (how the mix shifts). |
-
-**Confidence:** HIGH
-
-**No new dependencies needed.** The existing codebase already has the exact pattern in `src/components/dashboard/trend-chart.tsx` -- multi-line Recharts LineChart with metric toggles. Demographic trends are the same pattern with different data series.
-
-**Key Recharts patterns to use (already in codebase):**
-
-- `ResponsiveContainer` + `LineChart` with multiple `Line` components (see existing `trend-chart.tsx`)
-- `XAxis` with date formatting, `YAxis` with percentage formatter
-- Custom `Tooltip` with `contentStyle` matching the existing dark theme
-- `AreaChart` with `stackOffset="expand"` for normalized composition view (this is built into Recharts, no additional code needed)
-
-**Consider bumping Recharts to 3.7.0** for latest fixes, but not required.
-
----
-
-### Feature 3: Side-by-Side Brand Comparison
-
-**What the feature needs:** Mirrored demographic charts showing two brands next to each other for visual comparison.
-
-#### Recommended: No New Dependencies
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Layout | CSS Grid (2-column) via Tailwind | Two-column grid with matching chart heights. Tailwind `grid grid-cols-2 gap-6` is all that is needed. |
-| Charts | Reuse existing `AgeGenderChart` and `CountryChart` | The existing chart components accept data props. Render two instances side by side with different brand data. |
-| Brand selector | shadcn/ui Select or Combobox | Already in the project's UI kit. User picks two brands from their tracked list. |
-| Synchronized interactions | Shared state via React 19 `useState` | When hovering an age group on the left chart, highlight the same group on the right. Pass `hoveredAge` state up to parent. |
-
-**Confidence:** HIGH
-
-**Existing `DemographicsComparison` component** at `src/components/dashboard/demographics-comparison.tsx` already compares multiple brands in a list layout. The v3.1 feature enhances this to a focused two-brand mirrored view with synchronized hover states.
-
-**Architecture pattern:** Lift hover state to the parent comparison container, pass down to both chart instances as props. This is standard React composition, no library needed.
+### Step 3: Wire `next-themes` into the root layout
 
 ```tsx
-// Parent manages synchronized state
-const [hoveredAge, setHoveredAge] = useState<string | null>(null);
+// layout.tsx
+import { ThemeProvider } from 'next-themes';
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <BrandDemoPanel brand={brandA} hoveredAge={hoveredAge} onHover={setHoveredAge} />
-  <BrandDemoPanel brand={brandB} hoveredAge={hoveredAge} onHover={setHoveredAge} />
-</div>
+<ThemeProvider attribute="class" defaultTheme="light">
+  {children}
+</ThemeProvider>
 ```
 
----
+This applies `.dark` class to `<html>`, which the existing `@custom-variant dark (&:is(.dark *))` already supports.
 
-### Feature 4: Rule-Based Pattern Observations
+### Step 4: Replace V2 context ternaries with semantic classes
 
-**What the feature needs:** Auto-generate factual text summaries from demographic snapshot data. Examples: "Skews 25-34 male", "Top country shifted DE to FR", "Gender split shifted 5pp toward female since last snapshot."
+Before:
+```tsx
+<div className={`${darkMode ? 'bg-[#101322] text-slate-100' : 'bg-[#f6f6f8] text-slate-900'}`}>
+```
 
-#### Recommended: No New Dependencies (Pure TypeScript Rules)
+After:
+```tsx
+<div className="bg-ds-bg text-ds-text">
+```
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Text generation | Custom rule engine (~100-150 LOC) | Template strings with conditional logic. This is pattern matching on structured data, not NLP. Each rule checks a condition and emits a sentence. |
-| Rule structure | Array of `{ check, generate }` functions | Each rule receives current + previous snapshot data, returns an observation string or null. |
-| Prioritization | Score-based sorting | Each observation gets a significance score (e.g., magnitude of shift). Show top N most notable observations. |
+Dark mode happens automatically via CSS custom property overrides. No JS ternaries needed.
 
-**Confidence:** HIGH
+## Recommended Stack (for v5.1 theming)
 
-**Why this does NOT need an NLP/NLG library:** The input is fully structured numeric data (percentages, country codes, gender splits). The output is templated English sentences. There are no open-ended generation needs. A rule engine with template literals is the correct tool.
+### Core Technologies (already installed, just need proper wiring)
 
-**Example rule architecture:**
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| Tailwind CSS v4 | ^4 | Utility-first CSS with `@theme` | Already in project. `@theme inline` is the correct v4 way to register design tokens as utility classes. |
+| `next-themes` | ^0.4.6 | Theme switching (dark/light/system) | Already installed. Handles `.dark` class on `<html>`, persists preference in localStorage, prevents FOUC. |
+| CSS custom properties | Native | Design token storage | Already used in project. Tokens in `:root`/`.dark` override automatically. No build step, works everywhere. |
+| `@custom-variant dark` | Tailwind v4 | Class-based dark mode | Already configured in `globals.css` line 5. This is the official v4 replacement for `darkMode: 'class'`. |
 
-```typescript
-interface Observation {
-  text: string;
-  category: 'demographic' | 'geographic' | 'creative' | 'spend';
-  significance: number; // 0-1, used for sorting
+### Supporting Libraries (already installed)
+
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| `tailwind-merge` | ^3.4.0 | Merge conflicting Tailwind classes | Use in component APIs where users can override classes. Already used via `cn()` utility. |
+| `class-variance-authority` | ^0.7.1 | Type-safe component variants | Use for components with multiple visual states (button sizes, card variants). Already installed. |
+| `clsx` | ^2.1.1 | Conditional className joining | Use for simple conditional classes. Already installed. |
+
+### Development Tools
+
+| Tool | Purpose | Notes |
+|------|---------|-------|
+| Browser DevTools | Inspect CSS custom property values | Toggle `.dark` class on `<html>` to test both modes instantly |
+| `next-themes` `useTheme()` | Read/set theme in components | Replaces `useV2().darkMode` for theme-aware components |
+
+## Tailwind CSS v4 Theming Approach
+
+**Confidence: HIGH** -- Verified against official Tailwind CSS v4.2 docs.
+
+### The `@theme` vs `@theme inline` distinction
+
+- **`@theme`**: Defines new utility classes AND registers CSS variables at `:root`. Good for static tokens (brand colors that never change).
+- **`@theme inline`**: Creates utilities that reference CSS variables by name (not by resolved value). Good for tokens that change per-context (dark/light mode). The `inline` keyword ensures the CSS variable reference is preserved, so `.dark` overrides work correctly.
+
+**Use `@theme inline` for all tokens that change between light/dark mode.** This is what the project already does for shadcn tokens -- extend it to V2 design system tokens.
+
+### What the project already has right
+
+```css
+/* globals.css line 5 -- correct v4 dark mode config */
+@custom-variant dark (&:is(.dark *));
+
+/* globals.css lines 79-120 -- correct @theme inline usage */
+@theme inline {
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  /* ... shadcn tokens ... */
 }
-
-type ObservationRule = (
-  current: SnapshotData,
-  previous: SnapshotData | null
-) => Observation | null;
-
-const rules: ObservationRule[] = [
-  // Dominant segment rule
-  (current) => {
-    if (!current.dominantGender || !current.dominantAgeRange) return null;
-    const pct = current.dominantGenderPct ?? 0;
-    if (pct < 30) return null; // Not significant enough
-    return {
-      text: `Skews ${current.dominantAgeRange} ${current.dominantGender} (${pct.toFixed(0)}%)`,
-      category: 'demographic',
-      significance: pct / 100,
-    };
-  },
-  // Country shift rule
-  (current, previous) => {
-    if (!previous || !current.topCountry1Code || !previous.topCountry1Code) return null;
-    if (current.topCountry1Code !== previous.topCountry1Code) {
-      return {
-        text: `Top country shifted from ${previous.topCountry1Code} to ${current.topCountry1Code}`,
-        category: 'geographic',
-        significance: 0.8,
-      };
-    }
-    return null;
-  },
-  // Gender shift rule
-  (current, previous) => {
-    if (!previous?.dominantGenderPct || !current.dominantGenderPct) return null;
-    const shift = current.dominantGenderPct - previous.dominantGenderPct;
-    if (Math.abs(shift) < 3) return null; // Ignore small shifts
-    const direction = shift > 0 ? 'toward' : 'away from';
-    return {
-      text: `Gender split shifted ${Math.abs(shift).toFixed(0)}pp ${direction} ${current.dominantGender}`,
-      category: 'demographic',
-      significance: Math.min(Math.abs(shift) / 20, 1),
-    };
-  },
-];
 ```
 
-This pattern is easily extensible. New rules are added by pushing to the array. No DSL, no template language, no library.
+### What needs to be added
 
----
+Register V2-specific design tokens in the same `@theme inline` block so that Tailwind generates utility classes for them. The V2 hex values (`#101322`, `#f6f6f8`, `#1235e2`) become CSS custom properties that flip between `:root` and `.dark`.
 
-## Summary: What to Install
+## Dark/Light Mode Implementation
 
-**Nothing.**
+**Confidence: HIGH** -- Verified against Tailwind v4 docs and next-themes README.
 
-All four v3.1 features can be implemented with zero new npm dependencies. Here is the rationale:
+### Architecture
 
-| Feature | New Dependencies | Approach |
-|---------|-----------------|----------|
-| Hook extraction + grouping | None | Custom regex + Dice coefficient (~40 LOC) |
-| Trend charts | None | Recharts already installed + data transformation utility |
-| Side-by-side comparison | None | CSS Grid + reuse existing chart components |
-| Pattern observations | None | Custom rule engine with template literals (~150 LOC) |
+```
+next-themes ThemeProvider
+  |
+  v
+<html class="dark">   (or no class for light)
+  |
+  v
+@custom-variant dark (&:is(.dark *))   <-- already in globals.css
+  |
+  v
+CSS custom properties in .dark { }     <-- override :root values
+  |
+  v
+@theme inline tokens resolve correctly  <-- bg-ds-bg uses var(--ds-bg)
+```
 
-**Total new library code: 0 bytes. Total new application code: ~200-300 lines of TypeScript.**
+### Migration path from V2 context
 
-The existing stack (Next.js 16, React 19, Recharts 3.6, Tailwind 4, shadcn/ui, Prisma 7) already has everything needed.
+1. Keep `useV2()` context but make `darkMode` read from `next-themes` instead of local state
+2. Or (better): Replace `useV2().darkMode` calls with `useTheme()` from `next-themes`
+3. Replace ternary class strings with semantic token classes
 
-### Optional Upgrade
+The `@custom-variant dark (&:is(.dark *))` line already in `globals.css` means `dark:` prefix works with the `.dark` class on any ancestor. `next-themes` adds `.dark` to `<html>`. These are already compatible.
 
-| Package | Current | Latest | Recommendation |
-|---------|---------|--------|---------------|
-| Recharts | ^3.6.0 | 3.7.0 | Optional bump for bug fixes. Not required for v3.1 features. |
+### Preventing Flash of Unstyled Content (FOUC)
 
----
+`next-themes` handles this automatically with an inline `<script>` that runs before React hydration. It reads `localStorage` and applies the class immediately. No extra configuration needed since it is already installed.
 
-## Schema Additions Needed
+## Design Token Management
 
-The current `BrandSnapshot` model stores `demographicsJson` as a `Json?` field, which already contains the full `AggregatedDemographics` object. For v3.1, the schema likely needs:
+**Confidence: HIGH** -- Based on codebase analysis.
 
-| Addition | Purpose | Location |
-|----------|---------|----------|
-| Ad creative hooks storage | Store extracted hooks per snapshot to avoid re-extraction | New field on `BrandSnapshot` or new `AdHook` model |
-| Observations cache | Store generated observations per snapshot | New `Json?` field on `BrandSnapshot` or computed on read |
+### Token hierarchy
 
-**Recommendation:** Store hooks as `hooksJson: Json?` on `BrandSnapshot` (an array of `{ text, reach, frequency }` objects). Observations should be computed on read (they are cheap to generate and should reflect the latest rules).
+```
+Level 1: Primitive tokens (raw values)
+  --ds-blue-600: #1235e2;
+  --ds-slate-900: #0f172a;
+  --ds-slate-50: #f6f6f8;
 
----
+Level 2: Semantic tokens (purpose-based, mode-aware)
+  :root   { --ds-bg: var(--ds-slate-50); }
+  .dark   { --ds-bg: #101322; }
 
-## Alternatives Considered and Rejected
+Level 3: Tailwind utilities (auto-generated)
+  @theme inline { --color-ds-bg: var(--ds-bg); }
+  -> creates bg-ds-bg, text-ds-bg, etc.
+```
 
-### For Hook Extraction
+### Naming convention
 
-| Alternative | Why Rejected |
-|-------------|-------------|
-| OpenAI / LLM API call | Adds cost per request, latency, external dependency. Ad copy is structured short text. Regex handles it. |
-| compromise (14.14.5) | 200KB+ bundle for sentence splitting we can do in one line of regex. Ad bodies are 1-3 sentences, not complex prose. |
-| wink-nlp (2.4.0) | Requires 1MB language model. Excellent for real NLP tasks, unnecessary here. |
+Use `ds-` prefix (design system) to avoid collision with existing variables:
+- `--ds-primary` -- primary brand color
+- `--ds-bg` -- page background
+- `--ds-bg-card` -- card/panel background
+- `--ds-bg-elevated` -- hover/elevated states
+- `--ds-border` -- default borders
+- `--ds-text` -- primary text
+- `--ds-text-muted` -- secondary/muted text
 
-### For Similarity
+### Coexistence with V1 tokens during migration
 
-| Alternative | Why Rejected |
-|-------------|-------------|
-| TF-IDF + cosine similarity | Overkill for short strings (5-15 words). TF-IDF shines on documents, not sentences. Dice on bigrams is simpler and effective for short text matching. |
-| Embedding-based similarity (OpenAI embeddings) | External API cost, latency. The hooks are short English phrases -- character-level similarity is sufficient for grouping "Get 50% off now" with "Get 50% off today". |
-| ml-kmeans / figue | K-means requires knowing cluster count upfront. Greedy single-pass clustering with a similarity threshold is more appropriate when cluster count is unknown and data is small. |
+The existing `:root` variables (`--bg-primary`, `--text-primary`, `--accent-green`) should remain until V1 is fully migrated. They do not conflict with `--ds-*` tokens. After V1 adopts the new tokens, the old ones can be removed.
 
-### For Charts
+## Alternatives Considered
 
-| Alternative | Why Rejected |
-|-------------|-------------|
-| Victory / visx / Nivo | Already using Recharts extensively. Switching or adding a second charting library creates inconsistency and bundle bloat. Recharts handles all needed chart types. |
-| D3 directly | Lower level, more work, no React integration. Recharts wraps D3 already. |
+| Recommended | Alternative | When to Use Alternative |
+|-------------|-------------|------------------------|
+| CSS custom properties in `:root`/`.dark` | CSS `@property` with type-checked values | Only if you need animated color transitions (oklch interpolation). Overkill for this project. |
+| `next-themes` for theme switching | Custom React context (current V2 approach) | Never. `next-themes` handles FOUC, localStorage persistence, system preference detection, and SSR. The custom context does none of these. |
+| `@theme inline` for Tailwind token registration | Hardcoded values in `@theme` | Only for tokens that never change between modes. Use `inline` for anything mode-dependent. |
+| Class-based dark mode (`@custom-variant dark`) | `prefers-color-scheme` media query (Tailwind v4 default) | Only if you want OS-only control with no manual toggle. V2 has a toggle button, so class-based is correct. |
+| `ds-` prefixed semantic tokens | Extending shadcn oklch tokens | Possible but the shadcn tokens use oklch and are designed for shadcn components. V2 has its own design language (#1235e2 blue, specific grays). Keep them separate. |
 
-### For Observations
+## What NOT to Use
 
-| Alternative | Why Rejected |
-|-------------|-------------|
-| LLM-generated insights | Adds cost, latency, non-determinism. Rule-based observations are deterministic, instant, and free. LLM insights could be a future v3.2+ enhancement for "deeper analysis." |
-| Template engine (Handlebars, Mustache) | Overkill. JS template literals with conditional logic are more readable and type-safe than a template language for this use case. |
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| `tailwind.config.js` / `tailwind.config.ts` | Tailwind v4 is CSS-first. Config files are legacy v3. The project correctly has no config file. | `@theme` / `@theme inline` in `globals.css` |
+| Inline hex ternaries (`darkMode ? '#101322' : '#f6f6f8'`) | Brittle, repetitive, bypasses CSS cascade, causes massive diffs when colors change. V2 shell has 15+ of these. | Semantic CSS custom properties (`bg-ds-bg`) that auto-switch via `.dark` class |
+| Custom React context for dark mode state | Does not handle FOUC, localStorage, SSR, or system preference. Reinvents what `next-themes` already does. | `next-themes` `useTheme()` hook |
+| `darkMode: 'class'` in tailwind.config.js | v3 syntax. Does not exist in v4. | `@custom-variant dark (&:is(.dark *))` in CSS (already present) |
+| oklch colors for V2 tokens | The V2 design system uses hex colors (#1235e2). Converting to oklch adds complexity with zero benefit for this milestone. The shadcn tokens can stay oklch. | Hex or rgb for V2 tokens, oklch only where shadcn requires it |
+| CSS-in-JS (styled-components, Emotion) | Adds runtime overhead, breaks streaming SSR in Next.js App Router, unnecessary when Tailwind handles everything | Tailwind utility classes + CSS custom properties |
+| A separate CSS file per theme | Adds HTTP requests, complicates caching, hard to maintain | Single `globals.css` with `:root` and `.dark` overrides |
 
----
+## Key Implementation Notes
 
-## Confidence Assessment
+### The `@custom-variant` selector matters
 
-| Area | Confidence | Reasoning |
-|------|------------|-----------|
-| No new deps needed for hooks | HIGH | Ad creative text is already in `FacebookAdResult.creativeBody`. Regex sentence splitting + Dice similarity are well-understood algorithms. Verified the data shape in `facebook-api.ts`. |
-| Recharts for trend charts | HIGH | Verified existing `TrendChart` component uses the exact same Recharts pattern needed. `demographicsJson` is already stored per snapshot. |
-| Side-by-side comparison | HIGH | Verified existing `DemographicsComparison` component and chart components. This is a layout + composition change, not a technology change. |
-| Rule-based observations | HIGH | Verified `BrandSnapshot` schema has all required fields (dominant gender/age, top countries, percentages). Rules operate on structured data that already exists. |
+The current `globals.css` has:
+```css
+@custom-variant dark (&:is(.dark *));
+```
 
----
+The official Tailwind v4 docs recommend:
+```css
+@custom-variant dark (&:where(.dark, .dark *));
+```
+
+The `:where()` version has zero specificity, which prevents specificity conflicts. The `:is()` version inherits the specificity of `.dark`. **Consider updating to the `:where()` version** during this milestone for better CSS specificity behavior.
+
+### Recharts theming
+
+Recharts components use inline style props for colors. They cannot consume Tailwind classes directly. Use CSS custom properties via `var()` in Recharts config:
+
+```tsx
+<Bar fill="var(--ds-primary)" />
+<CartesianGrid stroke="var(--ds-border)" />
+```
+
+This makes charts theme-aware without JS ternaries.
+
+### The V1 analyser page
+
+The V1 page currently uses the Kiri Media green palette via `var(--bg-primary)` etc. For visual consistency, the approach is:
+1. Add V2 design system tokens to `:root` and `.dark`
+2. Update V1 page to reference `--ds-*` tokens instead of `--bg-*` / `--accent-green` tokens
+3. Add a navigation header to V1 that matches V2 header style
+4. V1 does not need the full sidebar -- just consistent colors, typography, and a nav header
 
 ## Sources
 
-- [winkNLP documentation](https://winkjs.org/wink-nlp/) - Evaluated for hook extraction, rejected as overkill
-- [compromise GitHub](https://github.com/spencermountain/compromise) - Evaluated for sentence extraction, rejected as overkill
-- [CmpStr GitHub](https://github.com/komed3/cmpstr) - Evaluated for string similarity, rejected (trivially implementable)
-- [Recharts documentation](https://recharts.org/) - Already in use, confirmed AreaChart stackOffset support
-- [string-comparison npm](https://www.npmjs.com/package/string-comparison) - Evaluated, rejected (unmaintained)
-- npm registry (direct queries for version verification): compromise 14.14.5, string-comparison 1.3.0, natural 8.1.0, wink-nlp 2.4.0, cmpstr 3.2.1, recharts 3.7.0
+- [Tailwind CSS v4 Dark Mode Documentation](https://tailwindcss.com/docs/dark-mode) -- Official, verified HIGH confidence
+- [Tailwind CSS v4 @theme Directive Documentation](https://tailwindcss.com/docs/theme) -- Official, verified HIGH confidence
+- [next-themes GitHub](https://github.com/pacocoursey/next-themes) -- Official, v0.4.6 compatible
+- [Tailwind CSS v4 + next-themes integration guide](https://dev.to/khanrabiul/nextjs-tailwindcss-v4-how-to-add-darklight-theme-with-next-themes-3c6l) -- Community, MEDIUM confidence
+- [Tailwind v4 dark mode custom variants](https://schoen.world/n/tailwind-dark-mode-custom-variant) -- Community, MEDIUM confidence
+- Codebase analysis of `globals.css`, `v2-context.tsx`, `v2-shell.tsx`, `sonner.tsx`, `package.json` -- Direct inspection, HIGH confidence
