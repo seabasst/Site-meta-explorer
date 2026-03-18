@@ -25,11 +25,11 @@ Align V1 analyser page with V2 dashboard and landing page branding. Two phases: 
   3. Old navigation links (How it works, About, Contact, Feedback, Roadmap) are removed
   4. All CTAs on V1 point to `/#pricing` instead of `/coming-soon`
   5. Contextual upgrade card appears below analysis results prompting users to explore V2 dashboard
-**Research**: Unlikely — standard Next.js layout extraction, existing nav components to reference
-**Plans**: TBD
+**Research**: Complete (44-RESEARCH.md)
+**Plans:** 1 plan
 
 Plans:
-- [ ] 44-01: TBD
+- [ ] 44-01-PLAN.md — Replace nav with branded header, clean up dead code, add upgrade card
 
 ### Phase 45: V1 Theme Update
 **Goal**: V1 visual design matches V2's color palette, typography, and spacing
@@ -53,5 +53,5 @@ Phases execute in numeric order: 44 → 45
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 44. V1 Navigation & Brand Identity | 0/TBD | Not started | - |
+| 44. V1 Navigation & Brand Identity | 0/1 | Planned | - |
 | 45. V1 Theme Update | 0/TBD | Not started | - |
