@@ -16,11 +16,11 @@ Requirements for v5.1 release. Each maps to roadmap phases.
 
 ### Brand Identity & Navigation
 
-- [ ] **NAV-01**: V1 displays BarChart3 icon + "Ad Library Pro" brand lockup matching landing page and V2 sidebar
-- [ ] **NAV-02**: V1 has minimal header with logo linking to `/` and upgrade CTA pill linking to `/#pricing`
-- [ ] **NAV-03**: V1 old navigation links (How it works, About, Contact, Feedback, Roadmap) are removed
-- [ ] **NAV-04**: V1 CTA points to `/#pricing` instead of `/coming-soon`
-- [ ] **NAV-05**: Contextual upgrade card appears below analysis results prompting users to explore V2 dashboard
+- [x] **NAV-01**: V1 displays BarChart3 icon + "Ad Library Pro" brand lockup matching landing page and V2 sidebar
+- [x] **NAV-02**: V1 has minimal header with logo linking to `/` and upgrade CTA pill linking to `/#pricing`
+- [x] **NAV-03**: V1 old navigation links (How it works, About, Contact, Feedback, Roadmap) are removed
+- [x] **NAV-04**: V1 CTA points to `/#pricing` instead of `/coming-soon`
+- [x] **NAV-05**: Contextual upgrade card appears below analysis results prompting users to explore V2 dashboard
 
 ## v2 Requirements
 
@@ -60,11 +60,11 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NAV-01 | Phase 44 | Pending |
-| NAV-02 | Phase 44 | Pending |
-| NAV-03 | Phase 44 | Pending |
-| NAV-04 | Phase 44 | Pending |
-| NAV-05 | Phase 44 | Pending |
+| NAV-01 | Phase 44 | Complete |
+| NAV-02 | Phase 44 | Complete |
+| NAV-03 | Phase 44 | Complete |
+| NAV-04 | Phase 44 | Complete |
+| NAV-05 | Phase 44 | Complete |
 | THEME-01 | Phase 45 | Pending |
 | THEME-02 | Phase 45 | Pending |
 | THEME-03 | Phase 45 | Pending |
