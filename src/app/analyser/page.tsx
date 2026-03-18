@@ -1524,6 +1524,26 @@ export default function Home() {
                 )}
 
               </div>
+
+              {/* Upgrade Card */}
+              {apiResult && (
+                <div className="mt-12 mb-8 p-6 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-center">
+                  <BarChart3 className="w-8 h-8 text-[#1235e2] mx-auto mb-3" />
+                  <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">
+                    Want deeper insights?
+                  </h3>
+                  <p className="text-sm text-[var(--text-secondary)] mb-4 max-w-md mx-auto">
+                    Explore the full Ad Library Pro dashboard with saved brands,
+                    category browsing, and AI-powered creative analysis.
+                  </p>
+                  <Link
+                    href="/#pricing"
+                    className="inline-flex items-center gap-2 bg-[#1235e2] hover:bg-[#0f2bc0] text-white text-sm font-medium px-6 py-2.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+                  >
+                    Explore Pro Dashboard
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
