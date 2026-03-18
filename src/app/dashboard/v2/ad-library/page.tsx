@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useSession, signIn } from 'next-auth/react';
@@ -112,6 +112,14 @@ function formatFormatLabel(format: string | null): string {
 // ---------------------------------------------------------------------------
 
 export default function AdLibraryPage() {
+  return (
+    <Suspense fallback={<V2Shell title="Ad Library"><V2Skeleton rows={4} /></V2Shell>}>
+      <AdLibraryContent />
+    </Suspense>
+  );
+}
+
+function AdLibraryContent() {
   const { darkMode } = useV2();
   const searchParams = useSearchParams();
   const urlBrandPageId = searchParams.get('brandPageId') || '';
