@@ -49,15 +49,15 @@ function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   };
 
   return (
-    <div className={`${sizeClasses[size]} rounded-full border-[var(--border-medium)] border-t-[var(--accent-green-light)] animate-spin`} />
+    <div className={`${sizeClasses[size]} rounded-full border-[var(--border-medium)] border-t-[#1235e2] animate-spin`} />
   );
 }
 
 function ActiveChartFilter({ label, onClear }: { label: string; onClear: () => void }) {
   return (
-    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-tertiary)] border border-emerald-500/50 text-sm">
+    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-tertiary)] border border-[#1235e2]/50 text-sm">
       <span className="text-[var(--text-secondary)]">Filtered by:</span>
-      <span className="font-medium text-emerald-400">{label}</span>
+      <span className="font-medium text-[#1235e2]">{label}</span>
       <button
         onClick={onClear}
         className="ml-1 p-2.5 -m-2 rounded-full hover:bg-[var(--bg-elevated)] transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
@@ -431,7 +431,7 @@ export default function Home() {
       <KiriMediaPopup />
       <FeedbackPopup />
 
-      <main className="min-h-screen">
+      <main className="min-h-screen transition-colors duration-200">
         {/* Top Navigation Bar */}
         <nav className="border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
@@ -460,7 +460,7 @@ export default function Home() {
               Competitive Intelligence Tool
             </div>
             <h1 className="font-serif text-5xl md:text-6xl text-[var(--text-primary)] mb-5 tracking-tight">
-              Facebook Ad Library <span className="text-[var(--accent-green-light)] italic">Analyser</span>
+              Facebook Ad Library <span className="text-[#1235e2] italic">Analyser</span>
             </h1>
             <p className="text-lg text-[var(--text-secondary)] max-w-xl mx-auto leading-relaxed">
               Analyse your competitors&apos; Facebook ads. Get demographics, reach data, and audience insights.
@@ -469,7 +469,7 @@ export default function Home() {
 
           {/* Main Ad Library Form */}
           <form onSubmit={handleAdLibrarySubmit} className="mb-8 animate-fade-in-up stagger-1">
-            <div className="relative z-20 glass rounded-2xl p-6 glow-gold">
+            <div className="relative z-20 glass rounded-lg p-6 glow-gold">
               {inputMode === 'search' ? (
                 <>
                   <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
@@ -529,7 +529,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setInputMode('url')}
-                    className="mt-2 text-xs text-[var(--text-muted)] hover:text-[var(--accent-green-light)] transition-colors"
+                    className="mt-2 text-xs text-[var(--text-muted)] hover:text-[#1235e2] transition-colors"
                   >
                     Or paste an Ad Library URL
                   </button>
@@ -601,7 +601,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setInputMode('search')}
-                    className="mt-2 text-xs text-[var(--text-muted)] hover:text-[var(--accent-green-light)] transition-colors"
+                    className="mt-2 text-xs text-[var(--text-muted)] hover:text-[#1235e2] transition-colors"
                   >
                     Or search by brand name
                   </button>
@@ -618,7 +618,7 @@ export default function Home() {
                     disabled={isLoadingAds}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                       activeStatus === 'ACTIVE'
-                        ? 'bg-[var(--accent-green)] text-white'
+                        ? 'bg-[#1235e2] text-white'
                         : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
                     }`}
                   >
@@ -630,7 +630,7 @@ export default function Home() {
                     disabled={isLoadingAds}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                       activeStatus === 'ALL'
-                        ? 'bg-[var(--accent-green)] text-white'
+                        ? 'bg-[#1235e2] text-white'
                         : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
                     }`}
                   >
@@ -649,7 +649,7 @@ export default function Home() {
                       disabled={isLoadingAds}
                       className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                         regionFilter === 'eu'
-                          ? 'bg-[var(--accent-green)] text-white'
+                          ? 'bg-[#1235e2] text-white'
                           : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
                       }`}
                     >
@@ -661,7 +661,7 @@ export default function Home() {
                       disabled={isLoadingAds}
                       className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                         regionFilter === 'global'
-                          ? 'bg-[var(--accent-green)] text-white'
+                          ? 'bg-[#1235e2] text-white'
                           : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
                       }`}
                     >
@@ -669,9 +669,9 @@ export default function Home() {
                     </button>
                   </div>
                   {/* Region info tooltip */}
-                  <div className="absolute left-0 top-full mt-1 w-64 p-3 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover/region:opacity-100 group-hover/region:visible transition-all z-50">
+                  <div className="absolute left-0 top-full mt-1 w-64 p-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover/region:opacity-100 group-hover/region:visible transition-all z-50">
                     <p className="text-xs text-[var(--text-secondary)]">
-                      <span className="font-medium text-[var(--accent-green-light)]">EU Only:</span> Shows ads targeting EU countries with full demographic data (age, gender, location) via DSA transparency laws.
+                      <span className="font-medium text-[#1235e2]">EU Only:</span> Shows ads targeting EU countries with full demographic data (age, gender, location) via DSA transparency laws.
                     </p>
                     <p className="text-xs text-[var(--text-secondary)] mt-2">
                       <span className="font-medium text-[var(--text-primary)]">Global:</span> Shows all ads including US, UK, etc. Demographics only available for EU-targeted ads.
@@ -696,7 +696,7 @@ export default function Home() {
                   value={dateStart || ''}
                   onChange={(e) => setDateStart(e.target.value || null)}
                   disabled={isLoadingAds}
-                  className="px-2 py-1.5 text-xs rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] focus:outline-none focus:border-[var(--accent-green)]"
+                  className="px-2 py-1.5 text-xs rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] focus:outline-none focus:border-[#1235e2]"
                   placeholder="Start"
                 />
                 <span className="text-xs text-[var(--text-muted)]">to</span>
@@ -705,7 +705,7 @@ export default function Home() {
                   value={dateEnd || ''}
                   onChange={(e) => setDateEnd(e.target.value || null)}
                   disabled={isLoadingAds}
-                  className="px-2 py-1.5 text-xs rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] focus:outline-none focus:border-[var(--accent-green)]"
+                  className="px-2 py-1.5 text-xs rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] focus:outline-none focus:border-[#1235e2]"
                   placeholder="End"
                 />
 
@@ -729,7 +729,7 @@ export default function Home() {
                             if (inputMode === 'search') setInputMode('url');
                           }
                         }}
-                        className="text-xs px-3 py-3 min-h-[48px] rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent-green)] hover:border-[var(--accent-green)] transition-colors"
+                        className="text-xs px-3 py-3 min-h-[48px] rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[#1235e2] hover:border-[#1235e2] transition-colors"
                       >
                         {brand.name}
                       </button>
@@ -770,11 +770,11 @@ export default function Home() {
           {/* Brand Comparison Panel */}
           {comparisonBrands.length > 0 && (
             <div className="relative z-10 mb-8 animate-fade-in">
-              <div className="glass rounded-2xl p-6">
+              <div className="glass rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <h2 className="font-serif text-xl text-[var(--text-primary)]">
-                      Brand <span className="italic text-[var(--accent-green-light)]">Comparison</span>
+                      Brand <span className="italic text-[#1235e2]">Comparison</span>
                     </h2>
                     <span className="text-xs px-2 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-muted)]">
                       {comparisonBrands.length}/3 brands
@@ -785,7 +785,7 @@ export default function Home() {
                       onClick={() => setShowComparison(!showComparison)}
                       className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                         showComparison
-                          ? 'bg-[var(--accent-green)] text-white'
+                          ? 'bg-[#1235e2] text-white'
                           : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                       }`}
                     >
@@ -809,7 +809,7 @@ export default function Home() {
                     <div
                       key={brand.pageId || `brand-${index}`}
                       className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${
-                        index === 0 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' :
+                        index === 0 ? 'bg-[#1235e2]/20 text-[#1235e2] border border-[#1235e2]/50' :
                         index === 1 ? 'bg-blue-500/20 text-blue-400 border border-blue-500/50' :
                         'bg-amber-500/20 text-amber-400 border border-amber-500/50'
                       }`}
@@ -843,7 +843,7 @@ export default function Home() {
 
                 {/* Add Brand Input */}
                 {comparisonBrands.length < 3 && (
-                  <div className="p-4 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
+                  <div className="p-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
                     <div className="flex gap-2 mb-3">
                       <input
                         type="text"
@@ -893,7 +893,7 @@ export default function Home() {
                             type="button"
                             onClick={() => handleAddToComparison(brand.adLibrary)}
                             disabled={isLoadingComparison}
-                            className="text-xs px-2.5 py-1 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent-green)] hover:border-[var(--accent-green)] transition-colors disabled:opacity-50"
+                            className="text-xs px-2.5 py-1 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[#1235e2] hover:border-[#1235e2] transition-colors disabled:opacity-50"
                           >
                             {brand.name}
                           </button>
@@ -922,7 +922,7 @@ export default function Home() {
           {/* Ad Library Results - Full Width */}
           {(apiResult || isLoadingAds) && (
             <div className="relative z-10 animate-fade-in mb-8">
-              <div id="analysis-results" className="glass rounded-2xl p-6">
+              <div id="analysis-results" className="glass rounded-lg p-6">
                 <div className="flex items-start justify-between gap-4 mb-6">
                   <div>
                     <h2 className="font-serif text-2xl text-[var(--text-primary)] mb-1">
@@ -941,7 +941,7 @@ export default function Home() {
                               data-pdf-hide
                               onClick={handleSaveBrand}
                               disabled={saving}
-                              className="flex items-center gap-1.5 px-3 py-2 min-h-[48px] text-xs font-medium rounded-lg bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/30 transition-colors disabled:opacity-50"
+                              className="flex items-center gap-1.5 px-3 py-2 min-h-[48px] text-xs font-medium rounded-lg bg-[#1235e2]/20 border border-[#1235e2]/50 text-[#1235e2] hover:bg-[#1235e2]/30 transition-colors disabled:opacity-50"
                             >
                               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
@@ -1042,7 +1042,7 @@ export default function Home() {
                             disabled={comparisonBrands.length >= 3 || comparisonBrands.some(b => b.pageId === apiResult.pageId)}
                             className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border transition-colors ${
                               comparisonBrands.some(b => b.pageId === apiResult.pageId)
-                                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'
+                                ? 'bg-[#1235e2]/20 border-[#1235e2]/50 text-[#1235e2]'
                                 : comparisonBrands.length >= 3
                                   ? 'bg-[var(--bg-tertiary)] border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed'
                                   : 'bg-[var(--bg-tertiary)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)]'
@@ -1103,7 +1103,7 @@ export default function Home() {
                       onClick={() => setResultsTab('audience')}
                       className={`px-3 sm:px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 whitespace-nowrap ${
                         resultsTab === 'audience'
-                          ? 'bg-[var(--accent-green)] text-white'
+                          ? 'bg-[#1235e2] text-white'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]'
                       }`}
                     >
@@ -1116,7 +1116,7 @@ export default function Home() {
                       onClick={() => setResultsTab('ads')}
                       className={`px-3 sm:px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 whitespace-nowrap ${
                         resultsTab === 'ads'
-                          ? 'bg-[var(--accent-green)] text-white'
+                          ? 'bg-[#1235e2] text-white'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]'
                       }`}
                     >
@@ -1129,7 +1129,7 @@ export default function Home() {
                       onClick={() => setResultsTab('expert')}
                       className={`px-3 sm:px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 whitespace-nowrap ${
                         resultsTab === 'expert'
-                          ? 'bg-[var(--accent-green)] text-white'
+                          ? 'bg-[#1235e2] text-white'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]'
                       }`}
                     >
@@ -1163,7 +1163,7 @@ export default function Home() {
                       <div className="space-y-6">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                            Audience <span className="italic text-[var(--accent-green-light)]">Demographics</span>
+                            Audience <span className="italic text-[#1235e2]">Demographics</span>
                           </h3>
                           <div className="text-xs text-[var(--text-muted)]">
                             {apiResult.aggregatedDemographics.adsWithDemographics} ads with demographic data
@@ -1177,7 +1177,7 @@ export default function Home() {
                         )}
 
                         {/* Summary */}
-                        <div className="glass rounded-xl p-5" data-pdf-section="key-insights">
+                        <div className="glass rounded-lg p-5" data-pdf-section="key-insights">
                           <h4 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
                             Key Insights
                           </h4>
@@ -1189,7 +1189,7 @@ export default function Home() {
                         {/* Charts */}
                         <div className="space-y-3">
                           {/* Age/Gender Chart */}
-                          <details className="group glass rounded-xl overflow-hidden" data-pdf-section="age-gender-chart" open>
+                          <details className="group glass rounded-lg overflow-hidden" data-pdf-section="age-gender-chart" open>
                             <summary className="cursor-pointer list-none p-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors">
                               <div className="flex items-center gap-3">
                                 <svg className="w-4 h-4 text-[var(--text-muted)] transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1201,7 +1201,7 @@ export default function Home() {
                                 {(() => {
                                   const topSegment = apiResult.aggregatedDemographics.ageGenderBreakdown[0];
                                   return topSegment && typeof topSegment.percentage === 'number' ? (
-                                    <span>Top: <span className="text-[var(--accent-green-light)]">{topSegment.gender} {topSegment.age}</span> ({topSegment.percentage.toFixed(1)}%)</span>
+                                    <span>Top: <span className="text-[#1235e2]">{topSegment.gender} {topSegment.age}</span> ({topSegment.percentage.toFixed(1)}%)</span>
                                   ) : null;
                                 })()}
                               </div>
@@ -1216,7 +1216,7 @@ export default function Home() {
                           </details>
 
                           {/* Country Chart */}
-                          <details className="group glass rounded-xl overflow-hidden" data-pdf-section="country-chart" open>
+                          <details className="group glass rounded-lg overflow-hidden" data-pdf-section="country-chart" open>
                             <summary className="cursor-pointer list-none p-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors">
                               <div className="flex items-center gap-3">
                                 <svg className="w-4 h-4 text-[var(--text-muted)] transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1228,7 +1228,7 @@ export default function Home() {
                                 {(() => {
                                   const topCountries = apiResult.aggregatedDemographics.regionBreakdown.slice(0, 3);
                                   return topCountries.length > 0 ? (
-                                    <span>Top: <span className="text-[var(--accent-green-light)]">{topCountries.map(c => c.region).join(', ')}</span></span>
+                                    <span>Top: <span className="text-[#1235e2]">{topCountries.map(c => c.region).join(', ')}</span></span>
                                   ) : null;
                                 })()}
                               </div>
@@ -1269,7 +1269,7 @@ export default function Home() {
 
                     {/* No demographics available - genuinely no data */}
                     {!apiResult.aggregatedDemographics && apiResult.demographicsError !== 'token_expired' && apiResult.demographicsError !== 'api_error' && (
-                      <div className="glass rounded-xl p-8 text-center">
+                      <div className="glass rounded-lg p-8 text-center">
                         <svg className="w-12 h-12 mx-auto text-[var(--text-muted)] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
@@ -1305,10 +1305,10 @@ export default function Home() {
                     {/* Top Ads by Reach - Featured ad previews */}
                     {apiResult.ads.length > 0 && (
                       <FeatureGate feature="adPreviews">
-                        <div className="glass rounded-xl p-5 mb-6" data-pdf-section="ad-previews">
+                        <div className="glass rounded-lg p-5 mb-6" data-pdf-section="ad-previews">
                           <div className="flex items-center justify-between mb-4">
                             <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                              Top <span className="italic text-[var(--accent-green-light)]">Performers</span>
+                              Top <span className="italic text-[#1235e2]">Performers</span>
                             </h3>
                             <span className="text-xs text-[var(--text-muted)]">By EU reach</span>
                           </div>
@@ -1329,7 +1329,7 @@ export default function Home() {
                       <div className="space-y-4 mb-6" data-pdf-section="time-trends">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                            Trend <span className="italic text-[var(--accent-green-light)]">Analysis</span>
+                            Trend <span className="italic text-[#1235e2]">Analysis</span>
                           </h3>
                           <div className="text-xs text-[var(--text-muted)]">
                             {activeStatus === 'ACTIVE' && timelineAds.length !== apiResult.ads.length && (
@@ -1338,7 +1338,7 @@ export default function Home() {
                             Advertising trends over time
                           </div>
                         </div>
-                        <div className="glass rounded-xl p-5">
+                        <div className="glass rounded-lg p-5">
                           <TrendAnalysis ads={timelineAds} />
                         </div>
                       </div>
@@ -1349,13 +1349,13 @@ export default function Home() {
                       <div className="space-y-4 mb-6" data-pdf-section="ad-copy-analysis">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                            Copy <span className="italic text-[var(--accent-green-light)]">Analysis</span>
+                            Copy <span className="italic text-[#1235e2]">Analysis</span>
                           </h3>
                           <div className="text-xs text-[var(--text-muted)]">
                             Hooks, CTAs & messaging patterns
                           </div>
                         </div>
-                        <div className="glass rounded-xl p-5">
+                        <div className="glass rounded-lg p-5">
                           <AdCopyAnalysis ads={apiResult.ads} />
                         </div>
                       </div>
@@ -1366,13 +1366,13 @@ export default function Home() {
                       <div className="space-y-4 mb-6" data-pdf-section="ad-longevity">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                            Ad <span className="italic text-[var(--accent-green-light)]">Longevity</span>
+                            Ad <span className="italic text-[#1235e2]">Longevity</span>
                           </h3>
                           <div className="text-xs text-[var(--text-muted)]">
                             Identify evergreen winners
                           </div>
                         </div>
-                        <div className="glass rounded-xl p-5">
+                        <div className="glass rounded-lg p-5">
                           <AdLongevity ads={apiResult.ads} />
                         </div>
                       </div>
@@ -1383,13 +1383,13 @@ export default function Home() {
                       <div className="space-y-4 mb-6" data-pdf-section="landing-pages">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                            Landing <span className="italic text-[var(--accent-green-light)]">Pages</span>
+                            Landing <span className="italic text-[#1235e2]">Pages</span>
                           </h3>
                           <div className="text-xs text-[var(--text-muted)]">
                             Where ads drive traffic
                           </div>
                         </div>
-                        <div className="glass rounded-xl p-5">
+                        <div className="glass rounded-lg p-5">
                           <LandingPageAnalysis
                             apiAds={apiResult.ads}
                           />
@@ -1402,7 +1402,7 @@ export default function Home() {
                       <div className="space-y-4 mb-6" data-pdf-section="product-analysis">
                         <div className="flex items-center justify-between">
                           <h3 className="font-serif text-lg text-[var(--text-primary)]">
-                            Product <span className="italic text-[var(--accent-green-light)]">Analysis</span>
+                            Product <span className="italic text-[#1235e2]">Analysis</span>
                           </h3>
                           <div className="text-xs text-[var(--text-muted)]">
                             {apiResult.productAnalysis.products.length} products across {apiResult.productAnalysis.allMarkets.length} markets
@@ -1416,13 +1416,13 @@ export default function Home() {
                     {apiResult.ads.length > 0 && (
                       <div className="mt-6" data-pdf-section="ad-table">
                         <details className="group">
-                          <summary className="cursor-pointer list-none flex items-center gap-2 text-sm font-medium text-[var(--text-primary)] hover:text-[var(--accent-green-light)] transition-colors">
+                          <summary className="cursor-pointer list-none flex items-center gap-2 text-sm font-medium text-[var(--text-primary)] hover:text-[#1235e2] transition-colors">
                             <svg className="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                             View all {apiResult.totalAdsFound} ads
                             {chartFilter && !isExporting && filteredAds.length !== apiResult.ads.length && (
-                              <span className="text-xs text-emerald-400 font-normal ml-1">(showing {filteredAds.length})</span>
+                              <span className="text-xs text-[#1235e2] font-normal ml-1">(showing {filteredAds.length})</span>
                             )}
                           </summary>
                           <div className="mt-3 overflow-x-auto rounded-lg border border-[var(--border-subtle)]">
@@ -1484,7 +1484,7 @@ export default function Home() {
                                         href={`https://www.facebook.com/ads/library/?id=${ad.adArchiveId}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-[var(--bg-elevated)] text-[var(--accent-green-light)] hover:bg-[var(--border-subtle)] transition-colors"
+                                        className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded bg-[var(--bg-elevated)] text-[#1235e2] hover:bg-[var(--border-subtle)] transition-colors"
                                       >
                                         View
                                       </a>
@@ -1527,7 +1527,7 @@ export default function Home() {
 
               {/* Upgrade Card */}
               {apiResult && (
-                <div className="mt-12 mb-8 p-6 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-center">
+                <div className="mt-12 mb-8 p-6 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-center">
                   <BarChart3 className="w-8 h-8 text-[#1235e2] mx-auto mb-3" />
                   <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">
                     Want deeper insights?
