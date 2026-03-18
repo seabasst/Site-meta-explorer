@@ -25,7 +25,8 @@ import { BrandAnalysis } from '@/components/analytics/brand-analysis';
 import { AccountSummary } from '@/components/summary/account-summary';
 import { SearchBar } from '@/components/search/search-bar';
 import { SubmitModal } from '@/components/roadmap/submit-modal';
-import { Play, Image as ImageIcon, Menu, X, AlertTriangle } from 'lucide-react';
+import { Play, Image as ImageIcon, X, AlertTriangle, BarChart3 } from 'lucide-react';
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
@@ -434,92 +435,20 @@ export default function Home() {
         {/* Top Navigation Bar */}
         <nav className="border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-            {/* Left - Logo / Brand */}
-            <a href="/" className="text-sm font-semibold text-[var(--text-primary)] tracking-tight">
-              Ad Analyser
-            </a>
-
-            {/* Center - Nav Links (desktop) */}
-            <div className="hidden md:flex items-center gap-1">
-              {/* How it works - dropdown */}
-              <div className="relative group">
-                <button
-                  type="button"
-                  className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]"
-                >
-                  How it works
-                </button>
-                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-80 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[100]">
-                  <h4 className="font-medium text-[var(--text-primary)] mb-2">Which ads are analysed?</h4>
-                  <div className="space-y-2 text-xs text-[var(--text-secondary)]">
-                    <p>
-                      We fetch the <span className="text-[var(--accent-green-light)] font-medium">newest ads</span> from the brand&apos;s Facebook Ad Library, sorted by start date (most recent first).
-                    </p>
-                    <p>
-                      The depth setting controls how many ads to analyse. With 100 ads, you get the 100 most recently launched campaigns.
-                    </p>
-                    <p className="pt-2 border-t border-[var(--border-subtle)]">
-                      <span className="font-medium text-[var(--text-primary)]">Why newest first?</span><br />
-                      Recent ads reflect current strategy, messaging, and targeting. They show what&apos;s working <em>now</em> for the brand.
-                    </p>
-                    <p className="pt-2 border-t border-[var(--border-subtle)]">
-                      <span className="font-medium text-[var(--text-primary)]">Data source</span><br />
-                      Demographics come from Facebook&apos;s EU DSA transparency data, which includes reach by age, gender, and country.
-                    </p>
-                  </div>
-                </div>
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="bg-[#1235e2] p-1.5 rounded-lg text-white transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105">
+                <BarChart3 className="w-4 h-4" strokeWidth={2} />
               </div>
-              <a href="/about" className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]">
-                About us
-              </a>
-              <a href="/contact" className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]">
-                Contact us
-              </a>
-              <a href="/feedback" className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]">
-                Feedback
-              </a>
-              <a href="/roadmap" className="px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg hover:bg-[var(--bg-tertiary)]">
-                Roadmap
-              </a>
-            </div>
-
-            {/* Right - Coming Soon CTA */}
-            <div className="flex items-center gap-3">
-              <a
-                href="/coming-soon"
-                className="px-4 py-2 text-sm font-medium rounded-lg bg-[var(--accent-green)] text-white hover:bg-[var(--accent-green-light)] transition-colors"
-              >
-                Pro — Coming Soon
-              </a>
-
-              {/* Mobile menu button */}
-              <button
-                type="button"
-                className="md:hidden p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-                onClick={() => {
-                  const menu = document.getElementById('mobile-nav-menu');
-                  menu?.classList.toggle('hidden');
-                }}
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Nav Menu */}
-          <div id="mobile-nav-menu" className="hidden md:hidden border-t border-[var(--border-subtle)] px-6 py-3 space-y-1">
-            <a href="/about" className="block px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)]">
-              About us
-            </a>
-            <a href="/contact" className="block px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)]">
-              Contact us
-            </a>
-            <a href="/feedback" className="block px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)]">
-              Feedback
-            </a>
-            <a href="/roadmap" className="block px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)]">
-              Roadmap
-            </a>
+              <span className="text-[15px] font-semibold text-[var(--text-primary)] tracking-tight">
+                Ad Library Pro
+              </span>
+            </Link>
+            <Link
+              href="/#pricing"
+              className="inline-flex items-center gap-2 bg-[#1235e2] hover:bg-[#0f2bc0] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+            >
+              Get Pro
+            </Link>
           </div>
         </nav>
 
