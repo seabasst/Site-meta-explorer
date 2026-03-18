@@ -16,6 +16,9 @@
   --accent-primary: #1a3933;
   --accent-green: #1a3933;
   --accent-green-light: #2d5a4f;
+  --accent-blue: #1235e2;
+  --accent-blue-light: #3a5ce8;
+  --accent-blue-dark: #0f2bc0;
   --accent-yellow: #f59e0b;
   --accent-yellow-light: #fbbf24;
   --border-subtle: #d4e0dc;
@@ -254,7 +257,7 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
-  box-shadow: 0 4px 24px -4px rgba(26, 57, 51, 0.08);
+  box-shadow: 0 4px 24px -4px rgba(18, 53, 226, 0.08);
 }
 
 /* Dashboard card - clean white with subtle shadow (like reference) */
@@ -298,16 +301,16 @@ body {
 
 /* Glow effects */
 .glow-gold {
-  box-shadow: 0 8px 32px -8px rgba(26, 57, 51, 0.15), 0 0 0 1px var(--border-subtle);
+  box-shadow: 0 8px 32px -8px rgba(18, 53, 226, 0.12), 0 0 0 1px var(--border-subtle);
 }
 
 .glow-gold-sm {
-  box-shadow: 0 4px 16px -4px rgba(26, 57, 51, 0.1);
+  box-shadow: 0 4px 16px -4px rgba(18, 53, 226, 0.08);
 }
 
 /* Button base styles */
 .btn-primary {
-  background: var(--accent-green);
+  background: #1235e2;
   color: #ffffff;
   font-weight: 600;
   padding: 0.75rem 1.5rem;
@@ -318,9 +321,9 @@ body {
 }
 
 .btn-primary:hover {
-  background: var(--accent-green-light);
+  background: #3a5ce8;
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px -4px rgba(26, 57, 51, 0.3);
+  box-shadow: 0 4px 16px -4px rgba(18, 53, 226, 0.3);
 }
 
 .btn-primary:disabled {
@@ -364,8 +367,8 @@ body {
 
 .input-field:focus {
   outline: none;
-  border-color: var(--accent-green);
-  box-shadow: 0 0 0 3px rgba(26, 57, 51, 0.1);
+  border-color: #1235e2;
+  box-shadow: 0 0 0 3px rgba(18, 53, 226, 0.1);
 }
 
 /* Serif headings */
@@ -378,7 +381,7 @@ body {
   width: 20px;
   height: 20px;
   border: 2px solid var(--border-subtle);
-  border-top-color: var(--accent-green);
+  border-top-color: #1235e2;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
