@@ -23,7 +23,7 @@ interface AdLibraryAdFilters {
 }
 
 interface AdLibraryAdSortOptions {
-  sortBy?: 'startDate' | 'reachEstimate' | 'createdAt';
+  sortBy?: 'startDate' | 'reachEstimate' | 'createdAt' | 'spendLower' | 'adDurationDays';
   sortOrder?: 'asc' | 'desc';
 }
 
@@ -46,6 +46,7 @@ interface AdLibraryAdResponse {
   ctaText: string | null;
   ctaType: string | null;
   snapshotUrl: string | null;
+  bylines: string | null;
   startDate: string | null;
   endDate: string | null;
   adDurationDays: number | null;
@@ -131,9 +132,9 @@ function parseQueryParams(searchParams: URLSearchParams): {
 
   // Sorting
   const sortByRaw = searchParams.get('sortBy');
-  const validSortFields = ['startDate', 'reachEstimate', 'createdAt'];
+  const validSortFields = ['startDate', 'reachEstimate', 'createdAt', 'spendLower', 'adDurationDays'];
   const sortBy = sortByRaw && validSortFields.includes(sortByRaw)
-    ? (sortByRaw as 'startDate' | 'reachEstimate' | 'createdAt')
+    ? (sortByRaw as 'startDate' | 'reachEstimate' | 'createdAt' | 'spendLower' | 'adDurationDays')
     : 'createdAt';
   const sortOrderRaw = searchParams.get('sortOrder');
   const sortOrder = sortOrderRaw === 'asc' ? 'asc' : 'desc';
