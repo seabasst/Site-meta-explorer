@@ -69,7 +69,10 @@ Phases 44-45
   2. AdCard, FilterBar, AdGrid, Pagination, StatsBar exist as separate components
   3. All existing filters, search, pagination, and save-ad functionality still work
   4. No regressions in dark mode or responsive layout
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 46-01-PLAN.md — Extract shared types, AdCard, FilterDropdown, FilterChip, StatsBar, Pagination into component files
+- [ ] 46-02-PLAN.md — Rewire page.tsx to compose extracted components, update brand page
 
 ### Phase 47: Filter & Sort Overhaul
 **Goal**: Make the filter/sort bar fast, intuitive, and complete — add sort options, partnership filter, grid density, and sticky behavior
@@ -138,7 +141,7 @@ Phases 46 first (foundation), then 47-49 can be parallel (wave 2), then 50-51 (w
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 46. Component Extraction | 0/TBD | Not started | - |
+| 46. Component Extraction | 0/2 | Not started | - |
 | 47. Filter & Sort Overhaul | 0/TBD | Not started | - |
 | 48. Load-More Pagination | 0/TBD | Not started | - |
 | 49. Inline Analytics Bar | 0/TBD | Not started | - |
@@ -146,4 +149,4 @@ Phases 46 first (foundation), then 47-49 can be parallel (wave 2), then 50-51 (w
 | 51. Demographic Peek | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-19 after v6.0 roadmap creation*
+*Last updated: 2026-03-19 after Phase 46 planning*
