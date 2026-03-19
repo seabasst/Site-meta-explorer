@@ -85,7 +85,10 @@ Plans:
   3. User can filter ads by partnership/bylines status
   4. Active filter chips are clearly visible with easy removal
   5. Filter bar sticks to top of viewport on scroll
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 47-01-PLAN.md — Extend ads API with spend/daysActive sort fields and bylines filter
+- [ ] 47-02-PLAN.md — Extract FilterBar component with sort, partnership, density, sticky, improved chips
 
 ### Phase 48: Load-More Pagination
 **Goal**: Replace numbered page navigation with a "Load more" pattern — faster browsing, no page reloads
@@ -142,11 +145,11 @@ Phases 46 first (foundation), then 47-49 can be parallel (wave 2), then 50-51 (w
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 46. Component Extraction | 2/2 | ✓ Complete | 2026-03-19 |
-| 47. Filter & Sort Overhaul | 0/TBD | Not started | - |
+| 47. Filter & Sort Overhaul | 0/2 | Not started | - |
 | 48. Load-More Pagination | 0/TBD | Not started | - |
 | 49. Inline Analytics Bar | 0/TBD | Not started | - |
 | 50. Ad Detail Lightbox | 0/TBD | Not started | - |
 | 51. Demographic Peek | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-19 after Phase 46 execution*
+*Last updated: 2026-03-19 after Phase 47 planning*
