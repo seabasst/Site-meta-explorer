@@ -70,6 +70,22 @@ export interface DaysRange {
 }
 
 // ---------------------------------------------------------------------------
+// Sort & Display types (consumed by filter bar and grid components)
+// ---------------------------------------------------------------------------
+
+export type SortField = 'reachEstimate' | 'spendLower' | 'adDurationDays' | 'startDate' | 'createdAt';
+
+export const SORT_OPTIONS: { value: SortField; label: string }[] = [
+  { value: 'reachEstimate', label: 'Reach' },
+  { value: 'spendLower', label: 'Spend' },
+  { value: 'adDurationDays', label: 'Days Active' },
+  { value: 'startDate', label: 'Start Date' },
+  { value: 'createdAt', label: 'Date Added' },
+];
+
+export type GridDensity = 'standard' | 'compact';
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

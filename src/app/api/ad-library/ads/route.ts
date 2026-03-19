@@ -20,6 +20,7 @@ interface AdLibraryAdFilters {
   category?: string;
   minDaysActive?: number;
   maxDaysActive?: number;
+  hasBylines?: boolean;
 }
 
 interface AdLibraryAdSortOptions {
@@ -129,6 +130,8 @@ function parseQueryParams(searchParams: URLSearchParams): {
   const minDaysActive = minDaysActiveRaw ? parseInt(minDaysActiveRaw, 10) : undefined;
   const maxDaysActiveRaw = searchParams.get('maxDaysActive');
   const maxDaysActive = maxDaysActiveRaw ? parseInt(maxDaysActiveRaw, 10) : undefined;
+  const hasBylinesRaw = searchParams.get('hasBylines');
+  const hasBylines = hasBylinesRaw !== null ? hasBylinesRaw === 'true' : undefined;
 
   // Sorting
   const sortByRaw = searchParams.get('sortBy');
@@ -160,6 +163,7 @@ function parseQueryParams(searchParams: URLSearchParams): {
       excludeFormats,
       minDaysActive: minDaysActive !== undefined && !isNaN(minDaysActive) ? minDaysActive : undefined,
       maxDaysActive: maxDaysActive !== undefined && !isNaN(maxDaysActive) ? maxDaysActive : undefined,
+      hasBylines,
     },
     sort: { sortBy, sortOrder },
     pagination: { page, limit },
@@ -237,6 +241,13 @@ function buildWhereClause(filters: AdLibraryAdFilters): Prisma.AdLibraryAdWhereI
     }
   }
 
+  // Bylines (partnership) filter
+  if (filters.hasBylines === true) {
+    where.bylines = { not: null };
+  } else if (filters.hasBylines === false) {
+    where.bylines = null;
+  }
+
   // Full-text search on body, title, caption
   if (filters.search) {
     const searchTerm = filters.search.trim();
@@ -252,11 +263,19 @@ function buildWhereClause(filters: AdLibraryAdFilters): Prisma.AdLibraryAdWhereI
 
 /**
  * Build Prisma orderBy clause from sort options
+ *
+ * Non-nullable fields (createdAt) use plain SortOrder.
+ * Nullable fields use { sort, nulls: 'last' } to push nulls to the end.
  */
 function buildOrderByClause(
   sort: AdLibraryAdSortOptions
 ): Prisma.AdLibraryAdOrderByWithRelationInput {
   const { sortBy = 'createdAt', sortOrder = 'desc' } = sort;
+  // createdAt is non-nullable — Prisma requires plain SortOrder for it
+  const nonNullableFields = ['createdAt'];
+  if (nonNullableFields.includes(sortBy)) {
+    return { [sortBy]: sortOrder };
+  }
   return { [sortBy]: { sort: sortOrder, nulls: 'last' } };
 }
 
