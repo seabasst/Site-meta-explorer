@@ -14,9 +14,11 @@ import {
   Globe,
   Tag,
   BarChart3,
+  Users,
 } from 'lucide-react';
 import { V2Shell, V2Card, V2SectionTitle, V2Skeleton, formatNumber } from '../../v2-shell';
 import { useV2 } from '../../v2-context';
+import { formatFormatLabel } from '../types';
 
 // ---------------------------------------------------------------------------
 // Types (match API response from /api/ad-library/brands/[pageId])
@@ -53,6 +55,7 @@ interface SerializedAd {
   caption: string | null;
   title: string | null;
   snapshotUrl: string | null;
+  bylines: string | null;
   startDate: string | null;
   isActive: boolean;
   reachEstimate: number | null;
@@ -73,11 +76,6 @@ interface BrandDetailResponse {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function formatFormatLabel(format: string | null): string {
-  if (!format) return 'Unknown';
-  return format.charAt(0).toUpperCase() + format.slice(1);
-}
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return 'N/A';
@@ -444,6 +442,14 @@ function BrandAdCard({ ad, darkMode }: { ad: SerializedAd; darkMode: boolean }) 
         >
           {ad.isActive ? 'Active' : 'Ended'}
         </div>
+
+        {/* Partnership badge */}
+        {ad.bylines && (
+          <div className="absolute top-9 left-2 bg-purple-500/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-white font-bold uppercase z-10 flex items-center gap-1">
+            <Users className="w-2.5 h-2.5" />
+            Partnership
+          </div>
+        )}
       </div>
 
       {/* Card Info */}
