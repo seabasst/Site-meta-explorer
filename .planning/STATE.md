@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 46 complete — ready for Phase 47
+**Current focus:** Phase 47 in progress — Plan 01 complete, Plan 02 next
 
 ## Current Milestone: v6.0 Ad Library UX Overhaul
 
@@ -15,12 +15,12 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 46 of 51 (Component Extraction) — COMPLETE
-Plan: 2 of 2 complete
-Status: Verified ✓ (7/7 must-haves)
-Last activity: 2026-03-19 — Phase 46 verified and complete
+Phase: 47 of 51 (Filter/Sort Overhaul)
+Plan: 1 of 2 complete
+Status: In progress
+Last activity: 2026-03-19 — Completed 47-01-PLAN.md (API sort/filter extensions)
 
-Progress: ██░░░░░░░░ ~17%
+Progress: ███░░░░░░░ ~25%
 
 ## Milestones
 
@@ -40,7 +40,7 @@ Progress: ██░░░░░░░░ ~17%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 88
+- Total plans completed: 89
 - Average duration: —
 - Total execution time: —
 
@@ -66,9 +66,10 @@ None.
 - Facebook access tokens may be expired on Vercel (demographics fallback handles gracefully)
 - Pre-existing `next build` failure: useSearchParams Suspense boundary (does not affect dev or production)
 - Ad library page reduced from 1044 to 633 lines via Phase 46 component extraction (verified ✓)
+- Prisma 7 orderBy: non-nullable fields require plain SortOrder, not { sort, nulls } extended syntax
 
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: Phase 46 verified and complete — ready for Phase 47
+Stopped at: Completed 47-01-PLAN.md — ready for 47-02-PLAN.md
 Resume file: None
