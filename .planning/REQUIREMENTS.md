@@ -33,7 +33,7 @@ Transform the ad library from a basic browse grid into a fast, analytical tool â
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FNDN-01 | Phase 46 | Pending |
+| FNDN-01 | Phase 46 | Complete |
 | FLTR-01 | Phase 47 | Pending |
 | FLTR-02 | Phase 47 | Pending |
 | FLTR-03 | Phase 47 | Pending |
