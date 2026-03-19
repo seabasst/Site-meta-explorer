@@ -12,7 +12,7 @@ import {
 import { formatNumber } from '../../v2-shell';
 import { Ad, formatFormatLabel } from '../types';
 
-export function AdCard({ ad, darkMode, isSaved, onToggleSave }: { ad: Ad; darkMode: boolean; isSaved?: boolean; onToggleSave?: (adId: string) => void }) {
+export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact }: { ad: Ad; darkMode: boolean; isSaved?: boolean; onToggleSave?: (adId: string) => void; compact?: boolean }) {
   // Find the best available asset (prefer completed R2 downloads)
   const primaryAsset = ad.assets?.find(a => a.downloadStatus === 'completed' && a.storedUrl);
 
@@ -69,7 +69,7 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave }: { ad: Ad; darkMo
         : 'bg-white border-slate-200 hover:border-[#1235e2]/40'
     }`}>
       {/* Preview */}
-      <div className={`relative aspect-[4/5] overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
+      <div className={`relative ${compact ? 'aspect-square' : 'aspect-[4/5]'} overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
         {renderPreview()}
 
         {/* Format badge - top right */}

@@ -5,23 +5,17 @@ import { useSearchParams } from 'next/navigation';
 import { useSession, signIn } from 'next-auth/react';
 import {
   BookOpen,
-  Search,
-  Layers,
-  Users,
   X,
-  Calendar,
-  Tag,
   Heart,
   LogIn,
 } from 'lucide-react';
-import { V2Shell, V2Card, V2SectionTitle, V2Skeleton, formatNumber } from '../v2-shell';
+import { V2Shell, V2Card, V2SectionTitle, V2Skeleton } from '../v2-shell';
 import { useV2 } from '../v2-context';
 
 // Extracted components & shared types
-import { Ad, AdLibraryStats, TopBrand, PaginationData, FilterOption, DaysRange } from './types';
+import { Ad, AdLibraryStats, TopBrand, PaginationData, FilterOption, DaysRange, SortField, GridDensity } from './types';
 import { AdCard } from './components/ad-card';
-import { FilterDropdown } from './components/filter-dropdown';
-import { FilterChip } from './components/filter-chip';
+import { FilterBar } from './components/filter-bar';
 import { StatsBar } from './components/stats-bar';
 import { AdPagination } from './components/pagination';
 
@@ -53,9 +47,9 @@ function AdLibraryContent() {
   const [formatOptions, setFormatOptions] = useState<FilterOption[]>([]);
   const [daysRanges] = useState<DaysRange[]>([
     { label: 'Last 7 days', min: 0, max: 7 },
-    { label: '7–30 days', min: 7, max: 30 },
-    { label: '30–90 days', min: 30, max: 90 },
-    { label: '90–180 days', min: 90, max: 180 },
+    { label: '7\u201330 days', min: 7, max: 30 },
+    { label: '30\u201390 days', min: 30, max: 90 },
+    { label: '90\u2013180 days', min: 90, max: 180 },
     { label: '180+ days', min: 180, max: undefined },
   ]);
 
@@ -75,13 +69,16 @@ function AdLibraryContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchDebounce, setSearchDebounce] = useState('');
 
+  // Sort & display
+  const [sortBy, setSortBy] = useState<SortField>('reachEstimate');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [partnershipFilter, setPartnershipFilter] = useState<'all' | 'partnership' | 'non-partnership'>('all');
+  const [gridDensity, setGridDensity] = useState<GridDensity>('standard');
+
   // Auth & saved ads
   const { data: session } = useSession();
   const [savedAdIds, setSavedAdIds] = useState<Set<string>>(new Set());
   const [showLoginModal, setShowLoginModal] = useState(false);
-
-  // Dropdown state
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   // Debounce search
   useEffect(() => {
@@ -131,8 +128,8 @@ function AdLibraryContent() {
     setAdsLoading(true);
     try {
       const params = new URLSearchParams({
-        sortBy: 'reachEstimate',
-        sortOrder: 'desc',
+        sortBy,
+        sortOrder,
         limit: '24',
         page: String(page),
       });
@@ -159,6 +156,11 @@ function AdLibraryContent() {
       if (searchDebounce.trim()) {
         params.set('search', searchDebounce.trim());
       }
+      if (partnershipFilter === 'partnership') {
+        params.set('hasBylines', 'true');
+      } else if (partnershipFilter === 'non-partnership') {
+        params.set('hasBylines', 'false');
+      }
 
       const res = await fetch(`/api/ad-library/ads?${params.toString()}`);
       if (res.ok) {
@@ -180,7 +182,7 @@ function AdLibraryContent() {
               setSavedAdIds(new Set(ids));
             }
           } catch {
-            // Non-critical — ignore
+            // Non-critical -- ignore
           }
         }
       }
@@ -189,7 +191,7 @@ function AdLibraryContent() {
     } finally {
       setAdsLoading(false);
     }
-  }, [page, statusFilter, selectedFormats, hideCarousel, categoryFilter, brandFilter, daysActiveFilter, searchDebounce]);
+  }, [page, statusFilter, selectedFormats, hideCarousel, categoryFilter, brandFilter, daysActiveFilter, searchDebounce, sortBy, sortOrder, partnershipFilter]);
 
   useEffect(() => {
     fetchAds();
@@ -198,12 +200,13 @@ function AdLibraryContent() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [statusFilter, selectedFormats, hideCarousel, categoryFilter, brandFilter, daysActiveFilter, searchDebounce]);
+  }, [statusFilter, selectedFormats, hideCarousel, categoryFilter, brandFilter, daysActiveFilter, searchDebounce, sortBy, sortOrder, partnershipFilter]);
 
   const activeFilterCount = (selectedFormats.size > 0 ? 1 : 0) +
     (categoryFilter ? 1 : 0) +
     (brandFilter ? 1 : 0) +
-    (daysActiveFilter ? 1 : 0);
+    (daysActiveFilter ? 1 : 0) +
+    (partnershipFilter !== 'all' ? 1 : 0);
 
   const clearAllFilters = () => {
     setSelectedFormats(new Set());
@@ -213,6 +216,9 @@ function AdLibraryContent() {
     setDaysActiveFilter(null);
     setStatusFilter('active');
     setSearchQuery('');
+    setPartnershipFilter('all');
+    setSortBy('reachEstimate');
+    setSortOrder('desc');
   };
 
   const toggleSaveAd = useCallback(async (adId: string) => {
@@ -284,223 +290,48 @@ function AdLibraryContent() {
 
   const totalPages = pagination?.totalPages ?? 1;
 
+  const gridClasses = gridDensity === 'compact'
+    ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3'
+    : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6';
+
   return (
     <V2Shell title="Ad Library">
       {/* Stats Bar */}
       <StatsBar stats={stats} darkMode={darkMode} />
 
       {/* Filter Bar */}
-      <V2Card className="p-4 mb-8">
-        {/* Row 1: Search + Status + Result count */}
-        <div className="flex flex-wrap gap-3 items-center mb-3">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${darkMode ? 'text-slate-400' : 'text-slate-400'}`} />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full border-none rounded-lg pl-10 pr-4 h-10 text-sm focus:outline-none focus:ring-1 focus:ring-[#1235e2] ${
-                darkMode ? 'bg-[#101322] text-white placeholder:text-slate-500' : 'bg-slate-50 text-slate-900 placeholder:text-slate-400'
-              }`}
-              placeholder="Search ads by brand, text, or keyword..."
-            />
-          </div>
-          <div className={`p-1 rounded-lg flex ${darkMode ? 'bg-[#1235e2]/10' : 'bg-slate-100'}`}>
-            {(['active', 'all'] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => setStatusFilter(s)}
-                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  statusFilter === s
-                    ? darkMode ? 'bg-[#1235e2] text-white shadow-sm font-semibold' : 'bg-white text-[#1235e2] shadow-sm font-semibold'
-                    : darkMode ? 'text-slate-400' : 'text-slate-500'
-                }`}
-              >
-                {s === 'active' ? 'Active' : 'All'}
-              </button>
-            ))}
-          </div>
-          <div className={`text-sm font-medium ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-            {pagination ? formatNumber(pagination.total) : '...'} results
-          </div>
-        </div>
-
-        {/* Row 2: Filter dropdowns */}
-        <div className="flex flex-wrap gap-2 items-center">
-          {/* Industry/Category Filter */}
-          <FilterDropdown
-            label="Industry"
-            icon={<Tag className="w-3.5 h-3.5" />}
-            isOpen={openDropdown === 'category'}
-            onToggle={() => setOpenDropdown(openDropdown === 'category' ? null : 'category')}
-            onClose={() => setOpenDropdown(null)}
-            hasValue={!!categoryFilter}
-            darkMode={darkMode}
-          >
-            <button
-              onClick={() => { setCategoryFilter(''); setOpenDropdown(null); }}
-              className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                !categoryFilter ? 'text-[#1235e2] font-medium' : darkMode ? 'text-slate-300 hover:bg-[#1235e2]/10' : 'text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              All Industries
-            </button>
-            {categories.map(c => (
-              <button
-                key={c.value}
-                onClick={() => { setCategoryFilter(c.value); setOpenDropdown(null); }}
-                className={`w-full text-left px-4 py-2 text-sm transition-colors flex justify-between ${
-                  categoryFilter === c.value ? 'text-[#1235e2] font-medium' : darkMode ? 'text-slate-300 hover:bg-[#1235e2]/10' : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <span className="capitalize">{c.value}</span>
-                <span className={darkMode ? 'text-slate-500' : 'text-slate-400'}>{c.count}</span>
-              </button>
-            ))}
-          </FilterDropdown>
-
-          {/* Format Filter (multi-select) */}
-          <FilterDropdown
-            label="Format"
-            icon={<Layers className="w-3.5 h-3.5" />}
-            isOpen={openDropdown === 'format'}
-            onToggle={() => setOpenDropdown(openDropdown === 'format' ? null : 'format')}
-            onClose={() => setOpenDropdown(null)}
-            hasValue={selectedFormats.size > 0}
-            darkMode={darkMode}
-          >
-            {formatOptions.map(f => (
-              <button
-                key={f.value}
-                onClick={() => toggleFormat(f.value)}
-                className={`w-full text-left px-4 py-2 text-sm transition-colors flex items-center gap-2 ${
-                  darkMode ? 'text-slate-300 hover:bg-[#1235e2]/10' : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <div className={`w-4 h-4 rounded border flex items-center justify-center text-[10px] ${
-                  selectedFormats.has(f.value)
-                    ? 'bg-[#1235e2] border-[#1235e2] text-white'
-                    : darkMode ? 'border-slate-600' : 'border-slate-300'
-                }`}>
-                  {selectedFormats.has(f.value) && '✓'}
-                </div>
-                <span className="capitalize flex-1">{f.value}</span>
-                <span className={darkMode ? 'text-slate-500' : 'text-slate-400'}>{formatNumber(f.count)}</span>
-              </button>
-            ))}
-          </FilterDropdown>
-
-          {/* Days Active Filter */}
-          <FilterDropdown
-            label="Days Active"
-            icon={<Calendar className="w-3.5 h-3.5" />}
-            isOpen={openDropdown === 'days'}
-            onToggle={() => setOpenDropdown(openDropdown === 'days' ? null : 'days')}
-            onClose={() => setOpenDropdown(null)}
-            hasValue={!!daysActiveFilter}
-            darkMode={darkMode}
-          >
-            <button
-              onClick={() => { setDaysActiveFilter(null); setOpenDropdown(null); }}
-              className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                !daysActiveFilter ? 'text-[#1235e2] font-medium' : darkMode ? 'text-slate-300 hover:bg-[#1235e2]/10' : 'text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              Any Duration
-            </button>
-            {daysRanges.map(r => (
-              <button
-                key={r.label}
-                onClick={() => { setDaysActiveFilter(r); setOpenDropdown(null); }}
-                className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                  daysActiveFilter?.label === r.label ? 'text-[#1235e2] font-medium' : darkMode ? 'text-slate-300 hover:bg-[#1235e2]/10' : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                {r.label}
-              </button>
-            ))}
-          </FilterDropdown>
-
-          {/* Brand Filter */}
-          <FilterDropdown
-            label={categoryFilter ? topBrands.find(b => b.pageId === categoryFilter)?.pageName || 'Brand' : 'Brand'}
-            icon={<Users className="w-3.5 h-3.5" />}
-            isOpen={openDropdown === 'brand'}
-            onToggle={() => setOpenDropdown(openDropdown === 'brand' ? null : 'brand')}
-            onClose={() => setOpenDropdown(null)}
-            hasValue={!!brandFilter}
-            darkMode={darkMode}
-          >
-            <button
-              onClick={() => { setBrandFilter(''); setOpenDropdown(null); }}
-              className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                !brandFilter ? 'text-[#1235e2] font-medium' : darkMode ? 'text-slate-300 hover:bg-[#1235e2]/10' : 'text-slate-700 hover:bg-slate-50'
-              }`}
-            >
-              All Brands
-            </button>
-            {topBrands.map((brand, i) => (
-              <button
-                key={brand.id || brand.pageId}
-                onClick={() => { setBrandFilter(brand.pageId); setOpenDropdown(null); }}
-                className={`w-full text-left px-4 py-2 text-sm transition-colors flex items-center gap-2 ${
-                  brandFilter === brand.pageId ? 'text-[#1235e2] font-medium' : darkMode ? 'text-slate-300 hover:bg-[#1235e2]/10' : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <span className={`w-5 h-5 rounded flex items-center justify-center text-[9px] font-bold shrink-0 ${
-                  darkMode ? 'bg-[#1235e2]/20 text-[#1235e2]' : 'bg-[#1235e2]/10 text-[#1235e2]'
-                }`}>
-                  {i + 1}
-                </span>
-                <span className="flex-1 truncate">{brand.pageName}</span>
-                <span className={`text-[11px] ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                  {formatNumber(brand.activeAdCount)}
-                </span>
-              </button>
-            ))}
-          </FilterDropdown>
-
-          {/* Hide Carousel toggle */}
-          <button
-            onClick={() => setHideCarousel(!hideCarousel)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              hideCarousel
-                ? 'bg-[#1235e2]/20 text-[#1235e2]'
-                : darkMode
-                  ? 'bg-[#1235e2]/10 text-slate-300 hover:bg-[#1235e2]/20'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            {hideCarousel ? 'Carousel hidden' : 'Show all formats'}
-          </button>
-
-          {/* Active filter chips */}
-          {activeFilterCount > 0 && (
-            <>
-              <div className={`w-px h-6 mx-1 ${darkMode ? 'bg-[#1235e2]/20' : 'bg-slate-200'}`} />
-              {brandFilter && (
-                <FilterChip label={`Brand: ${topBrands.find(b => b.pageId === brandFilter)?.pageName || brandFilter}`} onRemove={() => setBrandFilter('')} darkMode={darkMode} />
-              )}
-              {categoryFilter && (
-                <FilterChip label={`Industry: ${categoryFilter}`} onRemove={() => setCategoryFilter('')} darkMode={darkMode} />
-              )}
-              {selectedFormats.size > 0 && (
-                <FilterChip label={`Format: ${Array.from(selectedFormats).join(', ')}`} onRemove={() => setSelectedFormats(new Set())} darkMode={darkMode} />
-              )}
-              {daysActiveFilter && (
-                <FilterChip label={daysActiveFilter.label} onRemove={() => setDaysActiveFilter(null)} darkMode={darkMode} />
-              )}
-              <button
-                onClick={clearAllFilters}
-                className="text-xs text-[#1235e2] hover:underline font-medium"
-              >
-                Clear all
-              </button>
-            </>
-          )}
-        </div>
-      </V2Card>
+      <FilterBar
+        darkMode={darkMode}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSortByChange={setSortBy}
+        onSortOrderToggle={() => setSortOrder(o => o === 'desc' ? 'asc' : 'desc')}
+        categoryFilter={categoryFilter}
+        onCategoryChange={setCategoryFilter}
+        categories={categories}
+        selectedFormats={selectedFormats}
+        onToggleFormat={toggleFormat}
+        formatOptions={formatOptions}
+        daysActiveFilter={daysActiveFilter}
+        onDaysActiveChange={setDaysActiveFilter}
+        daysRanges={daysRanges}
+        brandFilter={brandFilter}
+        onBrandChange={setBrandFilter}
+        topBrands={topBrands}
+        hideCarousel={hideCarousel}
+        onHideCarouselToggle={() => setHideCarousel(h => !h)}
+        partnershipFilter={partnershipFilter}
+        onPartnershipChange={setPartnershipFilter}
+        gridDensity={gridDensity}
+        onGridDensityChange={setGridDensity}
+        resultCount={pagination?.total ?? null}
+        activeFilterCount={activeFilterCount}
+        onClearAll={clearAllFilters}
+      />
 
       {/* Ads Grid */}
       <section>
@@ -516,11 +347,11 @@ function AdLibraryContent() {
         </V2SectionTitle>
 
         {adsLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className={gridClasses}>
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                className={`aspect-[4/5] rounded-xl animate-pulse ${darkMode ? 'bg-slate-800' : 'bg-slate-200'}`}
+                className={`${gridDensity === 'compact' ? 'aspect-square' : 'aspect-[4/5]'} rounded-xl animate-pulse ${darkMode ? 'bg-slate-800' : 'bg-slate-200'}`}
               />
             ))}
           </div>
@@ -537,9 +368,9 @@ function AdLibraryContent() {
             </p>
           </V2Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className={gridClasses}>
             {ads.map((ad) => (
-              <AdCard key={ad.id} ad={ad} darkMode={darkMode} isSaved={savedAdIds.has(ad.id)} onToggleSave={toggleSaveAd} />
+              <AdCard key={ad.id} ad={ad} darkMode={darkMode} isSaved={savedAdIds.has(ad.id)} onToggleSave={toggleSaveAd} compact={gridDensity === 'compact'} />
             ))}
           </div>
         )}
