@@ -1,24 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useSession, signIn } from 'next-auth/react';
 import {
   BookOpen,
   Search,
-  Play,
-  Image as ImageIcon,
   Layers,
-  ExternalLink,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Users,
-  BarChart3,
-  Activity,
-  Archive,
-  Filter,
   X,
   Calendar,
   Tag,
@@ -28,84 +17,13 @@ import {
 import { V2Shell, V2Card, V2SectionTitle, V2Skeleton, formatNumber } from '../v2-shell';
 import { useV2 } from '../v2-context';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface AdLibraryStats {
-  totalBrands: number;
-  totalAds: number;
-  activeAds: number;
-  inactiveAds: number;
-  adsByFormat: { format: string; count: number }[];
-  topBrandsByAdCount: TopBrand[];
-}
-
-interface TopBrand {
-  id: string;
-  pageId: string;
-  pageName: string;
-  category: string | null;
-  adCount: number;
-  activeAdCount: number;
-  totalReach: string;
-}
-
-interface Ad {
-  id: string;
-  adId: string;
-  displayFormat: string | null;
-  publisherPlatforms: string[];
-  body: string | null;
-  caption: string | null;
-  title: string | null;
-  snapshotUrl: string | null;
-  startDate: string | null;
-  isActive: boolean;
-  reachEstimate: number | null;
-  brand: {
-    pageId: string;
-    pageName: string;
-    profilePicUrl: string | null;
-    category: string | null;
-  };
-  assets: {
-    id: string;
-    assetType: string;
-    storedUrl: string | null;
-    thumbnailUrl: string | null;
-    originalUrl: string;
-    downloadStatus: string;
-    position: number;
-  }[];
-}
-
-interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
-interface FilterOption {
-  value: string;
-  count: number;
-}
-
-interface DaysRange {
-  label: string;
-  min: number;
-  max: number | undefined;
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatFormatLabel(format: string | null): string {
-  if (!format) return 'Unknown';
-  return format.charAt(0).toUpperCase() + format.slice(1);
-}
+// Extracted components & shared types
+import { Ad, AdLibraryStats, TopBrand, PaginationData, FilterOption, DaysRange } from './types';
+import { AdCard } from './components/ad-card';
+import { FilterDropdown } from './components/filter-dropdown';
+import { FilterChip } from './components/filter-chip';
+import { StatsBar } from './components/stats-bar';
+import { AdPagination } from './components/pagination';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -127,7 +45,7 @@ function AdLibraryContent() {
   // Data state
   const [stats, setStats] = useState<AdLibraryStats | null>(null);
   const [ads, setAds] = useState<Ad[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [pagination, setPagination] = useState<PaginationData | null>(null);
   const [topBrands, setTopBrands] = useState<TopBrand[]>([]);
 
   // Filter options from API
@@ -364,31 +282,12 @@ function AdLibraryContent() {
     );
   }
 
-  const statCards = [
-    { label: 'Total Brands', value: stats?.totalBrands ?? 0, icon: Users, color: 'text-[#1235e2]' },
-    { label: 'Total Ads', value: stats?.totalAds ?? 0, icon: BookOpen, color: 'text-[#1235e2]' },
-    { label: 'Active Ads', value: stats?.activeAds ?? 0, icon: Activity, color: 'text-green-500' },
-    { label: 'Inactive Ads', value: stats?.inactiveAds ?? 0, icon: Archive, color: 'text-slate-400' },
-  ];
-
   const totalPages = pagination?.totalPages ?? 1;
 
   return (
     <V2Shell title="Ad Library">
       {/* Stats Bar */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {statCards.map((stat) => (
-          <V2Card key={stat.label} className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className={`text-xs font-bold uppercase tracking-wider ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                {stat.label}
-              </span>
-              <stat.icon className={`w-5 h-5 ${stat.color}`} />
-            </div>
-            <p className="text-2xl font-black">{formatNumber(stat.value)}</p>
-          </V2Card>
-        ))}
-      </div>
+      <StatsBar stats={stats} darkMode={darkMode} />
 
       {/* Filter Bar */}
       <V2Card className="p-4 mb-8">
@@ -646,55 +545,7 @@ function AdLibraryContent() {
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-8">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors disabled:opacity-30 ${
-                darkMode
-                  ? 'bg-[#1235e2]/10 text-slate-300 hover:bg-[#1235e2]/20'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            {generatePageNumbers(page, totalPages).map((p, i) =>
-              p === '...' ? (
-                <span key={`ellipsis-${i}`} className={`px-2 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                  ...
-                </span>
-              ) : (
-                <button
-                  key={p}
-                  onClick={() => setPage(p as number)}
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-colors ${
-                    page === p
-                      ? 'bg-[#1235e2] text-white shadow-sm'
-                      : darkMode
-                        ? 'bg-[#1235e2]/10 text-slate-300 hover:bg-[#1235e2]/20'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {p}
-                </button>
-              )
-            )}
-
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors disabled:opacity-30 ${
-                darkMode
-                  ? 'bg-[#1235e2]/10 text-slate-300 hover:bg-[#1235e2]/20'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        )}
+        <AdPagination page={page} totalPages={totalPages} onPageChange={setPage} darkMode={darkMode} />
       </section>
 
       {/* Login Modal */}
@@ -778,258 +629,5 @@ function AdLibraryContent() {
         </div>
       )}
     </V2Shell>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Page number generator
-// ---------------------------------------------------------------------------
-
-function generatePageNumbers(current: number, total: number): (number | '...')[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-
-  const pages: (number | '...')[] = [1];
-
-  if (current > 3) pages.push('...');
-
-  const start = Math.max(2, current - 1);
-  const end = Math.min(total - 1, current + 1);
-
-  for (let i = start; i <= end; i++) pages.push(i);
-
-  if (current < total - 2) pages.push('...');
-
-  pages.push(total);
-  return pages;
-}
-
-// ---------------------------------------------------------------------------
-// Ad Card
-// ---------------------------------------------------------------------------
-
-function AdCard({ ad, darkMode, isSaved, onToggleSave }: { ad: Ad; darkMode: boolean; isSaved?: boolean; onToggleSave?: (adId: string) => void }) {
-  // Find the best available asset (prefer completed R2 downloads)
-  const primaryAsset = ad.assets?.find(a => a.downloadStatus === 'completed' && a.storedUrl);
-
-  const formatIcon = () => {
-    switch (ad.displayFormat) {
-      case 'video': return <Play className="w-3 h-3" />;
-      case 'carousel': return <Layers className="w-3 h-3" />;
-      default: return <ImageIcon className="w-3 h-3" />;
-    }
-  };
-
-  const renderPreview = () => {
-    // 1. R2-stored asset (best quality)
-    if (primaryAsset?.storedUrl) {
-      if (primaryAsset.assetType === 'video') {
-        return (
-          <video
-            src={primaryAsset.storedUrl}
-            poster={primaryAsset.thumbnailUrl || undefined}
-            className="w-full h-full object-cover"
-            controls
-            muted
-            loop
-            playsInline
-            preload="metadata"
-          />
-        );
-      }
-      return (
-        <img
-          src={primaryAsset.storedUrl}
-          alt={ad.title || 'Ad creative'}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-      );
-    }
-
-    // 2. Fallback: show body text
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-4">
-        <ImageIcon className={`w-8 h-8 mb-3 ${darkMode ? 'text-slate-600' : 'text-slate-300'}`} />
-        <p className={`text-xs text-center line-clamp-4 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-          {ad.body || ad.title || 'No preview available'}
-        </p>
-      </div>
-    );
-  };
-
-  return (
-    <div className={`group rounded-xl overflow-hidden border transition-all hover:shadow-lg ${
-      darkMode
-        ? 'bg-[#1235e2]/5 border-[#1235e2]/10 hover:border-[#1235e2]/40'
-        : 'bg-white border-slate-200 hover:border-[#1235e2]/40'
-    }`}>
-      {/* Preview */}
-      <div className={`relative aspect-[4/5] overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
-        {renderPreview()}
-
-        {/* Format badge - top right */}
-        <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded text-[10px] text-white font-bold uppercase tracking-wide flex items-center gap-1 z-10">
-          {formatIcon()}
-          {formatFormatLabel(ad.displayFormat)}
-        </div>
-
-        {/* Status badge - top left */}
-        <div className={`absolute top-2 left-2 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-white font-bold uppercase z-10 ${
-          ad.isActive ? 'bg-green-500/80' : 'bg-slate-500/80'
-        }`}>
-          {ad.isActive ? 'Active' : 'Ended'}
-        </div>
-
-      </div>
-
-      {/* Card Info */}
-      <div className="p-4">
-        {/* Brand */}
-        <div className="flex items-center gap-2 mb-3 min-w-0">
-          {ad.brand.profilePicUrl ? (
-            <img src={ad.brand.profilePicUrl} alt="" className="w-6 h-6 rounded object-cover shrink-0" />
-          ) : (
-            <div className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold shrink-0 ${
-              darkMode ? 'bg-[#1235e2]/20 text-[#1235e2]' : 'bg-slate-100 text-slate-600'
-            }`}>
-              {ad.brand.pageName?.[0] || '?'}
-            </div>
-          )}
-          <Link
-            href={`/dashboard/v2/ad-library/${ad.brand.pageId}`}
-            className="text-sm font-bold truncate hover:text-[#1235e2] transition-colors"
-          >
-            {ad.brand.pageName}
-          </Link>
-        </div>
-
-        {/* Body preview */}
-        {ad.body && (
-          <p className={`text-xs mb-3 line-clamp-2 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-            {ad.body}
-          </p>
-        )}
-
-        {/* Stats */}
-        <div className={`grid grid-cols-2 gap-2 pt-3 border-t ${darkMode ? 'border-[#1235e2]/10' : 'border-slate-100'}`}>
-          <div>
-            <p className={`text-[10px] uppercase font-bold ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Reach</p>
-            <p className="text-sm font-bold">{ad.reachEstimate ? formatNumber(ad.reachEstimate) : 'N/A'}</p>
-          </div>
-          <div>
-            <p className={`text-[10px] uppercase font-bold ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Platform</p>
-            <p className="text-sm font-bold capitalize">
-              {ad.publisherPlatforms?.[0]?.replace('_', ' ') || 'Unknown'}
-            </p>
-          </div>
-        </div>
-        {onToggleSave && (
-          <button
-            onClick={() => onToggleSave(ad.id)}
-            className={`flex items-center justify-center gap-1.5 w-full mt-3 pt-3 border-t text-xs font-semibold transition-colors ${
-              isSaved
-                ? darkMode ? 'border-[#1235e2]/10 text-red-400 hover:text-red-300' : 'border-slate-100 text-red-500 hover:text-red-400'
-                : darkMode ? 'border-[#1235e2]/10 text-slate-400 hover:text-[#1235e2]' : 'border-slate-100 text-slate-500 hover:text-[#1235e2]'
-            }`}
-          >
-            <Heart className={`w-3 h-3 ${isSaved ? 'fill-current' : ''}`} />
-            {isSaved ? 'Saved' : 'Save Ad'}
-          </button>
-        )}
-        {ad.snapshotUrl && (
-          <a href={ad.snapshotUrl} target="_blank" rel="noopener noreferrer"
-            className={`flex items-center justify-center gap-1.5 mt-2 pt-2 border-t text-xs font-semibold transition-colors ${
-              darkMode ? 'border-[#1235e2]/10 text-slate-400 hover:text-[#1235e2]' : 'border-slate-100 text-slate-500 hover:text-[#1235e2]'
-            }`}>
-            <ExternalLink className="w-3 h-3" /> View on Meta
-          </a>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Filter Dropdown
-// ---------------------------------------------------------------------------
-
-function FilterDropdown({
-  label,
-  icon,
-  isOpen,
-  onToggle,
-  onClose: _onClose,
-  hasValue,
-  darkMode,
-  children,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  isOpen: boolean;
-  onToggle: () => void;
-  onClose?: () => void;
-  hasValue?: boolean;
-  darkMode: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="relative">
-      <button
-        onClick={onToggle}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-          isOpen
-            ? 'bg-[#1235e2] text-white'
-            : hasValue
-              ? 'bg-[#1235e2]/20 text-[#1235e2]'
-              : darkMode
-                ? 'bg-[#1235e2]/10 text-slate-300 hover:bg-[#1235e2]/20'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-        }`}
-      >
-        {icon}
-        {label}
-        <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-      {isOpen && (
-        <div
-          className={`absolute top-full left-0 mt-2 min-w-[220px] max-h-64 overflow-y-auto rounded-xl border shadow-xl z-50 p-2 ${
-            darkMode
-              ? 'bg-[#181b2e] border-[#1235e2]/20'
-              : 'bg-white border-slate-200'
-          }`}
-        >
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Filter Chip
-// ---------------------------------------------------------------------------
-
-function FilterChip({
-  label,
-  onRemove,
-  darkMode,
-}: {
-  label: string;
-  onRemove: () => void;
-  darkMode: boolean;
-}) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
-        darkMode
-          ? 'bg-[#1235e2]/20 text-[#1235e2]'
-          : 'bg-[#1235e2]/10 text-[#1235e2]'
-      }`}
-    >
-      {label}
-      <button onClick={onRemove} className="hover:text-red-400 transition-colors">
-        <X className="w-3 h-3" />
-      </button>
-    </span>
   );
 }
