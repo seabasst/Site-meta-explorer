@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** v6.0 Ad Library UX Overhaul
+**Current focus:** Phase 46 — Component Extraction
 
 ## Current Milestone: v6.0 Ad Library UX Overhaul
 
@@ -15,10 +15,12 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: Not started (run /gsd:create-roadmap)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-19 — Milestone v6.0 started
+Phase: 46 of 51 (Component Extraction)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-19 — Roadmap created (6 phases, 11 requirements)
+
+Progress: ░░░░░░░░░░ 0%
 
 ## Milestones
 
@@ -33,7 +35,7 @@ Last activity: 2026-03-19 — Milestone v6.0 started
 | v4.0 Analytics Platform | Partial (Phase 32 complete, 33-36 superseded) | — |
 | v5.0 Product Refocus | Complete (Phases 38-43) | 2026-03-17 |
 | v5.1 Visual Consistency | Complete (Phases 44-45) | 2026-03-18 |
-| v6.0 Ad Library UX Overhaul | In progress | — |
+| v6.0 Ad Library UX Overhaul | In progress (Phases 46-51) | — |
 
 ## Performance Metrics
 
@@ -51,9 +53,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ### Roadmap Evolution
 
 - v1.0–v4.0: Phases 1-37
-- v5.0: Phases 38-43 (bug fixes, nav restructure, dashboard rework, Hikaru AI, landing page, gap closure)
-- v5.1: Phases 44-45 (navigation/brand identity, theme update)
-- v6.0: TBD (ad library UX overhaul — phases to be created via /gsd:create-roadmap)
+- v5.0: Phases 38-43
+- v5.1: Phases 44-45
+- v6.0: Phases 46-51 (component extraction, filter/sort overhaul, load-more, analytics bar, lightbox, demographic peek)
 
 ### Pending Todos
 
@@ -62,13 +64,11 @@ None.
 ### Blockers/Concerns
 
 - Facebook access tokens may be expired on Vercel (demographics fallback handles gracefully)
-- Google OAuth requires user to configure credentials in .env.local
-- Stripe account/keys required for payment integration
-- Pre-existing `next build` failure: useSearchParams Suspense boundary in /dashboard/v2/ad-library (does not affect dev or production)
-- Ad library page is ~960 lines in a single file — may benefit from component extraction during this milestone
+- Pre-existing `next build` failure: useSearchParams Suspense boundary (does not affect dev or production)
+- Ad library page is ~1044 lines — Phase 46 addresses this with component extraction
 
 ## Session Continuity
 
 Last session: 2026-03-19
-Stopped at: v6.0 milestone initialized — ready for roadmap creation
+Stopped at: Roadmap created — ready to plan Phase 46
 Resume file: None
