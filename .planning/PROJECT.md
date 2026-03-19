@@ -51,7 +51,17 @@ Help brands and agencies see what competitors are running and how they're reachi
 
 ### Active
 
-(None — define requirements for next milestone)
+#### Current Milestone: v6.0 Ad Library UX Overhaul
+
+**Goal:** Transform the ad library from a basic browse grid into a fast, analytical tool — bringing V1 dashboard depth into the V2 ad library while keeping it slim and quick to scan.
+
+**Target features:**
+- [ ] Inline analytics bar — quick stats strip above the ad grid (total reach, active ad count, format breakdown, top categories)
+- [ ] Ad detail lightbox — centered modal overlay on ad click with large media preview, full ad copy, stats, targeting, dates
+- [ ] Demographic peek — per-brand/category mini demographic charts visible while browsing the ad grid
+- [ ] Sort & view controls — grid density toggle (compact/standard), sort by spend/reach/days active/date, optional list view
+- [ ] Load-more pagination — replace numbered pagination with initial 40-60 card batch + "Load more" appending next batch
+- [ ] Filter improvements — streamlined UX, partnership/bylines filter, improved active filter chips, sticky filter bar on scroll
 
 ### Planned (v4.5 Industry Benchmarks — Admin Only)
 
@@ -131,4 +141,4 @@ Help brands and agencies see what competitors are running and how they're reachi
 - --accent-green CSS vars preserved for 46 files outside V1 scope
 
 ---
-*Last updated: 2026-03-18 after v5.1 milestone*
+*Last updated: 2026-03-19 after v6.0 milestone started*
