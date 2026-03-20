@@ -1,5 +1,32 @@
 # Project Milestones: Ad Library Intelligence Platform
 
+## v6.0 Ad Library UX Overhaul (Shipped: 2026-03-20)
+
+**Delivered:** Transformed the ad library from a basic browse grid into a fast, analytical tool — decomposed the monolith into composable components, added filter/sort controls, load-more pagination, inline analytics strip, ad detail lightbox, and per-brand demographic charts.
+
+**Phases completed:** 46-51 (10 plans total)
+
+**Key accomplishments:**
+
+- Decomposed 1044-line ad library monolith into 6 composable components (AdCard, FilterBar, StatsStrip, LoadMoreButton, AdDetailLightbox, DemographicPeek)
+- Built full filter/sort bar with 5 sort options, partnership filter, density toggle, and sticky behavior
+- Replaced numbered pagination with load-more accumulation pattern (48 initial + 24 append batches)
+- Added inline analytics strip with live filtered stats (total reach, active count, format breakdown, top categories)
+- Created responsive ad detail lightbox with two-column layout, large media preview, stats grid, and save/view actions
+- Added per-brand demographic peek with mini Recharts charts (age, gender, region) and localStorage collapse persistence
+
+**Stats:**
+
+- 49 files changed, +6,911 / -734 lines
+- 6 phases, 10 plans
+- 2 days (2026-03-19 → 2026-03-20)
+
+**Git range:** `dde68d9` → `1061b7e` (48 commits)
+
+**What's next:** TBD — discuss next milestone
+
+---
+
 ## v5.1 Visual Consistency (Shipped: 2026-03-18)
 
 **Delivered:** Unified V1 analyser page with V2 design system — replaced old navigation with branded header, swapped green accent palette to blue, and aligned typography, spacing, and transitions for a cohesive cross-surface experience.

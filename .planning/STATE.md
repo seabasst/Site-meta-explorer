@@ -2,25 +2,23 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-19)
+See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 51 complete — Demographic Peek
+**Current focus:** Planning next milestone
 
-## Current Milestone: v6.0 Ad Library UX Overhaul
+## Current Milestone: None
 
-**Goal:** Transform the ad library from a basic browse grid into a fast, analytical tool.
-
-**Last shipped:** v5.1 Visual Consistency (2026-03-18)
+**Last shipped:** v6.0 Ad Library UX Overhaul (2026-03-20)
 
 ## Current Position
 
-Phase: 51 of 51 (Demographic Peek)
-Plan: 2 of 2 complete
-Status: Phase complete
-Last activity: 2026-03-20 — Completed 51-02-PLAN.md (page wiring)
+Phase: 51 of 51 (last phase of v6.0)
+Plan: All complete
+Status: Milestone complete — ready for next
+Last activity: 2026-03-20 — v6.0 milestone archived
 
-Progress: ██████████ ~100%
+Progress: ██████████ 100% (v6.0)
 
 ## Milestones
 
@@ -40,7 +38,7 @@ Progress: ██████████ ~100%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 95
+- Total plans completed: 105
 - Average duration: —
 - Total execution time: —
 
@@ -65,13 +63,10 @@ None.
 
 - Facebook access tokens may be expired on Vercel (demographics fallback handles gracefully)
 - Pre-existing `next build` failure: useSearchParams Suspense boundary (does not affect dev or production)
-- Ad library page reduced from 1044 to 633 lines (Phase 46), then to 464 lines (Phase 47-02 FilterBar extraction), ~510 lines with load-more (Phase 48), ~500 lines after stats simplification (Phase 49)
-- Prisma 7 orderBy: non-nullable fields require plain SortOrder, not { sort, nulls } extended syntax
-- pagination.tsx still exists but is no longer imported (can be cleaned up)
-- stats-bar.tsx still exists but is no longer imported (replaced by stats-strip.tsx)
+- Orphaned dead code: stats-bar.tsx, pagination.tsx, AdLibraryStats interface (from v6.0 replacements)
 
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Completed 51-02-PLAN.md — Phase 51 and v6.0 milestone complete
+Stopped at: v6.0 milestone archived
 Resume file: None

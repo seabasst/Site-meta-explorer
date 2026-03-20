@@ -48,20 +48,16 @@ Help brands and agencies see what competitors are running and how they're reachi
 - ✓ V1 Theme Update — green-to-blue palette, typography, spacing, transitions — v5.1
 - ✓ V1 Navigation Header — branded header with BarChart3 lockup and Get Pro CTA — v5.1
 - ✓ Contextual upgrade card below V1 analysis results — v5.1
+- ✓ Component extraction — ad library monolith decomposed into 6 composable components — v6.0
+- ✓ Filter/sort overhaul — 5 sort options, partnership filter, density toggle, sticky bar — v6.0
+- ✓ Load-more pagination — accumulation pattern (48+24 batches) replacing numbered pages — v6.0
+- ✓ Inline analytics strip — live filtered stats (reach, active count, formats, categories) — v6.0
+- ✓ Ad detail lightbox — responsive modal with media preview, stats, targeting, save/view actions — v6.0
+- ✓ Demographic peek — per-brand mini Recharts charts (age, gender, region) with collapse persistence — v6.0
 
 ### Active
 
-#### Current Milestone: v6.0 Ad Library UX Overhaul
-
-**Goal:** Transform the ad library from a basic browse grid into a fast, analytical tool — bringing V1 dashboard depth into the V2 ad library while keeping it slim and quick to scan.
-
-**Target features:**
-- [ ] Inline analytics bar — quick stats strip above the ad grid (total reach, active ad count, format breakdown, top categories)
-- [ ] Ad detail lightbox — centered modal overlay on ad click with large media preview, full ad copy, stats, targeting, dates
-- [ ] Demographic peek — per-brand/category mini demographic charts visible while browsing the ad grid
-- [ ] Sort & view controls — grid density toggle (compact/standard), sort by spend/reach/days active/date, optional list view
-- [ ] Load-more pagination — replace numbered pagination with initial 40-60 card batch + "Load more" appending next batch
-- [ ] Filter improvements — streamlined UX, partnership/bylines filter, improved active filter chips, sticky filter bar on scroll
+(No active requirements — define next milestone with `/gsd:define-requirements`)
 
 ### Planned (v4.5 Industry Benchmarks — Admin Only)
 
@@ -124,7 +120,7 @@ Help brands and agencies see what competitors are running and how they're reachi
 ## Context
 
 **Current State:**
-- Shipped v5.1 Visual Consistency with ~49,377 LOC TypeScript
+- Shipped v6.0 Ad Library UX Overhaul with ~55,554 LOC TypeScript
 - Tech stack: Next.js 16, React 19, Recharts, Tailwind CSS v4, Auth.js, Stripe, Prisma + Neon PostgreSQL
 - Deployed to Vercel at facebookadexplorer.kirimedia.co
 - Cloudflare R2 for ad asset storage
@@ -132,13 +128,15 @@ Help brands and agencies see what competitors are running and how they're reachi
 - Landing page at `/` with 3-tier pricing (Free/$49/$149)
 - V1 public analyser at `/analyser` — branded header, blue design system, upgrade card
 - V2 dashboard at `/dashboard/v2` with analytics, AI chat, and ad library
+- Ad library now has composable components, filter/sort bar, load-more, analytics strip, lightbox, demographic peek
 - Consistent brand identity (BarChart3 lockup, #1235e2 blue) across all surfaces
 
 **Known Issues:**
 - "More insights coming soon" placeholder widget in dashboard (cosmetic)
 - Facebook access tokens may be expired on Vercel (demographics fallback handles gracefully)
-- Unused imports in V1 page.tsx (tree-shaken in production)
+- Orphaned files: stats-bar.tsx, pagination.tsx, AdLibraryStats interface (dead code from v6.0 replacements)
+- Brand detail page does not use AdDetailLightbox (potential future enhancement)
 - --accent-green CSS vars preserved for 46 files outside V1 scope
 
 ---
-*Last updated: 2026-03-19 after v6.0 milestone started*
+*Last updated: 2026-03-20 after v6.0 milestone*

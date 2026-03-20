@@ -42,124 +42,14 @@ Phases 38-43
 Phases 44-45
 </details>
 
+<details>
+<summary>✅ v6.0 Ad Library UX Overhaul (Phases 46-51) - SHIPPED 2026-03-20</summary>
+Phases 46-51 — See milestones/v6.0-ROADMAP.md for full details
+</details>
+
 ## Current Milestone
 
-### v6.0 Ad Library UX Overhaul
-
-**Milestone Goal:** Transform the ad library from a basic browse grid into a fast, analytical tool — bringing V1 dashboard depth into the V2 ad library while keeping it slim and quick to scan.
-
-## Phases
-
-- [ ] **Phase 46: Component Extraction** - Break up the 1044-line monolith into composable components
-- [ ] **Phase 47: Filter & Sort Overhaul** - Streamlined filters, sort controls, partnership filter, sticky bar, grid density
-- [ ] **Phase 48: Load-More Pagination** - Replace numbered pagination with load-more batching
-- [ ] **Phase 49: Inline Analytics Bar** - Quick stats strip above the ad grid
-- [ ] **Phase 50: Ad Detail Lightbox** - Centered modal overlay on ad click with full detail
-- [ ] **Phase 51: Demographic Peek** - Per-brand mini demographic charts in the browse view
-
-## Phase Details
-
-### Phase 46: Component Extraction
-**Goal**: Break the ad library monolith (~1044 lines) into composable components so feature work can land cleanly
-**Depends on**: Nothing (first phase)
-**Requirements**: FNDN-01
-**Research**: Unlikely (standard refactoring patterns)
-**Success Criteria** (what must be TRUE):
-  1. Ad library page renders identically before and after extraction
-  2. AdCard, FilterBar, AdGrid, Pagination, StatsBar exist as separate components
-  3. All existing filters, search, pagination, and save-ad functionality still work
-  4. No regressions in dark mode or responsive layout
-**Plans**: 2 plans
-Plans:
-- [ ] 46-01-PLAN.md — Extract shared types, AdCard, FilterDropdown, FilterChip, StatsBar, Pagination into component files
-- [ ] 46-02-PLAN.md — Rewire page.tsx to compose extracted components, update brand page
-
-### Phase 47: Filter & Sort Overhaul
-**Goal**: Make the filter/sort bar fast, intuitive, and complete — add sort options, partnership filter, grid density, and sticky behavior
-**Depends on**: Phase 46
-**Requirements**: FLTR-01, FLTR-02, FLTR-03, FLTR-04, BRWS-02, BRWS-03
-**Research**: Unlikely (standard UI patterns)
-**Success Criteria** (what must be TRUE):
-  1. User can sort ads by spend, reach, days active, and date
-  2. User can toggle between compact and standard grid density (and optional list view)
-  3. User can filter ads by partnership/bylines status
-  4. Active filter chips are clearly visible with easy removal
-  5. Filter bar sticks to top of viewport on scroll
-**Plans**: 2 plans
-Plans:
-- [ ] 47-01-PLAN.md — Extend ads API with spend/daysActive sort fields and bylines filter
-- [ ] 47-02-PLAN.md — Extract FilterBar component with sort, partnership, density, sticky, improved chips
-
-### Phase 48: Load-More Pagination
-**Goal**: Replace numbered page navigation with a "Load more" pattern — faster browsing, no page reloads
-**Depends on**: Phase 46
-**Requirements**: BRWS-04
-**Research**: Unlikely (standard pattern, API already supports offset/limit)
-**Success Criteria** (what must be TRUE):
-  1. Initial load shows 40-60 ad cards
-  2. "Load more" button appends next batch without clearing existing ads
-  3. Ads accumulate in the grid as user loads more
-  4. Sort and filter changes reset the loaded set
-**Plans**: 1 plan
-Plans:
-- [ ] 48-01-PLAN.md — Create LoadMoreButton component, refactor page.tsx to accumulate ads
-
-### Phase 49: Inline Analytics Bar
-**Goal**: Replace the 4 stat cards with a slim, information-dense stats strip above the ad grid
-**Depends on**: Phase 46
-**Requirements**: ANLYT-01
-**Research**: Unlikely (redesign of existing stats display)
-**Success Criteria** (what must be TRUE):
-  1. Stats strip shows total reach, active ad count, format breakdown, top categories
-  2. Stats update when filters change (reflect filtered subset)
-  3. Strip is compact — single row, not 4 separate cards
-**Plans**: 1 plan
-Plans:
-- [ ] 49-01-PLAN.md — Extend ads API with filteredStats, create StatsStrip component, wire into page
-
-### Phase 50: Ad Detail Lightbox
-**Goal**: Clicking an ad card opens a centered modal with large media preview, full copy, stats, targeting, and dates
-**Depends on**: Phase 46
-**Requirements**: BRWS-01
-**Research**: Complete (50-RESEARCH.md — all data already in API response, no new endpoints needed)
-**Success Criteria** (what must be TRUE):
-  1. Clicking any ad card opens a centered modal overlay
-  2. Modal shows large media preview (image or video), full ad copy, all stats
-  3. Modal shows targeting info, start/end dates, platform info
-  4. User can close modal with Escape, click outside, or X button
-  5. User can save ad and view on Meta from within the lightbox
-**Plans**: 2 plans
-Plans:
-- [ ] 50-01-PLAN.md — Expand Ad type with all API detail fields, add onSelect to AdCard
-- [ ] 50-02-PLAN.md — Build AdDetailLightbox component, wire into page with selectedAd state
-
-### Phase 51: Demographic Peek
-**Goal**: Show mini demographic charts (age, gender, country) per-brand while browsing — collapsible panel above the ad grid when a brand filter is active
-**Depends on**: Phase 46, Phase 49
-**Requirements**: ANLYT-02
-**Research**: Complete (51-RESEARCH.md — brand demographicsJson already in DB, normalizer utilities exist, Recharts installed)
-**Success Criteria** (what must be TRUE):
-  1. When browsing by brand, a mini demographic chart is visible
-  2. Charts show age, gender, or country distribution relevant to the filtered view
-  3. Charts don't block or slow down the ad browsing experience
-**Plans**: 2 plans
-Plans:
-- [ ] 51-01-PLAN.md — Add demographicsJson to brand API, create DemographicPeek component with mini Recharts charts
-- [ ] 51-02-PLAN.md — Wire DemographicPeek into page.tsx with brand filter detection, localStorage collapse state
-
-## Progress
-
-**Execution Order:**
-Phases 46 first (foundation), then 47-49 can be parallel (wave 2), then 50-51 (wave 3).
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 46. Component Extraction | 2/2 | ✓ Complete | 2026-03-19 |
-| 47. Filter & Sort Overhaul | 2/2 | ✓ Complete | 2026-03-19 |
-| 48. Load-More Pagination | 1/1 | ✓ Complete | 2026-03-20 |
-| 49. Inline Analytics Bar | 1/1 | ✓ Complete | 2026-03-20 |
-| 50. Ad Detail Lightbox | 2/2 | ✓ Complete | 2026-03-20 |
-| 51. Demographic Peek | 2/2 | ✓ Complete | 2026-03-20 |
+(No active milestone — use `/gsd:new-milestone` to start next)
 
 ---
-*Last updated: 2026-03-20 after Phase 51 execution*
+*Last updated: 2026-03-20 after v6.0 milestone completion*
