@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 49 complete — ready for Phase 50
+**Current focus:** Phase 49 complete — ready for Phase 50 (Ad Detail Lightbox)
 
 ## Current Milestone: v6.0 Ad Library UX Overhaul
 
@@ -17,8 +17,8 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 Phase: 49 of 51 (Inline Analytics Bar)
 Plan: 1 of 1 complete
-Status: Complete
-Last activity: 2026-03-20 — Completed 49-01-PLAN.md
+Status: Verified ✓ (5/5 must-haves)
+Last activity: 2026-03-20 — Phase 49 verified and complete
 
 Progress: ██████░░░░ ~50%
 
@@ -73,5 +73,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Completed 49-01-PLAN.md — ready for Phase 50
+Stopped at: Phase 49 verified — ready for Phase 50
 Resume file: None
