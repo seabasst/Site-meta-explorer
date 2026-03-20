@@ -32,8 +32,20 @@ export interface Ad {
   snapshotUrl: string | null;
   bylines: string | null;
   startDate: string | null;
+  endDate: string | null;
+  adDurationDays: number | null;
   isActive: boolean;
   reachEstimate: number | null;
+  impressionsLower: number | null;
+  impressionsUpper: number | null;
+  spendLower: number | null;
+  spendUpper: number | null;
+  currency: string | null;
+  targetingJson: unknown;
+  linkUrl: string | null;
+  linkDescription: string | null;
+  ctaText: string | null;
+  ctaType: string | null;
   brand: {
     pageId: string;
     pageName: string;
