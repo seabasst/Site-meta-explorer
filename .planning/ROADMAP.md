@@ -51,7 +51,7 @@ Phases 46-51 — See milestones/v6.0-ROADMAP.md for full details
 
 **Milestone Goal:** Fix broken brand monitoring, add per-brand dashboard, clean up tech debt and build issues.
 
-- [ ] **Phase 52: Build Fix** — Fix useSearchParams Suspense boundary build failure
+- [x] **Phase 52: Build Fix** — Already resolved (build succeeds, no Suspense boundary error)
 - [ ] **Phase 53: Infrastructure & Cleanup** — Refresh Facebook tokens, remove dead code
 - [ ] **Phase 54: Brand Monitoring** — Fix monitor button persistence, add per-brand dashboard
 
@@ -65,18 +65,22 @@ Phases 46-51 — See milestones/v6.0-ROADMAP.md for full details
   1. `next build` completes successfully without useSearchParams Suspense boundary error
   2. Production deployment on Vercel builds without intervention
 **Research**: Unlikely — standard Next.js Suspense boundary pattern
-**Plans**: TBD
+**Plans**: N/A — already resolved
+**Completed**: 2026-03-20 (verified: build already succeeds, issue fixed during v6.0)
 
 ### Phase 53: Infrastructure & Cleanup
 **Goal**: Resolve token issues and remove dead code from v6.0
-**Depends on**: Phase 52 (clean build needed to verify changes)
+**Depends on**: Phase 52 ✓
 **Requirements**: INFR-01, CODE-01
 **Success Criteria** (what must be TRUE):
   1. Facebook access tokens on Vercel are valid and demographics data loads correctly
   2. Orphaned files (stats-bar.tsx, pagination.tsx, AdLibraryStats interface) are removed
   3. No dead imports or broken references after cleanup
 **Research**: Unlikely — known files, known token refresh process
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 53-01-PLAN.md — Remove orphaned files (stats-bar.tsx, pagination.tsx) and dead AdLibraryStats interface
+- [ ] 53-02-PLAN.md — Diagnose and refresh Facebook access tokens on Vercel
 
 ### Phase 54: Brand Monitoring
 **Goal**: Working brand monitoring with per-brand dashboards
@@ -95,9 +99,9 @@ Phases 46-51 — See milestones/v6.0-ROADMAP.md for full details
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 52. Build Fix | 0/TBD | Not started | - |
-| 53. Infrastructure & Cleanup | 0/TBD | Not started | - |
+| 52. Build Fix | 0/0 | ✓ Complete (already resolved) | 2026-03-20 |
+| 53. Infrastructure & Cleanup | 0/2 | Planned | - |
 | 54. Brand Monitoring | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-20 after v6.1 roadmap creation*
+*Last updated: 2026-03-20 after Phase 53 planning*
