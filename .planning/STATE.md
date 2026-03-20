@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 50 in progress — Ad Detail Lightbox (plan 01 of 02 complete)
+**Current focus:** Phase 50 complete — Ad Detail Lightbox. Next: Phase 51 (Demographic Peek)
 
 ## Current Milestone: v6.0 Ad Library UX Overhaul
 
@@ -16,11 +16,11 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 50 of 51 (Ad Detail Lightbox)
-Plan: 1 of 2 complete
-Status: In progress
-Last activity: 2026-03-20 — Completed 50-01-PLAN.md (types & AdCard clickability)
+Plan: 2 of 2 complete
+Status: Phase complete
+Last activity: 2026-03-20 — Completed 50-02-PLAN.md (lightbox component & wiring)
 
-Progress: ██████░░░░ ~55%
+Progress: █████████░ ~90%
 
 ## Milestones
 
@@ -40,7 +40,7 @@ Progress: ██████░░░░ ~55%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 92
+- Total plans completed: 93
 - Average duration: —
 - Total execution time: —
 
@@ -73,5 +73,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Completed 50-01-PLAN.md — ready for 50-02 (lightbox component)
+Stopped at: Completed 50-02-PLAN.md — Phase 50 complete, ready for Phase 51 (Demographic Peek)
 Resume file: None
