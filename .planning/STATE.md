@@ -17,8 +17,8 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 Phase: 50 of 51 (Ad Detail Lightbox)
 Plan: 2 of 2 complete
-Status: Phase complete
-Last activity: 2026-03-20 — Completed 50-02-PLAN.md (lightbox component & wiring)
+Status: Verified ✓ (10/10 must-haves)
+Last activity: 2026-03-20 — Phase 50 verified and complete
 
 Progress: █████████░ ~90%
 
@@ -73,5 +73,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Completed 50-02-PLAN.md — Phase 50 complete, ready for Phase 51 (Demographic Peek)
+Stopped at: Phase 50 verified — ready for Phase 51 (Demographic Peek)
 Resume file: None

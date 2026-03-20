@@ -155,7 +155,7 @@ Phases 46 first (foundation), then 47-49 can be parallel (wave 2), then 50-51 (w
 | 47. Filter & Sort Overhaul | 2/2 | ✓ Complete | 2026-03-19 |
 | 48. Load-More Pagination | 1/1 | ✓ Complete | 2026-03-20 |
 | 49. Inline Analytics Bar | 1/1 | ✓ Complete | 2026-03-20 |
-| 50. Ad Detail Lightbox | 0/2 | Not started | - |
+| 50. Ad Detail Lightbox | 2/2 | ✓ Complete | 2026-03-20 |
 | 51. Demographic Peek | 0/TBD | Not started | - |
 
 ---
