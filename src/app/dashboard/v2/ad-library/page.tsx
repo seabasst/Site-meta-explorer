@@ -13,10 +13,10 @@ import { V2Shell, V2Card, V2SectionTitle, V2Skeleton } from '../v2-shell';
 import { useV2 } from '../v2-context';
 
 // Extracted components & shared types
-import { Ad, AdLibraryStats, TopBrand, PaginationData, FilterOption, DaysRange, SortField, GridDensity } from './types';
+import { Ad, FilteredStats, TopBrand, PaginationData, FilterOption, DaysRange, SortField, GridDensity } from './types';
 import { AdCard } from './components/ad-card';
 import { FilterBar } from './components/filter-bar';
-import { StatsBar } from './components/stats-bar';
+import { StatsStrip } from './components/stats-strip';
 import { LoadMoreButton } from './components/load-more-button';
 
 // ---------------------------------------------------------------------------
@@ -37,7 +37,7 @@ function AdLibraryContent() {
   const urlBrandPageId = searchParams.get('brandPageId') || '';
 
   // Data state
-  const [stats, setStats] = useState<AdLibraryStats | null>(null);
+  const [filteredStats, setFilteredStats] = useState<FilteredStats | null>(null);
   const [loadedAds, setLoadedAds] = useState<Ad[]>([]);
   const [pagination, setPagination] = useState<PaginationData | null>(null);
   const [topBrands, setTopBrands] = useState<TopBrand[]>([]);
@@ -88,22 +88,16 @@ function AdLibraryContent() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Fetch stats + top brands + filter options on mount
+  // Fetch top brands + filter options on mount
   useEffect(() => {
     async function fetchInitial() {
       setLoading(true);
       setError(null);
       try {
-        const [statsRes, brandsRes, filtersRes] = await Promise.all([
-          fetch('/api/ad-library/stats?fast=true'),
+        const [brandsRes, filtersRes] = await Promise.all([
           fetch('/api/ad-library/brands?page=1&limit=5&sortBy=activeAdCount&sortOrder=desc'),
           fetch('/api/ad-library/filters'),
         ]);
-        if (statsRes.ok) {
-          const statsData = await statsRes.json();
-          setStats(statsData);
-          setTopBrands(statsData.topBrandsByAdCount?.slice(0, 5) || []);
-        }
         if (brandsRes.ok) {
           const brandsData = await brandsRes.json();
           if (brandsData.brands?.length) {
@@ -116,7 +110,7 @@ function AdLibraryContent() {
           setFormatOptions(filtersData.formats || []);
         }
       } catch (err) {
-        console.error('Failed to fetch stats:', err);
+        console.error('Failed to fetch initial data:', err);
         setError('Failed to load ad library data.');
       } finally {
         setLoading(false);
@@ -177,6 +171,7 @@ function AdLibraryContent() {
         setPagination(data.pagination || null);
         setHasMore(data.pagination?.hasNext ?? false);
         setNextPage(2);
+        setFilteredStats(data.filteredStats || null);
 
         // Check which ads are saved
         if (fetchedAds.length > 0) {
@@ -310,7 +305,7 @@ function AdLibraryContent() {
     );
   }
 
-  if (error && !stats) {
+  if (error && !filteredStats) {
     return (
       <V2Shell title="Ad Library">
         <div className={`rounded-xl p-12 text-center border ${darkMode ? 'bg-[#1235e2]/5 border-[#1235e2]/10' : 'bg-white border-slate-200'}`}>
@@ -336,8 +331,8 @@ function AdLibraryContent() {
 
   return (
     <V2Shell title="Ad Library">
-      {/* Stats Bar */}
-      <StatsBar stats={stats} darkMode={darkMode} />
+      {/* Stats Strip */}
+      <StatsStrip stats={filteredStats} loading={adsLoading} darkMode={darkMode} />
 
       {/* Filter Bar */}
       <FilterBar
