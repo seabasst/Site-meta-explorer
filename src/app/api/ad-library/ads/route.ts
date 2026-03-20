@@ -80,6 +80,13 @@ interface AdLibraryAdResponse {
   }[];
 }
 
+interface FilteredStatsResponse {
+  totalReach: number;
+  activeCount: number;
+  formatBreakdown: { format: string; count: number }[];
+  topCategories: { category: string; count: number }[];
+}
+
 interface PaginatedResponse {
   ads: AdLibraryAdResponse[];
   pagination: {
@@ -90,6 +97,7 @@ interface PaginatedResponse {
     hasNext: boolean;
     hasPrev: boolean;
   };
+  filteredStats: FilteredStatsResponse;
 }
 
 // =============================================================================
@@ -337,8 +345,8 @@ export async function GET(request: NextRequest) {
     const skip = ((pagination.page || 1) - 1) * (pagination.limit || 20);
     const take = pagination.limit || 20;
 
-    // Execute queries in parallel
-    const [ads, total] = await Promise.all([
+    // Execute queries in parallel (ads + count + filtered stats)
+    const [ads, total, reachAgg, activeInFiltered, formatGrouped, brandIdsResult] = await Promise.all([
       prisma.adLibraryAd.findMany({
         where,
         orderBy,
@@ -370,7 +378,38 @@ export async function GET(request: NextRequest) {
         },
       }),
       prisma.adLibraryAd.count({ where }),
+      prisma.adLibraryAd.aggregate({
+        where,
+        _sum: { reachEstimate: true },
+      }),
+      // If already filtering to active-only, skip the extra count query
+      filters.isActive === true
+        ? Promise.resolve(null)
+        : prisma.adLibraryAd.count({ where: { ...where, isActive: true } }),
+      prisma.adLibraryAd.groupBy({
+        by: ['displayFormat'],
+        where,
+        _count: { id: true },
+        orderBy: { _count: { id: 'desc' } },
+      }),
+      prisma.adLibraryAd.findMany({
+        where,
+        select: { brandId: true },
+        distinct: ['brandId'],
+      }),
     ]);
+
+    // Get top categories from distinct brands in the filtered set
+    const brandIds = brandIdsResult.map(r => r.brandId);
+    const topCats = brandIds.length > 0
+      ? await prisma.adLibraryBrand.groupBy({
+          by: ['category'],
+          where: { id: { in: brandIds }, category: { not: null } },
+          _count: { id: true },
+          orderBy: { _count: { id: 'desc' } },
+          take: 5,
+        })
+      : [];
 
     // Calculate pagination metadata
     const page = pagination.page || 1;
@@ -386,6 +425,18 @@ export async function GET(request: NextRequest) {
         totalPages,
         hasNext: page < totalPages,
         hasPrev: page > 1,
+      },
+      filteredStats: {
+        totalReach: Number(reachAgg._sum.reachEstimate || 0),
+        activeCount: filters.isActive === true ? total : (activeInFiltered ?? 0),
+        formatBreakdown: formatGrouped.map(r => ({
+          format: r.displayFormat || 'unknown',
+          count: r._count.id,
+        })),
+        topCategories: topCats.map(r => ({
+          category: r.category!,
+          count: r._count.id,
+        })),
       },
     };
 

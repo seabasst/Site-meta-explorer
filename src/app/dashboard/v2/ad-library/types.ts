@@ -88,6 +88,17 @@ export const SORT_OPTIONS: { value: SortField; label: string }[] = [
 export type GridDensity = 'standard' | 'compact';
 
 // ---------------------------------------------------------------------------
+// Filtered stats (returned inline with ads API response)
+// ---------------------------------------------------------------------------
+
+export interface FilteredStats {
+  totalReach: number;
+  activeCount: number;
+  formatBreakdown: { format: string; count: number }[];
+  topCategories: { category: string; count: number }[];
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
