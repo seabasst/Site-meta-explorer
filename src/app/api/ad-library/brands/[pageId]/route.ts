@@ -13,6 +13,7 @@ interface SerializedBrand {
   profilePicUrl: string | null;
   country: string | null;
   category: string | null;
+  demographicsJson: unknown;
   website: string | null;
   totalReach: string;
   activeAdCount: number;
@@ -36,6 +37,7 @@ interface SerializedAd {
   ctaText: string | null;
   ctaType: string | null;
   snapshotUrl: string | null;
+  bylines: string | null;
   startDate: Date | null;
   endDate: Date | null;
   adDurationDays: number | null;
@@ -105,6 +107,7 @@ function serializeBrand(brand: {
   profilePicUrl: string | null;
   country: string | null;
   category: string | null;
+  demographicsJson?: unknown;
   website: string | null;
   totalReach: bigint;
   activeAdCount: number;
@@ -116,6 +119,7 @@ function serializeBrand(brand: {
 }): SerializedBrand {
   return {
     ...brand,
+    demographicsJson: brand.demographicsJson ?? null,
     totalReach: brand.totalReach.toString(),
   };
 }
@@ -133,6 +137,7 @@ function serializeAd(ad: {
   ctaText: string | null;
   ctaType: string | null;
   snapshotUrl: string | null;
+  bylines: string | null;
   startDate: Date | null;
   endDate: Date | null;
   adDurationDays: number | null;
@@ -171,6 +176,7 @@ function serializeAd(ad: {
     ctaText: ad.ctaText,
     ctaType: ad.ctaType,
     snapshotUrl: ad.snapshotUrl,
+    bylines: ad.bylines,
     startDate: ad.startDate,
     endDate: ad.endDate,
     adDurationDays: ad.adDurationDays,
