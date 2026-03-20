@@ -12,7 +12,7 @@ import {
 import { formatNumber } from '../../v2-shell';
 import { Ad, formatFormatLabel } from '../types';
 
-export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact }: { ad: Ad; darkMode: boolean; isSaved?: boolean; onToggleSave?: (adId: string) => void; compact?: boolean }) {
+export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact, onSelect }: { ad: Ad; darkMode: boolean; isSaved?: boolean; onToggleSave?: (adId: string) => void; compact?: boolean; onSelect?: () => void }) {
   // Find the best available asset (prefer completed R2 downloads)
   const primaryAsset = ad.assets?.find(a => a.downloadStatus === 'completed' && a.storedUrl);
 
@@ -63,13 +63,20 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact }: { ad: A
   };
 
   return (
-    <div className={`group rounded-xl overflow-hidden border transition-all hover:shadow-lg ${
-      darkMode
-        ? 'bg-[#1235e2]/5 border-[#1235e2]/10 hover:border-[#1235e2]/40'
-        : 'bg-white border-slate-200 hover:border-[#1235e2]/40'
-    }`}>
+    <div
+      onClick={onSelect}
+      className={`group rounded-xl overflow-hidden border transition-all hover:shadow-lg ${
+        onSelect ? 'cursor-pointer' : ''
+      } ${
+        darkMode
+          ? 'bg-[#1235e2]/5 border-[#1235e2]/10 hover:border-[#1235e2]/40'
+          : 'bg-white border-slate-200 hover:border-[#1235e2]/40'
+      }`}>
       {/* Preview */}
-      <div className={`relative ${compact ? 'aspect-square' : 'aspect-[4/5]'} overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
+      <div
+        className={`relative ${compact ? 'aspect-square' : 'aspect-[4/5]'} overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}
+        onClick={e => { if ((e.target as HTMLElement).closest('video')) e.stopPropagation(); }}
+      >
         {renderPreview()}
 
         {/* Format badge - top right */}
@@ -111,6 +118,7 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact }: { ad: A
           <Link
             href={`/dashboard/v2/ad-library/${ad.brand.pageId}`}
             className="text-sm font-bold truncate hover:text-[#1235e2] transition-colors"
+            onClick={e => e.stopPropagation()}
           >
             {ad.brand.pageName}
           </Link>
@@ -138,7 +146,7 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact }: { ad: A
         </div>
         {onToggleSave && (
           <button
-            onClick={() => onToggleSave(ad.id)}
+            onClick={(e) => { e.stopPropagation(); onToggleSave(ad.id); }}
             className={`flex items-center justify-center gap-1.5 w-full mt-3 pt-3 border-t text-xs font-semibold transition-colors ${
               isSaved
                 ? darkMode ? 'border-[#1235e2]/10 text-red-400 hover:text-red-300' : 'border-slate-100 text-red-500 hover:text-red-400'
@@ -150,7 +158,7 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact }: { ad: A
           </button>
         )}
         {ad.snapshotUrl && (
-          <a href={ad.snapshotUrl} target="_blank" rel="noopener noreferrer"
+          <a href={ad.snapshotUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
             className={`flex items-center justify-center gap-1.5 mt-2 pt-2 border-t text-xs font-semibold transition-colors ${
               darkMode ? 'border-[#1235e2]/10 text-slate-400 hover:text-[#1235e2]' : 'border-slate-100 text-slate-500 hover:text-[#1235e2]'
             }`}>
