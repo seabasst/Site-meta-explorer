@@ -2,15 +2,6 @@
 // Shared types for the Ad Library feature
 // ---------------------------------------------------------------------------
 
-export interface AdLibraryStats {
-  totalBrands: number;
-  totalAds: number;
-  activeAds: number;
-  inactiveAds: number;
-  adsByFormat: { format: string; count: number }[];
-  topBrandsByAdCount: TopBrand[];
-}
-
 export interface TopBrand {
   id: string;
   pageId: string;
