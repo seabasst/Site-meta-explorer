@@ -39,21 +39,19 @@ None — this is a focused cleanup milestone.
 
 ## Traceability
 
-Which phases cover which requirements. Updated by create-roadmap.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BMON-01 | Pending | Pending |
-| BMON-02 | Pending | Pending |
-| CODE-01 | Pending | Pending |
-| BFIX-01 | Pending | Pending |
-| INFR-01 | Pending | Pending |
+| BMON-01 | Phase 54 | Pending |
+| BMON-02 | Phase 54 | Pending |
+| CODE-01 | Phase 53 | Pending |
+| BFIX-01 | Phase 52 | Pending |
+| INFR-01 | Phase 53 | Pending |
 
 **Coverage:**
 - v1 requirements: 5 total
-- Mapped to phases: 0
-- Unmapped: 5 ⚠️
+- Mapped to phases: 5
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-20*
-*Last updated: 2026-03-20 after initial definition*
+*Last updated: 2026-03-20 after roadmap creation*

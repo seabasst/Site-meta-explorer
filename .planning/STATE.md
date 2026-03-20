@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** v6.1 Brand Monitoring & Cleanup
+**Current focus:** Phase 52 — Build Fix
 
 ## Current Milestone: v6.1 Brand Monitoring & Cleanup
 
@@ -15,10 +15,10 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 
 ## Current Position
 
-Phase: Not started (run /gsd:create-roadmap)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-20 — Milestone v6.1 started
+Phase: 52 of 54 (Build Fix)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-20 — Roadmap created (3 phases, 5 requirements)
 
 Progress: ░░░░░░░░░░ 0% (v6.1)
 
@@ -36,7 +36,7 @@ Progress: ░░░░░░░░░░ 0% (v6.1)
 | v5.0 Product Refocus | Complete (Phases 38-43) | 2026-03-17 |
 | v5.1 Visual Consistency | Complete (Phases 44-45) | 2026-03-18 |
 | v6.0 Ad Library UX Overhaul | Complete (Phases 46-51) | 2026-03-20 |
-| v6.1 Brand Monitoring & Cleanup | In Progress | — |
+| v6.1 Brand Monitoring & Cleanup | In Progress (Phases 52-54) | — |
 
 ## Performance Metrics
 
@@ -56,8 +56,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - v1.0–v4.0: Phases 1-37
 - v5.0: Phases 38-43
 - v5.1: Phases 44-45
-- v6.0: Phases 46-51 (component extraction, filter/sort overhaul, load-more, analytics bar, lightbox, demographic peek)
-- v6.1: TBD (brand monitoring fix, monitored brands dashboard, cleanup)
+- v6.0: Phases 46-51
+- v6.1: Phases 52-54 (build fix, infra/cleanup, brand monitoring)
 
 ### Pending Todos
 
@@ -65,12 +65,11 @@ None.
 
 ### Blockers/Concerns
 
-- Facebook access tokens may be expired on Vercel (demographics fallback handles gracefully)
-- Pre-existing `next build` failure: useSearchParams Suspense boundary (does not affect dev or production)
-- Orphaned dead code: stats-bar.tsx, pagination.tsx, AdLibraryStats interface (from v6.0 replacements)
+- Facebook access tokens may be expired on Vercel (Phase 53 addresses this)
+- useSearchParams Suspense boundary build failure (Phase 52 addresses this)
 
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: v6.1 milestone initialized
+Stopped at: v6.1 roadmap created
 Resume file: None
