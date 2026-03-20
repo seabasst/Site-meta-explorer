@@ -18,6 +18,7 @@ import { AdCard } from './components/ad-card';
 import { FilterBar } from './components/filter-bar';
 import { StatsStrip } from './components/stats-strip';
 import { LoadMoreButton } from './components/load-more-button';
+import { AdDetailLightbox } from './components/ad-detail-lightbox';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -81,6 +82,7 @@ function AdLibraryContent() {
   const { data: session } = useSession();
   const [savedAdIds, setSavedAdIds] = useState<Set<string>>(new Set());
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
 
   // Debounce search
   useEffect(() => {
@@ -405,7 +407,7 @@ function AdLibraryContent() {
         ) : (
           <div className={gridClasses}>
             {loadedAds.map((ad) => (
-              <AdCard key={ad.id} ad={ad} darkMode={darkMode} isSaved={savedAdIds.has(ad.id)} onToggleSave={toggleSaveAd} compact={gridDensity === 'compact'} />
+              <AdCard key={ad.id} ad={ad} darkMode={darkMode} isSaved={savedAdIds.has(ad.id)} onToggleSave={toggleSaveAd} onSelect={() => setSelectedAd(ad)} compact={gridDensity === 'compact'} />
             ))}
           </div>
         )}
@@ -501,6 +503,16 @@ function AdLibraryContent() {
             </div>
           </div>
         </div>
+      )}
+      {/* Ad Detail Lightbox */}
+      {selectedAd && (
+        <AdDetailLightbox
+          ad={selectedAd}
+          darkMode={darkMode}
+          isSaved={savedAdIds.has(selectedAd.id)}
+          onToggleSave={toggleSaveAd}
+          onClose={() => setSelectedAd(null)}
+        />
       )}
     </V2Shell>
   );
