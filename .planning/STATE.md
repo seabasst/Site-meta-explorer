@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 51 in progress — Demographic Peek (Plan 01 complete)
+**Current focus:** Phase 51 complete — Demographic Peek
 
 ## Current Milestone: v6.0 Ad Library UX Overhaul
 
@@ -16,11 +16,11 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 ## Current Position
 
 Phase: 51 of 51 (Demographic Peek)
-Plan: 1 of 2 complete
-Status: In progress
-Last activity: 2026-03-20 — Completed 51-01-PLAN.md (API + component)
+Plan: 2 of 2 complete
+Status: Phase complete
+Last activity: 2026-03-20 — Completed 51-02-PLAN.md (page wiring)
 
-Progress: █████████▓ ~95%
+Progress: ██████████ ~100%
 
 ## Milestones
 
@@ -35,12 +35,12 @@ Progress: █████████▓ ~95%
 | v4.0 Analytics Platform | Partial (Phase 32 complete, 33-36 superseded) | — |
 | v5.0 Product Refocus | Complete (Phases 38-43) | 2026-03-17 |
 | v5.1 Visual Consistency | Complete (Phases 44-45) | 2026-03-18 |
-| v6.0 Ad Library UX Overhaul | In progress (Phases 46-51) | — |
+| v6.0 Ad Library UX Overhaul | Complete (Phases 46-51) | 2026-03-20 |
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 94
+- Total plans completed: 95
 - Average duration: —
 - Total execution time: —
 
@@ -73,5 +73,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Completed 51-01-PLAN.md — ready for 51-02 (wire into page)
+Stopped at: Completed 51-02-PLAN.md — Phase 51 and v6.0 milestone complete
 Resume file: None
