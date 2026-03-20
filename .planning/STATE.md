@@ -5,20 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Planning next milestone
+**Current focus:** v6.1 Brand Monitoring & Cleanup
 
-## Current Milestone: None
+## Current Milestone: v6.1 Brand Monitoring & Cleanup
+
+**Goal:** Fix broken brand monitoring, add per-brand dashboard with top ads + demographics, clean up tech debt.
 
 **Last shipped:** v6.0 Ad Library UX Overhaul (2026-03-20)
 
 ## Current Position
 
-Phase: 51 of 51 (last phase of v6.0)
-Plan: All complete
-Status: Milestone complete — ready for next
-Last activity: 2026-03-20 — v6.0 milestone archived
+Phase: Not started (run /gsd:create-roadmap)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-20 — Milestone v6.1 started
 
-Progress: ██████████ 100% (v6.0)
+Progress: ░░░░░░░░░░ 0% (v6.1)
 
 ## Milestones
 
@@ -34,6 +36,7 @@ Progress: ██████████ 100% (v6.0)
 | v5.0 Product Refocus | Complete (Phases 38-43) | 2026-03-17 |
 | v5.1 Visual Consistency | Complete (Phases 44-45) | 2026-03-18 |
 | v6.0 Ad Library UX Overhaul | Complete (Phases 46-51) | 2026-03-20 |
+| v6.1 Brand Monitoring & Cleanup | In Progress | — |
 
 ## Performance Metrics
 
@@ -54,6 +57,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - v5.0: Phases 38-43
 - v5.1: Phases 44-45
 - v6.0: Phases 46-51 (component extraction, filter/sort overhaul, load-more, analytics bar, lightbox, demographic peek)
+- v6.1: TBD (brand monitoring fix, monitored brands dashboard, cleanup)
 
 ### Pending Todos
 
@@ -68,5 +72,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: v6.0 milestone archived
+Stopped at: v6.1 milestone initialized
 Resume file: None

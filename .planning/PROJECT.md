@@ -55,9 +55,13 @@ Help brands and agencies see what competitors are running and how they're reachi
 - ✓ Ad detail lightbox — responsive modal with media preview, stats, targeting, save/view actions — v6.0
 - ✓ Demographic peek — per-brand mini Recharts charts (age, gender, region) with collapse persistence — v6.0
 
-### Active
+### Active (v6.1 Brand Monitoring & Cleanup)
 
-(No active requirements — define next milestone with `/gsd:define-requirements`)
+- [ ] Brand monitoring fix — "Monitor brand" button must persist saved state
+- [ ] Monitored brands dashboard — per-brand mini dashboard with top ads grid + demographic charts (reach by country, gender, age)
+- [ ] Dead code cleanup — remove orphaned stats-bar.tsx, pagination.tsx, AdLibraryStats interface
+- [ ] Build fix — fix useSearchParams Suspense boundary issue causing `next build` failure
+- [ ] Token refresh — address expired Facebook access tokens on Vercel
 
 ### Planned (v4.5 Industry Benchmarks — Admin Only)
 
@@ -139,4 +143,4 @@ Help brands and agencies see what competitors are running and how they're reachi
 - --accent-green CSS vars preserved for 46 files outside V1 scope
 
 ---
-*Last updated: 2026-03-20 after v6.0 milestone*
+*Last updated: 2026-03-20 after v6.1 milestone initialized*
