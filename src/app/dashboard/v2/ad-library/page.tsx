@@ -19,6 +19,8 @@ import { FilterBar } from './components/filter-bar';
 import { StatsStrip } from './components/stats-strip';
 import { LoadMoreButton } from './components/load-more-button';
 import { AdDetailLightbox } from './components/ad-detail-lightbox';
+import { DemographicPeek } from './components/demographic-peek';
+import { normalizeDemographicsJson, NormalizedDemographics } from '@/lib/demographics-normalizer';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -84,11 +86,52 @@ function AdLibraryContent() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
 
+  // Demographic peek state
+  const [brandDemographics, setBrandDemographics] = useState<NormalizedDemographics | null>(null);
+  const [demoCollapsed, setDemoCollapsed] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('demographicPeekCollapsed') === 'true';
+    }
+    return false;
+  });
+
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => setSearchDebounce(searchQuery), 400);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  const toggleDemoCollapsed = useCallback(() => {
+    setDemoCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('demographicPeekCollapsed', String(next));
+      return next;
+    });
+  }, []);
+
+  // Fetch demographics when brand filter changes (independent from ads)
+  useEffect(() => {
+    if (!brandFilter) {
+      setBrandDemographics(null);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/ad-library/brands/${brandFilter}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (cancelled) return;
+        if (data?.brand?.demographicsJson) {
+          const normalized = normalizeDemographicsJson(data.brand.demographicsJson);
+          setBrandDemographics(normalized);
+        } else {
+          setBrandDemographics(null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setBrandDemographics(null);
+      });
+    return () => { cancelled = true; };
+  }, [brandFilter]);
 
   // Fetch top brands + filter options on mount
   useEffect(() => {
@@ -258,6 +301,7 @@ function AdLibraryContent() {
     setPartnershipFilter('all');
     setSortBy('reachEstimate');
     setSortOrder('desc');
+    setBrandDemographics(null);
   };
 
   const toggleSaveAd = useCallback(async (adId: string) => {
@@ -369,6 +413,16 @@ function AdLibraryContent() {
         activeFilterCount={activeFilterCount}
         onClearAll={clearAllFilters}
       />
+
+      {/* Demographic Peek (brand filter active + brand has demographics) */}
+      {brandDemographics && (
+        <DemographicPeek
+          demographics={brandDemographics}
+          darkMode={darkMode}
+          collapsed={demoCollapsed}
+          onToggleCollapse={toggleDemoCollapsed}
+        />
+      )}
 
       {/* Ads Grid */}
       <section>
