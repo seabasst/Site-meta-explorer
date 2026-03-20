@@ -17,7 +17,7 @@ import { Ad, AdLibraryStats, TopBrand, PaginationData, FilterOption, DaysRange, 
 import { AdCard } from './components/ad-card';
 import { FilterBar } from './components/filter-bar';
 import { StatsBar } from './components/stats-bar';
-import { AdPagination } from './components/pagination';
+import { LoadMoreButton } from './components/load-more-button';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -38,9 +38,12 @@ function AdLibraryContent() {
 
   // Data state
   const [stats, setStats] = useState<AdLibraryStats | null>(null);
-  const [ads, setAds] = useState<Ad[]>([]);
+  const [loadedAds, setLoadedAds] = useState<Ad[]>([]);
   const [pagination, setPagination] = useState<PaginationData | null>(null);
   const [topBrands, setTopBrands] = useState<TopBrand[]>([]);
+  const [nextPage, setNextPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Filter options from API
   const [categories, setCategories] = useState<FilterOption[]>([]);
@@ -57,7 +60,6 @@ function AdLibraryContent() {
   const [loading, setLoading] = useState(true);
   const [adsLoading, setAdsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
 
   // Filters
   const [selectedFormats, setSelectedFormats] = useState<Set<string>>(new Set());
@@ -123,51 +125,58 @@ function AdLibraryContent() {
     fetchInitial();
   }, []);
 
-  // Fetch ads when filters/page change
+  // Build filter params shared by fetchAds and loadMore
+  const buildFilterParams = useCallback((opts: { page: number; limit: number }) => {
+    const params = new URLSearchParams({
+      sortBy,
+      sortOrder,
+      limit: String(opts.limit),
+      page: String(opts.page),
+    });
+    if (statusFilter === 'active') {
+      params.set('isActive', 'true');
+    }
+    if (selectedFormats.size > 0) {
+      params.set('displayFormats', Array.from(selectedFormats).join(','));
+    } else if (hideCarousel) {
+      params.set('excludeFormats', 'carousel,dpa');
+    }
+    if (categoryFilter) {
+      params.set('category', categoryFilter);
+    }
+    if (daysActiveFilter) {
+      params.set('minDaysActive', String(daysActiveFilter.min));
+      if (daysActiveFilter.max !== undefined) {
+        params.set('maxDaysActive', String(daysActiveFilter.max));
+      }
+    }
+    if (brandFilter) {
+      params.set('brandPageId', brandFilter);
+    }
+    if (searchDebounce.trim()) {
+      params.set('search', searchDebounce.trim());
+    }
+    if (partnershipFilter === 'partnership') {
+      params.set('hasBylines', 'true');
+    } else if (partnershipFilter === 'non-partnership') {
+      params.set('hasBylines', 'false');
+    }
+    return params;
+  }, [statusFilter, selectedFormats, hideCarousel, categoryFilter, brandFilter, daysActiveFilter, searchDebounce, sortBy, sortOrder, partnershipFilter]);
+
+  // Fetch ads on initial load / filter change (replaces entire grid)
   const fetchAds = useCallback(async () => {
     setAdsLoading(true);
     try {
-      const params = new URLSearchParams({
-        sortBy,
-        sortOrder,
-        limit: '24',
-        page: String(page),
-      });
-      if (statusFilter === 'active') {
-        params.set('isActive', 'true');
-      }
-      if (selectedFormats.size > 0) {
-        params.set('displayFormats', Array.from(selectedFormats).join(','));
-      } else if (hideCarousel) {
-        params.set('excludeFormats', 'carousel,dpa');
-      }
-      if (categoryFilter) {
-        params.set('category', categoryFilter);
-      }
-      if (daysActiveFilter) {
-        params.set('minDaysActive', String(daysActiveFilter.min));
-        if (daysActiveFilter.max !== undefined) {
-          params.set('maxDaysActive', String(daysActiveFilter.max));
-        }
-      }
-      if (brandFilter) {
-        params.set('brandPageId', brandFilter);
-      }
-      if (searchDebounce.trim()) {
-        params.set('search', searchDebounce.trim());
-      }
-      if (partnershipFilter === 'partnership') {
-        params.set('hasBylines', 'true');
-      } else if (partnershipFilter === 'non-partnership') {
-        params.set('hasBylines', 'false');
-      }
-
+      const params = buildFilterParams({ page: 1, limit: 48 });
       const res = await fetch(`/api/ad-library/ads?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
         const fetchedAds = data.ads || [];
-        setAds(fetchedAds);
+        setLoadedAds(fetchedAds);
         setPagination(data.pagination || null);
+        setHasMore(data.pagination?.hasNext ?? false);
+        setNextPage(2);
 
         // Check which ads are saved
         if (fetchedAds.length > 0) {
@@ -191,16 +200,49 @@ function AdLibraryContent() {
     } finally {
       setAdsLoading(false);
     }
-  }, [page, statusFilter, selectedFormats, hideCarousel, categoryFilter, brandFilter, daysActiveFilter, searchDebounce, sortBy, sortOrder, partnershipFilter]);
+  }, [buildFilterParams]);
 
   useEffect(() => {
     fetchAds();
   }, [fetchAds]);
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setPage(1);
-  }, [statusFilter, selectedFormats, hideCarousel, categoryFilter, brandFilter, daysActiveFilter, searchDebounce, sortBy, sortOrder, partnershipFilter]);
+  // Load more: append next batch to existing ads
+  const loadMore = useCallback(async () => {
+    setIsLoadingMore(true);
+    try {
+      const params = buildFilterParams({ page: nextPage, limit: 24 });
+      const res = await fetch(`/api/ad-library/ads?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        const newAds = data.ads || [];
+        setLoadedAds(prev => [...prev, ...newAds]);
+        setHasMore(data.pagination?.hasNext ?? false);
+        setNextPage(prev => prev + 1);
+        setPagination(data.pagination);
+
+        // Check saved status for new batch only
+        if (newAds.length > 0) {
+          try {
+            const checkRes = await fetch('/api/ad-library/saved/check', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ adIds: newAds.map((a: Ad) => a.id) }),
+            });
+            if (checkRes.ok) {
+              const { savedAdIds: ids } = await checkRes.json();
+              setSavedAdIds(prev => new Set([...prev, ...ids]));
+            }
+          } catch {
+            // Non-critical -- ignore
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load more ads:', err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [buildFilterParams, nextPage]);
 
   const activeFilterCount = (selectedFormats.size > 0 ? 1 : 0) +
     (categoryFilter ? 1 : 0) +
@@ -288,8 +330,6 @@ function AdLibraryContent() {
     );
   }
 
-  const totalPages = pagination?.totalPages ?? 1;
-
   const gridClasses = gridDensity === 'compact'
     ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3'
     : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6';
@@ -339,7 +379,7 @@ function AdLibraryContent() {
           icon={<BookOpen className="w-5 h-5 text-[#1235e2]" />}
           action={
             <span className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-              Page {page} of {totalPages}
+              Showing {loadedAds.length} of {(pagination?.total ?? 0).toLocaleString()}
             </span>
           }
         >
@@ -355,7 +395,7 @@ function AdLibraryContent() {
               />
             ))}
           </div>
-        ) : ads.length === 0 ? (
+        ) : loadedAds.length === 0 ? (
           <V2Card className="p-12 text-center">
             <BookOpen className={`w-12 h-12 mx-auto mb-4 ${darkMode ? 'text-slate-600' : 'text-slate-300'}`} />
             <p className={`text-lg font-medium mb-2 ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
@@ -369,14 +409,22 @@ function AdLibraryContent() {
           </V2Card>
         ) : (
           <div className={gridClasses}>
-            {ads.map((ad) => (
+            {loadedAds.map((ad) => (
               <AdCard key={ad.id} ad={ad} darkMode={darkMode} isSaved={savedAdIds.has(ad.id)} onToggleSave={toggleSaveAd} compact={gridDensity === 'compact'} />
             ))}
           </div>
         )}
 
-        {/* Pagination */}
-        <AdPagination page={page} totalPages={totalPages} onPageChange={setPage} darkMode={darkMode} />
+        {/* Load More */}
+        {hasMore && !adsLoading && (
+          <LoadMoreButton
+            onClick={loadMore}
+            loading={isLoadingMore}
+            loadedCount={loadedAds.length}
+            totalCount={pagination?.total ?? 0}
+            darkMode={darkMode}
+          />
+        )}
       </section>
 
       {/* Login Modal */}
