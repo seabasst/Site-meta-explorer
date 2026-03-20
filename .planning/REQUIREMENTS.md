@@ -43,7 +43,7 @@ Transform the ad library from a basic browse grid into a fast, analytical tool â
 | BRWS-04 | Phase 48 | Complete |
 | ANLYT-01 | Phase 49 | Complete |
 | BRWS-01 | Phase 50 | Complete |
-| ANLYT-02 | Phase 51 | Pending |
+| ANLYT-02 | Phase 51 | Complete |
 
 **Coverage:**
 - v1 requirements: 11 total
