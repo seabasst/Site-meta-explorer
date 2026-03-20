@@ -56,6 +56,8 @@ export interface PaginationData {
   limit: number;
   total: number;
   totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
 
 export interface FilterOption {
