@@ -121,14 +121,17 @@ Plans:
 **Goal**: Clicking an ad card opens a centered modal with large media preview, full copy, stats, targeting, and dates
 **Depends on**: Phase 46
 **Requirements**: BRWS-01
-**Research**: Likely (need to check what ad data is available for detail view — targeting, spend, impressions)
+**Research**: Complete (50-RESEARCH.md — all data already in API response, no new endpoints needed)
 **Success Criteria** (what must be TRUE):
   1. Clicking any ad card opens a centered modal overlay
   2. Modal shows large media preview (image or video), full ad copy, all stats
   3. Modal shows targeting info, start/end dates, platform info
   4. User can close modal with Escape, click outside, or X button
   5. User can save ad and view on Meta from within the lightbox
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 50-01-PLAN.md — Expand Ad type with all API detail fields, add onSelect to AdCard
+- [ ] 50-02-PLAN.md — Build AdDetailLightbox component, wire into page with selectedAd state
 
 ### Phase 51: Demographic Peek
 **Goal**: Show mini demographic charts (age, gender, country) per-brand or per-category while browsing
@@ -152,8 +155,8 @@ Phases 46 first (foundation), then 47-49 can be parallel (wave 2), then 50-51 (w
 | 47. Filter & Sort Overhaul | 2/2 | ✓ Complete | 2026-03-19 |
 | 48. Load-More Pagination | 1/1 | ✓ Complete | 2026-03-20 |
 | 49. Inline Analytics Bar | 1/1 | ✓ Complete | 2026-03-20 |
-| 50. Ad Detail Lightbox | 0/TBD | Not started | - |
+| 50. Ad Detail Lightbox | 0/2 | Not started | - |
 | 51. Demographic Peek | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-20 after Phase 49 planning*
+*Last updated: 2026-03-20 after Phase 50 planning*
