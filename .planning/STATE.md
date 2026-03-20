@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 50 complete — Ad Detail Lightbox. Next: Phase 51 (Demographic Peek)
+**Current focus:** Phase 51 in progress — Demographic Peek (Plan 01 complete)
 
 ## Current Milestone: v6.0 Ad Library UX Overhaul
 
@@ -15,12 +15,12 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 50 of 51 (Ad Detail Lightbox)
-Plan: 2 of 2 complete
-Status: Verified ✓ (10/10 must-haves)
-Last activity: 2026-03-20 — Phase 50 verified and complete
+Phase: 51 of 51 (Demographic Peek)
+Plan: 1 of 2 complete
+Status: In progress
+Last activity: 2026-03-20 — Completed 51-01-PLAN.md (API + component)
 
-Progress: █████████░ ~90%
+Progress: █████████▓ ~95%
 
 ## Milestones
 
@@ -40,7 +40,7 @@ Progress: █████████░ ~90%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 93
+- Total plans completed: 94
 - Average duration: —
 - Total execution time: —
 
@@ -73,5 +73,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Phase 50 verified — ready for Phase 51 (Demographic Peek)
+Stopped at: Completed 51-01-PLAN.md — ready for 51-02 (wire into page)
 Resume file: None
