@@ -55,7 +55,7 @@ Phases 44-45
 - [ ] **Phase 48: Load-More Pagination** - Replace numbered pagination with load-more batching
 - [ ] **Phase 49: Inline Analytics Bar** - Quick stats strip above the ad grid
 - [ ] **Phase 50: Ad Detail Lightbox** - Centered modal overlay on ad click with full detail
-- [ ] **Phase 51: Demographic Peek** - Per-brand/category mini demographic charts in the browse view
+- [ ] **Phase 51: Demographic Peek** - Per-brand mini demographic charts in the browse view
 
 ## Phase Details
 
@@ -134,15 +134,18 @@ Plans:
 - [ ] 50-02-PLAN.md — Build AdDetailLightbox component, wire into page with selectedAd state
 
 ### Phase 51: Demographic Peek
-**Goal**: Show mini demographic charts (age, gender, country) per-brand or per-category while browsing
+**Goal**: Show mini demographic charts (age, gender, country) per-brand while browsing — collapsible panel above the ad grid when a brand filter is active
 **Depends on**: Phase 46, Phase 49
 **Requirements**: ANLYT-02
-**Research**: Likely (need to check demographic data availability per-brand in current DB/API)
+**Research**: Complete (51-RESEARCH.md — brand demographicsJson already in DB, normalizer utilities exist, Recharts installed)
 **Success Criteria** (what must be TRUE):
   1. When browsing by brand, a mini demographic chart is visible
   2. Charts show age, gender, or country distribution relevant to the filtered view
   3. Charts don't block or slow down the ad browsing experience
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 51-01-PLAN.md — Add demographicsJson to brand API, create DemographicPeek component with mini Recharts charts
+- [ ] 51-02-PLAN.md — Wire DemographicPeek into page.tsx with brand filter detection, localStorage collapse state
 
 ## Progress
 
@@ -156,7 +159,7 @@ Phases 46 first (foundation), then 47-49 can be parallel (wave 2), then 50-51 (w
 | 48. Load-More Pagination | 1/1 | ✓ Complete | 2026-03-20 |
 | 49. Inline Analytics Bar | 1/1 | ✓ Complete | 2026-03-20 |
 | 50. Ad Detail Lightbox | 2/2 | ✓ Complete | 2026-03-20 |
-| 51. Demographic Peek | 0/TBD | Not started | - |
+| 51. Demographic Peek | 0/2 | Not started | - |
 
 ---
-*Last updated: 2026-03-20 after Phase 50 planning*
+*Last updated: 2026-03-20 after Phase 51 planning*
