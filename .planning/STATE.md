@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 48 complete — ready for Phase 49
+**Current focus:** Phase 49 complete — ready for Phase 50
 
 ## Current Milestone: v6.0 Ad Library UX Overhaul
 
@@ -15,12 +15,12 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 48 of 51 (Load More Pagination)
+Phase: 49 of 51 (Inline Analytics Bar)
 Plan: 1 of 1 complete
-Status: Verified ✓ (6/6 must-haves)
-Last activity: 2026-03-20 — Phase 48 verified and complete
+Status: Complete
+Last activity: 2026-03-20 — Completed 49-01-PLAN.md
 
-Progress: █████░░░░░ ~40%
+Progress: ██████░░░░ ~50%
 
 ## Milestones
 
@@ -40,7 +40,7 @@ Progress: █████░░░░░ ~40%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 91
+- Total plans completed: 92
 - Average duration: —
 - Total execution time: —
 
@@ -65,12 +65,13 @@ None.
 
 - Facebook access tokens may be expired on Vercel (demographics fallback handles gracefully)
 - Pre-existing `next build` failure: useSearchParams Suspense boundary (does not affect dev or production)
-- Ad library page reduced from 1044 to 633 lines (Phase 46), then to 464 lines (Phase 47-02 FilterBar extraction), now ~510 lines with load-more logic (Phase 48)
+- Ad library page reduced from 1044 to 633 lines (Phase 46), then to 464 lines (Phase 47-02 FilterBar extraction), ~510 lines with load-more (Phase 48), ~500 lines after stats simplification (Phase 49)
 - Prisma 7 orderBy: non-nullable fields require plain SortOrder, not { sort, nulls } extended syntax
 - pagination.tsx still exists but is no longer imported (can be cleaned up)
+- stats-bar.tsx still exists but is no longer imported (replaced by stats-strip.tsx)
 
 ## Session Continuity
 
 Last session: 2026-03-20
-Stopped at: Phase 48 verified — ready for Phase 49
+Stopped at: Completed 49-01-PLAN.md — ready for Phase 50
 Resume file: None
