@@ -84,14 +84,16 @@ Plans:
 
 ### Phase 54: Brand Monitoring
 **Goal**: Working brand monitoring with per-brand dashboards
-**Depends on**: Phase 53 (valid tokens needed for demographic data)
+**Depends on**: Phase 53 (valid tokens needed for demographic data) ✓
 **Requirements**: BMON-01, BMON-02
 **Success Criteria** (what must be TRUE):
   1. User clicks "Monitor brand" and the saved state persists across page navigation and refresh
   2. User can view a per-brand mini dashboard with top ads grid
   3. Per-brand dashboard shows demographic charts (reach by country, gender, age)
-**Research**: Likely — need to understand current monitor button implementation and dashboard layout approach
-**Plans**: TBD
+**Research**: Complete (54-RESEARCH.md)
+**Plans**: 1 plan
+Plans:
+- [ ] 54-01-PLAN.md — Add monitor toggle button and demographics section to brand detail page
 
 ## Progress
 
@@ -101,7 +103,7 @@ Plans:
 |-------|---------------|--------|-----------|
 | 52. Build Fix | 0/0 | ✓ Complete (already resolved) | 2026-03-20 |
 | 53. Infrastructure & Cleanup | 2/2 | ✓ Complete | 2026-03-21 |
-| 54. Brand Monitoring | 0/TBD | Not started | - |
+| 54. Brand Monitoring | 0/1 | In progress | - |
 
 ---
-*Last updated: 2026-03-21 after Phase 53 execution*
+*Last updated: 2026-03-21 after Phase 54 planning*
