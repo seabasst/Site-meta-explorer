@@ -14,15 +14,15 @@ Requirements for v6.1 release. Each maps to roadmap phases.
 
 ### Code Health
 
-- [ ] **CODE-01**: Orphaned files removed: `stats-bar.tsx`, `pagination.tsx`, `AdLibraryStats` interface
+- [x] **CODE-01**: Orphaned files removed: `stats-bar.tsx`, `pagination.tsx`, `AdLibraryStats` interface
 
 ### Build & Deploy
 
-- [ ] **BFIX-01**: `next build` succeeds without `useSearchParams` Suspense boundary error
+- [x] **BFIX-01**: `next build` succeeds without `useSearchParams` Suspense boundary error *(resolved during v6.0)*
 
 ### Infrastructure
 
-- [ ] **INFR-01**: Facebook access tokens on Vercel are refreshed/valid so demographics data loads correctly
+- [x] **INFR-01**: Facebook access tokens on Vercel are refreshed/valid so demographics data loads correctly
 
 ## v2 Requirements
 
@@ -43,9 +43,9 @@ None — this is a focused cleanup milestone.
 |-------------|-------|--------|
 | BMON-01 | Phase 54 | Pending |
 | BMON-02 | Phase 54 | Pending |
-| CODE-01 | Phase 53 | Pending |
-| BFIX-01 | Phase 52 | Pending |
-| INFR-01 | Phase 53 | Pending |
+| CODE-01 | Phase 53 | ✓ Complete |
+| BFIX-01 | Phase 52 | ✓ Complete |
+| INFR-01 | Phase 53 | ✓ Complete |
 
 **Coverage:**
 - v1 requirements: 5 total
@@ -54,4 +54,4 @@ None — this is a focused cleanup milestone.
 
 ---
 *Requirements defined: 2026-03-20*
-*Last updated: 2026-03-20 after roadmap creation*
+*Last updated: 2026-03-21 after Phase 53 execution*

@@ -52,7 +52,7 @@ Phases 46-51 — See milestones/v6.0-ROADMAP.md for full details
 **Milestone Goal:** Fix broken brand monitoring, add per-brand dashboard, clean up tech debt and build issues.
 
 - [x] **Phase 52: Build Fix** — Already resolved (build succeeds, no Suspense boundary error)
-- [ ] **Phase 53: Infrastructure & Cleanup** — Refresh Facebook tokens, remove dead code
+- [x] **Phase 53: Infrastructure & Cleanup** — Refresh Facebook tokens, remove dead code
 - [ ] **Phase 54: Brand Monitoring** — Fix monitor button persistence, add per-brand dashboard
 
 ## Phase Details
@@ -79,8 +79,8 @@ Phases 46-51 — See milestones/v6.0-ROADMAP.md for full details
 **Research**: Unlikely — known files, known token refresh process
 **Plans**: 2 plans
 Plans:
-- [ ] 53-01-PLAN.md — Remove orphaned files (stats-bar.tsx, pagination.tsx) and dead AdLibraryStats interface
-- [ ] 53-02-PLAN.md — Diagnose and refresh Facebook access tokens on Vercel
+- [x] 53-01-PLAN.md — Remove orphaned files (stats-bar.tsx, pagination.tsx) and dead AdLibraryStats interface
+- [x] 53-02-PLAN.md — Diagnose and refresh Facebook access tokens on Vercel
 
 ### Phase 54: Brand Monitoring
 **Goal**: Working brand monitoring with per-brand dashboards
@@ -100,8 +100,8 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 52. Build Fix | 0/0 | ✓ Complete (already resolved) | 2026-03-20 |
-| 53. Infrastructure & Cleanup | 0/2 | Planned | - |
+| 53. Infrastructure & Cleanup | 2/2 | ✓ Complete | 2026-03-21 |
 | 54. Brand Monitoring | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-20 after Phase 53 planning*
+*Last updated: 2026-03-21 after Phase 53 execution*
