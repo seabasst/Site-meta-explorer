@@ -77,7 +77,10 @@ Phases 52-54 — See milestones/v6.1-ROADMAP.md for full details
   2. Category benchmark shows aggregated Five Pillars + Andromeda scores across all brands in that category
   3. User sees side-by-side comparison with per-pillar indexing (brand score vs. category average)
   4. Comparison highlights gaps and strengths with actionable recommendations
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 55-01-PLAN.md — Analysis caching + benchmark API
+- [ ] 55-02-PLAN.md — Category selector UI + benchmark comparison component
 
 ### Phase 56: Image Generation
 **Goal**: Users can generate AI ad creatives in multiple formats from analysis-driven prompts
@@ -132,11 +135,11 @@ Phases execute in numeric order: 55 → 56 → 57 → 58 → 59
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 55. Creative Analysis | 0/TBD | Not started | - |
+| 55. Creative Analysis | 0/2 | Planning complete | - |
 | 56. Image Generation | 0/TBD | Not started | - |
 | 57. Text Overlay Editor | 0/TBD | Not started | - |
 | 58. UGC Creator Briefs | 0/TBD | Not started | - |
 | 59. Creative Lab Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-21 after v7.0 roadmap creation*
+*Last updated: 2026-03-21 after Phase 55 planning*
