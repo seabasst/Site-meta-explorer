@@ -21,6 +21,8 @@ import {
 import { V2Shell, V2Card, V2SectionTitle, V2Skeleton, formatNumber } from '../../v2-shell';
 import { useV2 } from '../../v2-context';
 import { formatFormatLabel } from '../types';
+import { normalizeDemographicsJson } from '@/lib/demographics-normalizer';
+import { DemographicPeek } from '../components/demographic-peek';
 
 // ---------------------------------------------------------------------------
 // Types (match API response from /api/ad-library/brands/[pageId])
@@ -112,6 +114,9 @@ export default function BrandDetailPage() {
   const [isMonitored, setIsMonitored] = useState(false);
   const [monitorLoading, setMonitorLoading] = useState(false);
 
+  // Demographics collapse state
+  const [demCollapsed, setDemCollapsed] = useState(false);
+
   // Pagination state
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -122,7 +127,7 @@ export default function BrandDetailPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/ad-library/brands/${pageId}?page=${page}&pageSize=24`);
+      const res = await fetch(`/api/ad-library/brands/${pageId}?page=${page}&pageSize=24&sortBy=reachEstimate&sortOrder=desc`);
       if (res.status === 404) {
         setError('Brand not found. It may have been removed or the link is incorrect.');
         setBrand(null);
@@ -336,6 +341,28 @@ export default function BrandDetailPage() {
         </div>
       </V2Card>
 
+      {/* Demographics */}
+      {(() => {
+        if (!brand.demographicsJson) return null;
+        const demographics = normalizeDemographicsJson(brand.demographicsJson);
+        if (!demographics) return null;
+        return (
+          <section className="mb-8">
+            <V2SectionTitle
+              icon={<Users className="w-5 h-5 text-[#1235e2]" />}
+            >
+              Audience Demographics
+            </V2SectionTitle>
+            <DemographicPeek
+              demographics={demographics}
+              darkMode={darkMode}
+              collapsed={demCollapsed}
+              onToggleCollapse={() => setDemCollapsed(prev => !prev)}
+            />
+          </section>
+        );
+      })()}
+
       {/* Ad Grid */}
       <section>
         <V2SectionTitle
@@ -346,7 +373,7 @@ export default function BrandDetailPage() {
             </span>
           }
         >
-          Ads
+          Top Ads by Reach
         </V2SectionTitle>
 
         {loading ? (
