@@ -220,6 +220,7 @@ model AdLibraryBrand {
   monitoredBy    MonitoredBrand[]
   templates      AdTemplate[]
   sovSnapshots   SovSnapshot[]
+  analysisCache  BrandAnalysisCache?
 
   @@index([ingestionStatus, priority])
   @@index([category])
@@ -258,6 +259,9 @@ model AdLibraryAd {
   spendLower       Float?
   spendUpper       Float?
   currency         String?
+
+  // Partnership / sponsorship
+  bylines String? // "Paid for by X" — identifies partnership ads
 
   // Targeting (from demographic_distribution if available)
   targetingJson Json? // Full targeting data
@@ -494,4 +498,43 @@ model RoadmapUpvote {
 
   @@unique([requestId, userId]) // One upvote per user per request
   @@index([userId])
+}
+
+// =============================================================================
+// Brand Analysis Cache (for category benchmarking)
+// =============================================================================
+
+model BrandAnalysisCache {
+  id        String   @id @default(cuid())
+  brandId   String   @unique
+  brand     AdLibraryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  // Five Pillars diversity scores (0-100)
+  formatScore       Int
+  toneScore         Int
+  journeyPhaseScore Int
+  visualStyleScore  Int
+  messengerScore    Int
+  overallScore      Int
+
+  // Andromeda score (0-100 composite)
+  andromedaScore    Int
+
+  // Key Andromeda metrics for aggregation
+  avgRefreshRate    Float
+  stalePercentage   Int
+  hookQualityAvg    Float
+  uniqueConcepts    Int
+  uniqueCtas        Int
+  funnelAwareness   Int
+  funnelConsideration Int
+  funnelConversion  Int
+
+  // Full distribution data for deeper comparison
+  distributionJson  Json
+
+  totalAdsAnalyzed  Int
+  analyzedAt        DateTime @default(now())
+
+  @@index([brandId])
 }

@@ -459,6 +459,55 @@ Return ONLY valid JSON, no markdown.`,
     const recJson = recText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     const recommendations = JSON.parse(recJson);
 
+    // Cache analysis results for category benchmarking
+    try {
+      await prisma.brandAnalysisCache.upsert({
+        where: { brandId: brand.id },
+        update: {
+          formatScore: diversityScores.format,
+          toneScore: diversityScores.tone,
+          journeyPhaseScore: diversityScores.journeyPhase,
+          visualStyleScore: diversityScores.visualStyle,
+          messengerScore: diversityScores.messenger,
+          overallScore: diversityScores.overall,
+          andromedaScore: recommendations.andromedaScore || 0,
+          avgRefreshRate,
+          stalePercentage,
+          hookQualityAvg: avgHookScore,
+          uniqueConcepts: clusters.length,
+          uniqueCtas,
+          funnelAwareness: Math.round(awarenessRatio * 100),
+          funnelConsideration: Math.round(considerationRatio * 100),
+          funnelConversion: Math.round(conversionRatio * 100),
+          distributionJson: distribution as object,
+          totalAdsAnalyzed: classifications.length,
+          analyzedAt: new Date(),
+        },
+        create: {
+          brandId: brand.id,
+          formatScore: diversityScores.format,
+          toneScore: diversityScores.tone,
+          journeyPhaseScore: diversityScores.journeyPhase,
+          visualStyleScore: diversityScores.visualStyle,
+          messengerScore: diversityScores.messenger,
+          overallScore: diversityScores.overall,
+          andromedaScore: recommendations.andromedaScore || 0,
+          avgRefreshRate,
+          stalePercentage,
+          hookQualityAvg: avgHookScore,
+          uniqueConcepts: clusters.length,
+          uniqueCtas,
+          funnelAwareness: Math.round(awarenessRatio * 100),
+          funnelConsideration: Math.round(considerationRatio * 100),
+          funnelConversion: Math.round(conversionRatio * 100),
+          distributionJson: distribution as object,
+          totalAdsAnalyzed: classifications.length,
+        },
+      });
+    } catch (cacheError) {
+      console.error('Failed to cache analysis results:', cacheError);
+    }
+
     return Response.json({
       brandName: brand.pageName,
       category: brand.category,
