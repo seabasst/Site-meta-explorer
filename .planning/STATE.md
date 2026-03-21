@@ -5,20 +5,25 @@
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Planning v7.0 Creative Lab Redesign
+**Current focus:** v7.0 Creative Lab
 
-## Current Milestone: v7.0 Creative Lab Redesign (Planning)
+## Current Milestone: v7.0 Creative Lab
 
-**Goal:** Split Creative Lab into Analysis (brand vs category benchmark) and Generation (ad creation, text overlays, UGC briefs).
+**Goal:** Turn insights into action — generate, remix, and customize ad creatives directly in the platform.
+
+**Target features:**
+- Creative Generation — AI image generation + template remixing from high-performing ads
+- Text Overlay Editor — template-based editor for quick ad customization and export
+- UGC Creator Briefs — structured briefs based on ad library data
 
 **Last shipped:** v6.1 Brand Monitoring & Cleanup (2026-03-21)
 
 ## Current Position
 
-Phase: 55+ (not yet planned)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-03-21 — v6.1 milestone complete
+Phase: Not started (run /gsd:create-roadmap)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-21 — Milestone v7.0 started
 
 Progress: ░░░░░░░░░░ 0% (v7.0)
 
@@ -37,6 +42,7 @@ Progress: ░░░░░░░░░░ 0% (v7.0)
 | v5.1 Visual Consistency | Complete (Phases 44-45) | 2026-03-18 |
 | v6.0 Ad Library UX Overhaul | Complete (Phases 46-51) | 2026-03-20 |
 | v6.1 Brand Monitoring & Cleanup | Complete (Phases 52-54) | 2026-03-21 |
+| v7.0 Creative Lab | **Active** | — |
 
 ## Performance Metrics
 
@@ -58,7 +64,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - v5.1: Phases 44-45
 - v6.0: Phases 46-51
 - v6.1: Phases 52-54 (build fix, infra/cleanup, brand monitoring)
-- v7.0: Phases 55+ (Creative Lab Redesign — planning)
+- v7.0: Phases 55+ (Creative Lab — defining requirements)
 
 ### Pending Todos
 
@@ -67,9 +73,10 @@ None.
 ### Blockers/Concerns
 
 - TOKEN2 expires 2026-04-24, TOKEN3 expires 2026-04-25 — schedule refresh mid-April
+- AI generation requires external API key (DALL-E/Flux) — cost and key management TBD
 
 ## Session Continuity
 
 Last session: 2026-03-21
-Stopped at: v6.1 milestone archived, ready for v7.0 planning
+Stopped at: v7.0 milestone initialized, ready for requirements
 Resume file: None

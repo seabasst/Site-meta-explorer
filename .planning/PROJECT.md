@@ -60,12 +60,11 @@ Help brands and agencies see what competitors are running and how they're reachi
 - ✓ Build fix — useSearchParams Suspense boundary resolved — v6.1
 - ✓ Facebook token verification — all 3 tokens valid, demographics API working — v6.1
 
-### Active (v7.0 Creative Lab Redesign)
+### Active (v7.0 Creative Lab)
 
-- [ ] Creative Analysis — user selects own brand + category, gets brand-vs-category benchmark comparison
-- [ ] Creative Generation — generate ad creatives in user-selected formats based on analysis gaps
-- [ ] Text overlay editor — simple in-browser canvas editor for generated ad images
-- [ ] UGC creator briefs — structured briefs with shot list, talking points, hook script
+- [ ] Creative Generation — AI image generation (DALL-E/Flux) + template remixing from high-performing ads, multiple format variants
+- [ ] Text Overlay Editor — template-based editor: pick template, swap text/images, customize colors/fonts, export as image
+- [ ] UGC Creator Briefs — structured briefs with shot list, talking points, hook script based on ad library data
 
 ### Planned (v4.5 Industry Benchmarks — Admin Only)
 
@@ -76,6 +75,8 @@ Help brands and agencies see what competitors are running and how they're reachi
 
 ### Out of Scope
 
+- Creative Analysis (brand vs category benchmark) — deferred to v7.1
+- Full canvas editor — template-based only, keep complexity manageable
 - Competitors monitoring page — hidden, may delete later
 - Benchmarking pages — hidden, may delete later
 - Compare tool — hidden, may delete later
@@ -148,4 +149,4 @@ Help brands and agencies see what competitors are running and how they're reachi
 - --accent-green CSS vars preserved for 46 files outside V1 scope
 
 ---
-*Last updated: 2026-03-21 after v6.1 milestone complete*
+*Last updated: 2026-03-21 after v7.0 milestone started*
