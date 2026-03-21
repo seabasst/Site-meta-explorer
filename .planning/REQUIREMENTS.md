@@ -9,10 +9,10 @@ Requirements for v7.0 milestone. Each maps to roadmap phases.
 
 ### Creative Analysis
 
-- [ ] **ANLZ-01**: User can select their brand and a category to benchmark against
-- [ ] **ANLZ-02**: Category benchmark aggregates Five Pillars + Andromeda scores across all brands in that category from the database
-- [ ] **ANLZ-03**: User sees brand vs. category comparison with per-pillar indexing (e.g., "your format diversity is 62 vs. category avg 78")
-- [ ] **ANLZ-04**: Comparison highlights gaps and strengths with actionable recommendations
+- [x] **ANLZ-01**: User can select their brand and a category to benchmark against
+- [x] **ANLZ-02**: Category benchmark aggregates Five Pillars + Andromeda scores across all brands in that category from the database
+- [x] **ANLZ-03**: User sees brand vs. category comparison with per-pillar indexing (e.g., "your format diversity is 62 vs. category avg 78")
+- [x] **ANLZ-04**: Comparison highlights gaps and strengths with actionable recommendations
 
 ### Creative Generation
 
@@ -75,10 +75,10 @@ Deferred to future release (v7.1+). Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ANLZ-01 | Phase 55 | Pending |
-| ANLZ-02 | Phase 55 | Pending |
-| ANLZ-03 | Phase 55 | Pending |
-| ANLZ-04 | Phase 55 | Pending |
+| ANLZ-01 | Phase 55 | Complete |
+| ANLZ-02 | Phase 55 | Complete |
+| ANLZ-03 | Phase 55 | Complete |
+| ANLZ-04 | Phase 55 | Complete |
 | GENR-01 | Phase 56 | Pending |
 | GENR-02 | Phase 56 | Pending |
 | GENR-03 | Phase 56 | Pending |
@@ -102,4 +102,4 @@ Deferred to future release (v7.1+). Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-03-21*
-*Last updated: 2026-03-21 after roadmap creation*
+*Last updated: 2026-03-21 after Phase 55 completion*
