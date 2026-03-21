@@ -53,4 +53,90 @@ Phases 52-54 — See milestones/v6.1-ROADMAP.md for full details
 </details>
 
 ---
-*Last updated: 2026-03-21 after v6.1 milestone completion*
+
+### 🚧 v7.0 Creative Lab (In Progress)
+
+**Milestone Goal:** Turn ad insights into action — generate, remix, and customize ad creatives directly in the platform.
+
+## Phases
+
+- [ ] **Phase 55: Creative Analysis** - Brand vs. category benchmarking with Five Pillars + Andromeda
+- [ ] **Phase 56: Image Generation** - AI image generation with format selection driven by analysis gaps
+- [ ] **Phase 57: Text Overlay Editor** - Template-based ad customization and export
+- [ ] **Phase 58: UGC Creator Briefs** - Structured briefs with shot list, talking points, hooks
+- [ ] **Phase 59: Creative Lab Integration** - Unified Creative Lab page connecting all features
+
+## Phase Details
+
+### Phase 55: Creative Analysis
+**Goal**: Users can benchmark their brand's creative strategy against category averages
+**Depends on**: Nothing (first phase — extends existing Andromeda analysis)
+**Requirements**: ANLZ-01, ANLZ-02, ANLZ-03, ANLZ-04
+**Success Criteria** (what must be TRUE):
+  1. User can select their brand AND a category to compare against
+  2. Category benchmark shows aggregated Five Pillars + Andromeda scores across all brands in that category
+  3. User sees side-by-side comparison with per-pillar indexing (brand score vs. category average)
+  4. Comparison highlights gaps and strengths with actionable recommendations
+**Plans**: TBD
+
+### Phase 56: Image Generation
+**Goal**: Users can generate AI ad creatives in multiple formats from analysis-driven prompts
+**Depends on**: Phase 55 (recommendations feed into generation)
+**Requirements**: GENR-01, GENR-02, GENR-03, GENR-04, GENR-05
+**Success Criteria** (what must be TRUE):
+  1. User can generate an AI image from any recommendation with one click
+  2. User can select target ad format/size before generating
+  3. User can generate multiple format variants from the same prompt
+  4. User can download any generated image
+  5. Generation prompts are pre-filled from analysis gap recommendations
+**Plans**: TBD
+
+### Phase 57: Text Overlay Editor
+**Goal**: Users can customize ad creatives using templates with text, image, color, and font controls
+**Depends on**: Phase 56 (generated images can be used in templates)
+**Requirements**: EDIT-01, EDIT-02, EDIT-03, EDIT-04, EDIT-05
+**Success Criteria** (what must be TRUE):
+  1. User can browse and pick from a library of ad templates
+  2. User can swap headline, body text, and CTA on any template
+  3. User can swap the template image (upload their own or use a generated image)
+  4. User can customize colors and fonts
+  5. User can export the finished creative as PNG or JPG
+**Plans**: TBD
+
+### Phase 58: UGC Creator Briefs
+**Goal**: Users can generate structured UGC briefs based on a brand's ad library data
+**Depends on**: Phase 55 (analysis data informs brief content)
+**Requirements**: UGC-01, UGC-02, UGC-03, UGC-04, UGC-05
+**Success Criteria** (what must be TRUE):
+  1. User can generate a UGC brief for any brand in the database
+  2. Brief includes a shot list with scene descriptions
+  3. Brief includes talking points and a hook script
+  4. Brief includes B-roll suggestions relevant to the brand's category
+  5. User can copy the brief to clipboard or download as a formatted document
+**Plans**: TBD
+
+### Phase 59: Creative Lab Integration
+**Goal**: Unified Creative Lab page that connects analysis, generation, editing, and briefs into one workflow
+**Depends on**: Phases 55-58
+**Requirements**: (cross-cutting — connects all features)
+**Success Criteria** (what must be TRUE):
+  1. Creative Lab page has clear navigation between Analysis, Generation, Editor, and Briefs
+  2. User can flow from analysis → generation → editor without leaving Creative Lab
+  3. Recommendations from analysis link directly to generation and brief creation
+**Plans**: TBD
+
+## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 55 → 56 → 57 → 58 → 59
+
+| Phase | Plans Complete | Status | Completed |
+|-------|---------------|--------|-----------|
+| 55. Creative Analysis | 0/TBD | Not started | - |
+| 56. Image Generation | 0/TBD | Not started | - |
+| 57. Text Overlay Editor | 0/TBD | Not started | - |
+| 58. UGC Creator Briefs | 0/TBD | Not started | - |
+| 59. Creative Lab Integration | 0/TBD | Not started | - |
+
+---
+*Last updated: 2026-03-21 after v7.0 roadmap creation*
