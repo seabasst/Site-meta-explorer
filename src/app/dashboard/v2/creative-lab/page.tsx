@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Wand2,
   Loader2,
@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { V2Shell, V2Card } from '../v2-shell';
 import { useV2 } from '../v2-context';
+import { BenchmarkComparison } from './benchmark-comparison';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -141,6 +142,50 @@ interface DiversityResult {
   recommendations: Recommendation[];
 }
 
+interface PillarIndex {
+  brand: number;
+  category: number;
+  diff: number;
+  status: 'strength' | 'gap' | 'neutral';
+}
+
+interface BenchmarkRecommendation {
+  pillar: string;
+  brandScore: number;
+  categoryAvg: number;
+  diff: number;
+  status: 'strength' | 'gap';
+  message: string;
+}
+
+interface BenchmarkResult {
+  brand: {
+    name: string;
+    scores: DiversityScores;
+    andromedaScore: number;
+  };
+  category: {
+    name: string;
+    slug: string;
+    totalBrands: number;
+    analyzedBrands: number;
+    avgScores: DiversityScores;
+    avgAndromedaScore: number;
+  };
+  indexing: {
+    format: PillarIndex;
+    tone: PillarIndex;
+    journeyPhase: PillarIndex;
+    visualStyle: PillarIndex;
+    messenger: PillarIndex;
+    overall: PillarIndex;
+    andromeda: PillarIndex;
+  };
+  gaps: BenchmarkRecommendation[];
+  strengths: BenchmarkRecommendation[];
+  analyzedAt: string;
+}
+
 type Step = 'setup' | 'analyzing' | 'results' | 'brief' | 'generating-image' | 'image-result';
 
 // ---------------------------------------------------------------------------
@@ -221,8 +266,21 @@ export default function CreativeLabPage() {
   const [diversityResult, setDiversityResult] = useState<DiversityResult | null>(null);
   const [selectedRec, setSelectedRec] = useState<Recommendation | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [categories, setCategories] = useState<{ slug: string; label: string; brandCount: number; analyzedBrands?: number }[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [benchmarkResult, setBenchmarkResult] = useState<BenchmarkResult | null>(null);
+  const [benchmarkLoading, setBenchmarkLoading] = useState(false);
 
   const searchTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setCategories(data);
+      })
+      .catch(() => {});
+  }, []);
 
   const card = `rounded-xl border ${darkMode ? 'bg-[#1235e2]/5 border-[#1235e2]/10' : 'bg-white border-slate-200'}`;
   const muted = darkMode ? 'text-slate-400' : 'text-slate-500';
@@ -275,6 +333,25 @@ export default function CreativeLabPage() {
       const data: DiversityResult = await res.json();
       setDiversityResult(data);
       setStep('results');
+
+      // Fetch benchmark if category was selected
+      if (selectedCategory) {
+        setBenchmarkLoading(true);
+        try {
+          const benchRes = await fetch('/api/analyze/benchmark', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pageId: myBrand.pageId, category: selectedCategory }),
+          });
+          if (benchRes.ok) {
+            const benchData = await benchRes.json();
+            if (!benchData.needsAnalysis) {
+              setBenchmarkResult(benchData);
+            }
+          }
+        } catch { /* benchmark is optional, don't fail */ }
+        setBenchmarkLoading(false);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Analysis failed');
       setStep('setup');
@@ -308,6 +385,9 @@ export default function CreativeLabPage() {
     setDiversityResult(null);
     setSelectedRec(null);
     setGeneratedImageUrl(null);
+    setBenchmarkResult(null);
+    setSelectedCategory('');
+    setBenchmarkLoading(false);
     setError('');
   };
 
@@ -391,6 +471,32 @@ export default function CreativeLabPage() {
                 )}
               </div>
             )}
+          </V2Card>
+
+          <V2Card className="p-6 mb-6">
+            <h3 className="font-bold mb-1 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-[#1235e2]" />
+              Benchmark Against Category
+            </h3>
+            <p className={`text-sm mb-4 ${muted}`}>
+              Optional: Compare your brand against a category average.
+            </p>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className={`w-full px-4 py-3 rounded-lg border text-sm ${
+                darkMode
+                  ? 'bg-slate-800/50 border-[#1235e2]/20 text-white'
+                  : 'bg-slate-50 border-slate-200'
+              }`}
+            >
+              <option value="">Skip benchmarking</option>
+              {categories.map((cat) => (
+                <option key={cat.slug} value={cat.slug}>
+                  {cat.label} ({cat.brandCount} brands)
+                </option>
+              ))}
+            </select>
           </V2Card>
 
           {myBrand && (
@@ -949,6 +1055,16 @@ export default function CreativeLabPage() {
               );
             })}
           </div>
+
+          {/* Benchmark Comparison */}
+          {(benchmarkResult || benchmarkLoading) && (
+            <BenchmarkComparison
+              result={benchmarkResult}
+              loading={benchmarkLoading}
+              darkMode={darkMode}
+              pillarConfig={PILLAR_CONFIG}
+            />
+          )}
         </div>
       </V2Shell>
     );
