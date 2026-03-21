@@ -2,25 +2,25 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-20)
+See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** v6.1 complete — Brand Monitoring & Cleanup shipped
+**Current focus:** Planning v7.0 Creative Lab Redesign
 
-## Current Milestone: v6.1 Brand Monitoring & Cleanup
+## Current Milestone: v7.0 Creative Lab Redesign (Planning)
 
-**Goal:** Fix broken brand monitoring, add per-brand dashboard with top ads + demographics, clean up tech debt.
+**Goal:** Split Creative Lab into Analysis (brand vs category benchmark) and Generation (ad creation, text overlays, UGC briefs).
 
-**Last shipped:** v6.0 Ad Library UX Overhaul (2026-03-20)
+**Last shipped:** v6.1 Brand Monitoring & Cleanup (2026-03-21)
 
 ## Current Position
 
-Phase: 54 of 54 (Brand Monitoring)
-Plan: 01 of 01 complete
-Status: Phase complete
-Last activity: 2026-03-21 — Completed 54-01-PLAN.md (brand detail monitor + demographics)
+Phase: 55+ (not yet planned)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-21 — v6.1 milestone complete
 
-Progress: ██████████ 100% (v6.1)
+Progress: ░░░░░░░░░░ 0% (v7.0)
 
 ## Milestones
 
@@ -41,7 +41,7 @@ Progress: ██████████ 100% (v6.1)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 105
+- Total plans completed: 108
 - Average duration: —
 - Total execution time: —
 
@@ -58,6 +58,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - v5.1: Phases 44-45
 - v6.0: Phases 46-51
 - v6.1: Phases 52-54 (build fix, infra/cleanup, brand monitoring)
+- v7.0: Phases 55+ (Creative Lab Redesign — planning)
 
 ### Pending Todos
 
@@ -65,11 +66,10 @@ None.
 
 ### Blockers/Concerns
 
-- ~~Facebook access tokens may be expired on Vercel~~ — all 3 valid, confirmed 2026-03-21 (TOKEN2/3 expire late April)
-- ~~useSearchParams Suspense boundary build failure~~ — resolved (Phase 52 ✓)
+- TOKEN2 expires 2026-04-24, TOKEN3 expires 2026-04-25 — schedule refresh mid-April
 
 ## Session Continuity
 
 Last session: 2026-03-21
-Stopped at: Completed 54-01-PLAN.md (brand detail monitor + demographics) — Phase 54 complete, v6.1 shipped
+Stopped at: v6.1 milestone archived, ready for v7.0 planning
 Resume file: None

@@ -54,14 +54,18 @@ Help brands and agencies see what competitors are running and how they're reachi
 - ✓ Inline analytics strip — live filtered stats (reach, active count, formats, categories) — v6.0
 - ✓ Ad detail lightbox — responsive modal with media preview, stats, targeting, save/view actions — v6.0
 - ✓ Demographic peek — per-brand mini Recharts charts (age, gender, region) with collapse persistence — v6.0
+- ✓ Brand monitoring fix — "Monitor brand" button persists saved state across navigation — v6.1
+- ✓ Per-brand mini dashboard — top ads by reach + demographic charts (age, gender, region) — v6.1
+- ✓ Dead code cleanup — removed orphaned stats-bar.tsx, pagination.tsx, AdLibraryStats interface — v6.1
+- ✓ Build fix — useSearchParams Suspense boundary resolved — v6.1
+- ✓ Facebook token verification — all 3 tokens valid, demographics API working — v6.1
 
-### Active (v6.1 Brand Monitoring & Cleanup)
+### Active (v7.0 Creative Lab Redesign)
 
-- [ ] Brand monitoring fix — "Monitor brand" button must persist saved state
-- [ ] Monitored brands dashboard — per-brand mini dashboard with top ads grid + demographic charts (reach by country, gender, age)
-- [ ] Dead code cleanup — remove orphaned stats-bar.tsx, pagination.tsx, AdLibraryStats interface
-- [ ] Build fix — fix useSearchParams Suspense boundary issue causing `next build` failure
-- [ ] Token refresh — address expired Facebook access tokens on Vercel
+- [ ] Creative Analysis — user selects own brand + category, gets brand-vs-category benchmark comparison
+- [ ] Creative Generation — generate ad creatives in user-selected formats based on analysis gaps
+- [ ] Text overlay editor — simple in-browser canvas editor for generated ad images
+- [ ] UGC creator briefs — structured briefs with shot list, talking points, hook script
 
 ### Planned (v4.5 Industry Benchmarks — Admin Only)
 
@@ -124,7 +128,7 @@ Help brands and agencies see what competitors are running and how they're reachi
 ## Context
 
 **Current State:**
-- Shipped v6.0 Ad Library UX Overhaul with ~55,554 LOC TypeScript
+- Shipped v6.1 Brand Monitoring & Cleanup with ~44,576 LOC TypeScript
 - Tech stack: Next.js 16, React 19, Recharts, Tailwind CSS v4, Auth.js, Stripe, Prisma + Neon PostgreSQL
 - Deployed to Vercel at facebookadexplorer.kirimedia.co
 - Cloudflare R2 for ad asset storage
@@ -132,15 +136,16 @@ Help brands and agencies see what competitors are running and how they're reachi
 - Landing page at `/` with 3-tier pricing (Free/$49/$149)
 - V1 public analyser at `/analyser` — branded header, blue design system, upgrade card
 - V2 dashboard at `/dashboard/v2` with analytics, AI chat, and ad library
-- Ad library now has composable components, filter/sort bar, load-more, analytics strip, lightbox, demographic peek
+- Ad library: composable components, filter/sort bar, load-more, analytics strip, lightbox, demographic peek
+- Brand detail: monitor toggle with persistence, demographics charts, top ads by reach
 - Consistent brand identity (BarChart3 lockup, #1235e2 blue) across all surfaces
+- All 3 Facebook tokens valid (TOKEN1 permanent, TOKEN2/3 expire late April 2026)
 
 **Known Issues:**
 - "More insights coming soon" placeholder widget in dashboard (cosmetic)
-- Facebook access tokens may be expired on Vercel (demographics fallback handles gracefully)
-- Orphaned files: stats-bar.tsx, pagination.tsx, AdLibraryStats interface (dead code from v6.0 replacements)
+- TOKEN2 expires 2026-04-24, TOKEN3 expires 2026-04-25 — schedule refresh mid-April
 - Brand detail page does not use AdDetailLightbox (potential future enhancement)
 - --accent-green CSS vars preserved for 46 files outside V1 scope
 
 ---
-*Last updated: 2026-03-20 after v6.1 milestone initialized*
+*Last updated: 2026-03-21 after v6.1 milestone complete*

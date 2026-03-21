@@ -1,5 +1,32 @@
 # Project Milestones: Ad Library Intelligence Platform
 
+## v6.1 Brand Monitoring & Cleanup (Shipped: 2026-03-21)
+
+**Delivered:** Fixed brand monitoring persistence, added per-brand dashboard with demographics charts and top ads by reach, cleaned up orphaned code from v6.0, and verified Facebook token infrastructure.
+
+**Phases completed:** 52-54 (3 plans total)
+
+**Key accomplishments:**
+
+- Removed orphaned files (stats-bar.tsx, pagination.tsx, AdLibraryStats interface) — 132 lines of dead code cleaned
+- Verified all 3 Facebook access tokens valid on production; demographics API confirmed working
+- Added monitor toggle button to brand detail page with optimistic updates and DB persistence
+- Added demographics section (age, gender, region bar charts) to brand detail page
+- Ads sorted by reach on brand detail page ("Top Ads by Reach")
+
+**Stats:**
+
+- 18 files changed, +1,414 / -154 lines
+- ~44,576 total lines of TypeScript
+- 3 phases, 3 plans
+- 2 days (2026-03-20 → 2026-03-21)
+
+**Git range:** `ca7d507` → `076be96`
+
+**What's next:** v7.0 Creative Lab Redesign — split into Analysis (brand vs category benchmark) and Generation (ad creation, text overlays, UGC briefs)
+
+---
+
 ## v6.0 Ad Library UX Overhaul (Shipped: 2026-03-20)
 
 **Delivered:** Transformed the ad library from a basic browse grid into a fast, analytical tool — decomposed the monolith into composable components, added filter/sort controls, load-more pagination, inline analytics strip, ad detail lightbox, and per-brand demographic charts.
