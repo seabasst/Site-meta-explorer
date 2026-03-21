@@ -15,6 +15,8 @@ import {
   Tag,
   BarChart3,
   Users,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { V2Shell, V2Card, V2SectionTitle, V2Skeleton, formatNumber } from '../../v2-shell';
 import { useV2 } from '../../v2-context';
@@ -35,6 +37,7 @@ interface SerializedBrand {
   totalReach: string; // BigInt serialized as string
   activeAdCount: number;
   ingestionStatus: string;
+  demographicsJson: unknown;
 }
 
 interface SerializedAsset {
@@ -105,6 +108,10 @@ export default function BrandDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Monitor state
+  const [isMonitored, setIsMonitored] = useState(false);
+  const [monitorLoading, setMonitorLoading] = useState(false);
+
   // Pagination state
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -141,6 +148,40 @@ export default function BrandDetailPage() {
   useEffect(() => {
     fetchBrandDetail();
   }, [fetchBrandDetail]);
+
+  // Check if brand is monitored
+  useEffect(() => {
+    if (!brand) return;
+    fetch('/api/ad-library/brands/monitor/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brandIds: [brand.id] }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        setIsMonitored((data.monitoredBrandIds || []).includes(brand.id));
+      })
+      .catch(() => {}); // Graceful fallback for unauthenticated
+  }, [brand?.id]);
+
+  // Toggle monitor with optimistic update
+  const toggleMonitor = async () => {
+    if (!brand || monitorLoading) return;
+    const wasMonitored = isMonitored;
+    setIsMonitored(!wasMonitored);
+    setMonitorLoading(true);
+    try {
+      await fetch('/api/ad-library/brands/monitor', {
+        method: wasMonitored ? 'DELETE' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brandId: brand.id }),
+      });
+    } catch {
+      setIsMonitored(wasMonitored); // Revert on error
+    } finally {
+      setMonitorLoading(false);
+    }
+  };
 
   // Loading state
   if (loading && !brand) {
@@ -226,7 +267,7 @@ export default function BrandDetailPage() {
           )}
 
           <div className="flex-1 min-w-0">
-            {/* Name + category */}
+            {/* Name + category + monitor button */}
             <div className="flex items-center gap-3 flex-wrap mb-2">
               <h2 className="text-2xl font-bold">{brand.pageName}</h2>
               {brand.category && (
@@ -241,6 +282,20 @@ export default function BrandDetailPage() {
                   {brand.category}
                 </span>
               )}
+              <button
+                onClick={toggleMonitor}
+                disabled={monitorLoading}
+                className={`ml-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors disabled:opacity-50 ${
+                  isMonitored
+                    ? 'bg-[#1235e2] text-white'
+                    : darkMode
+                      ? 'border border-[#1235e2] text-[#1235e2] hover:bg-[#1235e2]/10'
+                      : 'border border-[#1235e2] text-[#1235e2] hover:bg-[#1235e2]/5'
+                }`}
+              >
+                {isMonitored ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {isMonitored ? 'Monitoring' : 'Monitor'}
+              </button>
             </div>
 
             {/* Stats row */}
