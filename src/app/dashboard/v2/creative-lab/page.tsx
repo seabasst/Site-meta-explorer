@@ -13,7 +13,6 @@ import {
   AlertTriangle,
   TrendingUp,
   Sparkles,
-  Download,
   Clock,
   Zap,
   RefreshCw,
@@ -27,6 +26,8 @@ import {
 import { V2Shell, V2Card } from '../v2-shell';
 import { useV2 } from '../v2-context';
 import { BenchmarkComparison } from './benchmark-comparison';
+import { FormatSelector, type AdFormat } from './format-selector';
+import { GenerationResults, type GenerationResult } from './generation-results';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -186,7 +187,7 @@ interface BenchmarkResult {
   analyzedAt: string;
 }
 
-type Step = 'setup' | 'analyzing' | 'results' | 'brief' | 'generating-image' | 'image-result';
+type Step = 'setup' | 'analyzing' | 'results' | 'brief' | 'format-select' | 'generating-image' | 'image-result';
 
 // ---------------------------------------------------------------------------
 // Config
@@ -265,7 +266,8 @@ export default function CreativeLabPage() {
   const [progress, setProgress] = useState('');
   const [diversityResult, setDiversityResult] = useState<DiversityResult | null>(null);
   const [selectedRec, setSelectedRec] = useState<Recommendation | null>(null);
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [generationResults, setGenerationResults] = useState<GenerationResult[]>([]);
+  const [generationPrompt, setGenerationPrompt] = useState('');
   const [categories, setCategories] = useState<{ slug: string; label: string; brandCount: number; analyzedBrands?: number }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [benchmarkResult, setBenchmarkResult] = useState<BenchmarkResult | null>(null);
@@ -358,25 +360,72 @@ export default function CreativeLabPage() {
     }
   };
 
-  const generateImage = async (rec: Recommendation) => {
+  const handleGenerateClick = (rec: Recommendation) => {
     setSelectedRec(rec);
-    setStep('generating-image');
-    setGeneratedImageUrl(null);
+    setStep('format-select');
+  };
 
-    try {
-      const res = await fetch('/api/analyze/generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: rec.imagePrompt, aspectRatio: '1:1' }),
-      });
-      if (!res.ok) throw new Error('Image generation failed');
-      const data = await res.json();
-      setGeneratedImageUrl(data.imageUrl);
-      setStep('image-result');
-    } catch {
-      setError('Image generation failed. Try again.');
-      setStep('results');
-    }
+  const handleGenerate = (formats: AdFormat[], prompt: string) => {
+    setGenerationPrompt(prompt);
+    const initialResults: GenerationResult[] = formats.map((format) => ({
+      format,
+      imageUrl: null,
+      status: 'loading' as const,
+    }));
+    setGenerationResults(initialResults);
+    setStep('image-result');
+
+    formats.forEach(async (format) => {
+      try {
+        const res = await fetch('/api/analyze/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, aspectRatio: format.aspectRatio }),
+        });
+        if (!res.ok) throw new Error('Generation failed');
+        const data = await res.json();
+        setGenerationResults((prev) =>
+          prev.map((r) =>
+            r.format.id === format.id ? { ...r, imageUrl: data.imageUrl, status: 'success' as const } : r
+          )
+        );
+      } catch {
+        setGenerationResults((prev) =>
+          prev.map((r) =>
+            r.format.id === format.id ? { ...r, status: 'error' as const, error: 'Generation failed' } : r
+          )
+        );
+      }
+    });
+  };
+
+  const handleRegenerateSingle = (format: AdFormat) => {
+    setGenerationResults((prev) =>
+      prev.map((r) => (r.format.id === format.id ? { ...r, status: 'loading' as const, imageUrl: null, error: undefined } : r))
+    );
+
+    (async () => {
+      try {
+        const res = await fetch('/api/analyze/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: generationPrompt, aspectRatio: format.aspectRatio }),
+        });
+        if (!res.ok) throw new Error('Generation failed');
+        const data = await res.json();
+        setGenerationResults((prev) =>
+          prev.map((r) =>
+            r.format.id === format.id ? { ...r, imageUrl: data.imageUrl, status: 'success' as const } : r
+          )
+        );
+      } catch {
+        setGenerationResults((prev) =>
+          prev.map((r) =>
+            r.format.id === format.id ? { ...r, status: 'error' as const, error: 'Generation failed' } : r
+          )
+        );
+      }
+    })();
   };
 
   const resetToStart = () => {
@@ -384,7 +433,8 @@ export default function CreativeLabPage() {
     setMyBrand(null);
     setDiversityResult(null);
     setSelectedRec(null);
-    setGeneratedImageUrl(null);
+    setGenerationResults([]);
+    setGenerationPrompt('');
     setBenchmarkResult(null);
     setSelectedCategory('');
     setBenchmarkLoading(false);
@@ -568,7 +618,7 @@ export default function CreativeLabPage() {
               </div>
             </div>
             <div className="flex gap-3 mt-8 pt-6 border-t border-slate-200/10">
-              <button onClick={() => generateImage(selectedRec)} className="flex-1 py-3 rounded-xl bg-[#1235e2] text-white font-semibold hover:bg-[#0f2dc4] transition-colors flex items-center justify-center gap-2">
+              <button onClick={() => handleGenerateClick(selectedRec)} className="flex-1 py-3 rounded-xl bg-[#1235e2] text-white font-semibold hover:bg-[#0f2dc4] transition-colors flex items-center justify-center gap-2">
                 <ImageIcon className="w-4 h-4" /> Generate AI Image
               </button>
               <button
@@ -588,52 +638,40 @@ export default function CreativeLabPage() {
   }
 
   // ---------------------------------------------------------------------------
-  // Step: Generating image / Image result
+  // Step: Format Selection
   // ---------------------------------------------------------------------------
 
-  if (step === 'generating-image') {
+  if (step === 'format-select' && selectedRec) {
     return (
       <V2Shell title="Creative Lab">
-        <div className="max-w-md mx-auto mt-24 text-center">
-          <Loader2 className="w-12 h-12 text-[#1235e2] animate-spin mx-auto mb-6" />
-          <h3 className="text-lg font-bold mb-2">Generating Ad Creative</h3>
-          <p className={`text-sm ${muted}`}>Creating an AI image based on the brief...</p>
+        <div className="max-w-3xl mx-auto">
+          <FormatSelector
+            recommendation={selectedRec}
+            darkMode={darkMode}
+            onGenerate={handleGenerate}
+            onBack={() => { setStep('results'); setSelectedRec(null); }}
+          />
         </div>
       </V2Shell>
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Step: Image Results (progressive loading)
+  // ---------------------------------------------------------------------------
+
   if (step === 'image-result' && selectedRec) {
     return (
       <V2Shell title="Creative Lab">
-        <div className="max-w-2xl mx-auto">
-          <button onClick={() => { setStep('results'); setSelectedRec(null); setGeneratedImageUrl(null); }} className={`flex items-center gap-1 text-sm mb-6 ${muted} hover:text-[#1235e2]`}>
-            <ArrowLeft className="w-4 h-4" /> Back to results
-          </button>
-          <div className={`${card} overflow-hidden`}>
-            {generatedImageUrl && (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={generatedImageUrl} alt="Generated ad creative" className="w-full" />
-            )}
-            <div className="p-6">
-              <h3 className="font-bold text-lg mb-1">{selectedRec.briefTitle}</h3>
-              <p className={`text-sm ${muted} mb-4`}>{selectedRec.suggestion}</p>
-              <div className={`${mutedBg} rounded-lg p-4 mb-4`}>
-                <h4 className="text-xs font-semibold uppercase tracking-wider mb-2 text-[#1235e2]">Brief</h4>
-                <p className="text-sm leading-relaxed">{selectedRec.briefDescription}</p>
-              </div>
-              <div className="flex gap-3">
-                {generatedImageUrl && (
-                  <a href={generatedImageUrl} download="ad-creative.webp" target="_blank" rel="noopener noreferrer" className="flex-1 py-3 rounded-xl bg-[#1235e2] text-white font-semibold hover:bg-[#0f2dc4] transition-colors flex items-center justify-center gap-2">
-                    <Download className="w-4 h-4" /> Download Image
-                  </a>
-                )}
-                <button onClick={() => generateImage(selectedRec)} className={`px-4 py-3 rounded-xl border font-semibold text-sm transition-colors ${darkMode ? 'border-[#1235e2]/20 hover:bg-[#1235e2]/10' : 'border-slate-200 hover:bg-slate-50'}`}>
-                  Regenerate
-                </button>
-              </div>
-            </div>
-          </div>
+        <div className="max-w-4xl mx-auto">
+          <GenerationResults
+            results={generationResults}
+            prompt={generationPrompt}
+            recommendation={selectedRec}
+            darkMode={darkMode}
+            onBack={() => { setStep('results'); setSelectedRec(null); setGenerationResults([]); }}
+            onRegenerate={handleRegenerateSingle}
+          />
         </div>
       </V2Shell>
     );
@@ -1044,7 +1082,7 @@ export default function CreativeLabPage() {
                         <FileText className="w-3.5 h-3.5" /> Brief
                       </button>
                       <button
-                        onClick={() => generateImage(rec)}
+                        onClick={() => handleGenerateClick(rec)}
                         className="px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1 bg-[#1235e2] text-white hover:bg-[#0f2dc4] transition-colors"
                       >
                         <ImageIcon className="w-3.5 h-3.5" /> Generate
