@@ -47,13 +47,13 @@ Phases 44-45
 Phases 46-51 — See milestones/v6.0-ROADMAP.md for full details
 </details>
 
-## 🚧 v6.1 Brand Monitoring & Cleanup (In Progress)
+## ✅ v6.1 Brand Monitoring & Cleanup (SHIPPED 2026-03-21)
 
 **Milestone Goal:** Fix broken brand monitoring, add per-brand dashboard, clean up tech debt and build issues.
 
 - [x] **Phase 52: Build Fix** — Already resolved (build succeeds, no Suspense boundary error)
 - [x] **Phase 53: Infrastructure & Cleanup** — Refresh Facebook tokens, remove dead code
-- [ ] **Phase 54: Brand Monitoring** — Fix monitor button persistence, add per-brand dashboard
+- [x] **Phase 54: Brand Monitoring** — Fix monitor button persistence, add per-brand dashboard
 
 ## Phase Details
 
@@ -93,7 +93,7 @@ Plans:
 **Research**: Complete (54-RESEARCH.md)
 **Plans**: 1 plan
 Plans:
-- [ ] 54-01-PLAN.md — Add monitor toggle button and demographics section to brand detail page
+- [x] 54-01-PLAN.md — Add monitor toggle button and demographics section to brand detail page
 
 ## Progress
 
@@ -103,7 +103,7 @@ Plans:
 |-------|---------------|--------|-----------|
 | 52. Build Fix | 0/0 | ✓ Complete (already resolved) | 2026-03-20 |
 | 53. Infrastructure & Cleanup | 2/2 | ✓ Complete | 2026-03-21 |
-| 54. Brand Monitoring | 0/1 | In progress | - |
+| 54. Brand Monitoring | 1/1 | ✓ Complete | 2026-03-21 |
 
 ---
-*Last updated: 2026-03-21 after Phase 54 planning*
+*Last updated: 2026-03-21 after Phase 54 execution — v6.1 complete*

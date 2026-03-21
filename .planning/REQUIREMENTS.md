@@ -9,8 +9,8 @@ Requirements for v6.1 release. Each maps to roadmap phases.
 
 ### Brand Monitoring
 
-- [ ] **BMON-01**: User can click "Monitor brand" and the saved state persists across page navigation and refresh
-- [ ] **BMON-02**: User can view a per-brand mini dashboard showing top ads grid with demographic charts (reach by country, gender, age)
+- [x] **BMON-01**: User can click "Monitor brand" and the saved state persists across page navigation and refresh
+- [x] **BMON-02**: User can view a per-brand mini dashboard showing top ads grid with demographic charts (reach by country, gender, age)
 
 ### Code Health
 
@@ -41,8 +41,8 @@ None — this is a focused cleanup milestone.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BMON-01 | Phase 54 | Pending |
-| BMON-02 | Phase 54 | Pending |
+| BMON-01 | Phase 54 | ✓ Complete |
+| BMON-02 | Phase 54 | ✓ Complete |
 | CODE-01 | Phase 53 | ✓ Complete |
 | BFIX-01 | Phase 52 | ✓ Complete |
 | INFR-01 | Phase 53 | ✓ Complete |
@@ -54,4 +54,4 @@ None — this is a focused cleanup milestone.
 
 ---
 *Requirements defined: 2026-03-20*
-*Last updated: 2026-03-21 after Phase 53 execution*
+*Last updated: 2026-03-21 after Phase 54 execution — all requirements complete*
