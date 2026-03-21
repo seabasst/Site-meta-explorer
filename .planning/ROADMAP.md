@@ -92,7 +92,9 @@ Plans:
   3. User can generate multiple format variants from the same prompt
   4. User can download any generated image
   5. Generation prompts are pre-filled from analysis gap recommendations
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 56-01-PLAN.md — Format selector, multi-format generation, blob download
 
 ### Phase 57: Text Overlay Editor
 **Goal**: Users can customize ad creatives using templates with text, image, color, and font controls
@@ -136,10 +138,10 @@ Phases execute in numeric order: 55 → 56 → 57 → 58 → 59
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 55. Creative Analysis | 2/2 | ✅ Complete | 2026-03-21 |
-| 56. Image Generation | 0/TBD | Not started | - |
+| 56. Image Generation | 0/1 | Not started | - |
 | 57. Text Overlay Editor | 0/TBD | Not started | - |
 | 58. UGC Creator Briefs | 0/TBD | Not started | - |
 | 59. Creative Lab Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-21 after Phase 55 execution complete*
+*Last updated: 2026-03-21 after Phase 56 planning complete*
