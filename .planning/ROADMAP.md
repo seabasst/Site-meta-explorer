@@ -62,6 +62,7 @@ Phases 52-54 — See milestones/v6.1-ROADMAP.md for full details
 
 - [x] **Phase 55: Creative Analysis** - Brand vs. category benchmarking with Five Pillars + Andromeda
 - [x] **Phase 56: Image Generation** - AI image generation with format selection driven by analysis gaps
+- [ ] **Phase 56.1: Brand Guidelines Setup** - Brand persona form (voice, audience, visual identity) to steer AI generation (INSERTED)
 - [ ] **Phase 57: Text Overlay Editor** - Template-based ad customization and export
 - [ ] **Phase 58: UGC Creator Briefs** - Structured briefs with shot list, talking points, hooks
 - [ ] **Phase 59: Creative Lab Integration** - Unified Creative Lab page connecting all features
@@ -95,6 +96,25 @@ Plans:
 **Plans:** 1 plan
 Plans:
 - [x] 56-01-PLAN.md — Format selector, multi-format generation, blob download
+
+### Phase 56.1: Brand Guidelines Setup (INSERTED)
+**Goal**: Users can define their brand persona (voice, mission, target audience, visual identity) to steer AI-generated creatives toward brand consistency
+**Depends on**: Phase 56 (brand guidelines feed into generation prompts)
+**Requirements**: TBD (to be defined during planning)
+**Success Criteria** (what must be TRUE):
+  1. User can input brand voice & personality description
+  2. User can set a mission statement
+  3. User can select target audience demographics and interests
+  4. User can upload a logo and define core brand colors (primary, secondary, accent)
+  5. User can upload reference images to an image library
+  6. Brand guidelines are saved and persist across sessions
+  7. Saved guidelines feed into image generation prompts for brand-consistent output
+**Plans:** 2 plans
+Plans:
+- [ ] 56.1-01-PLAN.md — Prisma model, CRUD API, upload API, generation integration
+- [ ] 56.1-02-PLAN.md — Brand Guidelines page UI + sidebar navigation
+
+**Design Reference**: Figma file `w3UPPS0z6hGsWPoZWxXjkO` node `0:3` — adapted to existing design system (#1235e2 primary, dark/light mode, V2Shell/V2Card)
 
 ### Phase 57: Text Overlay Editor
 **Goal**: Users can customize ad creatives using templates with text, image, color, and font controls
@@ -133,15 +153,16 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 55 → 56 → 57 → 58 → 59
+Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 55. Creative Analysis | 2/2 | ✅ Complete | 2026-03-21 |
 | 56. Image Generation | 1/1 | ✅ Complete | 2026-03-22 |
+| 56.1. Brand Guidelines Setup | 0/2 | Not started | - |
 | 57. Text Overlay Editor | 0/TBD | Not started | - |
 | 58. UGC Creator Briefs | 0/TBD | Not started | - |
 | 59. Creative Lab Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-22 after Phase 56 execution complete*
+*Last updated: 2026-03-23 after Phase 56.1 planned*
