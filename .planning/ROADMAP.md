@@ -61,7 +61,7 @@ Phases 52-54 — See milestones/v6.1-ROADMAP.md for full details
 ## Phases
 
 - [x] **Phase 55: Creative Analysis** - Brand vs. category benchmarking with Five Pillars + Andromeda
-- [ ] **Phase 56: Image Generation** - AI image generation with format selection driven by analysis gaps
+- [x] **Phase 56: Image Generation** - AI image generation with format selection driven by analysis gaps
 - [ ] **Phase 57: Text Overlay Editor** - Template-based ad customization and export
 - [ ] **Phase 58: UGC Creator Briefs** - Structured briefs with shot list, talking points, hooks
 - [ ] **Phase 59: Creative Lab Integration** - Unified Creative Lab page connecting all features
@@ -94,7 +94,7 @@ Plans:
   5. Generation prompts are pre-filled from analysis gap recommendations
 **Plans:** 1 plan
 Plans:
-- [ ] 56-01-PLAN.md — Format selector, multi-format generation, blob download
+- [x] 56-01-PLAN.md — Format selector, multi-format generation, blob download
 
 ### Phase 57: Text Overlay Editor
 **Goal**: Users can customize ad creatives using templates with text, image, color, and font controls
@@ -138,10 +138,10 @@ Phases execute in numeric order: 55 → 56 → 57 → 58 → 59
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 55. Creative Analysis | 2/2 | ✅ Complete | 2026-03-21 |
-| 56. Image Generation | 0/1 | Not started | - |
+| 56. Image Generation | 1/1 | ✅ Complete | 2026-03-22 |
 | 57. Text Overlay Editor | 0/TBD | Not started | - |
 | 58. UGC Creator Briefs | 0/TBD | Not started | - |
 | 59. Creative Lab Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-21 after Phase 56 planning complete*
+*Last updated: 2026-03-22 after Phase 56 execution complete*

@@ -16,11 +16,11 @@ Requirements for v7.0 milestone. Each maps to roadmap phases.
 
 ### Creative Generation
 
-- [ ] **GENR-01**: User can generate AI images from analysis recommendations using Flux Schnell
-- [ ] **GENR-02**: User can select target ad format/size (1080x1080, 1080x1920, 1200x628, etc.)
-- [ ] **GENR-03**: User can generate multiple format variants from a single prompt
-- [ ] **GENR-04**: User can download generated images
-- [ ] **GENR-05**: Generation is driven by analysis gaps (recommendations feed directly into generation prompts)
+- [x] **GENR-01**: User can generate AI images from analysis recommendations using Flux Schnell
+- [x] **GENR-02**: User can select target ad format/size (1080x1080, 1080x1920, 1200x628, etc.)
+- [x] **GENR-03**: User can generate multiple format variants from a single prompt
+- [x] **GENR-04**: User can download generated images
+- [x] **GENR-05**: Generation is driven by analysis gaps (recommendations feed directly into generation prompts)
 
 ### Text Overlay Editor
 
@@ -79,11 +79,11 @@ Deferred to future release (v7.1+). Tracked but not in current roadmap.
 | ANLZ-02 | Phase 55 | Complete |
 | ANLZ-03 | Phase 55 | Complete |
 | ANLZ-04 | Phase 55 | Complete |
-| GENR-01 | Phase 56 | Pending |
-| GENR-02 | Phase 56 | Pending |
-| GENR-03 | Phase 56 | Pending |
-| GENR-04 | Phase 56 | Pending |
-| GENR-05 | Phase 56 | Pending |
+| GENR-01 | Phase 56 | Complete |
+| GENR-02 | Phase 56 | Complete |
+| GENR-03 | Phase 56 | Complete |
+| GENR-04 | Phase 56 | Complete |
+| GENR-05 | Phase 56 | Complete |
 | EDIT-01 | Phase 57 | Pending |
 | EDIT-02 | Phase 57 | Pending |
 | EDIT-03 | Phase 57 | Pending |
@@ -102,4 +102,4 @@ Deferred to future release (v7.1+). Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-03-21*
-*Last updated: 2026-03-21 after Phase 55 completion*
+*Last updated: 2026-03-22 after Phase 56 completion*
