@@ -62,7 +62,7 @@ async function downloadAll(results: GenerationResult[]) {
   const successful = results.filter((r) => r.status === 'success' && r.imageUrl);
   for (let i = 0; i < successful.length; i++) {
     const r = successful[i];
-    await downloadImage(r.imageUrl!, `ad-creative-${r.format.id}.webp`);
+    await downloadImage(r.imageUrl!, `ad-creative-${r.format.id}.jpg`);
     if (i < successful.length - 1) {
       await new Promise((resolve) => setTimeout(resolve, 200));
     }
@@ -179,7 +179,7 @@ export function GenerationResults({
               <div className="flex gap-2">
                 {result.status === 'success' && result.imageUrl && (
                   <button
-                    onClick={() => downloadImage(result.imageUrl!, `ad-creative-${result.format.id}.webp`)}
+                    onClick={() => downloadImage(result.imageUrl!, `ad-creative-${result.format.id}.jpg`)}
                     className="px-3 py-2 rounded-lg text-xs font-medium bg-[#1235e2] text-white hover:bg-[#0f2dc4] transition-colors flex items-center gap-1"
                   >
                     <Download className="w-3.5 h-3.5" /> Download

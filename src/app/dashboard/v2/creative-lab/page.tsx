@@ -365,7 +365,45 @@ export default function CreativeLabPage() {
     setStep('format-select');
   };
 
-  const handleGenerate = (formats: AdFormat[], prompt: string) => {
+  const cropImageToFormat = (baseImageUrl: string, format: AdFormat): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const [tw, th] = format.size.split('x').map(Number);
+        const targetRatio = tw / th;
+        const srcRatio = img.width / img.height;
+
+        let sx = 0, sy = 0, sw = img.width, sh = img.height;
+        if (srcRatio > targetRatio) {
+          sw = img.height * targetRatio;
+          sx = (img.width - sw) / 2;
+        } else {
+          sh = img.width / targetRatio;
+          sy = (img.height - sh) / 2;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = tw;
+        canvas.height = th;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { reject(new Error('Canvas not supported')); return; }
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, tw, th);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) { reject(new Error('Failed to export canvas')); return; }
+            resolve(URL.createObjectURL(blob));
+          },
+          'image/jpeg',
+          0.92
+        );
+      };
+      img.onerror = () => reject(new Error('Failed to load base image'));
+      img.src = baseImageUrl;
+    });
+  };
+
+  const handleGenerate = async (formats: AdFormat[], prompt: string) => {
     setGenerationPrompt(prompt);
     const initialResults: GenerationResult[] = formats.map((format) => ({
       format,
@@ -375,31 +413,44 @@ export default function CreativeLabPage() {
     setGenerationResults(initialResults);
     setStep('image-result');
 
-    formats.forEach(async (format) => {
-      try {
-        const res = await fetch('/api/analyze/generate-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, aspectRatio: format.aspectRatio }),
-        });
-        if (!res.ok) throw new Error('Generation failed');
-        const data = await res.json();
-        setGenerationResults((prev) =>
-          prev.map((r) =>
-            r.format.id === format.id ? { ...r, imageUrl: data.imageUrl, status: 'success' as const } : r
-          )
-        );
-      } catch {
-        setGenerationResults((prev) =>
-          prev.map((r) =>
-            r.format.id === format.id ? { ...r, status: 'error' as const, error: 'Generation failed' } : r
-          )
-        );
+    try {
+      // Generate ONE base image (square for maximum crop flexibility)
+      const res = await fetch('/api/analyze/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, aspectRatio: '1:1' }),
+      });
+      if (!res.ok) throw new Error('Generation failed');
+      const data = await res.json();
+      const baseUrl = data.imageUrl;
+
+      // Crop the single base image into each selected format
+      for (const format of formats) {
+        try {
+          const croppedUrl = await cropImageToFormat(baseUrl, format);
+          setGenerationResults((prev) =>
+            prev.map((r) =>
+              r.format.id === format.id ? { ...r, imageUrl: croppedUrl, status: 'success' as const } : r
+            )
+          );
+        } catch {
+          setGenerationResults((prev) =>
+            prev.map((r) =>
+              r.format.id === format.id ? { ...r, status: 'error' as const, error: 'Crop failed' } : r
+            )
+          );
+        }
       }
-    });
+    } catch {
+      // Base generation failed — mark all as error
+      setGenerationResults((prev) =>
+        prev.map((r) => ({ ...r, status: 'error' as const, error: 'Generation failed' }))
+      );
+    }
   };
 
   const handleRegenerateSingle = (format: AdFormat) => {
+    // Regenerate = new base image, then crop to this format
     setGenerationResults((prev) =>
       prev.map((r) => (r.format.id === format.id ? { ...r, status: 'loading' as const, imageUrl: null, error: undefined } : r))
     );
@@ -409,13 +460,14 @@ export default function CreativeLabPage() {
         const res = await fetch('/api/analyze/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: generationPrompt, aspectRatio: format.aspectRatio }),
+          body: JSON.stringify({ prompt: generationPrompt, aspectRatio: '1:1' }),
         });
         if (!res.ok) throw new Error('Generation failed');
         const data = await res.json();
+        const croppedUrl = await cropImageToFormat(data.imageUrl, format);
         setGenerationResults((prev) =>
           prev.map((r) =>
-            r.format.id === format.id ? { ...r, imageUrl: data.imageUrl, status: 'success' as const } : r
+            r.format.id === format.id ? { ...r, imageUrl: croppedUrl, status: 'success' as const } : r
           )
         );
       } catch {
