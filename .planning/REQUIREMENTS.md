@@ -22,13 +22,13 @@ Requirements for v7.0 milestone. Each maps to roadmap phases.
 - [x] **GENR-04**: User can download generated images
 - [x] **GENR-05**: Generation is driven by analysis gaps (recommendations feed directly into generation prompts)
 
-### Text Overlay Editor
+### AI Creative Generation (REPLACES Text Overlay Editor)
 
-- [ ] **EDIT-01**: User can pick from a library of ad templates
-- [ ] **EDIT-02**: User can swap text on templates (headline, body, CTA)
-- [ ] **EDIT-03**: User can swap images on templates (upload or use generated images)
-- [ ] **EDIT-04**: User can customize colors and fonts on templates
-- [ ] **EDIT-05**: User can export finished creative as image (PNG/JPG)
+- [ ] **AIGEN-01**: User can trigger ad generation from analysis gap recommendations
+- [ ] **AIGEN-02**: AI pre-fills config screen with suggested formats, quantity, style, and copy angles based on gaps + brand guidelines + competitor data
+- [ ] **AIGEN-03**: Each suggestion shows reasoning (why this ad concept was suggested)
+- [ ] **AIGEN-04**: User can adjust any pre-filled setting before generating
+- [ ] **AIGEN-05**: Generated ads appear in a gallery view with download (individual or zip)
 
 ### UGC Creator Briefs
 
@@ -54,17 +54,17 @@ Deferred to future release (v7.1+). Tracked but not in current roadmap.
 - **GENR-07**: Batch generation (generate full campaign set in one action)
 - **GENR-08**: Generation history with saved prompts and outputs
 
-### Text Overlay Editor (Advanced)
+### AI Creative Generation (Advanced)
 
-- **EDIT-06**: User can add/remove text layers
-- **EDIT-07**: User can position elements via drag-and-drop
-- **EDIT-08**: User can save templates for reuse
+- **AIGEN-06**: Light post-generation editing (text copy tweaks, color swaps)
+- **AIGEN-07**: Regenerate/variations of specific results
+- **AIGEN-08**: Campaign history with saved generations
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Full canvas editor (Figma-like) | Too complex — template-based only, keep scope manageable |
+| Full canvas editor (Figma-like) | AI-driven approach — user shouldn't need to edit manually |
 | Video generation | High cost, different tech stack — defer to later |
 | AI model selection (DALL-E vs Flux vs Gemini) | Start with Flux Schnell, upgrade path later |
 | Real-time collaboration | Single-user tool for now |
@@ -84,11 +84,12 @@ Deferred to future release (v7.1+). Tracked but not in current roadmap.
 | GENR-03 | Phase 56 | Complete |
 | GENR-04 | Phase 56 | Complete |
 | GENR-05 | Phase 56 | Complete |
-| EDIT-01 | Phase 57 | Pending |
-| EDIT-02 | Phase 57 | Pending |
-| EDIT-03 | Phase 57 | Pending |
-| EDIT-04 | Phase 57 | Pending |
-| EDIT-05 | Phase 57 | Pending |
+| ~~EDIT-01~~ | ~~Phase 57~~ | Superseded by AIGEN-01..05 |
+| AIGEN-01 | Phase 57 | Pending |
+| AIGEN-02 | Phase 57 | Pending |
+| AIGEN-03 | Phase 57 | Pending |
+| AIGEN-04 | Phase 57 | Pending |
+| AIGEN-05 | Phase 57 | Pending |
 | UGC-01 | Phase 58 | Pending |
 | UGC-02 | Phase 58 | Pending |
 | UGC-03 | Phase 58 | Pending |
@@ -96,9 +97,10 @@ Deferred to future release (v7.1+). Tracked but not in current roadmap.
 | UGC-05 | Phase 58 | Pending |
 
 **Coverage:**
-- v1 requirements: 18 total (+ Phase 59 cross-cutting integration)
-- Mapped to phases: 18
+- v1 requirements: 19 total (+ Phase 59 cross-cutting integration)
+- Mapped to phases: 19
 - Unmapped: 0 ✓
+- Superseded: EDIT-01..05 replaced by AIGEN-01..05 (2026-03-23)
 
 ---
 *Requirements defined: 2026-03-21*
