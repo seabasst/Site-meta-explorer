@@ -23,6 +23,7 @@ import {
   AlertCircle,
   XCircle,
 } from 'lucide-react';
+import Link from 'next/link';
 import { V2Shell, V2Card } from '../v2-shell';
 import { useV2 } from '../v2-context';
 import { BenchmarkComparison } from './benchmark-comparison';
@@ -511,6 +512,25 @@ export default function CreativeLabPage() {
               Five Pillars diversity, hook quality, concept redundancy, refresh rate, and more.
             </p>
           </div>
+
+          {/* Template Editor link */}
+          <Link
+            href="/dashboard/v2/creative-lab/editor"
+            className={`flex items-center gap-3 p-4 rounded-xl border mb-6 transition-colors ${
+              darkMode
+                ? 'bg-[#1235e2]/5 border-[#1235e2]/20 hover:bg-[#1235e2]/10'
+                : 'bg-[#1235e2]/5 border-[#1235e2]/15 hover:bg-[#1235e2]/10'
+            }`}
+          >
+            <Type className="w-5 h-5 text-[#1235e2] shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold">Template Editor</p>
+              <p className={`text-xs ${muted}`}>Design ad creatives from templates with text overlays</p>
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#1235e2] bg-[#1235e2]/10 px-2 py-0.5 rounded-full shrink-0">
+              New
+            </span>
+          </Link>
 
           {error && (
             <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-between">
