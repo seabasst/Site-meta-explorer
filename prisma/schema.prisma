@@ -26,6 +26,7 @@ model User {
   benchmarks  BenchmarkReport[]
   savedAds        SavedAd[]
   monitoredBrands MonitoredBrand[]
+  brandGuidelines BrandGuidelines?
 }
 
 model SavedAd {
@@ -54,6 +55,33 @@ model MonitoredBrand {
 
   @@unique([userId, brandId])
   @@index([userId, createdAt])
+}
+
+model BrandGuidelines {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Brand Voice & Mission
+  brandVoice       String?  // Tone of voice description (max 2000 chars)
+  missionStatement String?  // Mission/purpose statement (max 1000 chars)
+
+  // Target Audience
+  demographics     String[] // e.g. ["18-24", "25-34", "Female"]
+  interests        String[] // e.g. ["Fitness", "Travel", "Sustainability"]
+
+  // Visual Identity
+  logoUrl          String?  // Public URL to uploaded logo
+  logoKey          String?  // R2 object key for logo
+  primaryColor     String?  // Hex color e.g. #1235e2
+  secondaryColor   String?  // Hex color
+  accentColor      String?  // Hex color
+
+  // Reference Images
+  referenceImages  Json?    // Array of { url, key, name } objects
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model TrackedBrand {
