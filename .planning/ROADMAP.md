@@ -119,7 +119,7 @@ Plans:
 ### Phase 57: AI Creative Generation (REPLACES Text Overlay Editor)
 **Goal**: AI analyzes user's ads + competitor top performers + brand guidelines, then generates high-performing ad creatives with minimal user input
 **Depends on**: Phase 55 (analysis gaps drive suggestions), Phase 56 (image generation), Phase 56.1 (brand guidelines steer output)
-**Requirements**: TBD (to be defined during planning — old EDIT-01 through EDIT-05 superseded)
+**Requirements**: AIGEN-01, AIGEN-02, AIGEN-03, AIGEN-04, AIGEN-05
 **Success Criteria** (what must be TRUE):
   1. User can trigger ad generation from analysis gap recommendations
   2. AI pre-fills a config screen with suggested formats, quantity, style, and copy angles based on gaps + brand guidelines + competitor data
@@ -127,7 +127,11 @@ Plans:
   4. User can adjust any pre-filled setting before generating
   5. Generated ads appear in a gallery view
   6. User can download individual images or all as a zip
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 57-01-PLAN.md — Backend APIs (generate-config + generate-batch) + shared types
+- [ ] 57-02-PLAN.md — Frontend rewrite (config screen, suggestion cards, gallery, page orchestration)
+
 **Context**: 57-CONTEXT.md (gathered 2026-03-23)
 
 ### Phase 58: UGC Creator Briefs
@@ -162,9 +166,9 @@ Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59
 | 55. Creative Analysis | 2/2 | ✅ Complete | 2026-03-21 |
 | 56. Image Generation | 1/1 | ✅ Complete | 2026-03-22 |
 | 56.1. Brand Guidelines Setup | 2/2 | ✅ Complete | 2026-03-23 |
-| 57. AI Creative Generation | 0/TBD | Not started | - |
+| 57. AI Creative Generation | 0/2 | Not started | - |
 | 58. UGC Creator Briefs | 0/TBD | Not started | - |
 | 59. Creative Lab Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-23 after Phase 56.1 complete*
+*Last updated: 2026-03-23 after Phase 57 planning complete*
