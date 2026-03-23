@@ -5,6 +5,8 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { ArrowLeft, Layout, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TemplatePicker } from './template-picker';
+import { EditorSidebar } from './editor-sidebar';
+import { ExportControls } from './export-controls';
 import { useTemplateState } from '../hooks/use-template-state';
 import type { TemplateDefinition } from '../templates/types';
 
@@ -67,8 +69,14 @@ export default function EditorPage() {
           Template Editor
         </h1>
 
-        {/* Right: export controls placeholder */}
-        <div id="export-controls" className="w-32" />
+        {/* Right: export controls */}
+        <div className="shrink-0">
+          {selectedTemplate ? (
+            <ExportControls stageRef={stageRef} templateName={selectedTemplate.name} />
+          ) : (
+            <div className="w-32" />
+          )}
+        </div>
       </header>
 
       {/* ------------------------------------------------------------------ */}
@@ -147,41 +155,27 @@ export default function EditorPage() {
           )}
         </main>
 
-        {/* Right panel: Editor sidebar placeholder */}
-        <aside className="shrink-0 w-full lg:w-[320px] border-l border-white/10 bg-[#0c0f1d] overflow-y-auto">
-          <div className="p-4 border-b border-white/10">
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Editing Controls
-            </h2>
-          </div>
-          <div className="p-4">
-            {selectedTemplate ? (
-              <div className="space-y-4">
-                <div className="text-sm">
-                  <p className="font-medium text-white mb-1">{selectedTemplate.name}</p>
-                  <p className="text-xs text-slate-500">
-                    {selectedTemplate.width} x {selectedTemplate.height} &middot;{' '}
-                    {selectedTemplate.format}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-white/10 p-3">
-                  <p className="text-xs text-slate-500">
-                    Text, color, and font controls will appear here.
-                  </p>
-                </div>
-                <button
-                  onClick={resetAll}
-                  className="text-xs text-slate-500 hover:text-white transition-colors"
-                >
-                  Reset all edits
-                </button>
-              </div>
-            ) : (
+        {/* Right panel: Editor sidebar */}
+        <aside className="shrink-0 w-full lg:w-[320px] border-l border-white/10 bg-[#0c0f1d] overflow-hidden">
+          {selectedTemplate ? (
+            <EditorSidebar
+              template={selectedTemplate}
+              resolvedLayers={resolvedLayers}
+              updateLayer={updateLayer}
+              updateColors={updateColors}
+              updateFont={updateFont}
+              resetAll={resetAll}
+            />
+          ) : (
+            <div className="p-4">
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                Editing Controls
+              </h2>
               <p className="text-xs text-slate-500">
                 Select a template to start editing.
               </p>
-            )}
-          </div>
+            </div>
+          )}
         </aside>
       </div>
     </div>
