@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 58 UGC Creator Briefs — Plan 01 complete (API + types)
+**Current focus:** Phase 58 UGC Creator Briefs — Plan 02 complete (frontend + mode selector)
 
 ## Current Milestone: v7.0 Creative Lab
 
@@ -14,11 +14,11 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 ## Current Position
 
 Phase: 58 of 59 (UGC Creator Briefs)
-Plan: 1 of ? complete
+Plan: 2 of ? complete
 Status: In progress
-Last activity: 2026-03-23 — Completed 58-01-PLAN.md (UGC Brief API & Types)
+Last activity: 2026-03-23 — Completed 58-02-PLAN.md (UGC Brief Frontend)
 
-Progress: ███████░░░ 70% (v7.0)
+Progress: ████████░░ 80% (v7.0)
 
 ## Milestones
 
@@ -40,7 +40,7 @@ Progress: ███████░░░ 70% (v7.0)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 115
+- Total plans completed: 116
 - Average duration: —
 - Total execution time: —
 
@@ -52,7 +52,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Existing Infrastructure
 
-- Creative Lab page rewritten at `/dashboard/v2/creative-lab/page.tsx` (~270 LOC, 3-state flow)
+- Creative Lab page at `/dashboard/v2/creative-lab/page.tsx` (~567 LOC, 6-state flow with mode selector)
+- UGCBriefView component at `/dashboard/v2/creative-lab/ugc-brief-view.tsx` (484 LOC, full brief renderer with copy/download)
 - ConfigScreen component at `/dashboard/v2/creative-lab/config-screen.tsx` (gap summary, suggestion grid, generate button)
 - SuggestionCard component at `/dashboard/v2/creative-lab/suggestion-card.tsx` (pillar, reasoning, toggle, editable prompt)
 - GenerationGallery component at `/dashboard/v2/creative-lab/generation-gallery.tsx` (progressive loading, zip download)
@@ -66,7 +67,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - BrandAnalysisCache model stores scores, metrics, and distribution data per brand
 - generate-config API at `/api/creative-lab/generate-config` (Claude-powered suggestion synthesis)
 - generate-batch API at `/api/creative-lab/generate-batch` (Flux Schnell image generation)
-- Shared types at `src/lib/creative-lab-types.ts` (GenerationSuggestion, GenerationConfig, GenerationResult)
+- Shared types at `src/lib/creative-lab-types.ts` (GenerationSuggestion, GenerationConfig, GenerationResult, UGCBrief, UGCBriefScene)
+- generate-brief API at `/api/creative-lab/generate-brief` (Claude-powered UGC brief generation)
 
 ### Roadmap Evolution
 
@@ -81,5 +83,5 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-03-23
-Stopped at: Completed 58-01-PLAN.md (UGC Brief API & Types)
+Stopped at: Completed 58-02-PLAN.md (UGC Brief Frontend)
 Resume file: None
