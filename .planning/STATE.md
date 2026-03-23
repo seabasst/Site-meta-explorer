@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 56 complete — ready for Phase 57
+**Current focus:** Phase 56.1 Plan 01 complete — Brand Guidelines backend API ready
 
 ## Current Milestone: v7.0 Creative Lab
 
@@ -13,12 +13,12 @@ See: .planning/PROJECT.md (updated 2026-03-21)
 
 ## Current Position
 
-Phase: 56 of 59 (Image Generation) — COMPLETE
-Plan: All plans complete (1/1)
-Status: Phase verified, ready for Phase 57
-Last activity: 2026-03-22 — Phase 56 executed and verified
+Phase: 56.1 of 59 (Brand Guidelines Setup)
+Plan: 1 of 1 complete
+Status: Phase 56.1 complete
+Last activity: 2026-03-23 — Completed 56.1-01-PLAN.md
 
-Progress: ████░░░░░░ 40% (v7.0)
+Progress: █████░░░░░ 45% (v7.0)
 
 ## Milestones
 
@@ -40,7 +40,7 @@ Progress: ████░░░░░░ 40% (v7.0)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 110
+- Total plans completed: 111
 - Average duration: —
 - Total execution time: —
 
@@ -56,10 +56,15 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - BenchmarkComparison component at `/dashboard/v2/creative-lab/benchmark-comparison.tsx` (281 LOC)
 - Andromeda analysis API at `/api/analyze/diversity` (now caches results to BrandAnalysisCache)
 - Benchmark API at `/api/analyze/benchmark` (brand vs category comparison)
-- Image generation API at `/api/analyze/generate-image` (Flux Schnell)
+- Image generation API at `/api/analyze/generate-image` (Flux Schnell, now brand-aware via opt-in flag)
+- BrandGuidelines model + CRUD API at `/api/brand-guidelines` (GET/PUT) + upload at `/api/brand-guidelines/upload` (POST)
 - Brand search API at `/api/search-pages`
 - Five Pillars + Andromeda scoring already built
 - BrandAnalysisCache model stores scores, metrics, and distribution data per brand
+
+### Roadmap Evolution
+
+- Phase 56.1 inserted after Phase 56: Brand Guidelines Setup — brand persona form (voice, audience, visual identity) to steer AI generation (INSERTED 2026-03-23). Design reference from Figma (Google Stitch export).
 
 ### Blockers/Concerns
 
@@ -68,6 +73,6 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-03-22
-Stopped at: Phase 56 complete, ready for Phase 57 planning
+Last session: 2026-03-23
+Stopped at: Completed 56.1-01-PLAN.md (Brand Guidelines backend)
 Resume file: None
