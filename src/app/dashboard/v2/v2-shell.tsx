@@ -6,6 +6,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   BarChart3,
   BookOpen,
+  Palette,
   Settings,
   Moon,
   Sun,
@@ -58,6 +59,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { id: '/dashboard/v2', icon: LayoutDashboard, label: 'Dashboard' },
       { id: '/dashboard/v2/creative-lab', icon: Wand2, label: 'Creative Lab' },
+      { id: '/dashboard/v2/brand-guidelines', icon: Palette, label: 'Brand Guidelines' },
     ],
   },
   {
