@@ -8,15 +8,18 @@ import {
   Globe,
   AlertTriangle,
   Sparkles,
+  FileText,
 } from 'lucide-react';
 import { V2Shell } from '../v2-shell';
 import { useV2 } from '../v2-context';
 import { ConfigScreen } from './config-screen';
 import { GenerationGallery } from './generation-gallery';
+import { UGCBriefView } from './ugc-brief-view';
 import type {
   GenerationConfig,
   GenerationSuggestion,
   GenerationResult,
+  UGCBrief,
 } from '@/lib/creative-lab-types';
 
 // ---------------------------------------------------------------------------
@@ -31,7 +34,7 @@ interface SearchResult {
   source: string;
 }
 
-type FlowState = 'search' | 'config' | 'gallery';
+type FlowState = 'search' | 'mode-select' | 'config' | 'gallery' | 'brief-loading' | 'brief';
 
 // ---------------------------------------------------------------------------
 // Main Component
@@ -59,6 +62,11 @@ export default function CreativeLabPage() {
   // Gallery state
   const [results, setResults] = useState<GenerationResult[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Brief state
+  const [brief, setBrief] = useState<UGCBrief | null>(null);
+  const [briefLoading, setBriefLoading] = useState(false);
+  const [briefError, setBriefError] = useState('');
 
   const searchTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -92,12 +100,19 @@ export default function CreativeLabPage() {
     searchTimeout.current = setTimeout(() => searchPages(value), 300);
   }
 
-  // -- Brand selection -> load config ----------------------------------------
+  // -- Brand selection -> mode select ---------------------------------------
 
-  async function handleSelectBrand(brand: SearchResult) {
+  function handleSelectBrand(brand: SearchResult) {
     setSelectedBrand(brand);
     setSearchResults([]);
     setSearchQuery(brand.pageName);
+    setFlowState('mode-select');
+  }
+
+  // -- Mode: Generate Ad Creatives -> load config ---------------------------
+
+  async function handleChooseCreatives() {
+    if (!selectedBrand) return;
     setFlowState('config');
     setConfigLoading(true);
     setConfigError('');
@@ -106,7 +121,7 @@ export default function CreativeLabPage() {
       const res = await fetch('/api/creative-lab/generate-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageId: brand.pageId }),
+        body: JSON.stringify({ pageId: selectedBrand.pageId }),
       });
 
       if (!res.ok) {
@@ -130,6 +145,37 @@ export default function CreativeLabPage() {
       setConfigError('Network error. Please check your connection and try again.');
     } finally {
       setConfigLoading(false);
+    }
+  }
+
+  // -- Mode: Generate UGC Brief --------------------------------------------
+
+  async function handleGenerateBrief() {
+    if (!selectedBrand) return;
+    setBriefLoading(true);
+    setBriefError('');
+    setFlowState('brief-loading');
+
+    try {
+      const res = await fetch('/api/creative-lab/generate-brief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageId: selectedBrand.pageId }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setBriefError(data.error || 'Failed to generate brief. Please try again.');
+        return;
+      }
+
+      const data: UGCBrief = await res.json();
+      setBrief(data);
+      setFlowState('brief');
+    } catch {
+      setBriefError('Network error. Please check your connection and try again.');
+    } finally {
+      setBriefLoading(false);
     }
   }
 
@@ -210,22 +256,65 @@ export default function CreativeLabPage() {
     setIsGenerating(false);
   }
 
-  // -- Back to config --------------------------------------------------------
+  // -- Navigation -----------------------------------------------------------
 
   function handleBackToConfig() {
     setFlowState('config');
     setResults([]);
   }
 
-  // -- Back to search --------------------------------------------------------
-
   function handleBackToSearch() {
     setFlowState('search');
     setConfig(null);
     setSuggestions([]);
     setConfigError('');
+    setBrief(null);
+    setBriefError('');
     setSelectedBrand(null);
     setSearchQuery('');
+  }
+
+  function handleBackToModeSelect() {
+    setFlowState('mode-select');
+    // Clear config state
+    setConfig(null);
+    setSuggestions([]);
+    setConfigError('');
+    setConfigLoading(false);
+    // Clear brief state
+    setBrief(null);
+    setBriefError('');
+    setBriefLoading(false);
+  }
+
+  // -- Shared brand header --------------------------------------------------
+
+  function renderBrandHeader(backHandler: () => void) {
+    return (
+      <div className="flex items-center gap-3 mb-6">
+        <button
+          onClick={backHandler}
+          className={`text-sm ${muted} hover:text-[#1235e2] transition-colors`}
+        >
+          &larr; Back
+        </button>
+        {selectedBrand && (
+          <div className="flex items-center gap-2">
+            {selectedBrand.iconUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={selectedBrand.iconUrl}
+                alt=""
+                className="w-6 h-6 rounded-full object-cover"
+              />
+            ) : (
+              <Globe className="w-5 h-5 text-[#1235e2]" />
+            )}
+            <span className="text-sm font-semibold">{selectedBrand.pageName}</span>
+          </div>
+        )}
+      </div>
+    );
   }
 
   // -- Render ----------------------------------------------------------------
@@ -240,9 +329,9 @@ export default function CreativeLabPage() {
             <div className="w-16 h-16 rounded-2xl bg-[#1235e2]/10 flex items-center justify-center mx-auto mb-4">
               <Wand2 className="w-8 h-8 text-[#1235e2]" />
             </div>
-            <h1 className="text-2xl font-black mb-2">AI Creative Generation</h1>
+            <h1 className="text-2xl font-black mb-2">Creative Lab</h1>
             <p className={`text-sm ${muted} max-w-md mx-auto`}>
-              Search for a brand to generate AI-powered ad creatives based on their diversity gaps and brand guidelines.
+              Search for a brand to generate AI-powered ad creatives or structured UGC creator briefs.
             </p>
           </div>
 
@@ -316,33 +405,62 @@ export default function CreativeLabPage() {
         </div>
       )}
 
+      {/* Mode select state */}
+      {flowState === 'mode-select' && (
+        <div className="max-w-3xl mx-auto">
+          {renderBrandHeader(handleBackToSearch)}
+
+          <div className="text-center mb-8">
+            <h2 className="text-lg font-bold mb-1">What would you like to create?</h2>
+            <p className={`text-sm ${muted}`}>
+              Choose a generation mode for {selectedBrand?.pageName}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Generate Ad Creatives */}
+            <button
+              onClick={handleChooseCreatives}
+              className={`group text-left rounded-xl border-2 p-6 transition-all ${
+                darkMode
+                  ? 'border-[#1235e2]/10 bg-[#101322] hover:border-[#1235e2]/40 hover:bg-[#1235e2]/5'
+                  : 'border-slate-200 bg-white hover:border-[#1235e2] hover:bg-blue-50/30'
+              }`}
+            >
+              <div className="w-12 h-12 rounded-xl bg-[#1235e2]/10 flex items-center justify-center mb-4 group-hover:bg-[#1235e2]/20 transition-colors">
+                <Sparkles className="w-6 h-6 text-[#1235e2]" />
+              </div>
+              <h3 className="text-base font-bold mb-1">Generate Ad Creatives</h3>
+              <p className={`text-sm ${muted}`}>
+                AI-generated images based on diversity gaps and brand guidelines.
+              </p>
+            </button>
+
+            {/* Generate UGC Brief */}
+            <button
+              onClick={handleGenerateBrief}
+              className={`group text-left rounded-xl border-2 p-6 transition-all ${
+                darkMode
+                  ? 'border-[#1235e2]/10 bg-[#101322] hover:border-[#1235e2]/40 hover:bg-[#1235e2]/5'
+                  : 'border-slate-200 bg-white hover:border-[#1235e2] hover:bg-blue-50/30'
+              }`}
+            >
+              <div className="w-12 h-12 rounded-xl bg-[#1235e2]/10 flex items-center justify-center mb-4 group-hover:bg-[#1235e2]/20 transition-colors">
+                <FileText className="w-6 h-6 text-[#1235e2]" />
+              </div>
+              <h3 className="text-base font-bold mb-1">Generate UGC Brief</h3>
+              <p className={`text-sm ${muted}`}>
+                Structured creator brief with shot list, hooks, and talking points.
+              </p>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Config state */}
       {flowState === 'config' && (
         <div className="max-w-4xl mx-auto">
-          {/* Brand header + back */}
-          <div className="flex items-center gap-3 mb-6">
-            <button
-              onClick={handleBackToSearch}
-              className={`text-sm ${muted} hover:text-[#1235e2] transition-colors`}
-            >
-              &larr; Back
-            </button>
-            {selectedBrand && (
-              <div className="flex items-center gap-2">
-                {selectedBrand.iconUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={selectedBrand.iconUrl}
-                    alt=""
-                    className="w-6 h-6 rounded-full object-cover"
-                  />
-                ) : (
-                  <Globe className="w-5 h-5 text-[#1235e2]" />
-                )}
-                <span className="text-sm font-semibold">{selectedBrand.pageName}</span>
-              </div>
-            )}
-          </div>
+          {renderBrandHeader(handleBackToModeSelect)}
 
           {/* Loading skeleton */}
           {configLoading && (
@@ -368,10 +486,10 @@ export default function CreativeLabPage() {
               <p className="text-sm font-semibold text-red-400 mb-1">Unable to Load Config</p>
               <p className={`text-sm ${muted}`}>{configError}</p>
               <button
-                onClick={handleBackToSearch}
+                onClick={handleBackToModeSelect}
                 className="mt-4 px-4 py-2 rounded-lg text-sm font-medium bg-[#1235e2] text-white hover:bg-[#0f2dc4] transition-colors"
               >
-                Try Another Brand
+                Try Again
               </button>
             </div>
           )}
@@ -387,6 +505,50 @@ export default function CreativeLabPage() {
               darkMode={darkMode}
             />
           )}
+        </div>
+      )}
+
+      {/* Brief loading state */}
+      {flowState === 'brief-loading' && (
+        <div className="max-w-4xl mx-auto">
+          {renderBrandHeader(handleBackToModeSelect)}
+
+          {briefError ? (
+            <div
+              className={`rounded-xl border p-6 text-center ${
+                darkMode ? 'border-red-500/20 bg-red-500/5' : 'border-red-100 bg-red-50'
+              }`}
+            >
+              <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-3" />
+              <p className="text-sm font-semibold text-red-400 mb-1">Unable to Generate Brief</p>
+              <p className={`text-sm ${muted}`}>{briefError}</p>
+              <button
+                onClick={handleBackToModeSelect}
+                className="mt-4 px-4 py-2 rounded-lg text-sm font-medium bg-[#1235e2] text-white hover:bg-[#0f2dc4] transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4 animate-pulse">
+              <div className={`h-24 rounded-xl ${mutedBg}`} />
+              <div className={`h-16 rounded-xl ${mutedBg}`} />
+              <div className={`h-48 rounded-xl ${mutedBg}`} />
+              <div className={`h-32 rounded-xl ${mutedBg}`} />
+              <div className={`h-20 rounded-xl ${mutedBg}`} />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Brief state */}
+      {flowState === 'brief' && brief && (
+        <div className="max-w-4xl mx-auto">
+          <UGCBriefView
+            brief={brief}
+            darkMode={darkMode}
+            onBack={handleBackToModeSelect}
+          />
         </div>
       )}
 
