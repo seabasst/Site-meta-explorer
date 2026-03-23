@@ -32,11 +32,11 @@ Requirements for v7.0 milestone. Each maps to roadmap phases.
 
 ### UGC Creator Briefs
 
-- [ ] **UGC-01**: User can generate a structured UGC brief from a brand's ad library data
-- [ ] **UGC-02**: Brief includes shot list with scene descriptions
-- [ ] **UGC-03**: Brief includes talking points and hook script
-- [ ] **UGC-04**: Brief includes B-roll suggestions based on brand category
-- [ ] **UGC-05**: User can copy or download brief as formatted document
+- [x] **UGC-01**: User can generate a structured UGC brief from a brand's ad library data
+- [x] **UGC-02**: Brief includes shot list with scene descriptions
+- [x] **UGC-03**: Brief includes talking points and hook script
+- [x] **UGC-04**: Brief includes B-roll suggestions based on brand category
+- [x] **UGC-05**: User can copy or download brief as formatted document
 
 ## v2 Requirements
 
@@ -90,11 +90,11 @@ Deferred to future release (v7.1+). Tracked but not in current roadmap.
 | AIGEN-03 | Phase 57 | Complete |
 | AIGEN-04 | Phase 57 | Complete |
 | AIGEN-05 | Phase 57 | Complete |
-| UGC-01 | Phase 58 | Pending |
-| UGC-02 | Phase 58 | Pending |
-| UGC-03 | Phase 58 | Pending |
-| UGC-04 | Phase 58 | Pending |
-| UGC-05 | Phase 58 | Pending |
+| UGC-01 | Phase 58 | Complete |
+| UGC-02 | Phase 58 | Complete |
+| UGC-03 | Phase 58 | Complete |
+| UGC-04 | Phase 58 | Complete |
+| UGC-05 | Phase 58 | Complete |
 
 **Coverage:**
 - v1 requirements: 19 total (+ Phase 59 cross-cutting integration)
@@ -104,4 +104,4 @@ Deferred to future release (v7.1+). Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-03-21*
-*Last updated: 2026-03-22 after Phase 56 completion*
+*Last updated: 2026-03-23 after Phase 58 completion*

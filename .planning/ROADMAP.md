@@ -146,8 +146,8 @@ Plans:
   5. User can copy the brief to clipboard or download as a formatted document
 **Plans:** 2 plans
 Plans:
-- [ ] 58-01-PLAN.md — UGC brief types + Claude-powered generate-brief API
-- [ ] 58-02-PLAN.md — Frontend: mode selector, brief view component, copy/download actions
+- [x] 58-01-PLAN.md — UGC brief types + Claude-powered generate-brief API
+- [x] 58-02-PLAN.md — Frontend: mode selector, brief view component, copy/download actions
 
 ### Phase 59: Creative Lab Integration
 **Goal**: Unified Creative Lab page connecting analysis, AI generation, and briefs into one workflow
@@ -170,8 +170,8 @@ Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59
 | 56. Image Generation | 1/1 | Complete | 2026-03-22 |
 | 56.1. Brand Guidelines Setup | 2/2 | Complete | 2026-03-23 |
 | 57. AI Creative Generation | 2/2 | Complete | 2026-03-23 |
-| 58. UGC Creator Briefs | 0/2 | Not started | - |
+| 58. UGC Creator Briefs | 2/2 | Complete | 2026-03-23 |
 | 59. Creative Lab Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-23 after Phase 58 planning complete*
+*Last updated: 2026-03-23 after Phase 58 execution complete*
