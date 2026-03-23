@@ -30,21 +30,26 @@ const updateSchema = z.object({
  * Fetch the current user's brand guidelines.
  */
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const guidelines = await prisma.brandGuidelines.findUnique({
+      where: { userId: user.id },
+    });
+
+    return NextResponse.json({ guidelines });
+  } catch (error) {
+    console.error('[brand-guidelines] GET error:', error);
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
-
-  const user = await prisma.user.findUnique({ where: { email: session.user.email } });
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
-  }
-
-  const guidelines = await prisma.brandGuidelines.findUnique({
-    where: { userId: user.id },
-  });
-
-  return NextResponse.json({ guidelines });
 }
 
 /**

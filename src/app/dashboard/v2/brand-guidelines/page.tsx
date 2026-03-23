@@ -12,7 +12,6 @@ import {
   Users,
   Megaphone,
   Save,
-  LogIn,
 } from 'lucide-react';
 import { V2Shell, V2Card, V2SectionTitle } from '../v2-shell';
 import { useV2 } from '../v2-context';
@@ -138,7 +137,6 @@ function ColorSwatch({
 
 export default function BrandGuidelinesPage() {
   const { darkMode } = useV2();
-  const [authError, setAuthError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [logoUploading, setLogoUploading] = useState(false);
   const [refUploading, setRefUploading] = useState(false);
@@ -183,7 +181,7 @@ export default function BrandGuidelinesPage() {
     try {
       const res = await fetch('/api/brand-guidelines');
       if (res.status === 401) {
-        setAuthError(true);
+        // Not signed in — show empty form, save will prompt
         setLoading(false);
         return;
       }
@@ -229,6 +227,10 @@ export default function BrandGuidelinesPage() {
           referenceImages: data.referenceImages.length > 0 ? data.referenceImages : null,
         }),
       });
+      if (res.status === 401) {
+        toast.error('Sign in first to save your brand guidelines');
+        return;
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || 'Save failed');
@@ -310,25 +312,6 @@ export default function BrandGuidelinesPage() {
       : [...current, id];
     setValue(field, updated, { shouldDirty: true });
   };
-
-  // Auth error state
-  if (authError) {
-    return (
-      <V2Shell title="Brand Guidelines">
-        <div className="flex flex-col items-center justify-center py-24 gap-4">
-          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
-            darkMode ? 'bg-[#1235e2]/10' : 'bg-[#1235e2]/5'
-          }`}>
-            <LogIn className="w-8 h-8 text-[#1235e2]" />
-          </div>
-          <h2 className="text-xl font-bold">Sign in to set up your brand guidelines</h2>
-          <p className={`text-sm max-w-md text-center ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-            Brand guidelines are tied to your account so they persist across sessions and steer AI-generated creatives.
-          </p>
-        </div>
-      </V2Shell>
-    );
-  }
 
   // Loading state
   if (loading) {
