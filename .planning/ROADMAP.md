@@ -62,7 +62,7 @@ Phases 52-54 — See milestones/v6.1-ROADMAP.md for full details
 
 - [x] **Phase 55: Creative Analysis** - Brand vs. category benchmarking with Five Pillars + Andromeda
 - [x] **Phase 56: Image Generation** - AI image generation with format selection driven by analysis gaps
-- [ ] **Phase 56.1: Brand Guidelines Setup** - Brand persona form (voice, audience, visual identity) to steer AI generation (INSERTED)
+- [x] **Phase 56.1: Brand Guidelines Setup** - Brand persona form (voice, audience, visual identity) to steer AI generation (INSERTED)
 - [ ] **Phase 57: Text Overlay Editor** - Template-based ad customization and export
 - [ ] **Phase 58: UGC Creator Briefs** - Structured briefs with shot list, talking points, hooks
 - [ ] **Phase 59: Creative Lab Integration** - Unified Creative Lab page connecting all features
@@ -111,8 +111,8 @@ Plans:
   7. Saved guidelines feed into image generation prompts for brand-consistent output
 **Plans:** 2 plans
 Plans:
-- [ ] 56.1-01-PLAN.md — Prisma model, CRUD API, upload API, generation integration
-- [ ] 56.1-02-PLAN.md — Brand Guidelines page UI + sidebar navigation
+- [x] 56.1-01-PLAN.md — Prisma model, CRUD API, upload API, generation integration
+- [x] 56.1-02-PLAN.md — Brand Guidelines page UI + sidebar navigation
 
 **Design Reference**: Figma file `w3UPPS0z6hGsWPoZWxXjkO` node `0:3` — adapted to existing design system (#1235e2 primary, dark/light mode, V2Shell/V2Card)
 
@@ -159,10 +159,10 @@ Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59
 |-------|---------------|--------|-----------|
 | 55. Creative Analysis | 2/2 | ✅ Complete | 2026-03-21 |
 | 56. Image Generation | 1/1 | ✅ Complete | 2026-03-22 |
-| 56.1. Brand Guidelines Setup | 0/2 | Not started | - |
+| 56.1. Brand Guidelines Setup | 2/2 | ✅ Complete | 2026-03-23 |
 | 57. Text Overlay Editor | 0/TBD | Not started | - |
 | 58. UGC Creator Briefs | 0/TBD | Not started | - |
 | 59. Creative Lab Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-23 after Phase 56.1 planned*
+*Last updated: 2026-03-23 after Phase 56.1 complete*
