@@ -1,11 +1,44 @@
 import { NextRequest } from 'next/server';
+import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
+import type { BrandGuidelines } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
+/**
+ * Build a compact brand context string from guidelines for prompt injection.
+ * Capped to ~200 chars to avoid degrading Flux Schnell output quality.
+ */
+function buildBrandContext(guidelines: BrandGuidelines | null): string {
+  if (!guidelines) return '';
+
+  const parts: string[] = [];
+
+  if (guidelines.brandVoice) {
+    // Truncate voice to first 100 chars
+    const voice = guidelines.brandVoice.slice(0, 100);
+    parts.push(`brand voice: ${voice}`);
+  }
+
+  const colors: string[] = [];
+  if (guidelines.primaryColor) colors.push(guidelines.primaryColor);
+  if (guidelines.secondaryColor) colors.push(guidelines.secondaryColor);
+  if (guidelines.accentColor) colors.push(guidelines.accentColor);
+  if (colors.length > 0) {
+    parts.push(`brand colors: ${colors.join(', ')}`);
+  }
+
+  if (parts.length === 0) return '';
+
+  // Cap total to ~200 chars
+  const context = parts.join(', ').slice(0, 200);
+  return context + ', ';
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, aspectRatio } = await request.json();
+    const { prompt, aspectRatio, brandGuidelines: useBrandGuidelines } = await request.json();
 
     if (!prompt) {
       return Response.json({ error: 'prompt required' }, { status: 400 });
@@ -15,8 +48,25 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: 'REPLICATE_API_TOKEN not configured' }, { status: 500 });
     }
 
+    // Optionally fetch brand context when flag is true
+    let brandContext = '';
+    if (useBrandGuidelines) {
+      try {
+        const session = await auth();
+        if (session?.user?.id) {
+          const guidelines = await prisma.brandGuidelines.findUnique({
+            where: { userId: session.user.id },
+          });
+          brandContext = buildBrandContext(guidelines);
+        }
+      } catch (err) {
+        // Non-blocking: if auth/DB fails, proceed without brand context
+        console.error('Failed to fetch brand guidelines:', err);
+      }
+    }
+
     // Enhance prompt for ad creative quality
-    const enhancedPrompt = `Professional advertising creative, high quality commercial photography, ${prompt}. No text, no words, no letters, clean composition`;
+    const enhancedPrompt = `Professional advertising creative, ${brandContext}high quality commercial photography, ${prompt}. No text, no words, no letters, clean composition`;
 
     // Create prediction
     const createRes = await fetch(
