@@ -54,7 +54,7 @@ Phases 52-54 — See milestones/v6.1-ROADMAP.md for full details
 
 ---
 
-### 🚧 v7.0 Creative Lab (In Progress)
+### v7.0 Creative Lab (In Progress)
 
 **Milestone Goal:** Turn ad insights into action — generate, remix, and customize ad creatives directly in the platform.
 
@@ -144,7 +144,10 @@ Plans:
   3. Brief includes talking points and a hook script
   4. Brief includes B-roll suggestions relevant to the brand's category
   5. User can copy the brief to clipboard or download as a formatted document
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 58-01-PLAN.md — UGC brief types + Claude-powered generate-brief API
+- [ ] 58-02-PLAN.md — Frontend: mode selector, brief view component, copy/download actions
 
 ### Phase 59: Creative Lab Integration
 **Goal**: Unified Creative Lab page connecting analysis, AI generation, and briefs into one workflow
@@ -163,12 +166,12 @@ Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 55. Creative Analysis | 2/2 | ✅ Complete | 2026-03-21 |
-| 56. Image Generation | 1/1 | ✅ Complete | 2026-03-22 |
-| 56.1. Brand Guidelines Setup | 2/2 | ✅ Complete | 2026-03-23 |
-| 57. AI Creative Generation | 2/2 | ✅ Complete | 2026-03-23 |
-| 58. UGC Creator Briefs | 0/TBD | Not started | - |
+| 55. Creative Analysis | 2/2 | Complete | 2026-03-21 |
+| 56. Image Generation | 1/1 | Complete | 2026-03-22 |
+| 56.1. Brand Guidelines Setup | 2/2 | Complete | 2026-03-23 |
+| 57. AI Creative Generation | 2/2 | Complete | 2026-03-23 |
+| 58. UGC Creator Briefs | 0/2 | Not started | - |
 | 59. Creative Lab Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-23 after Phase 57 execution complete*
+*Last updated: 2026-03-23 after Phase 58 planning complete*
