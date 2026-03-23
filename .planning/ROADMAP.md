@@ -126,11 +126,7 @@ Plans:
   3. User can swap the template image (upload their own or use a generated image)
   4. User can customize colors and fonts
   5. User can export the finished creative as PNG or JPG
-**Plans:** 3 plans
-Plans:
-- [ ] 57-01-PLAN.md — Types, template definitions, hooks, font list (foundation)
-- [ ] 57-02-PLAN.md — Template picker, Konva canvas, editor page scaffold
-- [ ] 57-03-PLAN.md — Editor sidebar controls, export, final wiring
+**Plans**: TBD
 
 ### Phase 58: UGC Creator Briefs
 **Goal**: Users can generate structured UGC briefs based on a brand's ad library data
@@ -164,9 +160,9 @@ Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59
 | 55. Creative Analysis | 2/2 | ✅ Complete | 2026-03-21 |
 | 56. Image Generation | 1/1 | ✅ Complete | 2026-03-22 |
 | 56.1. Brand Guidelines Setup | 2/2 | ✅ Complete | 2026-03-23 |
-| 57. Text Overlay Editor | 0/3 | Not started | - |
+| 57. Text Overlay Editor | 0/TBD | Not started | - |
 | 58. UGC Creator Briefs | 0/TBD | Not started | - |
 | 59. Creative Lab Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-23 after Phase 57 planning complete*
+*Last updated: 2026-03-23 after Phase 56.1 complete*
