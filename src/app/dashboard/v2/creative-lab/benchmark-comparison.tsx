@@ -38,7 +38,7 @@ interface BenchmarkRecommendation {
   message: string;
 }
 
-interface BenchmarkResult {
+export interface BenchmarkResult {
   brand: {
     name: string;
     scores: DiversityScores;
@@ -67,6 +67,18 @@ interface BenchmarkResult {
 }
 
 // ---------------------------------------------------------------------------
+// Default Pillar Config
+// ---------------------------------------------------------------------------
+
+const DEFAULT_PILLAR_CONFIG: Record<string, { label: string; color: string; allValues: string[] }> = {
+  format: { label: 'Format', color: '#3b82f6', allValues: ['static-image', 'video', 'carousel', 'reel', 'story'] },
+  tone: { label: 'Tone', color: '#8b5cf6', allValues: ['aspirational', 'problem-solving', 'educational', 'social-proof', 'humor', 'urgency'] },
+  journeyPhase: { label: 'Journey Phase', color: '#f59e0b', allValues: ['awareness', 'consideration', 'conversion'] },
+  visualStyle: { label: 'Visual Style', color: '#10b981', allValues: ['studio', 'ugc', 'minimal', 'lifestyle', 'before-after', 'product-shot'] },
+  messenger: { label: 'Messenger', color: '#ec4899', allValues: ['brand', 'influencer', 'customer', 'expert', 'anonymous'] },
+};
+
+// ---------------------------------------------------------------------------
 // Props
 // ---------------------------------------------------------------------------
 
@@ -74,7 +86,7 @@ interface BenchmarkComparisonProps {
   result: BenchmarkResult | null;
   loading: boolean;
   darkMode: boolean;
-  pillarConfig: Record<string, { label: string; color: string; allValues: string[] }>;
+  pillarConfig?: Record<string, { label: string; color: string; allValues: string[] }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -154,6 +166,7 @@ function ScoreCard({ label, index, color, darkMode }: {
 const PILLAR_KEYS = ['format', 'tone', 'journeyPhase', 'visualStyle', 'messenger'] as const;
 
 export function BenchmarkComparison({ result, loading, darkMode, pillarConfig }: BenchmarkComparisonProps) {
+  const config = pillarConfig ?? DEFAULT_PILLAR_CONFIG;
   const muted = darkMode ? 'text-slate-400' : 'text-slate-500';
 
   // Loading state
@@ -206,7 +219,7 @@ export function BenchmarkComparison({ result, loading, darkMode, pillarConfig }:
         <h4 className="text-sm font-bold mb-4">Five Pillars Comparison</h4>
         <div className="space-y-4">
           {PILLAR_KEYS.map((key) => {
-            const cfg = pillarConfig[key];
+            const cfg = config[key];
             const index = result.indexing[key];
             if (!cfg || !index) return null;
             return (
@@ -233,7 +246,7 @@ export function BenchmarkComparison({ result, loading, darkMode, pillarConfig }:
           {result.gaps.length > 0 ? (
             <div className="space-y-3">
               {result.gaps.map((gap, i) => {
-                const cfg = pillarConfig[gap.pillar];
+                const cfg = config[gap.pillar];
                 return (
                   <div key={i} className="text-sm">
                     <div className="flex items-center gap-2 mb-0.5">
@@ -259,7 +272,7 @@ export function BenchmarkComparison({ result, loading, darkMode, pillarConfig }:
           {result.strengths.length > 0 ? (
             <div className="space-y-3">
               {result.strengths.map((str, i) => {
-                const cfg = pillarConfig[str.pillar];
+                const cfg = config[str.pillar];
                 return (
                   <div key={i} className="text-sm">
                     <div className="flex items-center gap-2 mb-0.5">
