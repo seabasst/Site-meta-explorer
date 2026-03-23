@@ -24,11 +24,11 @@ Requirements for v7.0 milestone. Each maps to roadmap phases.
 
 ### AI Creative Generation (REPLACES Text Overlay Editor)
 
-- [ ] **AIGEN-01**: User can trigger ad generation from analysis gap recommendations
-- [ ] **AIGEN-02**: AI pre-fills config screen with suggested formats, quantity, style, and copy angles based on gaps + brand guidelines + competitor data
-- [ ] **AIGEN-03**: Each suggestion shows reasoning (why this ad concept was suggested)
-- [ ] **AIGEN-04**: User can adjust any pre-filled setting before generating
-- [ ] **AIGEN-05**: Generated ads appear in a gallery view with download (individual or zip)
+- [x] **AIGEN-01**: User can trigger ad generation from analysis gap recommendations
+- [x] **AIGEN-02**: AI pre-fills config screen with suggested formats, quantity, style, and copy angles based on gaps + brand guidelines + competitor data
+- [x] **AIGEN-03**: Each suggestion shows reasoning (why this ad concept was suggested)
+- [x] **AIGEN-04**: User can adjust any pre-filled setting before generating
+- [x] **AIGEN-05**: Generated ads appear in a gallery view with download (individual or zip)
 
 ### UGC Creator Briefs
 
@@ -85,11 +85,11 @@ Deferred to future release (v7.1+). Tracked but not in current roadmap.
 | GENR-04 | Phase 56 | Complete |
 | GENR-05 | Phase 56 | Complete |
 | ~~EDIT-01~~ | ~~Phase 57~~ | Superseded by AIGEN-01..05 |
-| AIGEN-01 | Phase 57 | Pending |
-| AIGEN-02 | Phase 57 | Pending |
-| AIGEN-03 | Phase 57 | Pending |
-| AIGEN-04 | Phase 57 | Pending |
-| AIGEN-05 | Phase 57 | Pending |
+| AIGEN-01 | Phase 57 | Complete |
+| AIGEN-02 | Phase 57 | Complete |
+| AIGEN-03 | Phase 57 | Complete |
+| AIGEN-04 | Phase 57 | Complete |
+| AIGEN-05 | Phase 57 | Complete |
 | UGC-01 | Phase 58 | Pending |
 | UGC-02 | Phase 58 | Pending |
 | UGC-03 | Phase 58 | Pending |

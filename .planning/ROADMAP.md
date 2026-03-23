@@ -63,7 +63,7 @@ Phases 52-54 — See milestones/v6.1-ROADMAP.md for full details
 - [x] **Phase 55: Creative Analysis** - Brand vs. category benchmarking with Five Pillars + Andromeda
 - [x] **Phase 56: Image Generation** - AI image generation with format selection driven by analysis gaps
 - [x] **Phase 56.1: Brand Guidelines Setup** - Brand persona form (voice, audience, visual identity) to steer AI generation (INSERTED)
-- [ ] **Phase 57: AI Creative Generation** - AI-driven ad creation from analysis gaps + brand guidelines + competitor insights (REPLACES Text Overlay Editor)
+- [x] **Phase 57: AI Creative Generation** - AI-driven ad creation from analysis gaps + brand guidelines + competitor insights (REPLACES Text Overlay Editor)
 - [ ] **Phase 58: UGC Creator Briefs** - Structured briefs with shot list, talking points, hooks
 - [ ] **Phase 59: Creative Lab Integration** - Unified Creative Lab page connecting analysis, generation, and briefs
 
@@ -129,8 +129,8 @@ Plans:
   6. User can download individual images or all as a zip
 **Plans:** 2 plans
 Plans:
-- [ ] 57-01-PLAN.md — Backend APIs (generate-config + generate-batch) + shared types
-- [ ] 57-02-PLAN.md — Frontend rewrite (config screen, suggestion cards, gallery, page orchestration)
+- [x] 57-01-PLAN.md — Backend APIs (generate-config + generate-batch) + shared types
+- [x] 57-02-PLAN.md — Frontend rewrite (config screen, suggestion cards, gallery, page orchestration)
 
 **Context**: 57-CONTEXT.md (gathered 2026-03-23)
 
@@ -166,9 +166,9 @@ Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59
 | 55. Creative Analysis | 2/2 | ✅ Complete | 2026-03-21 |
 | 56. Image Generation | 1/1 | ✅ Complete | 2026-03-22 |
 | 56.1. Brand Guidelines Setup | 2/2 | ✅ Complete | 2026-03-23 |
-| 57. AI Creative Generation | 0/2 | Not started | - |
+| 57. AI Creative Generation | 2/2 | ✅ Complete | 2026-03-23 |
 | 58. UGC Creator Briefs | 0/TBD | Not started | - |
 | 59. Creative Lab Integration | 0/TBD | Not started | - |
 
 ---
-*Last updated: 2026-03-23 after Phase 57 planning complete*
+*Last updated: 2026-03-23 after Phase 57 execution complete*
