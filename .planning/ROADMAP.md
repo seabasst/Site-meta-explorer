@@ -64,7 +64,7 @@ Phases 52-54 — See milestones/v6.1-ROADMAP.md for full details
 - [x] **Phase 56: Image Generation** - AI image generation with format selection driven by analysis gaps
 - [x] **Phase 56.1: Brand Guidelines Setup** - Brand persona form (voice, audience, visual identity) to steer AI generation (INSERTED)
 - [x] **Phase 57: AI Creative Generation** - AI-driven ad creation from analysis gaps + brand guidelines + competitor insights (REPLACES Text Overlay Editor)
-- [ ] **Phase 58: UGC Creator Briefs** - Structured briefs with shot list, talking points, hooks
+- [x] **Phase 58: UGC Creator Briefs** - Structured briefs with shot list, talking points, hooks
 - [ ] **Phase 59: Creative Lab Integration** - Unified Creative Lab page connecting analysis, generation, and briefs
 
 ## Phase Details
@@ -157,7 +157,10 @@ Plans:
   1. Creative Lab page has clear navigation between Analysis, Generation, and Briefs
   2. User can flow from analysis gaps → AI generation config → results gallery seamlessly
   3. Analysis recommendations link directly to generation and brief creation
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 59-01-PLAN.md — AnalysisView component + BenchmarkComparison cleanup
+- [ ] 59-02-PLAN.md — Page integration: 3-mode selector, analysis flow state, error UX
 
 ## Progress
 
@@ -171,7 +174,7 @@ Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59
 | 56.1. Brand Guidelines Setup | 2/2 | Complete | 2026-03-23 |
 | 57. AI Creative Generation | 2/2 | Complete | 2026-03-23 |
 | 58. UGC Creator Briefs | 2/2 | Complete | 2026-03-23 |
-| 59. Creative Lab Integration | 0/TBD | Not started | - |
+| 59. Creative Lab Integration | 0/2 | Not started | - |
 
 ---
-*Last updated: 2026-03-23 after Phase 58 execution complete*
+*Last updated: 2026-03-23 after Phase 59 planning complete*
