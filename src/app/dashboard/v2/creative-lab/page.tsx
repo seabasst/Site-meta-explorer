@@ -9,12 +9,14 @@ import {
   AlertTriangle,
   Sparkles,
   FileText,
+  BarChart3,
 } from 'lucide-react';
 import { V2Shell } from '../v2-shell';
 import { useV2 } from '../v2-context';
 import { ConfigScreen } from './config-screen';
 import { GenerationGallery } from './generation-gallery';
 import { UGCBriefView } from './ugc-brief-view';
+import { AnalysisView } from './analysis-view';
 import type {
   GenerationConfig,
   GenerationSuggestion,
@@ -34,7 +36,7 @@ interface SearchResult {
   source: string;
 }
 
-type FlowState = 'search' | 'mode-select' | 'config' | 'gallery' | 'brief-loading' | 'brief';
+type FlowState = 'search' | 'mode-select' | 'analysis' | 'config' | 'gallery' | 'brief-loading' | 'brief';
 
 // ---------------------------------------------------------------------------
 // Main Component
@@ -107,6 +109,12 @@ export default function CreativeLabPage() {
     setSearchResults([]);
     setSearchQuery(brand.pageName);
     setFlowState('mode-select');
+  }
+
+  // -- Mode: Analyze Brand ---------------------------------------------------
+
+  function handleChooseAnalysis() {
+    setFlowState('analysis');
   }
 
   // -- Mode: Generate Ad Creatives -> load config ---------------------------
@@ -331,7 +339,7 @@ export default function CreativeLabPage() {
             </div>
             <h1 className="text-2xl font-black mb-2">Creative Lab</h1>
             <p className={`text-sm ${muted} max-w-md mx-auto`}>
-              Search for a brand to generate AI-powered ad creatives or structured UGC creator briefs.
+              Search for a brand to analyze creative strategy, generate AI ad creatives, or create UGC briefs.
             </p>
           </div>
 
@@ -417,7 +425,25 @@ export default function CreativeLabPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Analyze Brand */}
+            <button
+              onClick={handleChooseAnalysis}
+              className={`group text-left rounded-xl border-2 p-6 transition-all ${
+                darkMode
+                  ? 'border-[#1235e2]/10 bg-[#101322] hover:border-[#1235e2]/40 hover:bg-[#1235e2]/5'
+                  : 'border-slate-200 bg-white hover:border-[#1235e2] hover:bg-blue-50/30'
+              }`}
+            >
+              <div className="w-12 h-12 rounded-xl bg-[#1235e2]/10 flex items-center justify-center mb-4 group-hover:bg-[#1235e2]/20 transition-colors">
+                <BarChart3 className="w-6 h-6 text-[#1235e2]" />
+              </div>
+              <h3 className="text-base font-bold mb-1">Analyze Brand</h3>
+              <p className={`text-sm ${muted}`}>
+                Benchmark creative strategy against category with Five Pillars analysis.
+              </p>
+            </button>
+
             {/* Generate Ad Creatives */}
             <button
               onClick={handleChooseCreatives}
@@ -457,6 +483,19 @@ export default function CreativeLabPage() {
         </div>
       )}
 
+      {/* Analysis state */}
+      {flowState === 'analysis' && selectedBrand && (
+        <div className="max-w-4xl mx-auto">
+          <AnalysisView
+            brand={selectedBrand}
+            darkMode={darkMode}
+            onGenerateCreatives={handleChooseCreatives}
+            onGenerateBrief={handleGenerateBrief}
+            onBack={handleBackToModeSelect}
+          />
+        </div>
+      )}
+
       {/* Config state */}
       {flowState === 'config' && (
         <div className="max-w-4xl mx-auto">
@@ -485,12 +524,31 @@ export default function CreativeLabPage() {
               <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-3" />
               <p className="text-sm font-semibold text-red-400 mb-1">Unable to Load Config</p>
               <p className={`text-sm ${muted}`}>{configError}</p>
-              <button
-                onClick={handleBackToModeSelect}
-                className="mt-4 px-4 py-2 rounded-lg text-sm font-medium bg-[#1235e2] text-white hover:bg-[#0f2dc4] transition-colors"
-              >
-                Try Again
-              </button>
+              <div className="mt-4 flex items-center justify-center gap-3">
+                {configError.includes('analyzed') ? (
+                  <>
+                    <button
+                      onClick={handleChooseAnalysis}
+                      className="px-4 py-2 rounded-lg text-sm font-medium bg-[#1235e2] text-white hover:bg-[#0f2dc4] transition-colors"
+                    >
+                      Run Analysis First
+                    </button>
+                    <button
+                      onClick={handleBackToModeSelect}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium ${darkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-100 hover:bg-slate-200'} transition-colors`}
+                    >
+                      Back
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={handleBackToModeSelect}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-[#1235e2] text-white hover:bg-[#0f2dc4] transition-colors"
+                  >
+                    Try Again
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
