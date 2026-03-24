@@ -27,14 +27,12 @@ interface DiversityScores {
 }
 
 interface DiversityResult {
-  scores: DiversityScores;
+  brandName: string;
+  totalAdsAnalyzed: number;
+  diversityScores: DiversityScores;
   distribution: Record<string, Record<string, number>>;
-  andromedaMetrics: {
-    andromedaScore: number;
-    uniqueCombinations: number;
-    totalAds: number;
-    maxPossible: number;
-  };
+  andromedaMetrics: Record<string, unknown>;
+  andromedaScore: number;
 }
 
 interface AnalysisViewProps {
@@ -252,7 +250,7 @@ export function AnalysisView({
               }}
             >
               <span className="opacity-70">{label}</span>
-              <span className="text-base font-black">{diversity.scores[key]}</span>
+              <span className="text-base font-black">{diversity.diversityScores[key]}</span>
             </div>
           ))}
         </div>
