@@ -2,12 +2,15 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useSession, signIn } from 'next-auth/react';
 import {
   BookOpen,
   X,
   Heart,
   LogIn,
+  Sparkles,
+  ArrowRight,
 } from 'lucide-react';
 import { V2Shell, V2Card, V2SectionTitle, V2Skeleton } from '../v2-shell';
 import { useV2 } from '../v2-context';
@@ -109,10 +112,14 @@ function AdLibraryContent() {
     });
   }, []);
 
-  // Fetch demographics when brand filter changes (independent from ads)
+  // Brand info for context bar
+  const [brandInfo, setBrandInfo] = useState<{ pageName: string; pageId: string; category: string | null } | null>(null);
+
+  // Fetch demographics + brand info when brand filter changes
   useEffect(() => {
     if (!brandFilter) {
       setBrandDemographics(null);
+      setBrandInfo(null);
       return;
     }
     let cancelled = false;
@@ -120,15 +127,17 @@ function AdLibraryContent() {
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (cancelled) return;
-        if (data?.brand?.demographicsJson) {
+        if (data?.brand) {
+          setBrandInfo({ pageName: data.brand.pageName, pageId: data.brand.pageId, category: data.brand.category });
           const normalized = normalizeDemographicsJson(data.brand.demographicsJson);
           setBrandDemographics(normalized);
         } else {
+          setBrandInfo(null);
           setBrandDemographics(null);
         }
       })
       .catch(() => {
-        if (!cancelled) setBrandDemographics(null);
+        if (!cancelled) { setBrandDemographics(null); setBrandInfo(null); }
       });
     return () => { cancelled = true; };
   }, [brandFilter]);
@@ -413,6 +422,50 @@ function AdLibraryContent() {
         activeFilterCount={activeFilterCount}
         onClearAll={clearAllFilters}
       />
+
+      {/* Brand context bar — appears when filtering by brand */}
+      {brandInfo && (
+        <V2Card className="p-4 mb-6 flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
+              darkMode ? 'bg-[#1235e2]/20 text-[#1235e2]' : 'bg-[#1235e2]/10 text-[#1235e2]'
+            }`}>
+              {brandInfo.pageName?.[0] || '?'}
+            </div>
+            <div className="min-w-0">
+              <Link
+                href={`/dashboard/v2/ad-library/${brandInfo.pageId}`}
+                className="text-sm font-bold hover:text-[#1235e2] transition-colors"
+              >
+                {brandInfo.pageName}
+              </Link>
+              {brandInfo.category && (
+                <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{brandInfo.category}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/dashboard/v2/ad-library/${brandInfo.pageId}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                darkMode
+                  ? 'border border-slate-600 text-slate-300 hover:border-[#1235e2] hover:text-[#1235e2]'
+                  : 'border border-slate-300 text-slate-600 hover:border-[#1235e2] hover:text-[#1235e2]'
+              }`}
+            >
+              View Brand Page
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+            <Link
+              href={`/dashboard/v2/creative-lab?pageId=${brandInfo.pageId}&pageName=${encodeURIComponent(brandInfo.pageName)}&mode=analysis${brandInfo.category ? `&category=${encodeURIComponent(brandInfo.category)}` : ''}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors bg-[#1235e2] text-white hover:bg-[#0f2dc5]"
+            >
+              <Sparkles className="w-3 h-3" />
+              Analyze Brand
+            </Link>
+          </div>
+        </V2Card>
+      )}
 
       {/* Demographic Peek (brand filter active + brand has demographics) */}
       {brandDemographics && (
