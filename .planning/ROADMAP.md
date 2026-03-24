@@ -66,6 +66,8 @@ Phases 52-54 — See milestones/v6.1-ROADMAP.md for full details
 - [x] **Phase 57: AI Creative Generation** - AI-driven ad creation from analysis gaps + brand guidelines + competitor insights (REPLACES Text Overlay Editor)
 - [x] **Phase 58: UGC Creator Briefs** - Structured briefs with shot list, talking points, hooks
 - [x] **Phase 59: Creative Lab Integration** - Unified Creative Lab page connecting analysis, generation, and briefs
+- [ ] **Phase 60: Analysis View Data Wiring** - Fix interface mismatch and wrong category param breaking analysis display (GAP CLOSURE)
+- [ ] **Phase 61: Dead Code Cleanup** - Remove orphaned Phase 56 components and fix stale error string (GAP CLOSURE)
 
 ## Phase Details
 
@@ -162,10 +164,34 @@ Plans:
 - [x] 59-01-PLAN.md — AnalysisView component + BenchmarkComparison cleanup
 - [x] 59-02-PLAN.md — Page integration: 3-mode selector, analysis flow state, error UX
 
+### Phase 60: Analysis View Data Wiring (GAP CLOSURE)
+**Goal**: Fix broken analysis display — DiversityResult interface mismatch and wrong category parameter prevent score pills and benchmarks from rendering
+**Depends on**: Phase 59
+**Gap Closure**: Closes 2 integration gaps + 2 broken E2E flows from v7.0 audit
+**Success Criteria** (what must be TRUE):
+  1. Diversity score pills render actual numeric values (not undefined/NaN)
+  2. Benchmark API receives the brand's actual product category (not `brand.source`)
+  3. E2E Flow 1 (Analysis) completes with meaningful data displayed
+  4. E2E Flow 4 (Unified) completes through analysis step
+Plans:
+- [ ] 60-01-PLAN.md — Fix DiversityResult interface + category param wiring
+
+### Phase 61: Dead Code Cleanup (GAP CLOSURE)
+**Goal**: Remove orphaned components from Phase 56 and fix stale error string in page.tsx
+**Depends on**: Phase 60
+**Gap Closure**: Closes 3 tech debt items from v7.0 audit
+**Success Criteria** (what must be TRUE):
+  1. `format-selector.tsx` deleted (superseded by config-screen.tsx)
+  2. `generation-results.tsx` deleted (superseded by generation-gallery.tsx)
+  3. Error string comparison in page.tsx line 139 matches actual API response
+  4. Build passes with no import errors
+Plans:
+- [ ] 61-01-PLAN.md — Delete orphaned files + fix error string
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59
+Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59 → 60 → 61
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
@@ -175,6 +201,8 @@ Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59
 | 57. AI Creative Generation | 2/2 | Complete | 2026-03-23 |
 | 58. UGC Creator Briefs | 2/2 | Complete | 2026-03-23 |
 | 59. Creative Lab Integration | 2/2 | Complete | 2026-03-23 |
+| 60. Analysis View Data Wiring | 0/1 | Pending | — |
+| 61. Dead Code Cleanup | 0/1 | Pending | — |
 
 ---
-*Last updated: 2026-03-23 after Phase 59 execution complete*
+*Last updated: 2026-03-24 after gap closure phases added*
