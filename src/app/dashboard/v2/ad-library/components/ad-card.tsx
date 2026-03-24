@@ -117,7 +117,7 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact, onSelect 
           )}
           <Link
             href={`/dashboard/v2/ad-library/${ad.brand.pageId}`}
-            className="text-sm font-bold truncate hover:text-[#1235e2] transition-colors"
+            className="text-sm font-bold truncate text-[#1235e2] hover:underline transition-colors"
             onClick={e => e.stopPropagation()}
           >
             {ad.brand.pageName}

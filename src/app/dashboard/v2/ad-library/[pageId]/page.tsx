@@ -273,8 +273,8 @@ export default function BrandDetailPage() {
           )}
 
           <div className="flex-1 min-w-0">
-            {/* Name + category + monitor button */}
-            <div className="flex items-center gap-3 flex-wrap mb-2">
+            {/* Name + category */}
+            <div className="flex items-center gap-3 flex-wrap mb-3">
               <h2 className="text-2xl font-bold">{brand.pageName}</h2>
               {brand.category && (
                 <span
@@ -288,29 +288,31 @@ export default function BrandDetailPage() {
                   {brand.category}
                 </span>
               )}
-              <div className="ml-auto flex items-center gap-2">
-                <Link
-                  href={`/dashboard/v2/creative-lab?pageId=${brand.pageId}&pageName=${encodeURIComponent(brand.pageName)}&mode=analysis${brand.category ? `&category=${encodeURIComponent(brand.category)}` : ''}`}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors bg-[#1235e2] text-white hover:bg-[#0f2dc5]`}
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Analyze Brand
-                </Link>
-                <button
-                  onClick={toggleMonitor}
-                  disabled={monitorLoading}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors disabled:opacity-50 ${
-                    isMonitored
-                      ? 'bg-[#1235e2] text-white'
-                      : darkMode
-                        ? 'border border-[#1235e2] text-[#1235e2] hover:bg-[#1235e2]/10'
-                        : 'border border-[#1235e2] text-[#1235e2] hover:bg-[#1235e2]/5'
-                  }`}
-                >
-                  {isMonitored ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                  {isMonitored ? 'Monitoring' : 'Monitor'}
-                </button>
-              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex items-center gap-2 mb-3">
+              <Link
+                href={`/dashboard/v2/creative-lab?pageId=${brand.pageId}&pageName=${encodeURIComponent(brand.pageName)}&mode=analysis${brand.category ? `&category=${encodeURIComponent(brand.category)}` : ''}`}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors bg-[#1235e2] text-white hover:bg-[#0f2dc5]"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Analyze Brand
+              </Link>
+              <button
+                onClick={toggleMonitor}
+                disabled={monitorLoading}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors disabled:opacity-50 ${
+                  isMonitored
+                    ? 'bg-[#1235e2] text-white'
+                    : darkMode
+                      ? 'border border-[#1235e2] text-[#1235e2] hover:bg-[#1235e2]/10'
+                      : 'border border-[#1235e2] text-[#1235e2] hover:bg-[#1235e2]/5'
+                }`}
+              >
+                {isMonitored ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {isMonitored ? 'Monitoring' : 'Monitor'}
+              </button>
             </div>
 
             {/* Stats row */}
