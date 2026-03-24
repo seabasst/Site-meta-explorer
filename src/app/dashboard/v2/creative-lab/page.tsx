@@ -137,7 +137,7 @@ export default function CreativeLabPage() {
         const data = await res.json().catch(() => ({}));
         if (res.status === 404) {
           setConfigError(
-            data.error === 'No cached analysis found'
+            data.error?.includes('No cached analysis')
               ? 'This brand hasn\'t been analyzed yet. Run a diversity analysis first from the Ad Library.'
               : data.error || 'Brand not found.'
           );
