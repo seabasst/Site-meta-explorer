@@ -51,3 +51,4 @@ prisma/dev.db-journal
 
 # Generated data
 data/brand-ingestion-results.json
+.gstack/

@@ -290,6 +290,7 @@ async function upsertAd(
     spendLower: ad.spend?.lower_bound || null,
     spendUpper: ad.spend?.upper_bound || null,
     currency: ad.currency || null,
+    bylines: ad.bylines || null,
     targetingJson: {
       ages: ad.target_ages,
       gender: ad.target_gender,

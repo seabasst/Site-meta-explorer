@@ -1008,6 +1008,7 @@ async function upsertAd(ad: MetaAd, brandId: string): Promise<{ action: 'created
     impressionsLower: ad.impressions?.lower_bound != null ? Number(ad.impressions.lower_bound) : null,
     impressionsUpper: ad.impressions?.upper_bound != null ? Number(ad.impressions.upper_bound) : null,
     reachEstimate: ad.eu_total_reach || null,
+    bylines: ad.bylines || null,
     targetingJson: {
       deliveryByRegion: ad.delivery_by_region || [],
       targetAges: ad.target_ages || null,
