@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Wand2,
   Loader2,
@@ -43,8 +44,17 @@ type FlowState = 'search' | 'mode-select' | 'analysis' | 'config' | 'gallery' | 
 // Main Component
 // ---------------------------------------------------------------------------
 
-export default function CreativeLabPage() {
+export default function CreativeLabPageWrapper() {
+  return (
+    <Suspense>
+      <CreativeLabPage />
+    </Suspense>
+  );
+}
+
+function CreativeLabPage() {
   const { darkMode } = useV2();
+  const searchParams = useSearchParams();
 
   // -- State ----------------------------------------------------------------
 
@@ -75,6 +85,35 @@ export default function CreativeLabPage() {
 
   const muted = darkMode ? 'text-slate-400' : 'text-slate-500';
   const mutedBg = darkMode ? 'bg-slate-800/50' : 'bg-slate-100';
+
+  // -- Deep link: ?pageId=X&pageName=Y&mode=analysis ----------------------
+
+  const deepLinked = useRef(false);
+  useEffect(() => {
+    if (deepLinked.current) return;
+    const pageId = searchParams.get('pageId');
+    const pageName = searchParams.get('pageName');
+    const mode = searchParams.get('mode');
+    if (pageId && pageName) {
+      deepLinked.current = true;
+      const brand: SearchResult = {
+        pageId,
+        pageName,
+        adCount: 0,
+        category: searchParams.get('category') || null,
+        source: 'api',
+      };
+      setSelectedBrand(brand);
+      setSearchQuery(pageName);
+      if (mode === 'analysis') {
+        setFlowState('analysis');
+      } else if (mode === 'generate') {
+        setFlowState('mode-select');
+      } else {
+        setFlowState('mode-select');
+      }
+    }
+  }, [searchParams]);
 
   // -- Search ---------------------------------------------------------------
 

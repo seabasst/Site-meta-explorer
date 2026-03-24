@@ -17,6 +17,7 @@ import {
   Users,
   Eye,
   EyeOff,
+  Sparkles,
 } from 'lucide-react';
 import { V2Shell, V2Card, V2SectionTitle, V2Skeleton, formatNumber } from '../../v2-shell';
 import { useV2 } from '../../v2-context';
@@ -287,20 +288,29 @@ export default function BrandDetailPage() {
                   {brand.category}
                 </span>
               )}
-              <button
-                onClick={toggleMonitor}
-                disabled={monitorLoading}
-                className={`ml-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors disabled:opacity-50 ${
-                  isMonitored
-                    ? 'bg-[#1235e2] text-white'
-                    : darkMode
-                      ? 'border border-[#1235e2] text-[#1235e2] hover:bg-[#1235e2]/10'
-                      : 'border border-[#1235e2] text-[#1235e2] hover:bg-[#1235e2]/5'
-                }`}
-              >
-                {isMonitored ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                {isMonitored ? 'Monitoring' : 'Monitor'}
-              </button>
+              <div className="ml-auto flex items-center gap-2">
+                <Link
+                  href={`/dashboard/v2/creative-lab?pageId=${brand.pageId}&pageName=${encodeURIComponent(brand.pageName)}&mode=analysis${brand.category ? `&category=${encodeURIComponent(brand.category)}` : ''}`}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors bg-[#1235e2] text-white hover:bg-[#0f2dc5]`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Analyze Brand
+                </Link>
+                <button
+                  onClick={toggleMonitor}
+                  disabled={monitorLoading}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors disabled:opacity-50 ${
+                    isMonitored
+                      ? 'bg-[#1235e2] text-white'
+                      : darkMode
+                        ? 'border border-[#1235e2] text-[#1235e2] hover:bg-[#1235e2]/10'
+                        : 'border border-[#1235e2] text-[#1235e2] hover:bg-[#1235e2]/5'
+                  }`}
+                >
+                  {isMonitored ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                  {isMonitored ? 'Monitoring' : 'Monitor'}
+                </button>
+              </div>
             </div>
 
             {/* Stats row */}
