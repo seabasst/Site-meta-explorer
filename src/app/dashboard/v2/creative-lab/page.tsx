@@ -33,6 +33,7 @@ interface SearchResult {
   pageName: string;
   adCount: number;
   iconUrl?: string;
+  category: string | null;
   source: string;
 }
 

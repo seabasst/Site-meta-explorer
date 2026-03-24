@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
         pageName: true,
         activeAdCount: true,
         profilePicUrl: true,
+        category: true,
       },
       orderBy: { activeAdCount: 'desc' },
       take: 10,
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest) {
         pageName: brand.pageName,
         adCount: brand.activeAdCount,
         iconUrl: brand.profilePicUrl || `https://graph.facebook.com/${brand.pageId}/picture?type=square`,
+        category: brand.category || null,
         source: 'local',
       }));
 
@@ -119,7 +121,7 @@ export async function GET(request: NextRequest) {
       return b.adCount - a.adCount;
     });
 
-    const results = unique.slice(0, 10).map(r => ({ ...r, source: 'api' }));
+    const results = unique.slice(0, 10).map(r => ({ ...r, category: null, source: 'api' }));
 
     return NextResponse.json({ results, source: 'api' });
   } catch (error) {

@@ -36,7 +36,7 @@ interface DiversityResult {
 }
 
 interface AnalysisViewProps {
-  brand: { pageId: string; pageName: string; iconUrl?: string; source: string };
+  brand: { pageId: string; pageName: string; iconUrl?: string; category?: string | null; source: string };
   darkMode: boolean;
   onGenerateCreatives: () => void;
   onGenerateBrief: () => void;
@@ -101,8 +101,10 @@ export function AnalysisView({
       const data: DiversityResult = await res.json();
       setDiversity(data);
 
-      // After diversity succeeds, fetch benchmark (non-blocking)
-      fetchBenchmark();
+      // After diversity succeeds, fetch benchmark (non-blocking, skip if no category)
+      if (brand.category) {
+        fetchBenchmark();
+      }
     } catch {
       setDiversityError('Network error. Please check your connection and try again.');
     } finally {
@@ -117,7 +119,7 @@ export function AnalysisView({
       const res = await fetch('/api/analyze/benchmark', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageId: brand.pageId, category: brand.source }),
+        body: JSON.stringify({ pageId: brand.pageId, category: brand.category }),
       });
 
       if (res.ok) {
