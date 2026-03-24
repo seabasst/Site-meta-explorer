@@ -130,6 +130,14 @@ export async function processAsset(assetId: string): Promise<ProcessAssetResult>
           data: { displayFormat: 'video' },
         });
       }
+
+      // Save bylines (partnership detection) if found
+      if (extracted.bylines) {
+        await prisma.adLibraryAd.update({
+          where: { id: asset.ad.id },
+          data: { bylines: extracted.bylines },
+        });
+      }
     }
 
     // Download from Meta CDN

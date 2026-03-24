@@ -8,6 +8,7 @@ import puppeteer, { type Browser } from 'puppeteer';
 export interface ExtractedMedia {
   url: string;
   type: 'image' | 'video';
+  bylines?: string;
 }
 
 // Reuse a single browser instance across requests
@@ -70,19 +71,19 @@ export async function extractMediaFromSnapshot(
 
     await page.goto(snapshotUrl, { waitUntil: 'networkidle2', timeout: 15000 });
 
-    const media = await page.evaluate(() => {
-      const results: { src: string; tag: string; w: number; h: number }[] = [];
+    const extracted = await page.evaluate(() => {
+      const media: { src: string; tag: string; w: number; h: number }[] = [];
 
       // Videos first (higher priority)
       for (const v of document.querySelectorAll('video')) {
         const src = v.src || v.querySelector('source')?.src;
-        if (src) results.push({ src, tag: 'video', w: 0, h: 0 });
+        if (src) media.push({ src, tag: 'video', w: 0, h: 0 });
       }
 
       // Then images
       for (const img of document.querySelectorAll('img')) {
         if (img.src) {
-          results.push({
+          media.push({
             src: img.src,
             tag: 'img',
             w: img.naturalWidth,
@@ -91,14 +92,47 @@ export async function extractMediaFromSnapshot(
         }
       }
 
-      return results;
+      // Extract bylines/partnership text
+      // Facebook shows "Creator Name with Brand Name" or "Paid partnership with Brand"
+      // in the ad snapshot page. Look for common patterns in the page text.
+      let bylines: string | null = null;
+      const bodyText = document.body.innerText || '';
+
+      // Pattern 1: "X with Y" partnership format (e.g., "Emma Johnson with Ninepine")
+      const withMatch = bodyText.match(/^(.+?)\s+with\s+(.+?)$/m);
+      if (withMatch) {
+        // Validate it looks like a partnership (not random "with" in ad copy)
+        const before = withMatch[1].trim();
+        const after = withMatch[2].trim();
+        // Short strings on both sides = likely page names, not ad copy
+        if (before.length < 80 && after.length < 80 && before.length > 1 && after.length > 1) {
+          bylines = withMatch[0].trim();
+        }
+      }
+
+      // Pattern 2: "Paid partnership with X"
+      const paidMatch = bodyText.match(/Paid partnership with\s+(.+?)(?:\n|$)/i);
+      if (paidMatch) {
+        bylines = paidMatch[0].trim();
+      }
+
+      // Pattern 3: Look for "Sponsored" label near a "with" pattern in header area
+      // Facebook renders: "PageName · Sponsored" then on partnership ads "with PartnerName"
+      const sponsoredWithMatch = bodyText.match(/Sponsored[\s\S]{0,50}?with\s+([^\n]+)/i);
+      if (!bylines && sponsoredWithMatch) {
+        bylines = sponsoredWithMatch[0].trim();
+      }
+
+      return { media, bylines };
     });
+
+    const { media, bylines } = extracted;
 
     // Filter noise and pick best candidate
     // Prefer videos, then largest image from fbcdn
     for (const m of media) {
       if (m.tag === 'video' && m.src && !isNoiseUrl(m.src)) {
-        return { url: m.src, type: 'video' };
+        return { url: m.src, type: 'video', bylines: bylines || undefined };
       }
     }
 
@@ -114,7 +148,12 @@ export async function extractMediaFromSnapshot(
       });
 
     if (imagesCandidates.length > 0) {
-      return { url: imagesCandidates[0].src, type: 'image' };
+      return { url: imagesCandidates[0].src, type: 'image', bylines: bylines || undefined };
+    }
+
+    // No media found but we might still have bylines
+    if (bylines) {
+      return { url: '', type: 'image', bylines };
     }
 
     return null;
