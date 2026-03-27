@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 65 — Classification UI
+**Current focus:** Phase 66 — Strategy Engine
 
 ## Current Position
 
-Phase: 65 of 67 (Classification UI) — ✓ VERIFIED
-Plan: Ready for Phase 66
-Status: Phase 65 verified (3/3 must-haves passed), proceeding to Phase 66
-Last activity: 2026-03-27 — Phase 65 complete (2 plans, 6 commits)
+Phase: 66 of 67 (Strategy Engine)
+Plan: 01 of 02 complete
+Status: In progress
+Last activity: 2026-03-27 — Completed 66-01-PLAN.md (Strategy Engine API Routes)
 
-Progress: ██████░░░░ ~60%
+Progress: ██████░░░░ ~63%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 129
+- Total plans completed: 130
 - Average duration: —
 - Total execution time: —
 
@@ -62,6 +62,9 @@ Recent decisions affecting current work:
 - (65-02): Graceful absence pattern for unclassified ads (no section, not empty state)
 - (65-01): In-memory aggregation for distribution (single findMany + loop over CATEGORY_KEYS)
 - (65-01): Unfiltered brand ad count for coverage denominator (not paginated subset)
+- (66-01): Gap matrix computed from AdClassification co-occurrences, not BrandAnalysisCache
+- (66-01): Cache-first taxonomyBreakdown with live fallback when distributionJson missing
+- (66-01): Inline JSON parse + retry for concept generation (not zodOutputFormat)
 
 ### Existing Infrastructure
 
@@ -86,6 +89,8 @@ Recent decisions affecting current work:
 - Ad detail lightbox shows colored classification pills with TAXONOMY labels
 - Brand detail API returns classificationCoverage + classificationDistribution
 - Brand detail page shows 8-category distribution bar charts + coverage badge
+- Strategy data API at GET `/api/strategy/[pageId]` (brand profile, taxonomy breakdown, gap matrix, diversity scores)
+- Concept generation API at POST `/api/strategy/generate-concept` (Claude Haiku, Zod-validated 5-field concept)
 
 ### Motion Framework Reference
 
@@ -101,5 +106,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 65 verified — ready for Phase 66
+Stopped at: Completed 66-01-PLAN.md — ready for 66-02
 Resume file: None
