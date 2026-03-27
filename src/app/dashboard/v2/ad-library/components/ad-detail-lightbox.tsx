@@ -14,9 +14,33 @@ import {
   Eye,
   Link2,
   Image as ImageIcon,
+  Tag,
 } from 'lucide-react';
 import { formatNumber } from '../../v2-shell';
 import { Ad } from '../types';
+import { TAXONOMY, CATEGORY_KEYS, type CategoryKey } from '@/lib/classification/taxonomy';
+
+const CATEGORY_SHORT_LABELS: Record<CategoryKey, string> = {
+  assetType: 'Asset',
+  visualFormat: 'Format',
+  hookTactic: 'Hook',
+  messagingAngle: 'Messaging',
+  awarenessStage: 'Stage',
+  creativeMechanic: 'Mechanic',
+  offerType: 'Offer',
+  intendedAudience: 'Audience',
+};
+
+const CATEGORY_COLORS: Record<CategoryKey, string> = {
+  assetType: '#3b82f6',
+  visualFormat: '#8b5cf6',
+  hookTactic: '#f59e0b',
+  messagingAngle: '#10b981',
+  awarenessStage: '#ec4899',
+  creativeMechanic: '#06b6d4',
+  offerType: '#f97316',
+  intendedAudience: '#a855f7',
+};
 
 interface AdDetailLightboxProps {
   ad: Ad;
@@ -304,6 +328,35 @@ export function AdDetailLightbox({ ad, darkMode, isSaved, onToggleSave, onClose 
                       {p.replace(/_/g, ' ')}
                     </span>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* AI Classification */}
+            {ad.classification && (
+              <div className={`pt-4 border-t ${sectionBorder}`}>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Tag className={`w-3.5 h-3.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />
+                  <span className={labelClass}>AI Classification</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {CATEGORY_KEYS.map((key) => {
+                    const value = ad.classification![key as keyof typeof ad.classification];
+                    if (!value) return null;
+                    const color = CATEGORY_COLORS[key];
+                    const labels = TAXONOMY[key].labels as Record<string, string>;
+                    const humanLabel = labels[value] || value;
+                    return (
+                      <span
+                        key={key}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold"
+                        style={{ backgroundColor: `${color}15`, color }}
+                      >
+                        <span className="opacity-60">{CATEGORY_SHORT_LABELS[key]}:</span>
+                        {humanLabel}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             )}
