@@ -509,7 +509,7 @@ function CreativeLabPage() {
               </div>
               <h3 className="text-base font-bold mb-1">Strategy</h3>
               <p className={`text-sm ${muted}`}>
-                Creative strategy + hooks with scoring across 5 awareness stages.
+                Taxonomy-based gap analysis with interactive concept generation.
               </p>
             </button>
 
@@ -567,7 +567,7 @@ function CreativeLabPage() {
 
       {/* Strategy state */}
       {flowState === 'strategy' && selectedBrand && (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <StrategyView
             brand={selectedBrand}
             darkMode={darkMode}
