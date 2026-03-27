@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
-import { CATEGORY_KEYS, type CategoryKey } from '@/lib/classification/taxonomy';
+import { CATEGORY_KEYS } from '@/lib/classification/taxonomy';
 
 // =============================================================================
 // Types
