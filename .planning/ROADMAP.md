@@ -68,7 +68,7 @@ Phases 55-61 — Creative analysis, AI generation, UGC briefs, brand guidelines,
 - [x] **Phase 62: Classification Foundation** - Prisma models, taxonomy definition, cost tracking utility
 - [x] **Phase 63: Classification Pipeline** - On-demand single-ad + Anthropic Batch API bulk classification
 - [x] **Phase 64: Diversity Refactor** - Rewrite diversity route to read stored classifications instead of re-classifying
-- [ ] **Phase 65: Classification UI** - Distribution charts per dimension + classification tags in ad detail
+- [x] **Phase 65: Classification UI** - Distribution charts per dimension + classification tags in ad detail
 - [ ] **Phase 66: Strategy Engine** - Brand context auto-populate, gap matrix, concept generation from gaps
 - [ ] **Phase 67: Category Benchmarking** - Brand vs category comparison across classification dimensions
 
@@ -141,14 +141,18 @@ Plans:
 **Goal**: Users can analyze any brand's creative strategy and generate concepts that fill identified gaps
 **Depends on**: Phase 65 (users need to see classification data before strategy builds on it)
 **Requirements**: BRND-01, STRT-01, STRT-02, STRT-03, STRT-04, STRT-05
-**Research flag**: Likely — strategy quality testing needed (generate for 5 brands, evaluate specificity)
+**Plans:** 2 plans
+
+Plans:
+- [ ] 66-01-PLAN.md — Strategy API + brand context (GET /api/strategy/[pageId] with gap matrix, POST /api/strategy/generate-concept)
+- [ ] 66-02-PLAN.md — Strategy UI (rewrite strategy-view.tsx, gap-matrix.tsx component, concept generation modal)
+
 **Success Criteria** (what must be TRUE):
   1. Brand profile auto-populates from existing DB data (ads, category, demographics) without manual input
   2. User can select any brand and see their full creative taxonomy breakdown (format distribution, tactic usage, awareness stage coverage)
   3. User can view an interactive gap matrix crossing awareness stages x creative formats with coverage heatmap
   4. User can click a gap cell to auto-generate creative concepts targeting that gap
   5. Generated concepts include visual format, creative mechanic, hook, messaging angle, and production brief
-**Plans**: TBD
 
 ### Phase 67: Category Benchmarking
 **Goal**: Users can compare a brand's creative strategy against category averages
@@ -172,8 +176,8 @@ Phases execute in numeric order: 62 → 63 → 64 → 65 → 66 → 67
 | 63. Classification Pipeline | 2/2 | ✓ Complete | 2026-03-27 |
 | 64. Diversity Refactor | 2/2 | ✓ Complete | 2026-03-27 |
 | 65. Classification UI | 2/2 | ✓ Complete | 2026-03-27 |
-| 66. Strategy Engine | 0/TBD | Not started | — |
+| 66. Strategy Engine | 0/2 | Planned | — |
 | 67. Category Benchmarking | 0/TBD | Not started | — |
 
 ---
-*Last updated: 2026-03-27 — Phase 65 complete*
+*Last updated: 2026-03-27 — Phase 66 planned*
