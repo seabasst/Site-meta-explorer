@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import Anthropic from '@anthropic-ai/sdk';
+import { TAXONOMY, CATEGORY_KEYS, type CategoryKey } from '@/lib/classification/taxonomy';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -11,24 +12,7 @@ const client = new Anthropic();
 // Types
 // ---------------------------------------------------------------------------
 
-interface PillarDistribution {
-  format: Record<string, number>;
-  tone: Record<string, number>;
-  journeyPhase: Record<string, number>;
-  visualStyle: Record<string, number>;
-  messenger: Record<string, number>;
-}
-
-interface Classification {
-  adId: string;
-  format: string;
-  tone: string;
-  journeyPhase: string;
-  visualStyle: string;
-  messenger: string;
-  hookScore: number;
-  conceptCluster: string;
-}
+type CategoryDistribution = Record<CategoryKey, Record<string, number>>;
 
 // ---------------------------------------------------------------------------
 // POST handler
@@ -36,20 +20,32 @@ interface Classification {
 
 export async function POST(request: NextRequest) {
   try {
-    const { pageId } = await request.json();
+    const { pageId, pageName, category } = await request.json();
 
     if (!pageId) {
       return Response.json({ error: 'pageId required' }, { status: 400 });
     }
 
-    // Find brand
-    const brand = await prisma.adLibraryBrand.findUnique({
+    // Find or create brand (handles brands discovered via Facebook API search)
+    let brand = await prisma.adLibraryBrand.findUnique({
       where: { pageId },
       select: { id: true, pageName: true, category: true },
     });
 
+    if (!brand && pageName) {
+      brand = await prisma.adLibraryBrand.create({
+        data: {
+          pageId,
+          pageName,
+          category: category || null,
+          ingestionStatus: 'pending',
+        },
+        select: { id: true, pageName: true, category: true },
+      });
+    }
+
     if (!brand) {
-      return Response.json({ error: 'Brand not found in database' }, { status: 404 });
+      return Response.json({ error: 'Brand not found in database. Try searching again.' }, { status: 404 });
     }
 
     // Fetch all active ads
@@ -73,6 +69,24 @@ export async function POST(request: NextRequest) {
 
     if (ads.length === 0) {
       return Response.json({ error: 'No active ads found for this brand' }, { status: 404 });
+    }
+
+    // -----------------------------------------------------------------------
+    // Read stored classifications from AdClassification table
+    // -----------------------------------------------------------------------
+
+    const adDbIds = ads.map((a) => a.id);
+    const classifications = await prisma.adClassification.findMany({
+      where: { adId: { in: adDbIds } },
+    });
+
+    if (classifications.length < 3) {
+      return Response.json({
+        error: `Only ${classifications.length} of ${ads.length} ads are classified. Run classification first (need at least 3).`,
+        classifiedCount: classifications.length,
+        totalAds: ads.length,
+        needsClassification: true,
+      }, { status: 422 });
     }
 
     // -----------------------------------------------------------------------
@@ -142,107 +156,27 @@ export async function POST(request: NextRequest) {
     }
 
     // -----------------------------------------------------------------------
-    // Prepare data for Claude classification
+    // Build 8-category distribution from DB classifications
     // -----------------------------------------------------------------------
 
-    const adDbIds = ads.map((a) => a.id);
-    const videoAssets = await prisma.adAsset.findMany({
-      where: { adId: { in: adDbIds }, assetType: 'video' },
-      select: { adId: true },
-    });
-    const adsWithVideo = new Set(videoAssets.map((a) => a.adId));
-
-    const enrichedSummaries = ads.map((ad) => ({
-      adId: ad.adId,
-      body: ad.body?.slice(0, 200) || null,
-      title: ad.title,
-      displayFormat: ad.displayFormat,
-      ctaType: ad.ctaType,
-      ctaText: ad.ctaText,
-      startDate: ad.startDate?.toISOString().split('T')[0] || null,
-      hasVideoAsset: adsWithVideo.has(ad.id),
-      platforms: ad.publisherPlatforms || [],
-    }));
-
-    // -----------------------------------------------------------------------
-    // Claude Call 1: Classify + Hook Score + Concept Cluster
-    // -----------------------------------------------------------------------
-
-    const classifyResponse = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 12000,
-      messages: [
-        {
-          role: 'user',
-          content: `You are an expert Meta Ads analyst. Classify each of these ${ads.length} ads from "${brand.pageName}" across the Five Pillars of Creative Diversity, score the hook quality, and assign a concept cluster.
-
-**The Five Pillars (use ONLY these exact category values):**
-
-1. FORMAT: "static-image" | "video" | "carousel" | "reel" | "story" | "collection"
-2. TONE & ANGLE: "aspirational" | "problem-solving" | "educational" | "social-proof" | "humor" | "urgency" | "price-focused" | "emotional"
-3. CUSTOMER JOURNEY PHASE: "awareness" | "consideration" | "conversion"
-4. VISUAL STYLE: "studio" | "ugc" | "minimal" | "lifestyle" | "before-after" | "product-shot" | "illustration" | "selfie"
-5. MESSENGER & VOICE: "brand" | "founder" | "influencer" | "customer" | "expert"
-
-**ADDITIONAL FIELDS:**
-
-6. HOOK QUALITY (hookScore): Score the first line/sentence of the body copy for scroll-stopping power (1-10). Consider: curiosity gap, pattern interrupt, emotional trigger, specificity, urgency. If body is empty/generic, score 2-3.
-7. CONCEPT CLUSTER (conceptCluster): Assign a short 2-3 word lowercase hyphenated label for the core creative concept (e.g., "discount-offer", "customer-story", "product-demo", "lifestyle-aspiration", "seasonal-promo", "destination-showcase", "brand-awareness"). Ads with the SAME core concept MUST get the SAME label. Reuse labels across ads — normalize consistently.
-
-**FORMAT CLASSIFICATION RULES:**
-- The "displayFormat" field is RELIABLE — trust it for format classification.
-- If displayFormat is "video", classify as "video" or "reel".
-- If displayFormat is "carousel", classify as "carousel".
-- If displayFormat is "image", classify as "static-image".
-
-Ads to classify:
-${JSON.stringify(enrichedSummaries, null, 2)}
-
-Return a JSON array with one object per ad:
-[
-  {
-    "adId": "the ad's adId",
-    "format": "one of the format values",
-    "tone": "one of the tone values",
-    "journeyPhase": "one of the journey values",
-    "visualStyle": "one of the visual values",
-    "messenger": "one of the messenger values",
-    "hookScore": 7,
-    "conceptCluster": "discount-offer"
-  }
-]
-
-Return ONLY valid JSON, no markdown.`,
-        },
-      ],
-    });
-
-    const classifyText = classifyResponse.content
-      .filter((b): b is Anthropic.TextBlock => b.type === 'text')
-      .map((b) => b.text)
-      .join('');
-
-    const classifyJson = classifyText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const classifications: Classification[] = JSON.parse(classifyJson);
-
-    // -----------------------------------------------------------------------
-    // Build pillar distribution
-    // -----------------------------------------------------------------------
-
-    const distribution: PillarDistribution = {
-      format: {},
-      tone: {},
-      journeyPhase: {},
-      visualStyle: {},
-      messenger: {},
+    const distribution: CategoryDistribution = {
+      assetType: {},
+      visualFormat: {},
+      hookTactic: {},
+      messagingAngle: {},
+      awarenessStage: {},
+      creativeMechanic: {},
+      offerType: {},
+      intendedAudience: {},
     };
 
     for (const c of classifications) {
-      distribution.format[c.format] = (distribution.format[c.format] || 0) + 1;
-      distribution.tone[c.tone] = (distribution.tone[c.tone] || 0) + 1;
-      distribution.journeyPhase[c.journeyPhase] = (distribution.journeyPhase[c.journeyPhase] || 0) + 1;
-      distribution.visualStyle[c.visualStyle] = (distribution.visualStyle[c.visualStyle] || 0) + 1;
-      distribution.messenger[c.messenger] = (distribution.messenger[c.messenger] || 0) + 1;
+      for (const key of CATEGORY_KEYS) {
+        const value = c[key];
+        if (value) {
+          distribution[key][value] = (distribution[key][value] || 0) + 1;
+        }
+      }
     }
 
     // Diversity scores (Shannon entropy normalized)
@@ -261,26 +195,22 @@ Return ONLY valid JSON, no markdown.`,
       return Math.round((entropy / maxEntropy) * 100);
     };
 
-    const diversityScores = {
-      format: calcDiversityScore(distribution.format, 6),
-      tone: calcDiversityScore(distribution.tone, 8),
-      journeyPhase: calcDiversityScore(distribution.journeyPhase, 3),
-      visualStyle: calcDiversityScore(distribution.visualStyle, 8),
-      messenger: calcDiversityScore(distribution.messenger, 5),
-      overall: 0,
-    };
+    const diversityScores: Record<CategoryKey | 'overall', number> = {} as Record<CategoryKey | 'overall', number>;
+    for (const key of CATEGORY_KEYS) {
+      const maxCats = TAXONOMY[key].values.length;
+      diversityScores[key] = calcDiversityScore(distribution[key], maxCats);
+    }
     diversityScores.overall = Math.round(
-      (diversityScores.format + diversityScores.tone + diversityScores.journeyPhase +
-        diversityScores.visualStyle + diversityScores.messenger) / 5
+      CATEGORY_KEYS.reduce((sum, k) => sum + diversityScores[k], 0) / CATEGORY_KEYS.length
     );
 
     // -----------------------------------------------------------------------
-    // Compute AI-dependent metrics from classifications
+    // Compute metrics from stored classifications
     // -----------------------------------------------------------------------
 
     // Hook Quality
     const hookScores = classifications.map((c) => {
-      const ad = ads.find((a) => a.adId === c.adId);
+      const ad = ads.find((a) => a.id === c.adId);
       const firstLine = (ad?.body || '').split(/[.\n!?]/)[0]?.trim() || '';
       return { adId: c.adId, score: c.hookScore || 3, firstLine };
     });
@@ -314,12 +244,25 @@ Return ONLY valid JSON, no markdown.`,
       : 0;
     const redundancyFlag = dominantPercentage > 60;
 
-    // Funnel Balance
-    const jp = distribution.journeyPhase;
-    const jpTotal = Object.values(jp).reduce((s, v) => s + v, 0);
-    const awarenessRatio = jpTotal > 0 ? (jp['awareness'] || 0) / jpTotal : 0;
-    const considerationRatio = jpTotal > 0 ? (jp['consideration'] || 0) / jpTotal : 0;
-    const conversionRatio = jpTotal > 0 ? (jp['conversion'] || 0) / jpTotal : 0;
+    // Funnel Balance (map 5 Schwartz awareness stages to 3 funnel buckets)
+    const funnelMap: Record<string, 'awareness' | 'consideration' | 'conversion'> = {
+      'unaware': 'awareness',
+      'problem-aware': 'awareness',
+      'solution-aware': 'consideration',
+      'product-aware': 'consideration',
+      'most-aware': 'conversion',
+    };
+    let awarenessCount = 0, considerationCount = 0, conversionCount = 0;
+    for (const c of classifications) {
+      const bucket = funnelMap[c.awarenessStage] || 'awareness';
+      if (bucket === 'awareness') awarenessCount++;
+      else if (bucket === 'consideration') considerationCount++;
+      else conversionCount++;
+    }
+    const total = classifications.length;
+    const awarenessRatio = total > 0 ? awarenessCount / total : 0;
+    const considerationRatio = total > 0 ? considerationCount / total : 0;
+    const conversionRatio = total > 0 ? conversionCount / total : 0;
     // Ideal ~40/30/30, compute deviation (0 = perfect, 1 = terrible)
     const funnelDeviation =
       Math.abs(awarenessRatio - 0.4) + Math.abs(considerationRatio - 0.3) + Math.abs(conversionRatio - 0.3);
@@ -387,8 +330,13 @@ Return ONLY valid JSON, no markdown.`,
     };
 
     // -----------------------------------------------------------------------
-    // Claude Call 2: Recommendations (with Andromeda metrics context)
+    // Claude Call: Recommendations (with 8-category taxonomy context)
     // -----------------------------------------------------------------------
+
+    const distributionSummary = CATEGORY_KEYS.map((key) => {
+      const label = TAXONOMY[key].description;
+      return `- ${key} (${label}): ${JSON.stringify(distribution[key])}`;
+    }).join('\n');
 
     const recResponse = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -398,12 +346,8 @@ Return ONLY valid JSON, no markdown.`,
           role: 'user',
           content: `You are an expert Meta Ads strategist specializing in Andromeda optimization. Based on this comprehensive creative analysis for "${brand.pageName}", identify gaps and recommend new creatives.
 
-**Five Pillars Distribution (${classifications.length} ads analyzed):**
-- FORMAT: ${JSON.stringify(distribution.format)}
-- TONE: ${JSON.stringify(distribution.tone)}
-- JOURNEY PHASE: ${JSON.stringify(distribution.journeyPhase)}
-- VISUAL STYLE: ${JSON.stringify(distribution.visualStyle)}
-- MESSENGER: ${JSON.stringify(distribution.messenger)}
+**Creative Taxonomy Distribution — 8 dimensions (${classifications.length} ads analyzed):**
+${distributionSummary}
 
 **Diversity Scores (0-100):**
 ${JSON.stringify(diversityScores, null, 2)}
@@ -426,7 +370,7 @@ ${JSON.stringify(diversityScores, null, 2)}
 - Use 3+ different CTA types
 - Mix short and long copy for different placements
 
-Generate exactly 7 recommendations. At least 2 should address Andromeda-specific issues (refresh rate, hook quality, concept redundancy, funnel balance, etc.) and the rest should address Five Pillar gaps.
+Generate exactly 7 recommendations. At least 2 should address Andromeda-specific issues (refresh rate, hook quality, concept redundancy, funnel balance, etc.) and the rest should address taxonomy dimension gaps.
 
 Return JSON:
 {
@@ -435,7 +379,7 @@ Return JSON:
   "andromedaScore": 0-100 score for overall Andromeda best practice compliance,
   "recommendations": [
     {
-      "pillar": "format | tone | journeyPhase | visualStyle | messenger | refreshRate | hookQuality | conceptDiversity | funnelBalance | ctaDiversity | copyLength",
+      "pillar": "assetType | visualFormat | hookTactic | messagingAngle | awarenessStage | creativeMechanic | offerType | intendedAudience | refreshRate | hookQuality | conceptDiversity | funnelBalance | ctaDiversity | copyLength",
       "gap": "what's missing (1 sentence)",
       "suggestion": "what to create (1 sentence)",
       "briefTitle": "creative brief title",
@@ -464,11 +408,14 @@ Return ONLY valid JSON, no markdown.`,
       await prisma.brandAnalysisCache.upsert({
         where: { brandId: brand.id },
         update: {
-          formatScore: diversityScores.format,
-          toneScore: diversityScores.tone,
-          journeyPhaseScore: diversityScores.journeyPhase,
-          visualStyleScore: diversityScores.visualStyle,
-          messengerScore: diversityScores.messenger,
+          assetTypeScore: diversityScores.assetType,
+          visualFormatScore: diversityScores.visualFormat,
+          hookTacticScore: diversityScores.hookTactic,
+          messagingAngleScore: diversityScores.messagingAngle,
+          awarenessStageScore: diversityScores.awarenessStage,
+          creativeMechanicScore: diversityScores.creativeMechanic,
+          offerTypeScore: diversityScores.offerType,
+          intendedAudienceScore: diversityScores.intendedAudience,
           overallScore: diversityScores.overall,
           andromedaScore: recommendations.andromedaScore || 0,
           avgRefreshRate,
@@ -485,11 +432,14 @@ Return ONLY valid JSON, no markdown.`,
         },
         create: {
           brandId: brand.id,
-          formatScore: diversityScores.format,
-          toneScore: diversityScores.tone,
-          journeyPhaseScore: diversityScores.journeyPhase,
-          visualStyleScore: diversityScores.visualStyle,
-          messengerScore: diversityScores.messenger,
+          assetTypeScore: diversityScores.assetType,
+          visualFormatScore: diversityScores.visualFormat,
+          hookTacticScore: diversityScores.hookTactic,
+          messagingAngleScore: diversityScores.messagingAngle,
+          awarenessStageScore: diversityScores.awarenessStage,
+          creativeMechanicScore: diversityScores.creativeMechanic,
+          offerTypeScore: diversityScores.offerType,
+          intendedAudienceScore: diversityScores.intendedAudience,
           overallScore: diversityScores.overall,
           andromedaScore: recommendations.andromedaScore || 0,
           avgRefreshRate,
@@ -512,20 +462,12 @@ Return ONLY valid JSON, no markdown.`,
       brandName: brand.pageName,
       category: brand.category,
       totalAdsAnalyzed: classifications.length,
+      classifiedCount: classifications.length,
+      totalAds: ads.length,
       distribution,
       diversityScores,
       andromedaMetrics,
       andromedaScore: recommendations.andromedaScore || 0,
-      classifications: classifications.map((c) => ({
-        adId: c.adId,
-        format: c.format,
-        tone: c.tone,
-        journeyPhase: c.journeyPhase,
-        visualStyle: c.visualStyle,
-        messenger: c.messenger,
-        hookScore: c.hookScore,
-        conceptCluster: c.conceptCluster,
-      })),
       summary: recommendations.summary,
       biggestGap: recommendations.biggestGap,
       recommendations: recommendations.recommendations,
