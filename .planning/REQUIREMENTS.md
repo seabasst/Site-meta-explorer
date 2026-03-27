@@ -77,9 +77,9 @@ Which phases cover which requirements. Updated by create-roadmap.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CLSF-01 | Phase 63 | Pending |
-| CLSF-02 | Phase 62 | Pending |
+| CLSF-02 | Phase 62 | Complete |
 | CLSF-03 | Phase 63 | Pending |
-| CLSF-04 | Phase 62 | Pending |
+| CLSF-04 | Phase 62 | Complete |
 | CLSF-05 | Phase 63 | Pending |
 | CLSF-06 | Phase 64 | Pending |
 | BRND-01 | Phase 66 | Pending |
@@ -100,4 +100,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-03-27*
-*Last updated: 2026-03-27 after v8.0 scope definition*
+*Last updated: 2026-03-27 — Phase 62 requirements marked Complete*
