@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { computeCategoryAvgDistribution, computeValueIndices } from '@/lib/classification/benchmark-utils';
+import { CATEGORY_KEYS, type CategoryKey } from '@/lib/classification/taxonomy';
 
 export const dynamic = 'force-dynamic';
 
@@ -125,7 +127,18 @@ export async function POST(request: NextRequest) {
       funnelConversion: avgInt(poolForAverages.map((a) => a.funnelConversion)),
     };
 
-    // 6. Compute per-pillar indexing
+    // 6. Compute distribution comparison (per-value index scores)
+    const categoryAvgDist = computeCategoryAvgDistribution(poolForAverages);
+    const brandDistJson = brandCache.distributionJson as Record<string, Record<string, number>> | null;
+
+    const distributionComparison: Record<string, import('@/lib/classification/benchmark-utils').ValueIndex[]> = {};
+    for (const key of CATEGORY_KEYS) {
+      const brandDist = brandDistJson?.[key] ?? {};
+      const catAvgDist = categoryAvgDist[key] ?? {};
+      distributionComparison[key] = computeValueIndices(brandDist, catAvgDist, key as CategoryKey);
+    }
+
+    // 7. Compute per-pillar indexing
     const indexing = {
       assetType: computeIndex(brandCache.assetTypeScore, avgScores.assetType),
       visualFormat: computeIndex(brandCache.visualFormatScore, avgScores.visualFormat),
@@ -139,7 +152,7 @@ export async function POST(request: NextRequest) {
       andromeda: computeIndex(brandCache.andromedaScore, avgAndromedaScore),
     };
 
-    // 7. Generate recommendations based on indexing
+    // 8. Generate recommendations based on indexing
     const categoryLabels: Record<string, { brandScore: number; categoryAvg: number }> = {
       assetType: { brandScore: brandCache.assetTypeScore, categoryAvg: avgScores.assetType },
       visualFormat: { brandScore: brandCache.visualFormatScore, categoryAvg: avgScores.visualFormat },
@@ -183,7 +196,7 @@ export async function POST(request: NextRequest) {
     gaps.sort((a, b) => a.diff - b.diff);
     strengths.sort((a, b) => b.diff - a.diff);
 
-    // 8. Build response
+    // 9. Build response
     const categorySlug = category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
     return Response.json({
@@ -222,6 +235,7 @@ export async function POST(request: NextRequest) {
         avgMetrics,
       },
       indexing,
+      distributionComparison,
       gaps,
       strengths,
       analyzedAt: brandCache.analyzedAt.toISOString(),
