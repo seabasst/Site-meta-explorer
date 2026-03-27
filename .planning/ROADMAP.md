@@ -78,13 +78,17 @@ Phases 55-61 — Creative analysis, AI generation, UGC briefs, brand guidelines,
 **Goal**: Define the classification data model and taxonomy that all downstream features depend on
 **Depends on**: Nothing (first phase)
 **Requirements**: CLSF-02, CLSF-04
-**Research flag**: Likely — taxonomy validation spike needed (classify 50 sample ads, measure accuracy)
+**Plans:** 2 plans
+
+Plans:
+- [ ] 62-01-PLAN.md — Prisma models (AdClassification, ClassificationJob, ApiCostLog) + taxonomy + Zod schemas
+- [ ] 62-02-PLAN.md — Classification prompt with few-shot examples + cost tracker utility
+
 **Success Criteria** (what must be TRUE):
   1. AdClassification, ClassificationJob, and ApiCostLog Prisma models exist with indexed columns (not JSON blobs)
   2. Classification taxonomy is defined with ~8-10 categories and ~10 tags each (visual format, hook tactic, messaging angle, awareness stage, creative mechanic, offer type, intended audience, asset type)
   3. Classification prompt with few-shot examples produces consistent results across sample ads
   4. Cost tracker utility can log API spend per classification job
-**Plans**: TBD
 
 ### Phase 63: Classification Pipeline
 **Goal**: Users can classify individual ads on-demand and trigger batch classification of entire brands
@@ -152,7 +156,7 @@ Phases execute in numeric order: 62 → 63 → 64 → 65 → 66 → 67
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 62. Classification Foundation | 0/TBD | Not started | — |
+| 62. Classification Foundation | 0/2 | Planning complete | — |
 | 63. Classification Pipeline | 0/TBD | Not started | — |
 | 64. Diversity Refactor | 0/TBD | Not started | — |
 | 65. Classification UI | 0/TBD | Not started | — |
@@ -160,4 +164,4 @@ Phases execute in numeric order: 62 → 63 → 64 → 65 → 66 → 67
 | 67. Category Benchmarking | 0/TBD | Not started | — |
 
 ---
-*Last updated: 2026-03-27 — v8.0 roadmap created*
+*Last updated: 2026-03-27 — Phase 62 planned (2 plans)*
