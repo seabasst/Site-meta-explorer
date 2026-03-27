@@ -52,6 +52,16 @@ export interface Ad {
     downloadStatus: string;
     position: number;
   }[];
+  classification: {
+    assetType: string;
+    visualFormat: string;
+    hookTactic: string;
+    messagingAngle: string;
+    awarenessStage: string;
+    creativeMechanic: string;
+    offerType: string;
+    intendedAudience: string;
+  } | null;
 }
 
 export interface PaginationData {

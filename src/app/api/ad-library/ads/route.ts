@@ -78,6 +78,16 @@ interface AdLibraryAdResponse {
     downloadStatus: string;
     position: number;
   }[];
+  classification: {
+    assetType: string;
+    visualFormat: string;
+    hookTactic: string;
+    messagingAngle: string;
+    awarenessStage: string;
+    creativeMechanic: string;
+    offerType: string;
+    intendedAudience: string;
+  } | null;
 }
 
 interface FilteredStatsResponse {
@@ -252,6 +262,8 @@ function buildWhereClause(filters: AdLibraryAdFilters): Prisma.AdLibraryAdWhereI
   // Bylines (partnership) filter
   if (filters.hasBylines === true) {
     where.bylines = { not: null };
+    // Partnership ads may not have downloaded assets yet — relax the asset requirement
+    delete where.assets;
   } else if (filters.hasBylines === false) {
     where.bylines = null;
   }
@@ -374,6 +386,18 @@ export async function GET(request: NextRequest) {
               position: true,
             },
             orderBy: { position: 'asc' },
+          },
+          classification: {
+            select: {
+              assetType: true,
+              visualFormat: true,
+              hookTactic: true,
+              messagingAngle: true,
+              awarenessStage: true,
+              creativeMechanic: true,
+              offerType: true,
+              intendedAudience: true,
+            },
           },
         },
       }),
