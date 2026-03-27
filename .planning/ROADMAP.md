@@ -59,7 +59,7 @@ Phases 55-61 — Creative analysis, AI generation, UGC briefs, brand guidelines,
 
 ---
 
-### 🚧 v8.0 Creative Strategy Engine (In Progress)
+### v8.0 Creative Strategy Engine (In Progress)
 
 **Milestone Goal:** Replace Five Pillars with Motion-powered ad classification, then build competitor-grounded strategy generation and category benchmarking on top.
 
@@ -67,7 +67,7 @@ Phases 55-61 — Creative analysis, AI generation, UGC briefs, brand guidelines,
 
 - [x] **Phase 62: Classification Foundation** - Prisma models, taxonomy definition, cost tracking utility
 - [x] **Phase 63: Classification Pipeline** - On-demand single-ad + Anthropic Batch API bulk classification
-- [ ] **Phase 64: Diversity Refactor** - Rewrite diversity route to read stored classifications instead of re-classifying
+- [x] **Phase 64: Diversity Refactor** - Rewrite diversity route to read stored classifications instead of re-classifying
 - [ ] **Phase 65: Classification UI** - Distribution charts per dimension + classification tags in ad detail
 - [ ] **Phase 66: Strategy Engine** - Brand context auto-populate, gap matrix, concept generation from gaps
 - [ ] **Phase 67: Category Benchmarking** - Brand vs category comparison across classification dimensions
@@ -131,7 +131,11 @@ Plans:
   1. User sees distribution bar charts per classification dimension (e.g., "30% testimonial, 5% listicle")
   2. Individual ads display their classification tags in ad detail view
   3. Brand classification coverage is visible (X of Y ads classified)
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 65-01-PLAN.md — Distribution charts + coverage indicator on brand detail page
+- [ ] 65-02-PLAN.md — Classification tags in ad detail lightbox
 
 ### Phase 66: Strategy Engine
 **Goal**: Users can analyze any brand's creative strategy and generate concepts that fill identified gaps
@@ -167,9 +171,9 @@ Phases execute in numeric order: 62 → 63 → 64 → 65 → 66 → 67
 | 62. Classification Foundation | 2/2 | ✓ Complete | 2026-03-27 |
 | 63. Classification Pipeline | 2/2 | ✓ Complete | 2026-03-27 |
 | 64. Diversity Refactor | 2/2 | ✓ Complete | 2026-03-27 |
-| 65. Classification UI | 0/TBD | Not started | — |
+| 65. Classification UI | 0/2 | Not started | — |
 | 66. Strategy Engine | 0/TBD | Not started | — |
 | 67. Category Benchmarking | 0/TBD | Not started | — |
 
 ---
-*Last updated: 2026-03-27 — Phase 64 complete*
+*Last updated: 2026-03-27 — Phase 65 planned*
