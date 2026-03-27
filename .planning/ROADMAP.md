@@ -158,12 +158,16 @@ Plans:
 **Goal**: Users can compare a brand's creative strategy against category averages
 **Depends on**: Phase 66 (strategy engine provides the per-brand data)
 **Requirements**: BNCH-01, BNCH-02
-**Research flag**: Likely — evaluate data coverage (brands per category with enough classified ads)
+**Plans:** 2 plans
+
+Plans:
+- [ ] 67-01-PLAN.md — Benchmark utils + API extension (distribution comparison + index scores)
+- [ ] 67-02-PLAN.md — Distribution comparison UI in BenchmarkComparison component
+
 **Success Criteria** (what must be TRUE):
   1. User can compare a brand's classification dimension distribution against category averages
   2. Comparison shows index scores (e.g., "2x over-indexed on testimonials, 0.5x under-indexed on listicles")
   3. Category averages are computed from all classified brands in that category
-**Plans**: TBD
 
 ## Progress
 
@@ -177,7 +181,7 @@ Phases execute in numeric order: 62 → 63 → 64 → 65 → 66 → 67
 | 64. Diversity Refactor | 2/2 | ✓ Complete | 2026-03-27 |
 | 65. Classification UI | 2/2 | ✓ Complete | 2026-03-27 |
 | 66. Strategy Engine | 2/2 | ✓ Complete | 2026-03-27 |
-| 67. Category Benchmarking | 0/TBD | Not started | — |
+| 67. Category Benchmarking | 0/2 | Not started | — |
 
 ---
-*Last updated: 2026-03-27 — Phase 66 complete*
+*Last updated: 2026-03-27 — Phase 67 planned*
