@@ -1,375 +1,692 @@
-# Architecture Research
+# Architecture Research -- Creative Strategy Engine (v8.0)
 
-**Domain:** Ad intelligence platform -- visual consistency / design system unification
-**Researched:** 2026-03-18
-**Confidence:** HIGH (based on direct codebase analysis + established Tailwind v4 patterns)
+**Researched:** 2026-03-27
+**Overall confidence:** HIGH (based on existing codebase analysis + verified API documentation)
 
-## Current State Analysis
+## Executive Summary
 
-The app has **three distinct styling regimes** that need unification:
+The v8.0 Creative Strategy Engine adds vision-based ad classification, a multi-step strategy generation pipeline, and gap analysis to the existing ad intelligence platform. The key architectural challenge is handling vision classification of potentially thousands of ads per brand within Vercel's serverless constraints (60s hobby / 300s pro timeout) while controlling Claude Vision API costs (~$4.80 per 1,000 images at standard rates, ~$2.40 with Batch API).
 
-| Surface | Route | Theme Mechanism | Color Palette | Dark Mode |
-|---------|-------|-----------------|---------------|-----------|
-| V1 Analyser | `/analyser` | CSS custom properties (`var(--bg-primary)`, `var(--accent-green)`, etc.) | Green/amber Kiri Media brand (`#1a3933`, `#f59e0b`) | None |
-| V2 Dashboard | `/dashboard/v2/*` | Hardcoded Tailwind classes with ternary (`darkMode ? 'bg-[#101322]' : 'bg-[#f6f6f8]'`) | Blue Ad Library Pro (`#1235e2`, `#101322`, `#f6f6f8`) | Yes, via React context (`useV2().darkMode`) |
-| Landing Page | `/` | Hardcoded Tailwind classes | Blue (`#1235e2`, dark bg `#101322`) | Forced dark |
+The existing codebase already has a strong pattern to follow: the `/api/analyze/diversity` route classifies up to 100 ads via text-only Claude calls in a single request, and `/api/analyze` route does per-ad Vision analysis with batched `Promise.allSettled` calls. The v8.0 architecture should formalize these into a proper job queue with persistent classification results (not ephemeral like the current diversity route), and introduce the Anthropic Message Batches API for bulk historical classification.
 
-**Key problems:**
-1. V1 uses CSS custom properties defined in `globals.css` -- a green/amber palette completely different from V2's blue palette
-2. V2 has 385 occurrences of hardcoded hex values (`#1235e2`, `#101322`, `#f6f6f8`) across 31 files
-3. V1 analyser has 163 occurrences of `var(--` referencing the old Kiri Media green tokens
-4. Dark mode is V2-only, managed by React state (`V2Context`) not CSS class -- incompatible with the `.dark` variant already configured in `globals.css`
-5. Landing page and V2 already share the blue palette visually, but with no shared token layer
+The strategy generation pipeline (`/api/creative-lab/generate-strategy`) already implements a 3-step sequential pattern (Brand Profile -> Messaging Strategy -> Ad Hooks). v8.0 extends this with classification data as input, adds mechanics/formats dimensions, and introduces gap analysis. The existing `BrandStrategy` model already has `mechanics` and `formats` JSON columns reserved for this.
 
 ## System Overview
 
+### Component Diagram (ASCII)
+
 ```
-                    PROPOSED ARCHITECTURE
-  +----------------------------------------------------------+
-  |  globals.css                                              |
-  |  :root { --brand: #1235e2; --bg-dark: #101322; ... }     |
-  |  .dark { --brand: #1235e2; --bg-dark: ...; ... }          |
-  +----------------------------------------------------------+
-         |                    |                    |
-  +------v------+    +-------v-------+    +-------v-------+
-  | Landing (/) |    | Analyser (/a) |    | Dashboard (/d)|
-  | forced dark |    | uses tokens   |    | uses tokens   |
-  | no shell    |    | + top nav     |    | + sidebar     |
-  +-------------+    +-------+-------+    +-------+-------+
-                             |                    |
-                     +-------v--------------------v-------+
-                     |  Shared Components                  |
-                     |  - AppHeader (top nav bar)          |
-                     |  - ThemeToggle                      |
-                     |  - V2Card, V2SectionTitle           |
-                     |  - Chart wrappers                   |
-                     +-------------------------------------+
++------------------------------------------------------------------+
+|                        FRONTEND (React 19)                        |
+|                                                                   |
+|  [Brand Search] -> [Analysis View] -> [Strategy View]            |
+|       |                  |                    |                   |
+|       v                  v                    v                   |
+|  /api/creative-lab/  /api/analyze/       /api/creative-lab/      |
+|  scrape-brand        diversity           generate-strategy       |
++------------------------------------------------------------------+
+         |                  |                    |
+         v                  v                    v
++------------------------------------------------------------------+
+|                      API LAYER (Next.js Routes)                   |
+|                                                                   |
+|  NEW ROUTES:                                                      |
+|  /api/classify/vision    -- single-ad vision classification      |
+|  /api/classify/batch     -- trigger batch job for brand          |
+|  /api/classify/status    -- poll batch job status                |
+|  /api/classify/cron      -- cron-triggered batch processor       |
+|                                                                   |
+|  EXTENDED ROUTES:                                                 |
+|  /api/analyze/diversity  -- use stored classifications (no AI)   |
+|  /api/creative-lab/generate-strategy  -- add steps 4-6           |
++------------------------------------------------------------------+
+         |                  |                    |
+         v                  v                    v
++------------------------------------------------------------------+
+|                    SERVICE LAYER (src/lib/)                        |
+|                                                                   |
+|  NEW:                                                             |
+|  src/lib/classification.ts    -- classification logic + schemas  |
+|  src/lib/batch-classifier.ts  -- Anthropic Batch API wrapper     |
+|  src/lib/strategy-engine.ts   -- strategy pipeline orchestration |
+|  src/lib/cost-tracker.ts      -- API cost tracking & limits      |
+|                                                                   |
+|  EXISTING:                                                        |
+|  src/lib/prisma.ts            -- DB client                       |
++------------------------------------------------------------------+
+         |                                       |
+         v                                       v
++----------------------------+    +----------------------------+
+|     Neon PostgreSQL        |    |   Anthropic Claude API     |
+|                            |    |                            |
+|  AdClassification (NEW)    |    |  Vision: Haiku 4.5         |
+|  ClassificationJob (NEW)   |    |  Strategy: Sonnet 4        |
+|  BrandStrategy (EXTEND)    |    |  Batch API: 50% discount   |
+|  AdLibraryAd (existing)    |    |                            |
+|  AdAsset (existing)        |    +----------------------------+
++----------------------------+               |
+         |                                   v
+         |                    +----------------------------+
+         |                    |   Cloudflare R2            |
+         |                    |   (ad images/videos)       |
+         +--------------------+   PUBLIC_URL used as       |
+                              |   source for Vision API    |
+                              +----------------------------+
 ```
 
-## Component Responsibilities
+### Data Flow
 
-| Component | Responsibility | Current Location | Action |
-|-----------|---------------|------------------|--------|
-| `globals.css` tokens | Single source of truth for all colors, spacing, radii | `src/app/globals.css` | **Rewrite** -- replace green Kiri tokens with blue Ad Library Pro tokens |
-| `ThemeProvider` | Manages dark/light mode via CSS class on `<html>` | Does not exist (V2 uses React state) | **Create** -- replace `V2Context.darkMode` with class-based toggle |
-| `AppHeader` | Shared top navigation bar across analyser + landing | Does not exist (each page has its own nav) | **Create** -- extract from landing-nav + analyser nav |
-| `V2Shell` | Dashboard sidebar + header layout | `src/app/dashboard/v2/v2-shell.tsx` | **Refactor** -- consume tokens instead of hardcoded hex |
-| `V2Card` | Reusable card with theme-aware styling | `src/app/dashboard/v2/v2-shell.tsx` | **Migrate** to `src/components/ui/card.tsx`, consume tokens |
-| `LandingNav` | Landing page top nav | `src/components/landing/landing-nav.tsx` | **Replace** with `AppHeader` or thin wrapper around it |
-| Analyser nav | Inline nav in analyser page | `src/app/analyser/page.tsx` (lines 435-525) | **Replace** with `AppHeader` |
+**Flow 1: Single Ad Classification (on-demand)**
+```
+User views ad detail
+  -> Frontend requests classification
+  -> GET /api/classify/vision?adId=xxx
+  -> Check AdClassification cache in DB
+  -> IF cached: return immediately
+  -> IF not cached:
+     -> Fetch AdAsset.storedUrl from R2
+     -> Call Claude Haiku 4.5 Vision with image URL
+     -> Parse structured classification JSON
+     -> Store in AdClassification table
+     -> Return to frontend
+  -> ~2-4 seconds per ad
+```
 
-## Recommended Structure for Shared Design System
+**Flow 2: Brand Batch Classification (background)**
+```
+User clicks "Analyze Brand" or cron triggers
+  -> POST /api/classify/batch { brandId, mode: "uncached" }
+  -> Create ClassificationJob record (status: "queued")
+  -> Return jobId immediately to frontend
+  -> Use after() to continue processing:
+     -> Fetch all unclassified ads for brand
+     -> Build Anthropic Batch API request (up to 10,000 items)
+     -> Submit batch to Anthropic (async, ~1 hour processing)
+     -> Store batchId in ClassificationJob
+  -> Frontend polls GET /api/classify/status?jobId=xxx
+  -> Cron route /api/classify/cron polls Anthropic batch status
+     -> When complete: parse results, upsert AdClassification rows
+     -> Update ClassificationJob status to "completed"
+```
 
-### Layer 1: Design Tokens in CSS Custom Properties
+**Flow 3: Strategy Generation Pipeline (sequential)**
+```
+Step 1: Brand Profile (existing, extends)
+  -> Auto-generate from DB data + classification aggregates
+  -> No AI call needed (pure computation)
 
-This is the foundation. All colors, surfaces, borders referenced via tokens -- never hardcoded hex in component classNames.
+Step 2: Messaging Strategy (existing)
+  -> Claude Sonnet call with brand context + classification gaps
+  -> Stores strategyMatrix JSON
 
-```css
-/* globals.css -- REPLACE existing :root block */
-:root {
-  /* Brand */
-  --brand: #1235e2;
-  --brand-hover: #0f2bc0;
-  --brand-subtle: rgba(18, 53, 226, 0.1);
-  --brand-muted: rgba(18, 53, 226, 0.05);
+Step 3: Ad Hooks (existing)
+  -> Claude Sonnet call with strategy context
+  -> Stores hooks JSON
 
-  /* Surfaces -- light mode */
-  --surface-page: #f6f6f8;
-  --surface-card: #ffffff;
-  --surface-elevated: #ffffff;
-  --surface-overlay: rgba(255, 255, 255, 0.9);
+Step 4: Creative Mechanics (NEW)
+  -> Input: classification distribution + gaps
+  -> Claude Sonnet call with awareness stage gaps
+  -> Stores mechanics JSON in BrandStrategy
 
-  /* Text */
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --text-inverse: #ffffff;
+Step 5: Visual Formats (NEW)
+  -> Input: format distribution + gaps
+  -> Claude Sonnet call with format recommendations
+  -> Stores formats JSON in BrandStrategy
 
-  /* Borders */
-  --border-default: #e2e8f0;
-  --border-subtle: rgba(0, 0, 0, 0.06);
-  --border-brand: rgba(18, 53, 226, 0.2);
+Step 6: Gap Analysis Report (NEW)
+  -> Pure computation: compare brand classification
+    distribution against category benchmarks
+  -> No AI call needed
+  -> Returns structured gap report
+```
 
-  /* Semantic */
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --error: #ef4444;
+## Classification Pipeline
+
+### Where It Runs
+
+**Recommendation: Two-tier approach.**
+
+**Tier 1 -- On-demand single-ad classification (API route, synchronous)**
+- Runs in a standard Next.js API route
+- Uses Claude Haiku 4.5 Vision (cheapest vision model, ~$0.00016/image at 200x200, ~$0.004/image at 1000x1000)
+- Timeout: well within 60s (single Vision call takes 2-4s)
+- Triggered: when user views an ad that lacks classification
+- Caches result in `AdClassification` table
+
+**Tier 2 -- Brand batch classification (Anthropic Batch API, asynchronous)**
+- Triggered by user action ("Classify all ads for brand X") or cron
+- Uses Anthropic Message Batches API for 50% cost reduction
+- Does NOT run in a serverless function -- submits batch and returns
+- Polling via cron route (`/api/classify/cron`) every 5 minutes
+- Batch typically completes in <1 hour for hundreds of ads
+- Results stored in `AdClassification` table
+
+**Why NOT a separate service:**
+- The existing pattern (API routes + cron) works for this scale
+- Adding a separate service (e.g., a long-running worker on Railway/Fly) adds deployment complexity for marginal benefit
+- The Anthropic Batch API offloads the actual processing -- Vercel just submits and polls
+- If scale exceeds ~50,000 ads total, reconsider (but current DB has thousands, not millions)
+
+### How It Scales
+
+| Scale | Approach | Est. Time | Est. Cost |
+|-------|----------|-----------|-----------|
+| 1 ad | On-demand Vision call | 2-4s | ~$0.005 |
+| 10-50 ads | On-demand with `Promise.allSettled` batches of 5 | 20-40s | ~$0.05-0.25 |
+| 50-500 ads | Anthropic Batch API | <1 hour | ~$0.12-1.20 (50% discount) |
+| 500-5000 ads | Anthropic Batch API | <1 hour | ~$1.20-12.00 (50% discount) |
+| 5000+ ads | Anthropic Batch API, split into multiple batches | <2 hours | ~$12+ |
+
+**Note:** Cost estimates assume ~1000x1000 px images (~1,334 tokens each) using Haiku 4.5 pricing. Actual costs depend on image sizes and output tokens.
+
+### Cost Controls
+
+**Architecture for cost management:**
+
+```
++-----------------------------------------------------------+
+|                    COST CONTROL LAYER                      |
+|                                                           |
+|  1. Classification Cache (DB)                             |
+|     -> Never re-classify an already-classified ad         |
+|     -> AdClassification has classifiedAt timestamp        |
+|     -> Reclassify only if schema version changes          |
+|                                                           |
+|  2. Daily Budget Tracker (DB or in-memory)                |
+|     -> Track tokens consumed per day                      |
+|     -> Hard cap: e.g., $20/day for Vision calls           |
+|     -> Soft cap: e.g., $10/day triggers warning           |
+|                                                           |
+|  3. Model Selection Strategy                              |
+|     -> Vision classification: Haiku 4.5 (cheapest)       |
+|     -> Strategy generation: Sonnet 4 (existing)           |
+|     -> Batch jobs: Batch API (50% discount)               |
+|                                                           |
+|  4. Image Optimization                                    |
+|     -> Resize to max 1092x1092 before sending             |
+|     -> Use URL source (R2 public URL) not base64          |
+|     -> Skip video ads (text-only classification)          |
+|                                                           |
+|  5. Prompt Caching                                        |
+|     -> Classification prompt is identical across ads      |
+|     -> System prompt + taxonomy cached (90% discount)     |
+|     -> Only image + ad metadata varies per request        |
++-----------------------------------------------------------+
+```
+
+**Implementation: `CostTracker` model in DB:**
+
+```prisma
+model ApiCostLog {
+  id          String   @id @default(cuid())
+  date        DateTime @default(now()) @db.Date
+  model       String   // "claude-haiku-4.5", "claude-sonnet-4"
+  operation   String   // "classify-vision", "classify-batch", "strategy-gen"
+  inputTokens  Int
+  outputTokens Int
+  estimatedCost Float  // in USD
+  brandId     String?
+
+  @@index([date, operation])
+}
+```
+
+**Daily budget check before each API call:**
+```typescript
+async function checkBudget(operation: string): Promise<boolean> {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const spent = await prisma.apiCostLog.aggregate({
+    where: { date: { gte: today } },
+    _sum: { estimatedCost: true },
+  });
+  return (spent._sum.estimatedCost || 0) < DAILY_BUDGET_USD;
+}
+```
+
+## Data Model
+
+### New Prisma Models
+
+```prisma
+// =============================================================================
+// v8.0 Vision Classification
+// =============================================================================
+
+model AdClassification {
+  id    String @id @default(cuid())
+  adId  String @unique
+  ad    AdLibraryAd @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  // Visual Format (46 formats -> grouped into categories)
+  visualFormat      String   // e.g., "static-product-shot", "ugc-testimonial", "motion-graphic"
+  visualFormatGroup String   // e.g., "static", "ugc", "motion", "editorial"
+
+  // Creative Mechanic (8 mechanics)
+  creativeMechanic  String   // e.g., "before-after", "problem-solution", "demo", "unboxing"
+
+  // Hook Tactic (35 tactics -> grouped)
+  hookTactic        String   // e.g., "curiosity-gap", "pain-agitation", "social-proof"
+  hookTacticGroup   String   // e.g., "curiosity", "pain", "social", "urgency"
+
+  // Awareness Stage (5 stages - Schwartz)
+  awarenessStage    String   // "unaware", "problem-aware", "solution-aware", "product-aware", "most-aware"
+
+  // Psychological Trigger (8 triggers)
+  psychTrigger      String   // "pattern-interrupt", "identity", "pain", "curiosity", "social-proof", "contrarian", "aspiration", "urgency"
+
+  // Tone & Emotion
+  tone              String   // "aspirational", "problem-solving", "educational", "social-proof", "humor", "urgency", "price-focused", "emotional"
+  emotionalValence  String?  // "positive", "negative", "neutral"
+
+  // Visual attributes (from Vision)
+  dominantColors    String[] // hex colors
+  hasText           Boolean  @default(false)
+  hasHuman          Boolean  @default(false)
+  hasProduct        Boolean  @default(false)
+
+  // Hook quality (replicates existing hookScore from diversity analysis)
+  hookScore         Int      // 1-10
+
+  // Concept clustering (replicates existing conceptCluster)
+  conceptCluster    String
+
+  // Metadata
+  classifiedBy      String   @default("haiku-4.5-vision") // model used
+  schemaVersion     Int      @default(1)   // bump when taxonomy changes
+  confidence        Float    @default(0.8) // model's self-reported confidence
+  classifiedAt      DateTime @default(now())
+
+  // Source: was this from vision or text-only?
+  classificationSource String @default("vision") // "vision" | "text-only" | "batch"
+
+  @@index([adId])
+  @@index([awarenessStage])
+  @@index([visualFormatGroup])
+  @@index([creativeMechanic])
 }
 
-.dark {
-  --surface-page: #101322;
-  --surface-card: rgba(18, 53, 226, 0.05);
-  --surface-elevated: #1a1d35;
-  --surface-overlay: rgba(16, 19, 34, 0.9);
+model ClassificationJob {
+  id        String   @id @default(cuid())
+  brandId   String
+  brand     AdLibraryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  // Job state
+  status         String   @default("queued")  // queued, submitting, processing, completed, failed
+  totalAds       Int      @default(0)
+  classifiedAds  Int      @default(0)
+  failedAds      Int      @default(0)
+  skippedAds     Int      @default(0)  // already cached
 
-  --border-default: rgba(18, 53, 226, 0.2);
-  --border-subtle: rgba(255, 255, 255, 0.06);
+  // Anthropic Batch API reference
+  anthropicBatchId String?  // returned by Anthropic when batch submitted
+  batchSubmittedAt DateTime?
+  batchCompletedAt DateTime?
+
+  // Cost tracking
+  estimatedCostUsd Float?
+  actualCostUsd    Float?
+  inputTokens      Int?
+  outputTokens     Int?
+
+  // Error info
+  errorMessage     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([brandId, status])
+  @@index([status, createdAt])
+  @@index([anthropicBatchId])
+}
+
+model ApiCostLog {
+  id            String   @id @default(cuid())
+  date          DateTime @db.Date
+  model         String
+  operation     String
+  inputTokens   Int
+  outputTokens  Int
+  estimatedCost Float
+  brandId       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([date, operation])
+  @@index([date])
 }
 ```
 
-**Why CSS custom properties, not Tailwind config:** The project already uses Tailwind v4 with `@theme inline` in globals.css. Tailwind v4's `@theme` directive reads CSS custom properties directly -- no `tailwind.config.js` needed. The project already has this pattern on line 79 of globals.css. Extending it is the natural path.
+### Relationships to Existing Models
 
-### Layer 2: Tailwind v4 Theme Mapping
+```
+AdLibraryAd (existing)
+  |-- AdClassification (NEW, 1:1)     -- replaces ephemeral diversity classifications
+  |-- AdAnalysis (existing, 1:1)      -- remains for legacy per-ad Vision analysis
+  |-- AdAsset (existing, 1:many)      -- source images for Vision classification
 
-Wire tokens into Tailwind utility classes via the existing `@theme inline` block:
+AdLibraryBrand (existing)
+  |-- ClassificationJob (NEW, 1:many) -- batch classification jobs
+  |-- BrandStrategy (existing)        -- extended with steps 4-6
+  |-- BrandAnalysisCache (existing)   -- updated to use stored classifications
 
-```css
-@theme inline {
-  --color-brand: var(--brand);
-  --color-brand-hover: var(--brand-hover);
-  --color-brand-subtle: var(--brand-subtle);
-  --color-surface-page: var(--surface-page);
-  --color-surface-card: var(--surface-card);
-  --color-surface-elevated: var(--surface-elevated);
-  --color-text-primary: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
-  --color-text-muted: var(--text-muted);
-  --color-border-default: var(--border-default);
-  --color-border-subtle: var(--border-subtle);
-  --color-border-brand: var(--border-brand);
+BrandStrategy (existing, EXTENDED)
+  |-- mechanics Json?   -- already exists, unused
+  |-- formats Json?     -- already exists, unused
+  |-- gapAnalysis Json? -- NEW FIELD to add
+```
+
+**Key change:** The current `analyze/diversity` route classifies ads ephemerally (classifications are computed, used, and discarded -- only aggregates are cached in `BrandAnalysisCache`). v8.0 persists per-ad classifications in `AdClassification`, making the diversity analysis route a pure aggregation query instead of an AI call.
+
+**Migration path:**
+1. Add `AdClassification`, `ClassificationJob`, `ApiCostLog` tables
+2. Add `gapAnalysis Json?` to `BrandStrategy`
+3. Add `classificationJobs ClassificationJob[]` relation to `AdLibraryBrand`
+4. Add `classification AdClassification?` relation to `AdLibraryAd`
+5. Refactor `/api/analyze/diversity` to read from `AdClassification` table
+
+## Strategy Generation Pipeline
+
+### Pipeline Stages
+
+```
++------------------+     +------------------+     +------------------+
+| Step 1           |     | Step 2           |     | Step 3           |
+| Brand Profile    | --> | Messaging        | --> | Ad Hooks         |
+| (computation)    |     | Strategy         |     | (AI: Sonnet)     |
+|                  |     | (AI: Sonnet)     |     |                  |
+| Input:           |     | Input:           |     | Input:           |
+| - DB brand data  |     | - Brand profile  |     | - Strategy matrix|
+| - Classification |     | - Ad copy        |     | - Brand copy     |
+|   aggregates     |     | - Diversity gaps  |     |                  |
+|                  |     |                  |     | Output:          |
+| Output:          |     | Output:          |     | - 15-20 hooks    |
+| - brandContext   |     | - personas       |     | - scored + tagged|
+| - gap summary    |     | - angles         |     |                  |
++------------------+     +------------------+     +------------------+
+         |
+         v
++------------------+     +------------------+     +------------------+
+| Step 4           |     | Step 5           |     | Step 6           |
+| Creative         | --> | Visual Formats   | --> | Gap Analysis     |
+| Mechanics        |     | (AI: Sonnet)     |     | Report           |
+| (AI: Sonnet)     |     |                  |     | (computation)    |
+|                  |     | Input:           |     |                  |
+| Input:           |     | - Brand context  |     | Input:           |
+| - Brand context  |     | - Format gaps    |     | - Classifications|
+| - Mechanic gaps  |     | - Existing ads   |     | - Category avg   |
+| - Strategy matrix|     |                  |     | - Brand strategy |
+|                  |     | Output:          |     |                  |
+| Output:          |     | - Format recs    |     | Output:          |
+| - Mechanic recs  |     | - Aspect ratios  |     | - Gap report     |
+| - Stage mappings |     | - Platform recs  |     | - Priority matrix|
++------------------+     +------------------+     +------------------+
+```
+
+### Data Flow
+
+**Pipeline orchestration pattern (matches existing generate-strategy):**
+
+Each step is a separate API call from the frontend, using the step parameter:
+```
+POST /api/creative-lab/generate-strategy
+{ pageId, step: 1 }  -> returns { strategyId, brandContext }
+{ strategyId, step: 2 }  -> returns { strategyMatrix }
+{ strategyId, step: 3 }  -> returns { hooks }
+{ strategyId, step: 4 }  -> returns { mechanics }
+{ strategyId, step: 5 }  -> returns { formats }
+{ strategyId, step: 6 }  -> returns { gapAnalysis }
+```
+
+This matches the existing pattern exactly. The frontend shows a stepper UI and calls each step sequentially. This is already implemented for steps 1-3.
+
+**Why sequential steps instead of one big call:**
+1. Each step fits within Vercel's 60s timeout
+2. User sees progressive results (better UX)
+3. If one step fails, earlier results are preserved
+4. Each step's output feeds the next step's prompt (chain-of-thought)
+5. Token limits: combining all steps would exceed max_tokens
+
+## Integration Points
+
+### Existing API Routes to Extend
+
+**`/api/analyze/diversity` (MAJOR refactor)**
+- Currently: fetches ads, calls Claude for classification, computes scores, calls Claude for recommendations
+- After v8.0: reads from `AdClassification` table, computes scores (pure DB query), calls Claude only for recommendations
+- Benefit: 10x faster (no classification AI call), cheaper, deterministic aggregation
+- Fallback: if no classifications exist, trigger batch job and show "Classification in progress"
+
+**`/api/creative-lab/generate-strategy` (extend steps)**
+- Add steps 4, 5, 6 to existing step handler
+- Step 1 (Brand Profile) now includes classification aggregates
+- No structural change, just additional cases in the step switch
+
+**`/api/ad-library/ads` (minor extension)**
+- Add `include: { classification: true }` option
+- Return classification data alongside ad data when requested
+- Enables filtered views (e.g., "show me all Problem-Aware ads")
+
+### New API Routes Needed
+
+| Route | Method | Purpose | Timeout |
+|-------|--------|---------|---------|
+| `/api/classify/vision` | POST | Classify single ad with Vision | 60s |
+| `/api/classify/batch` | POST | Submit batch classification job | 60s |
+| `/api/classify/status` | GET | Poll batch job status | 10s |
+| `/api/classify/cron` | GET | Cron: poll Anthropic Batch API, store results | 300s |
+| `/api/classify/stats` | GET | Classification coverage stats per brand | 10s |
+
+**Cron configuration (`vercel.json`):**
+```json
+{
+  "crons": [
+    {
+      "path": "/api/classify/cron",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }
 ```
 
-This enables classes like `bg-surface-page`, `text-brand`, `border-border-default` -- semantic, theme-aware, no ternaries needed.
+## Vercel Constraints and Workarounds
 
-### Layer 3: Theme Provider (Class-Based Dark Mode)
+### Constraint 1: Function Timeout (60s hobby / 300s pro)
 
-Replace the React-state-based `V2Context.darkMode` with a proper CSS-class-based system:
+**Problem:** Classifying 100+ ads with Vision takes longer than 60s.
+
+**Solution:** Do NOT classify in the serverless function. Use the Anthropic Batch API.
+
+1. User triggers classification -> API route submits batch to Anthropic -> returns immediately
+2. Anthropic processes batch asynchronously (typically <1 hour)
+3. Cron route (`*/5 * * * *`) polls Anthropic for batch completion
+4. When complete, cron route fetches results and stores in DB
+
+**For small ad counts (< 20):** Use `after()` from `next/server` to classify in the background after returning a response. The function continues running (up to maxDuration) after the response is sent.
 
 ```typescript
-// src/components/providers/theme-provider.tsx
-'use client';
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { after } from 'next/server';
 
-type Theme = 'light' | 'dark';
+export async function POST(request: NextRequest) {
+  const { brandId, adIds } = await request.json();
 
-interface ThemeContextType {
-  theme: Theme;
-  setTheme: (t: Theme) => void;
-  toggleTheme: () => void;
-}
+  // Return immediately
+  const response = Response.json({ status: 'processing', jobId });
 
-const ThemeContext = createContext<ThemeContextType>({
-  theme: 'light',
-  setTheme: () => {},
-  toggleTheme: () => {},
-});
-
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light');
-
-  useEffect(() => {
-    const stored = localStorage.getItem('theme') as Theme | null;
-    if (stored) {
-      setThemeState(stored);
-      document.documentElement.classList.toggle('dark', stored === 'dark');
+  // Continue classification in background
+  after(async () => {
+    for (const adId of adIds) {
+      await classifySingleAd(adId);
     }
-  }, []);
+  });
 
-  const setTheme = (t: Theme) => {
-    setThemeState(t);
-    localStorage.setItem('theme', t);
-    document.documentElement.classList.toggle('dark', t === 'dark');
-  };
-
-  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
-
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return response;
 }
-
-export const useTheme = () => useContext(ThemeContext);
 ```
 
-**Why class-based:** The project already has `@custom-variant dark (&:is(.dark *));` on line 5 of globals.css and a `.dark { }` block with shadcn/ui tokens. The infrastructure is there but unused. Class-based toggling means Tailwind's `dark:` variant works automatically, CSS custom properties swap automatically, and zero JavaScript ternaries needed in templates.
+### Constraint 2: Cron Job Frequency (Vercel hobby: limited crons)
 
-### Layer 4: Shared Layout Components
+**Problem:** Vercel hobby plan supports limited cron jobs.
 
-**AppHeader** -- shared top navigation for non-dashboard pages:
+**Solution:** Batch the cron work:
+- Single cron route handles both asset downloads AND classification polling
+- OR: Use the existing `/api/ad-library/cron/ingest` pattern -- add classification polling as a secondary task
 
-```
-+--[Logo]--[Analyser]--[About]--[Contact]--[Feedback]--spacer--[ThemeToggle]--[Get Pro]--+
-```
+### Constraint 3: Cold Starts + Neon Serverless
 
-This replaces:
-- The inline nav in `analyser/page.tsx` (lines 435-525)
-- `LandingNav` component (which is close but landing-specific)
+**Problem:** Cold starts + Neon connection latency can eat 2-5s on first request.
 
-**Implementation location:** `src/components/layout/app-header.tsx`
+**Solution:** Already mitigated by existing patterns:
+- Prisma connection pooling (already configured)
+- Neon serverless driver handles connection resumption
+- Classification reads are simple indexed queries (fast)
 
-The V2 dashboard keeps its sidebar shell (`V2Shell`) but refactored to consume tokens instead of hardcoded hex. The header inside V2Shell already has the right structure.
+### Constraint 4: Memory Limits (1024 MB default)
 
-## Data Flow (Theme State)
+**Problem:** Processing large batch results (thousands of classifications) in a single function invocation.
 
-```
-User clicks toggle
-        |
-        v
-ThemeProvider.toggleTheme()
-        |
-        +---> localStorage.setItem('theme', 'dark')
-        +---> document.documentElement.classList.add('dark')
-        |
-        v
-CSS custom properties swap (:root -> .dark)
-        |
-        v
-All Tailwind utilities auto-update
-(bg-surface-page, text-text-primary, border-border-default, dark:... variants)
-        |
-        v
-No component re-renders needed for styling
-(only ThemeProvider children re-render for toggle icon state)
-```
+**Solution:** Process batch results in chunks:
+- Fetch batch results from Anthropic in pages
+- Process 50-100 classifications per DB transaction
+- Use `prisma.$transaction` for atomicity within chunks
 
-**Migration path for V2Shell:** Replace `const { darkMode } = useV2()` + ternary pattern with token-based classes. The ternary `darkMode ? 'bg-[#101322]' : 'bg-[#f6f6f8]'` becomes simply `bg-surface-page`. The 385 hardcoded hex occurrences across 31 V2 files get replaced with semantic token classes.
+### Constraint 5: Request Body Size (4.5 MB on Vercel)
 
-**V2Context removal:** Once all V2 components consume theme via CSS tokens (not React state), `V2Context` can be removed entirely. The `useTheme()` hook remains available for the toggle button icon, but styling itself needs no JavaScript.
+**Problem:** Sending many image URLs in a single request.
 
-## Build Order (Suggested)
+**Solution:** Not an issue -- we use the Anthropic Batch API which handles this server-side. We only send the batch creation request, which contains request objects with image URLs (not image data). Each request is small.
 
-Order matters because each step creates the foundation for the next:
+## Build Order
 
-### Step 1: Design Tokens + Theme Provider (foundation)
-- Rewrite `:root` and `.dark` blocks in `globals.css` with unified blue palette tokens
-- Extend `@theme inline` block with semantic Tailwind mappings
-- Create `ThemeProvider` component with class-based toggle
-- Wire `ThemeProvider` into root `layout.tsx`
-- **No visual changes yet** -- old CSS variables still exist alongside new ones
-
-### Step 2: AppHeader Component (shared navigation)
-- Create `src/components/layout/app-header.tsx` using new tokens
-- Integrate into `/analyser` route, replacing inline nav
-- Integrate into landing page, replacing `LandingNav`
-- V2 dashboard keeps its own header (inside V2Shell) -- this is intentional, sidebar layouts need different headers
-
-### Step 3: V2 Dashboard Token Migration (biggest task)
-- Refactor `V2Shell` to use token classes instead of hardcoded hex
-- Replace `useV2().darkMode` ternary pattern across all 31 dashboard files
-- Pattern: `darkMode ? 'bg-[#101322]' : 'bg-[#f6f6f8]'` becomes `bg-surface-page`
-- Pattern: `darkMode ? 'border-[#1235e2]/20' : 'border-slate-200'` becomes `border-border-default`
-- Remove `V2Context` and `V2Provider` after migration
-
-### Step 4: Analyser Page Token Migration
-- Replace 163 `var(--bg-primary)`, `var(--accent-green)` etc. with new unified tokens
-- This changes the analyser's visual identity from green/amber to blue -- intentional for brand unification
-- Largest single file change but mechanically straightforward (find-replace CSS variable names)
-
-### Step 5: Landing Page Polish
-- Already uses the blue palette -- minor tweaks to use token classes instead of hardcoded hex
-- Ensure forced-dark behavior works with new ThemeProvider (add `dark` class to landing layout)
-
-### Step 6: Cleanup
-- Remove old Kiri Media green token definitions from `globals.css`
-- Remove unused CSS classes (`.gradient-mesh`, `.noise-overlay` if no longer needed)
-- Remove `v2-context.tsx`
-
-## Architectural Patterns
-
-### Pattern 1: Semantic Token Naming
-
-**Use semantic names, not color names.** `--surface-page` not `--bg-dark-blue`. This decouples the token from the specific color, making future palette changes trivial.
-
-Naming convention:
-```
---surface-*    : background surfaces (page, card, elevated, overlay)
---text-*       : text colors (primary, secondary, muted, inverse)
---border-*     : border colors (default, subtle, brand)
---brand*       : brand accent colors
-```
-
-### Pattern 2: Zero-Ternary Dark Mode
-
-Instead of:
-```tsx
-// BAD: 385 occurrences of this pattern in V2
-className={`${darkMode ? 'bg-[#101322] text-slate-100' : 'bg-[#f6f6f8] text-slate-900'}`}
-```
-
-Use:
-```tsx
-// GOOD: CSS handles the theme swap
-className="bg-surface-page text-text-primary"
-```
-
-The CSS custom properties swap values when `.dark` is on `<html>`. Components never need to know what theme is active.
-
-### Pattern 3: Layout Boundary Separation
-
-Three layout zones, each with its own shell but sharing tokens:
+### Phase Dependencies
 
 ```
-/ (landing)           -> No shell, AppHeader + full-width sections
-/analyser             -> No shell, AppHeader + centered content (max-w-7xl)
-/dashboard/v2/*       -> V2Shell (sidebar + internal header) + content area
+Phase 1: Classification Foundation
+  |-- AdClassification model + migration
+  |-- ClassificationJob model + migration
+  |-- ApiCostLog model + migration
+  |-- Cost tracking utility (src/lib/cost-tracker.ts)
+  |-- Classification schema/types (src/lib/classification.ts)
+  |
+  v
+Phase 2: Single-Ad Classification
+  |-- /api/classify/vision route (on-demand)
+  |-- Vision prompt with full taxonomy
+  |-- AdClassification cache logic (check before calling)
+  |-- Integration with ad detail view (frontend)
+  |
+  v
+Phase 3: Batch Classification
+  |-- Anthropic Batch API wrapper (src/lib/batch-classifier.ts)
+  |-- /api/classify/batch route (submit job)
+  |-- /api/classify/status route (poll status)
+  |-- /api/classify/cron route (process results)
+  |-- ClassificationJob lifecycle management
+  |
+  v
+Phase 4: Diversity Analysis Refactor
+  |-- Refactor /api/analyze/diversity to read from AdClassification
+  |-- Remove ephemeral AI classification call
+  |-- Keep recommendation AI call
+  |-- Update BrandAnalysisCache from stored classifications
+  |-- Update frontend to trigger batch classification first
+  |
+  v
+Phase 5: Strategy Engine Extension
+  |-- Step 1 enhancement (include classification aggregates)
+  |-- Step 4: Creative Mechanics generation
+  |-- Step 5: Visual Formats generation
+  |-- Step 6: Gap Analysis computation
+  |-- Frontend stepper extension
+  |
+  v
+Phase 6: Category Benchmarking
+  |-- Aggregate classifications across brands in same category
+  |-- Compare brand vs category averages
+  |-- Category-level gap analysis
+  |-- Benchmark dashboard UI
 ```
 
-The AppHeader is shared between landing and analyser. The dashboard has its own header inside V2Shell. This is correct -- do not try to force one header component across both layouts. Sidebar-based dashboards need a different header (page title, notifications, avatar).
+**Critical dependency:** Phase 2 must be complete before Phase 4, because the diversity refactor assumes classifications exist in the DB. Phase 3 (batch) can run in parallel with Phase 2 but should complete before Phase 4.
 
-## Anti-Patterns to Avoid
+**Independent work that can parallelize:**
+- Phase 1 (DB models) has no dependencies
+- Phase 5 (strategy steps 4-6) only depends on Phase 1 for the gapAnalysis field
+- Frontend work for Phase 5 can start as soon as the API shape is defined
 
-### Anti-Pattern 1: Global Dark Mode Toggle Affecting Landing Page
-**What:** Making the landing page respect user's dark/light preference.
-**Why bad:** The landing page is marketing material. It should always be dark (current behavior). Forced dark is intentional -- it looks more premium and matches the product screenshots.
-**Instead:** Add `dark` class to the landing layout specifically, independent of user preference.
+### Estimated Effort per Phase
 
-### Anti-Pattern 2: Migrating Everything to shadcn/ui Tokens
-**What:** Using the existing shadcn/ui oklch tokens (`--background`, `--foreground`, `--card`, etc.) as the unified system.
-**Why bad:** The shadcn tokens are generic and the oklch values in the codebase are defaults, not customized. The product has a specific blue brand identity that should be first-class, not mapped through an abstraction layer designed for generic component libraries.
-**Instead:** Define project-specific semantic tokens that directly express the Ad Library Pro design language. The shadcn `--background`/`--foreground` tokens can be aliased to the new tokens for compatibility with any shadcn/ui components used.
+| Phase | Effort | Risk | Notes |
+|-------|--------|------|-------|
+| 1. Foundation | Small (1-2 tasks) | Low | Standard Prisma migration |
+| 2. Single-Ad Classification | Medium (2-3 tasks) | Medium | Prompt engineering for 46 formats + validation |
+| 3. Batch Classification | Medium (3-4 tasks) | Medium | Anthropic Batch API integration, polling logic |
+| 4. Diversity Refactor | Medium (2-3 tasks) | Low | Straightforward refactor, existing tests |
+| 5. Strategy Extension | Large (4-5 tasks) | Medium | 3 new AI steps + frontend |
+| 6. Category Benchmarking | Medium (2-3 tasks) | Low | Pure aggregation queries |
 
-### Anti-Pattern 3: Partial Migration (Token + Hardcoded Mix)
-**What:** Adding tokens but leaving some hardcoded hex values "for later."
-**Why bad:** Creates confusion about which is the source of truth. New developers (or AI agents) will copy whichever pattern they find first. Theme toggle will produce inconsistent results where some elements respond and others do not.
-**Instead:** Complete the migration per-file. If touching a file, convert ALL hardcoded values in that file to tokens.
+## Key Architectural Decisions
 
-### Anti-Pattern 4: Trying to Share V2Shell With Analyser
-**What:** Wrapping the analyser page in V2Shell to get the sidebar.
-**Why bad:** The analyser is a standalone tool with a different UX paradigm (single-page form -> results). A sidebar with "Dashboard", "Ad Library", "Saved Ads" navigation is irrelevant and confusing in that context.
-**Instead:** Analyser gets AppHeader (top nav) only. It links to the dashboard but does not live inside it.
+### Decision 1: Persist per-ad classifications (not ephemeral)
 
-## File Structure (Proposed)
+**Current state:** The diversity route classifies ads, uses the classifications for scoring, then discards them. Only aggregates are cached in `BrandAnalysisCache`.
 
-```
-src/
-  app/
-    globals.css              # Unified tokens (:root + .dark)
-    layout.tsx               # Wraps with ThemeProvider
-    page.tsx                 # Landing (forced dark)
-    analyser/
-      page.tsx               # Uses AppHeader + tokens
-    dashboard/v2/
-      layout.tsx             # No more V2Provider needed
-      v2-shell.tsx           # Refactored to use tokens
-  components/
-    layout/
-      app-header.tsx         # Shared top nav (landing + analyser)
-    providers/
-      theme-provider.tsx     # Class-based dark/light toggle
-      session-provider.tsx   # Existing
-    ui/                      # Existing shadcn components
-    ...                      # Existing feature components
-```
+**v8.0 change:** Store every classification in `AdClassification` table.
+
+**Why:**
+- Eliminates redundant AI calls (classify once, use everywhere)
+- Enables ad-level filtering ("show me all UGC-style conversion ads")
+- Enables batch processing (classify in background, use instantly)
+- Enables category benchmarking (aggregate across brands)
+- Cost savings: classify each ad once (~$0.005) vs. every analysis request
+
+### Decision 2: Haiku 4.5 for classification, Sonnet 4 for strategy
+
+**Why not Sonnet for classification?**
+- Classification is a structured extraction task (choose from fixed categories)
+- Haiku 4.5 Vision is sufficient for this -- cheaper and faster
+- Sonnet is reserved for creative reasoning (strategy, hooks, concepts)
+
+**Why not Haiku for strategy?**
+- Strategy generation requires nuanced reasoning about marketing concepts
+- Sonnet produces meaningfully better creative output
+
+### Decision 3: Anthropic Batch API for historical backfill, not queue service
+
+**Alternatives considered:**
+- Inngest (serverless job queue): adds dependency, monthly cost, complexity
+- QStash (Upstash): simpler but still an added service
+- Railway/Fly worker: separate deployment to maintain
+- Vercel Cron + after(): limited to maxDuration per invocation
+
+**Why Batch API wins:**
+- Already using Anthropic SDK -- no new dependency
+- 50% cost discount on all batch requests
+- Handles up to 100,000 requests per batch
+- Anthropic handles retries, rate limits, and processing
+- We just submit and poll -- minimal infrastructure
+
+### Decision 4: Schema version field for taxonomy evolution
+
+The `schemaVersion` field on `AdClassification` allows re-classifying ads when the taxonomy changes (e.g., adding new visual formats). When schema version bumps, the batch classifier marks old classifications as stale and re-queues them.
 
 ## Confidence Assessment
 
-| Aspect | Confidence | Reason |
-|--------|------------|--------|
-| Token architecture (CSS custom properties + Tailwind v4 @theme) | HIGH | Directly observed in codebase; Tailwind v4 is designed for this pattern |
-| Class-based dark mode replacing React-state dark mode | HIGH | Infrastructure already exists in globals.css (`.dark` block, `@custom-variant`) |
-| Build order | HIGH | Clear dependency chain observed from codebase analysis |
-| Migration scope (385 hex occurrences in V2, 163 var references in V1) | HIGH | Directly measured via grep |
-| AppHeader extraction feasibility | MEDIUM | Landing nav and analyser nav have different link sets; may need conditional rendering or composition pattern |
+| Area | Confidence | Notes |
+|------|------------|-------|
+| Data model | HIGH | Directly extends existing Prisma patterns, verified against current schema |
+| Vision classification | HIGH | Existing `/api/analyze` route already does Vision calls; proven pattern |
+| Batch API integration | HIGH | Verified against Anthropic official docs (50% discount, 100K limit, <1hr typical) |
+| Strategy pipeline extension | HIGH | Existing 3-step pattern is clean; steps 4-6 are straightforward additions |
+| Cost management | MEDIUM | Cost estimates based on official pricing docs; actual usage patterns may vary |
+| Vercel constraints | HIGH | Verified timeout limits, cron patterns match existing `/api/ad-library/cron/` routes |
+| Category benchmarking | MEDIUM | Depends on having enough classified ads across brands in same category |
 
 ## Sources
 
-- Direct codebase analysis of `globals.css`, `v2-shell.tsx`, `v2-context.tsx`, `landing-nav.tsx`, `analyser/page.tsx`, `layout.tsx`
-- Tailwind CSS v4 `@theme` directive usage already present in the project at `globals.css:79`
-- Existing `.dark` variant configuration at `globals.css:5`
+- [Anthropic Batch Processing Documentation](https://platform.claude.com/docs/en/build-with-claude/batch-processing) -- 50% discount, 100K limit, processing details
+- [Claude Vision Documentation](https://platform.claude.com/docs/en/build-with-claude/vision) -- image pricing, size limits, URL source support
+- [Vercel Function Timeout Limits](https://vercel.com/docs/functions/limitations) -- 60s hobby, 300s pro, 800s Fluid Compute
+- [Next.js after() Documentation](https://nextjs.org/docs/app/api-reference/functions/after) -- background processing after response
+- [Vercel Cron Jobs](https://vercel.com/docs/cron-jobs) -- scheduling background work
+- Existing codebase: `/api/analyze/diversity/route.ts`, `/api/analyze/route.ts`, `/api/creative-lab/generate-strategy/route.ts`

@@ -1,205 +1,263 @@
-# Pitfalls Research
+# Pitfalls Research -- Creative Strategy Engine (v8.0)
 
-**Domain:** Ad intelligence platform -- visual consistency retrofit (v5.1)
-**Researched:** 2026-03-18
-**Confidence:** HIGH (based on direct codebase analysis)
+**Domain:** AI-powered ad creative classification, strategy generation, and gap analysis
+**Researched:** 2026-03-27
+**Overall confidence:** HIGH (grounded in codebase analysis + official docs + domain experience)
+
+## Executive Summary
+
+The v8.0 milestone adds Claude Vision-based ad classification (46 visual formats, 8 creative mechanics, 35 hook tactics, 5 awareness stages, 8 psychological triggers), brand strategy intake, gap analysis, hook generation, and creative concept generation. The primary risks are: (1) Vision API costs scaling linearly with ad count without caching, (2) classification inconsistency making strategy outputs unreliable, (3) taxonomy bloat making the UX incomprehensible, (4) Vercel timeout limits colliding with multi-image Vision calls, and (5) LLM-generated strategies converging to generic advice. The existing codebase already shows early signs of several of these pitfalls in the current diversity analysis route.
+
+---
 
 ## Critical Pitfalls
 
-### Pitfall 1: Two Incompatible Dark Mode Systems
+### 1. Vision API Cost Explosion on Re-analysis
 
-**What goes wrong:** V2 uses a React context boolean (`darkMode` from `useV2()`) with inline ternaries (`darkMode ? 'bg-[#101322]' : 'bg-[#f6f6f8]'`). The globals.css has a `.dark` CSS class selector for shadcn/ui variables. V1 uses neither -- it only reads `:root` CSS custom properties. Adding dark mode to V1 requires choosing ONE system, and the wrong choice creates a maintenance nightmare where some pages use context ternaries and others use CSS classes.
+- **What goes wrong:** The current `diversity/route.ts` classifies up to 100 ads per brand per analysis run using Claude Sonnet. Adding Vision (image input) increases token cost per ad from ~200 tokens (text-only body/title) to ~1,600 tokens per image (1000x1000px = ~1,334 tokens per Anthropic docs). A brand with 100 ads and 1 image each = ~133,400 input tokens per analysis. At Sonnet 4.6 pricing ($3/M input), that is ~$0.40 per brand analysis. Sounds small, but: (a) users re-run analysis when they revisit, (b) category benchmarking runs analysis for multiple brands, (c) there is no cache invalidation strategy -- the current `BrandAnalysisCache` stores scores but not per-ad classifications, so every re-analysis re-classifies everything from scratch.
+- **Warning signs:** API costs climbing 5-10x after Vision launch. Users triggering re-analysis on the same brand within hours. Benchmark comparisons triggering N brand analyses simultaneously.
+- **Prevention:**
+  - Store per-ad Vision classifications in a dedicated `AdClassification` table (keyed by adId + classificationVersion). Only classify new/changed ads on re-analysis.
+  - Add a `classifiedAt` timestamp to track staleness. Only re-classify ads older than a configurable threshold (e.g., 7 days).
+  - Use the Anthropic Batch API for bulk classification (50% cost reduction, 24h turnaround) for background/batch jobs. Reserve synchronous Vision calls for single-ad or small-batch on-demand analysis.
+  - Set per-brand daily classification limits. Track API spend in a `CostLedger` table.
+- **Phase to address:** Phase 1 (Ad Classification foundation) -- this must be the architecture before any Vision calls ship.
+- **Severity:** Critical
 
-**Why it happens:** V2 was built independently with its own `V2Provider` context. The `.dark` class in globals.css exists for shadcn/ui components but V2 never actually toggles it -- V2 uses inline ternaries instead. There are 308 occurrences of `darkMode ?` ternaries across V2 files.
+### 2. Vercel Function Timeout on Multi-Image Vision Requests
 
-**How to avoid:** Do NOT introduce a third dark mode approach. The choice is:
-- **Option A (recommended):** Use CSS custom properties + `.dark` class for V1. This is already partially set up in globals.css. V1 components already use `var(--text-primary)`, `var(--bg-secondary)` etc. Just add dark-mode overrides for these variables under `.dark`. This is the path of least resistance for V1.
-- **Option B:** Wrap V1 in a provider and use ternaries like V2. This would require touching every V1 component. Not worth it.
+- **What goes wrong:** The current `diversity/route.ts` already uses `maxDuration = 300` (5 minutes, the Hobby plan maximum). Vision API calls with multiple images take significantly longer than text-only calls. Classifying 50-100 ads with images in a single Claude call could easily exceed 60-120 seconds per call, and the route makes 2 sequential Claude calls (classify + recommend). With Vision, the total could exceed 5 minutes. On Vercel Pro, the max is 800 seconds with Fluid Compute, but the Hobby plan caps at 300s. The existing `generate-strategy/route.ts` only has `maxDuration = 60`, which is too low for any Vision work.
+- **Warning signs:** Intermittent 504 timeouts on analysis for brands with many ads. Timeouts appearing more frequently during peak hours (Claude API latency increases). Users seeing "Analysis Failed" after long waits.
+- **Prevention:**
+  - Never send 100 images in one API call. Batch into groups of 10-20 images per call, run them in parallel (Promise.allSettled), and aggregate results.
+  - Use streaming responses for long-running classification. Return partial results to the frontend while classification continues.
+  - Move bulk classification to a background job pattern: API route triggers classification, returns immediately with a job ID, frontend polls for completion. Consider Vercel Cron or an external queue (Upstash QStash).
+  - Set `maxDuration` appropriately per route: 300s for analysis routes, 60s for strategy generation (text-only).
+  - Pre-classify ads in the background (on ingestion or via cron) so the analysis route only reads cached results, never waits for Vision.
+- **Phase to address:** Phase 1 (Ad Classification) -- architecture decision before implementation.
+- **Severity:** Critical
 
-**Warning signs:** If you find yourself creating a new context provider for V1 dark mode, or if dark mode works on V2 but not V1 (or vice versa), the systems are diverging.
+### 3. Classification Inconsistency Across Runs
 
-**Phase to address:** First phase -- decide the dark mode strategy before touching any components. Document the decision. For v5.1 specifically: use CSS variable overrides in `.dark` for V1, and ensure the `.dark` class gets toggled on `<html>` or `<body>` when V2's `darkMode` state changes.
-
----
-
-### Pitfall 2: Recharts Hardcoded Colors Invisible in Dark Mode
-
-**What goes wrong:** V1 analytics components pass hardcoded hex colors to Recharts: `#3b82f6` (blue), `#f43f5e` (rose), `#f59e0b` (amber), `#a3e635` (lime), plus `MEDIA_COLORS` and `COUNTRY_COLORS` constants. These are chosen for light backgrounds. On a dark background like `#101322`, some will lose contrast badly -- particularly the amber and lime on dark surfaces. Axis labels, grid lines, and tooltip backgrounds are also typically Recharts defaults (black text, white backgrounds) which break in dark mode.
-
-**Why it happens:** Recharts does not natively support CSS custom properties in its `fill`/`stroke` props. You pass literal color strings. Teams forget about: (1) axis tick labels, (2) tooltip container backgrounds, (3) legend text, (4) cartesian grid lines -- all of which default to light-mode-friendly colors.
-
-**How to avoid:**
-1. Create a `useChartTheme()` hook or similar that returns color sets based on current theme
-2. Audit every Recharts component in `src/components/analytics/` and `src/components/demographics/` for hardcoded colors
-3. Recharts `XAxis`, `YAxis` accept `tick={{ fill: 'color' }}` and `Tooltip` accepts `contentStyle` -- these MUST be set
-4. Test every chart in both modes. Do not assume "it renders" means "it's readable"
-
-**Warning signs:** Charts render but text is invisible, tooltips have white-on-white text, grid lines disappear against dark background.
-
-**Phase to address:** Should be its own focused sub-task AFTER the base dark mode toggle works. Chart theming is tedious but not complex -- it just requires touching many files.
-
----
-
-### Pitfall 3: CSS Variable Collision Between V1 and V2 Color Systems
-
-**What goes wrong:** V1's globals.css defines `--accent-primary: #1a3933` (dark green), `--accent-green: #1a3933`, `--accent-yellow: #f59e0b`. V2 uses `#1235e2` (blue) as its primary. The landing page has yet another visual language. When retrofitting V1 to match V2's design system, changing the CSS variables in `:root` will affect ALL pages that use them -- including the landing page components that may rely on the green/amber palette.
-
-**Why it happens:** CSS custom properties in `:root` are global. V1 and the landing page both consume the same variables. Changing `--accent-primary` from green to blue to match V2 will cascade everywhere.
-
-**How to avoid:**
-1. **Scope the variable changes.** Do NOT change `:root` variables to V2's blue. Instead, scope V2-themed variables to a class or layout boundary: `.v2-theme { --accent-primary: #1235e2; }`
-2. OR: Introduce a new namespace for V2 colors (`--v2-primary`, `--v2-accent`) and migrate V1 to use them, leaving the old variables for landing page
-3. **Best approach for v5.1:** Since the goal is making V1 visually consistent with V2, add the V2 color palette as new variables and update V1 components to reference them. Leave `:root` defaults untouched so landing page is unaffected.
-
-**Warning signs:** Landing page colors change unexpectedly. Green elements suddenly turn blue. Buttons on landing page look different after "V1 only" changes.
-
-**Phase to address:** First phase -- establish color variable strategy before any component migration.
+- **What goes wrong:** Claude Vision classification is non-deterministic. The same ad image classified twice may get different labels (e.g., "lifestyle" vs "ugc" for a casual photo, or "problem-solving" vs "educational" for an informational ad). The current text-only classification already has this issue -- concept clusters like "discount-offer" vs "sale-promo" vs "price-deal" proliferate because Claude does not normalize consistently. With 46 visual formats, 8 mechanics, 35 hook tactics, 5 awareness stages, and 8 psychological triggers, the combinatorial inconsistency becomes catastrophic. Strategy recommendations built on inconsistent classifications will be unreliable.
+- **Warning signs:** Same brand analyzed twice showing different diversity scores (more than 5-point swings). Concept clusters proliferating with near-synonyms. Users noticing recommendations changing without any actual ad changes. Gap analysis contradicting itself across runs.
+- **Prevention:**
+  - Use `temperature: 0` for all classification calls (reduces but does not eliminate non-determinism).
+  - Provide explicit examples in the prompt for each category value (few-shot classification). Current prompts list categories but do not show example ads for each category.
+  - Use constrained output: instead of free-text classification, structure the prompt to select from an enum. Consider using Claude's tool_use feature to enforce schema compliance.
+  - Store classifications persistently (per-ad, versioned) and only re-classify when the ad creative changes or the classification schema version changes.
+  - For concept clusters: define a fixed taxonomy of clusters rather than letting Claude invent labels. The current approach of "assign a short 2-3 word lowercase hyphenated label" guarantees inconsistency.
+  - Run classification twice and compare -- flag disagreements for human review or use majority voting (3 runs, take consensus). This triples cost but may be worth it for critical taxonomies.
+- **Phase to address:** Phase 1 (Classification schema design + prompt engineering) -- must be validated before building strategy layers on top.
+- **Severity:** Critical
 
 ---
 
-### Pitfall 4: Navigation Header Breaks V1 Layout Height Calculation
+## High-Priority Pitfalls
 
-**What goes wrong:** V1 (`/analyser`) is currently a full-page component with its own header/search area. Adding a shared navigation header on top pushes content down, potentially breaking: (1) sticky positioned elements, (2) `h-screen` / `100vh` calculations, (3) scroll containers that assumed they started at viewport top, (4) the gradient-mesh fixed background positioning.
+### 4. Taxonomy Bloat: 46 Formats x 8 Mechanics x 35 Hooks x 5 Stages x 8 Triggers = Unusable
 
-**Why it happens:** V1's `page.tsx` is a large monolithic component (~700+ lines) that manages its own layout including a header area with search, auth controls, and navigation. Inserting a site-wide nav above it creates a double-header or pushes the search area down awkwardly.
+- **What goes wrong:** The planned taxonomy has 46 visual formats, 8 creative mechanics, 35 hook tactics, 5 awareness stages, and 8 psychological triggers. The cross-product is 515,200 combinations. No brand will ever have enough ads to meaningfully populate this space. Most cells in the strategy matrix will be empty, making gap analysis meaningless ("you're missing a Pattern Interrupt + Product-Shot + Urgency + Most-Aware ad" -- that is not actionable). Users will be overwhelmed by dimensions they do not understand or care about.
+- **Warning signs:** Gap analysis producing 50+ recommendations. Users ignoring the strategy output. Diversity scores showing low numbers everywhere because the taxonomy is too fine-grained for any brand to score well. Classification accuracy dropping because Claude cannot reliably distinguish 46 visual formats.
+- **Prevention:**
+  - Start with the existing 5-pillar taxonomy (format: 6 values, tone: 8, journey: 3, visual: 8, messenger: 5) which is already in production and working. This is 7,200 combinations -- still large but manageable.
+  - Add new dimensions incrementally, one at a time, validated against real classification accuracy before shipping.
+  - Group the 46 visual formats into 8-10 parent categories for display. Only show sub-categories when drilling down.
+  - For the strategy matrix, show only the top 2-3 dimensions that have the most actionable gaps, not all dimensions simultaneously.
+  - Use a "progressive disclosure" UX pattern: show high-level scores first, drill into details on click.
+  - Hard rule: no dimension should have more than 10 values for classification. If it does, it needs hierarchy (parent > child).
+- **Phase to address:** Phase 1 (Taxonomy design) -- must be finalized before any classification implementation.
+- **Severity:** High
 
-**How to avoid:**
-1. Audit V1's page.tsx for any `h-screen`, `100vh`, `min-h-screen`, `sticky top-0` usage
-2. The shared nav should be in a layout file (`/analyser/layout.tsx`) NOT injected into page.tsx
-3. Use `h-[calc(100vh-NAV_HEIGHT)]` or `h-dvh` patterns for content areas below the nav
-4. Remove V1's existing header/nav elements that will be replaced, don't layer on top
+### 5. Strategy Generation Converging to Generic Advice
 
-**Warning signs:** Double headers, content pushed below fold, sticky elements overlap with new nav, mobile layout breaks.
+- **What goes wrong:** The current `generate-strategy/route.ts` already shows this pattern. LLM-generated personas, messaging angles, and hooks tend toward safe, generic advice because: (a) the prompt asks Claude to "infer from ad copy" but only provides 10 ads with truncated body text, (b) without specific brand knowledge (USPs, competitor positioning, pricing), Claude falls back to category-generic advice, (c) the "8 psychological triggers" framework forces output into a template that makes all brands' hooks sound similar. The result: a fitness brand and a skincare brand get nearly identical strategy outputs with different nouns swapped in.
+- **Warning signs:** Users generating strategies for different brands in the same category and getting near-identical output. Hook text feeling templated ("Tired of [pain point]? [Brand] is different."). Personas being obvious archetypes rather than insights. Users not implementing the generated hooks.
+- **Prevention:**
+  - Feed MORE brand-specific data into the strategy prompt: full ad copy (not truncated to 200-300 chars), actual performance data (reach, engagement), competitor comparison data, brand guidelines from `BrandGuidelines` table.
+  - Require the user to provide brand-specific inputs (USPs, pricing, competitive advantages) BEFORE generating strategy. The current Step 1 makes these optional -- they should be required for quality output.
+  - Add a "differentiation check": after generating strategy, run a second Claude call that evaluates whether the strategy could apply to any brand in the category or is specific to this brand. Reject and regenerate if generic.
+  - Include competitor hooks in the prompt context so Claude can explicitly differentiate: "Your competitors use X approach, so instead try Y."
+  - Generate fewer, better hooks (8-10) rather than many generic ones (15-20). Quality over quantity.
+- **Phase to address:** Phase 3 (Strategy Generation) and Phase 4 (Hook Generation) -- but the data pipeline must be built in Phase 1-2.
+- **Severity:** High
 
-**Phase to address:** Navigation header integration phase. Do this BEFORE detailed component styling -- layout structure first, then colors/theme.
+### 6. Database Bloat from Classification Results
 
-## Technical Debt Patterns
+- **What goes wrong:** If every ad gets classified across 5+ dimensions with Vision, plus concept clusters, hook scores, and full analysis JSON, the data grows fast. The current `AdAnalysis` model stores `fullAnalysis Json?` which is unbounded. With v8.0 adding per-ad classification across 46 formats + 8 mechanics + 35 hooks + 5 stages + 8 triggers, the JSON blob per ad could be 2-5KB. For a brand with 500 ads, that is 1-2.5MB of classification data per brand. Across 1000+ brands in the database, this becomes significant. More importantly, querying and aggregating this data for benchmarking becomes slow without proper indexing.
+- **Warning signs:** Slow benchmark/comparison queries. `BrandAnalysisCache` table growing faster than expected. API routes taking longer to aggregate classification data. Prisma queries timing out on large JSON aggregations.
+- **Prevention:**
+  - Store classification dimensions as indexed columns, NOT in a JSON blob. Each dimension (format, tone, journey, visual, messenger, mechanic, hookTactic, awarenessStage, trigger) should be its own column with an enum-like constraint.
+  - Use a separate `AdClassification` table (one row per ad, columns per dimension) rather than stuffing everything into `AdAnalysis.fullAnalysis`.
+  - Pre-aggregate distribution counts into `BrandAnalysisCache` on classification completion. Never aggregate at query time from raw per-ad data.
+  - Add database indexes on classification columns for fast filtering/grouping.
+  - Implement TTL-based cleanup: delete classifications older than 90 days for inactive ads. Classification data for deleted/inactive ads should be archived or purged.
+- **Phase to address:** Phase 1 (Schema design) -- the data model must be right before data starts flowing in.
+- **Severity:** High
 
-### Debt 1: 308 Inline Dark Mode Ternaries in V2
+### 7. Vercel 4.5MB Payload Limit on Classification Responses
 
-**What it is:** Every V2 component uses `darkMode ? 'dark-class' : 'light-class'` instead of CSS-driven theming. This is existing debt, not new -- but v5.1 must decide whether to perpetuate this pattern in V1 or use the cleaner CSS variable approach.
+- **What goes wrong:** The current diversity route returns full classification results for all ads plus recommendations plus Andromeda metrics in a single JSON response. With Vision classification adding image analysis details, the response payload can easily approach or exceed Vercel's 4.5MB body size limit. This is especially true if `classifications` array contains 100 ads with extended analysis across many dimensions. The error is a hard 413 with no graceful fallback.
+- **Warning signs:** `FUNCTION_PAYLOAD_TOO_LARGE` errors in Vercel logs. Brands with 80+ ads failing analysis while smaller brands succeed. Inconsistent behavior based on ad count.
+- **Prevention:**
+  - Never return raw per-ad classifications in the API response. Return only aggregated scores and distributions.
+  - Store per-ad classifications in the database; let the frontend fetch individual ad classifications via a separate paginated endpoint if needed.
+  - Compress the response: remove redundant data, use abbreviated keys, omit null values.
+  - Add a response size check before sending: if estimated size > 3MB, strip detailed data and return only summaries.
+- **Phase to address:** Phase 1 (API design) -- response shape must be designed for the payload limit.
+- **Severity:** High
 
-**Risk for v5.1:** If V1 adopts CSS variables for dark mode (recommended) while V2 keeps ternaries, there are now two working-but-different dark mode systems. This is acceptable for v5.1 scope but should be flagged for future unification.
+---
 
-**Recommendation:** For v5.1, use CSS variables for V1 dark mode. Do NOT refactor V2's ternaries in this milestone -- that is a separate task. Accept the divergence as temporary.
+## Medium-Priority Pitfalls
 
-### Debt 2: V1 Component Monolith
+### 8. Vision Classification Without Image = Degraded Quality
 
-**What it is:** `analyser/page.tsx` exceeds 25,000 tokens. It contains inline components (`LoadingSpinner`, `ActiveChartFilter`), state management, layout, and UI all in one file. Adding theme awareness to this file will make it even larger.
+- **What goes wrong:** Not all ads in the database have downloaded assets. The `AdAsset` table has `downloadStatus` which can be "pending" or "failed". If Vision classification is attempted on ads without images, it falls back to text-only classification, producing inconsistent results compared to ads that were classified with images. The strategy layer does not know which ads were classified with vs without images, leading to unreliable diversity scores.
+- **Warning signs:** Diversity scores being artificially low for brands where asset download failed. Visual style classification being random for ads without images. Inconsistent classification quality within the same brand.
+- **Prevention:**
+  - Track classification method (text-only vs vision) per ad. Include this in quality metrics.
+  - Only include vision-classified ads in visual dimension scores. Use text-only classification for non-visual dimensions (tone, journey phase, messenger) regardless.
+  - Before running analysis, check asset download coverage. If < 70% of ads have images, warn the user and offer to trigger asset download first.
+  - Separate visual classification from text classification: run them as independent pipelines that can be combined.
+- **Phase to address:** Phase 1 (Classification pipeline design).
+- **Severity:** Medium
 
-**Risk for v5.1:** Every theme-related change in V1 touches this enormous file. Merge conflicts are likely if other work happens in parallel.
+### 9. UX: Dashboard-for-Dashboards Problem
 
-**Recommendation:** If extracting layout/header into a separate layout.tsx, that naturally shrinks page.tsx. Do not attempt a full refactor of page.tsx in v5.1 -- just extract what is needed for the nav header.
+- **What goes wrong:** The v8.0 scope includes diversity scores (5 pillars), Andromeda metrics (7+ sub-metrics), awareness stages (5), psychological triggers (8), visual formats (46), creative mechanics (8), hook tactics (35), strategy matrix, personas, messaging angles, prioritized angles, and generated hooks. Presenting all of this creates a "dashboard-for-dashboards" where users see numbers everywhere but cannot determine what to DO. The current analysis view already shows 6 diversity score pills + Andromeda metrics + recommendations -- adding more dimensions will overwhelm.
+- **Warning signs:** Users spending time looking at the analysis but not taking action (generating strategies or hooks). Low conversion from analysis view to strategy generation. Users asking "what does this score mean?" Support requests about interpreting metrics.
+- **Prevention:**
+  - Lead with ONE headline insight: "Your biggest gap is X. Here is what to do about it."
+  - Hide detailed breakdowns behind expandable sections. Default view should show: overall score, top 3 gaps, suggested actions.
+  - Use the "newspaper front page" pattern: headline (biggest gap), subhead (2-3 supporting insights), body (full details for those who want them).
+  - Every metric shown must have a paired action. If a metric does not suggest a clear action, do not show it.
+  - Limit the initial view to the 5 existing pillars + 1 new "strategic readiness" score. Only show additional dimensions in a detailed breakdown.
+  - A/B test the analysis view: track whether users who see fewer metrics are MORE likely to take action.
+- **Phase to address:** Phase 2 (Strategy Matrix UI) and Phase 5 (Gap Analysis UI).
+- **Severity:** Medium
 
-## Performance Traps
+### 10. Prompt Caching Not Utilized for Repeated Classification Prompts
 
-### Trap 1: Re-renders from Dark Mode Context
+- **What goes wrong:** The classification prompt is largely identical across all brands -- only the ad data changes. The system prompt, taxonomy definitions, format rules, and output schema are the same every time. Without prompt caching, these ~2,000 tokens of instructions are charged at full price on every API call. For a platform classifying ads across hundreds of brands, this adds up. Anthropic offers prompt caching that can reduce costs by up to 90% for the cached prefix.
+- **Warning signs:** Input token costs being higher than expected relative to actual ad data volume. Classification costs not decreasing as volume increases.
+- **Prevention:**
+  - Structure classification prompts with a static system prompt (taxonomy + rules + output schema) and dynamic user content (ad data). The system prompt is cacheable.
+  - Use Anthropic's prompt caching feature (`cache_control` parameter) on the system prompt portion.
+  - For batch classification, group multiple brands' ads into the same prompt format to maximize cache hits.
+  - Monitor cache hit rates via Anthropic's API response headers.
+- **Phase to address:** Phase 1 (Classification implementation) -- should be built in from the start.
+- **Severity:** Medium
 
-**What goes wrong:** V2's `useV2()` context triggers re-renders of the entire V2 subtree when `darkMode` changes. If V1 also subscribes to this context (to sync dark mode state), every V1 component that calls `useV2()` will re-render on toggle. Recharts components are expensive to re-render.
+### 11. Strategy Steps Losing Context Between Calls
 
-**How to avoid:**
-- V1 should read dark mode from CSS (the `.dark` class approach) not from React context
-- If you must sync: toggle the `.dark` class on `document.documentElement` as a side effect of V2's `setDarkMode`, then V1 reads from CSS -- no React re-renders needed for theme
-- Memoize chart components if they receive theme colors as props
+- **What goes wrong:** The current 3-step strategy flow (Brand Profile -> Messaging Strategy -> Ad Hooks) stores intermediate results in the database and passes them to subsequent steps. But each step is a separate Claude call with no conversation memory. Step 3 (hooks) receives the full strategy matrix JSON in its prompt, which can be 3,000-5,000 tokens. As v8.0 adds more steps (mechanics, formats, concepts), each subsequent step needs the full context of all previous steps, bloating prompts and costs. More critically, the LLM can contradict earlier steps because it has no true memory of generating them.
+- **Warning signs:** Hooks not aligning with the messaging angles they claim to target. Later strategy steps contradicting earlier ones. Prompt sizes growing past 8,000+ tokens of context per step. Users noticing inconsistencies between strategy layers.
+- **Prevention:**
+  - Summarize previous step outputs before passing to next step. Instead of passing the full strategy matrix JSON, pass a condensed version (~500 tokens) that captures key decisions.
+  - Add explicit consistency checks: after each step, verify that outputs reference valid entities from previous steps (e.g., hook's `messagingAngle` must match an actual angle from step 2).
+  - Consider using a single long-context call for the full strategy generation rather than multi-step. Claude's context window supports this, and it ensures internal consistency. Trade-off: longer single call vs. multiple shorter calls.
+  - Use Zod validation (already in place) to enforce structural consistency between steps.
+- **Phase to address:** Phase 3 (Strategy Generation refactor).
+- **Severity:** Medium
 
-### Trap 2: Font Loading Flash
+### 12. Race Condition on Concurrent Analysis for Same Brand
 
-**What goes wrong:** globals.css imports `DM Sans` and `Instrument Serif` via Google Fonts URL, while layout.tsx loads `Geist` and `Geist_Mono` via `next/font`. V1 uses `var(--font-sans)` which maps to DM Sans. V2 pages may use different fonts. Adding a shared nav that uses one font system to a page using another causes FOUT (Flash of Unstyled Text) or mismatched typography.
+- **What goes wrong:** If two users (or the same user in two tabs) trigger analysis for the same brand simultaneously, both will: (a) call Claude Vision for classification (doubling API cost), (b) try to upsert the same `BrandAnalysisCache` record (last write wins, potentially with stale data from the slower call), (c) potentially corrupt the `AdClassification` data if both are writing per-ad results. The current code has no concurrency guard.
+- **Warning signs:** Double API charges for the same brand in logs. Cache scores flickering between values. Two analysis results returning different scores for the same brand within seconds.
+- **Prevention:**
+  - Add a `classificationStatus` field to `BrandAnalysisCache` (e.g., "idle", "running", "completed"). Before starting classification, check status and return cached results if "running".
+  - Use a database-level advisory lock or a simple "lock row" pattern: UPDATE SET status='running' WHERE status='idle' and check affected rows.
+  - Return cached results immediately if they are fresh (< 1 hour old) with a "re-analyze" option for forced refresh.
+  - For the frontend: disable the analyze button after click and show progress. Do not allow re-triggering while analysis is in progress.
+- **Phase to address:** Phase 1 (Classification pipeline).
+- **Severity:** Medium
 
-**How to avoid:** Decide on ONE font stack for the shared navigation. Since the nav appears on both V1 and V2 pages, use the system that is loaded in `layout.tsx` (Geist) or ensure DM Sans is also available via `next/font` for better loading performance. Do not mix Google Fonts `@import` with `next/font` for the same components.
+---
 
-## UX Pitfalls
+## Vercel-Specific Pitfalls
 
-### UX 1: Dark Mode State Not Persisted
+### 13. Cold Start Latency on AI Routes
 
-**What goes wrong:** V2's `darkMode` state lives in React `useState(false)` -- it resets to light mode on every page load. Users toggle dark mode, navigate away, come back, and it is light again. This is already a V2 bug but becomes more visible when V1 also supports dark mode.
+- **What goes wrong:** Vercel serverless functions have cold starts of 200-500ms. AI routes that import the Anthropic SDK, Prisma client, and potentially image processing libraries will have larger bundles and longer cold starts (500ms-2s). For the analysis route, this adds to already-long response times.
+- **Prevention:**
+  - Keep AI route bundles lean. Do not import unnecessary dependencies.
+  - Use Vercel Fluid Compute if available on the plan -- it keeps function instances warm longer.
+  - Pre-warm critical routes with a lightweight cron ping.
+  - Accept cold starts as inevitable; focus on making the UX tolerate them (loading states, progress indicators -- already in place in `analysis-view.tsx`).
+- **Phase to address:** Phase 1 (Infrastructure).
+- **Severity:** Medium
 
-**How to avoid:** Persist dark mode preference to `localStorage`. Read it on mount. Better yet, use `prefers-color-scheme` media query as default and localStorage as override.
+### 14. maxDuration Mismatch Across Routes
 
-**Phase to address:** Dark mode infrastructure phase, before per-component theming.
+- **What goes wrong:** The codebase currently has `maxDuration = 300` on analysis routes but `maxDuration = 60` on strategy/creative-lab routes. Adding Vision classification to the strategy pipeline without updating `maxDuration` will cause timeouts. On Hobby plan, 300s is the hard cap. If the project stays on Hobby, multi-image Vision calls may simply not be possible within this limit.
+- **Prevention:**
+  - Audit all routes that will call Claude Vision and set appropriate `maxDuration` values.
+  - If on Hobby plan: either upgrade to Pro (800s max with Fluid Compute) or move classification to a background job that does not depend on function duration.
+  - Never chain multiple Claude calls sequentially in a single route if each call can take 30+ seconds.
+  - Consider the Vercel Pro plan ($20/month) as a cost of doing business for AI features.
+- **Phase to address:** Phase 1 (Infrastructure planning).
+- **Severity:** High (if staying on Hobby plan), Medium (if on Pro).
 
-### UX 2: Partial Dark Mode is Worse Than No Dark Mode
+---
 
-**What goes wrong:** If the nav header is dark-mode-aware but the V1 content below it is not (or vice versa), the page looks broken -- a dark header on a light body, or dark body with light charts. Users perceive this as a bug, not a work-in-progress.
+## Cost Management Pitfalls
 
-**How to avoid:** Ship dark mode for V1 as an atomic unit: nav + page content + charts all themed together, or none of them. Do not ship partial dark mode to production.
+### 15. No API Cost Tracking or Budget Limits
 
-**Phase to address:** This means dark mode should be a single phase that covers all V1 elements, not spread across multiple phases.
+- **What goes wrong:** The current codebase has no tracking of Claude API costs. There is no per-user, per-brand, or global spending limit. A single user could trigger analysis on 50 brands in a day, each costing $0.40-$1.00 with Vision, totaling $20-$50 in a single session. Without visibility, costs accumulate silently until the monthly bill arrives.
+- **Prevention:**
+  - Add a `ApiUsageLog` table: track every Claude API call with model, input tokens, output tokens, estimated cost, user, brand, route.
+  - Implement daily/monthly budget caps. Return a "quota exceeded" error when limits are reached.
+  - For free users: limit to 3 brand analyses per day. For Pro users: higher limits.
+  - Display API usage in an admin dashboard.
+  - Set up Anthropic API usage alerts at 50%, 80%, 100% of monthly budget.
+- **Phase to address:** Phase 1 (Foundation) -- must exist before Vision classification ships.
+- **Severity:** High
 
-### UX 3: Landing Page Inconsistency After V1 Retrofit
+### 16. Image Fetching Costs and Latency
 
-**What goes wrong:** After making V1 match V2's blue design system, the landing page (/) still uses the old green/amber palette. The user flow is: Landing (green) -> Analyser V1 (now blue) -> Dashboard V2 (blue). The landing page becomes the odd one out. Users notice the jarring transition.
+- **What goes wrong:** To send images to Claude Vision, the serverless function must fetch the image from R2 storage, potentially resize it, and base64-encode it. For 50-100 images, this means 50-100 HTTP requests to R2 from within a Vercel function. Each fetch adds 50-200ms of latency. The total image fetching time alone could be 5-20 seconds, eating into the function timeout budget. Additionally, holding 100 images in memory simultaneously could approach the 2-4GB memory limit.
+- **Prevention:**
+  - Use Claude's URL-based image source (`type: "url"`) pointing to R2 public URLs instead of base64 encoding. This offloads the fetch to Anthropic's servers and keeps Vercel function memory low.
+  - Pre-generate thumbnails at classification-optimal size (1000x1000 or smaller) during asset download. Store thumbnail URLs in `AdAsset.thumbnailUrl`.
+  - Batch images in groups of 10-20 per Vision call, not 100.
+  - For images that Claude needs to fetch via URL, ensure R2 URLs are fast and publicly accessible (they already are, per the project config: `pub-25ef069908854da9871d20aea605675a.r2.dev`).
+- **Phase to address:** Phase 1 (Classification pipeline).
+- **Severity:** Medium
 
-**How to avoid:** v5.1 scope includes "minor landing page tweaks" -- use this to at least align the primary accent color and navigation style with the new V1/V2 look. Full landing page redesign is not needed, but the nav bar and CTA buttons should use the blue system.
+### 17. Not Using Batch API for Background Classification
 
-**Phase to address:** Landing page tweaks should come AFTER V1 retrofit, so you know exactly what the target look is.
+- **What goes wrong:** All current Claude calls are synchronous. The Anthropic Batch API offers 50% cost reduction for asynchronous processing (results within 24h). For bulk classification tasks (classifying all ads for a new brand, re-classifying after taxonomy changes), not using the Batch API means paying full price unnecessarily.
+- **Prevention:**
+  - Implement two classification paths: (a) real-time for on-demand single-brand analysis (synchronous, full price), (b) batch for bulk operations (Batch API, 50% off).
+  - Use Batch API for: initial brand onboarding classification, periodic re-classification cron jobs, taxonomy migration re-classification.
+  - Use synchronous API for: user-triggered analysis, single-ad classification, interactive strategy generation.
+  - Combined with prompt caching, batch classification could cost 75% less than current approach.
+- **Phase to address:** Phase 2 or Phase 3 (when batch operations become needed).
+- **Severity:** Medium
 
-## "Looks Done But Isn't" Checklist
+---
 
-These are things that appear correct during development but break in production or edge cases:
+## Confidence Assessment
 
-- [ ] **Focus ring colors** -- Tailwind's default focus rings may not match either theme. Check `outline-ring/50` in the base layer.
-- [ ] **Selection highlight color** -- Text selection (`::selection`) background defaults to browser blue, which may clash with dark mode backgrounds.
-- [ ] **Scrollbar theming** -- globals.css has custom scrollbar styles using V1's variables. These will look wrong if the page background changes to V2's palette.
-- [ ] **Sonner toast theming** -- The `<Toaster>` in layout.tsx uses `richColors`. Toasts may not respect dark mode.
-- [ ] **Skeleton loading states** -- V1 uses `ResultsSkeleton` component. Its shimmer colors are likely hardcoded for light backgrounds.
-- [ ] **Error states** -- `ApiErrorAlert` may have colors that work on light but not dark.
-- [ ] **Modal/popup overlays** -- `KiriMediaPopup`, `FeedbackPopup`, `SubmitModal` all have their own background/border colors that may not adapt.
-- [ ] **Print styles** -- If anyone prints the analyser page, dark mode backgrounds will waste ink. Add `@media print` reset.
-- [ ] **Mobile sidebar/menu** -- V1 has a hamburger menu (`Menu` icon imported). Its flyout colors need to match the new theme.
-- [ ] **Chart export/screenshot** -- If users can export charts (PDF export exists in V1), the exported colors should match what they see on screen, not the opposite theme.
-
-## Recovery Strategies
-
-If something goes wrong during the retrofit:
-
-### Strategy 1: Feature Flag the Theme
-
-Wrap the new V1 theme in a feature flag (URL param or localStorage key). If visual regressions are found in production, disable the flag to revert to old styles without a code deploy.
-
-```typescript
-// Simple approach
-const useNewTheme = typeof window !== 'undefined' &&
-  localStorage.getItem('v1-new-theme') !== 'false';
-```
-
-### Strategy 2: Snapshot Visual Tests
-
-Before starting, screenshot every V1 page state (empty, loading, results, error) in both light and dark mode. Compare after changes. Tools: Playwright `page.screenshot()` is already available in the project (Puppeteer is used for asset extraction, similar API).
-
-### Strategy 3: CSS Layer Isolation
-
-Use Tailwind v4's `@layer` support to isolate V1 retrofit styles. If they cause problems, comment out the layer.
-
-```css
-@layer v1-retrofit {
-  .analyser-page { /* new theme styles */ }
-}
-```
-
-## Pitfall-to-Phase Mapping
-
-| Phase | Pitfall to Watch | Severity |
-|-------|-----------------|----------|
-| Dark mode infrastructure | Two incompatible systems (#1), State not persisted (UX1) | CRITICAL |
-| Color variable strategy | CSS variable collision (#3), Landing inconsistency (UX3) | CRITICAL |
-| Navigation header | Layout height breaks (#4), Font loading flash (Perf2) | HIGH |
-| V1 component theming | Partial dark mode (UX2), Scrollbar/toast/modal misses | HIGH |
-| Recharts dark mode | Hardcoded colors (#2), Re-render perf (Perf1) | HIGH |
-| Landing page tweaks | Landing inconsistency (UX3), Variable collision (#3) | MEDIUM |
-
-**Recommended phase order based on pitfall dependencies:**
-
-1. **Dark mode infrastructure** -- Decide system, persist state, wire up `.dark` class toggle
-2. **Color variable strategy** -- Define V2-aligned variables scoped to V1, protect landing page
-3. **Navigation header** -- Layout structure change, must precede component theming
-4. **V1 component theming** -- Apply new variables, ship as atomic unit
-5. **Recharts dark mode** -- Tedious but isolated; can be parallelized with #4
-6. **Landing page alignment** -- Last, since it depends on knowing the final V1/V2 look
+| Area | Confidence | Notes |
+|------|------------|-------|
+| Vision API costs | HIGH | Based on official Anthropic docs: ~1,334 tokens per 1000x1000 image, Sonnet 4.6 at $3/M input |
+| Vercel limits | HIGH | Based on official Vercel docs: 300s Hobby, 800s Pro, 4.5MB payload |
+| Classification inconsistency | HIGH | Documented in Anthropic docs ("may hallucinate"), confirmed by existing codebase behavior with concept clusters |
+| Taxonomy bloat | HIGH | Based on combinatorial analysis of planned dimensions |
+| Strategy generic-ness | MEDIUM | Based on analysis of existing generate-strategy route output patterns and LLM creativity research |
+| Batch API savings | HIGH | Based on official Anthropic pricing: 50% discount confirmed |
+| Database bloat | MEDIUM | Projected from current schema growth patterns, not yet observed at scale |
 
 ## Sources
 
-- Direct codebase analysis: `src/app/globals.css` (lines 1-529), `src/app/dashboard/v2/v2-context.tsx`, `src/app/dashboard/v2/v2-shell.tsx`, `src/app/analyser/page.tsx`, `src/components/analytics/trend-analysis.tsx`, `src/components/demographics/demographics-summary.tsx`
-- Tailwind CSS v4 `@custom-variant dark` usage confirmed in globals.css line 5
-- Recharts color handling confirmed via grep of `fill=`/`stroke=` props across analytics components
-- V2 dark mode ternary count (308 occurrences across 17 files) verified via codebase grep
+- [Claude Vision documentation](https://platform.claude.com/docs/en/build-with-claude/vision) -- image tokenization, size limits, cost tables
+- [Claude API pricing](https://platform.claude.com/docs/en/about-claude/pricing) -- Sonnet 4.6 at $3/$15 per million tokens
+- [Anthropic Batch API](https://platform.claude.com/docs/en/build-with-claude/batch-processing) -- 50% discount, 10K queries per batch
+- [Vercel Functions limits](https://vercel.com/docs/functions/limitations) -- timeout, memory, payload limits
+- [Vercel payload size limit KB](https://vercel.com/kb/guide/how-to-bypass-vercel-body-size-limit-serverless-functions) -- 4.5MB limit and workarounds
+- [Classification with Claude cookbook](https://platform.claude.com/cookbook/capabilities-classification-guide) -- ~70% baseline accuracy, RAG improvement techniques
+- [LLM creativity research (HBR)](https://hbr.org/2025/12/research-when-used-correctly-llms-can-unlock-more-creative-ideas) -- "Echoes in AI" phenomenon reducing collective diversity
+- [NN/g Taxonomy 101](https://www.nngroup.com/articles/taxonomy-101/) -- taxonomy design best practices

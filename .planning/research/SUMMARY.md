@@ -1,150 +1,127 @@
-# Project Research Summary
+# Research Summary -- v8.0 Creative Strategy Engine
 
-**Project:** Ad Library Pro — v5.1 Visual Consistency
-**Domain:** Ad intelligence platform — visual consistency retrofit
-**Researched:** 2026-03-18
-**Confidence:** HIGH
+**Synthesized:** 2026-03-27
+**Dimensions:** Stack, Features, Architecture, Pitfalls
+**Overall confidence:** HIGH
 
 ## Executive Summary
 
-The v5.1 milestone is a consolidation effort, not a technology adoption. The project already has all the right pieces — Tailwind CSS v4 with `@theme inline`, `@custom-variant dark`, and `next-themes` installed — but they are not connected. Three separate theming systems coexist: V1 uses CSS custom properties with a green palette, V2 uses 308+ inline `darkMode ?` ternaries with hardcoded hex, and shadcn/ui uses oklch variables with `.dark` class. The fix is wiring these into a single token-based system.
+The v8.0 Creative Strategy Engine adds AI Vision-based ad classification, strategy gap analysis, and creative concept generation to an existing ad intelligence platform with 514+ brands. Research across all 4 dimensions converges on a clear architecture: **persist per-ad classifications** (the single biggest architectural change), use **Claude Haiku 4.5 Vision + Batch API** for cost-effective classification (~$51 for 25K ads), extend the **existing 3-step strategy pipeline** to 6 steps, and manage costs with a **daily budget tracker**.
 
-The biggest risk is not technical complexity but scope discipline. The temptation to refactor V2's 308 ternaries, rebuild V1's monolithic page, or extract a full design system will derail the milestone. V5.1 should focus narrowly: define unified tokens, add a shared header to V1, swap V1's green palette to blue, and add V1 dark mode support. V2 ternary cleanup can come later.
+The platform's unique differentiator is **competitor-grounded strategy** -- Motion requires your own ad account, Foreplay requires manual saving, but this platform already has 514+ brands of competitor data. No competitor offers "pick any brand, see their creative taxonomy, generate strategy exploiting their gaps."
 
-The critical ordering constraint: design tokens and dark mode infrastructure must be established before any component-level theming. Shipping partial dark mode (themed nav + unthemed content) is worse than no dark mode.
+### Three Critical Decisions
 
-## Key Findings
+1. **Start with ~8-10 categories, not 46 formats.** The planned 46x8x35x5x8 taxonomy (515K combinations) is unusable. Motion uses 8 categories. Start there, expand after validation.
 
-### Recommended Stack
+2. **Persist classifications, don't recompute.** The current diversity route classifies-and-discards on every run. Storing per-ad classifications in an `AdClassification` table eliminates redundant AI calls and enables all downstream features (gap analysis, benchmarking, filtering).
 
-No new dependencies needed. The project already has `next-themes` (^0.4.6, only used by sonner.tsx), Tailwind v4 with `@theme inline` and `@custom-variant dark (&:is(.dark *))`, and CSS custom properties throughout. The work is consolidation:
+3. **Batch API + cron polling, not Inngest.** The Anthropic Batch API (50% discount, up to 100K requests) handles the heavy lifting. Vercel cron polls for completion. No new infrastructure dependencies needed beyond what already exists.
 
-- **CSS custom properties in `:root`/`.dark`**: Define unified `--ds-*` (or `--surface-*`, `--text-*`, `--brand-*`) tokens
-- **`@theme inline`**: Register tokens as Tailwind utilities (`bg-surface-page`, `text-text-primary`)
-- **`next-themes`**: Wire into root layout to manage `.dark` class on `<html>`, replacing V2's React state approach
-- **Avoid**: New config files, CSS-in-JS, oklch conversion, or custom context providers for dark mode
+## Key Findings by Dimension
 
-### Expected Features
+### Stack
+- **Stay with Claude.** Haiku 4.5 for classification ($0.002/ad with batch+cache), Sonnet 4.6 for strategy ($0.12/brand).
+- **One-time backfill cost: ~$82** (25K ads classification + 500 brands strategy).
+- **Incremental cost: ~$0.002/ad** for new ads.
+- **Only new dependency:** Potentially `inngest` for job orchestration, but Batch API + cron may suffice.
+- **Avoid:** OpenAI/Gemini (no benefit over existing Claude integration), LangChain (over-abstraction), pgvector/embeddings (wrong tool for categorical data), BullMQ/Redis (unnecessary infrastructure).
 
-**Must have (table stakes):**
-- Unified blue color palette on V1 (eliminates "two different products" feeling)
-- Consistent brand identity — BarChart3 icon + "Ad Library Pro" everywhere (not "Ad Analyser")
-- V1 navigation header with logo + upgrade CTA (replace 5-link nav)
-- V1 dark mode support (reads same preference as V2)
-- CTA fix — V1 points to `/#pricing` not `/coming-soon`
+### Features
+- **Table stakes:** Per-ad classification taxonomy, brand context auto-population, strategy from data, hook generation, visual reporting.
+- **Differentiators:** Competitor-grounded strategy (primary), interactive gap matrix, category benchmarking, creative concept generation from gaps.
+- **Anti-features:** Full image generation (AdCreative.ai owns this), swipe file/Chrome extension (Foreplay owns this), ad account connection (removes competitor intelligence advantage), team collaboration.
+- **Critical path:** Classification Engine -> Gap Matrix -> Concept Generation.
+- **Motion's taxonomy:** 8 categories (Asset Type, Visual Format, Hook Tactic, Messaging Angle, Seasonality, Offer Type, Intended Audience, Creative Angle). Start here, not with 46 formats.
 
-**Should have (differentiators):**
-- Contextual upgrade prompt after free analysis results
-- Smooth theme transition animations (`transition-colors`)
-- Shared dark mode persistence via localStorage
+### Architecture
+- **Two-tier classification:** On-demand single-ad (Haiku 4.5, 2-4s, ~$0.005/ad) + Anthropic Batch API (50% discount, async <1hr) for bulk.
+- **New Prisma models:** `AdClassification` (per-ad, indexed columns not JSON), `ClassificationJob` (batch state), `ApiCostLog` (cost tracking).
+- **Diversity route refactor:** Currently ephemeral (classify-discard-aggregate). Becomes pure DB aggregation from stored classifications.
+- **Strategy pipeline:** Extend existing 3-step to 6-step. Steps 4-6 add mechanics, formats, gap analysis.
+- **Vercel constraints solvable:** `after()` for small batches, Batch API for large ones, cron polling for completion.
 
-**Defer:**
-- V2 ternary cleanup (308 occurrences, separate milestone)
-- V1 page refactoring (monolith is fine for now)
-- Design system extraction / Storybook
-- V1 sidebar navigation (V1 is single-purpose, not a dashboard)
+### Pitfalls (by severity)
+- **Critical:** Vision API cost explosion without caching, Vercel timeout on multi-image calls, classification inconsistency across runs.
+- **High:** Taxonomy bloat (46 formats unusable), strategy converging to generic advice, database bloat from JSON classifications, 4.5MB payload limit, no cost tracking.
+- **Medium:** Missing images degrading quality, dashboard-for-dashboards UX, prompt caching not utilized, strategy context loss between steps, race conditions on concurrent analysis, cold starts, maxDuration mismatches.
 
-### Architecture Approach
+## Cross-Cutting Themes
 
-Three layout zones sharing one token layer, each with its own shell:
+1. **Classification is the foundation.** Every research dimension identifies per-ad classification as the prerequisite for all other features. Build it first, build it right.
 
-```
-globals.css (unified tokens: :root + .dark)
-    |
-    +-- Landing (/) — forced dark, AppHeader, full-width
-    +-- Analyser (/analyser) — AppHeader + centered content
-    +-- Dashboard (/dashboard/v2) — V2Shell (sidebar) + tokens
-```
+2. **Cost control is non-negotiable.** At ~$0.005/ad standard rate, costs scale linearly. Batch API (50% off) + prompt caching (90% off on system prompt) + persistent caching (classify once) are all required.
 
-**Major components:**
-1. **Design tokens** in `globals.css` `:root`/`.dark` — single source of truth
-2. **`@theme inline`** mappings — tokens → Tailwind utilities
-3. **ThemeProvider** (via `next-themes`) — manages `.dark` class on `<html>`
-4. **AppHeader** — shared top nav for landing + analyser (V2 keeps its sidebar header)
+3. **Start simple, expand later.** Both Features and Pitfalls research strongly recommend starting with Motion's 8-category approach (~10 tags per category) rather than the planned 46x8x35x5x8 taxonomy.
 
-### Critical Pitfalls
-
-1. **Two incompatible dark mode systems** — V2 uses React context ternaries, globals.css has unused `.dark` class. Must choose ONE approach for V1 (CSS class-based recommended) and sync via side effect.
-2. **CSS variable collision** — Changing `:root` variables affects ALL pages including landing. Must namespace new tokens (`--ds-*`) or scope carefully.
-3. **Recharts hardcoded colors** — Charts use literal hex for fills/strokes/ticks. Will be invisible or unreadable in dark mode. Every chart needs an audit.
-4. **Navigation header breaks V1 layout** — V1 is a monolithic page with its own header. Inserting a shared nav creates double-header. Extract to `analyser/layout.tsx`.
-5. **Partial dark mode is worse than none** — Dark header + light content looks broken. Ship V1 dark mode as atomic unit.
+4. **The existing codebase is a strong foundation.** The 3-step strategy pipeline, diversity analysis, brand analysis cache, and Anthropic SDK integration all extend cleanly. No rewrites needed.
 
 ## Implications for Roadmap
 
 Based on research, suggested phase structure:
 
-### Phase 1: Design Tokens + Theme Infrastructure
-**Rationale:** Everything depends on this — tokens are the foundation, theme provider is the mechanism.
-**Delivers:** Unified CSS custom properties in `:root`/`.dark`, `@theme inline` mappings, `next-themes` wired into root layout.
-**Addresses:** Token strategy (ARCHITECTURE), variable collision prevention (PITFALLS #3), dark mode persistence (PITFALLS UX1)
-**Avoids:** Two incompatible dark mode systems (PITFALLS #1)
-**No visual changes** — old variables coexist with new ones.
+### Phase 1: Classification Foundation
+- **Rationale:** Every feature depends on stored per-ad classifications. This is the foundation.
+- **Scope:** AdClassification + ClassificationJob + ApiCostLog Prisma models, cost tracker utility, classification taxonomy definition (8-10 categories, ~10 tags each), classification prompt with few-shot examples
+- **Addresses:** TS-1 (Features), Decision 1 (Architecture), Pitfalls 1/3/6/15
+- **Risk:** Medium (prompt engineering for taxonomy accuracy)
 
-### Phase 2: V1 Navigation Header + Brand Identity
-**Rationale:** Layout structure must be settled before component theming. Header is the most visible brand consistency element.
-**Delivers:** `AppHeader` component, V1 layout.tsx extraction, brand lockup (BarChart3 + "Ad Library Pro"), CTA fix to `/#pricing`.
-**Addresses:** Brand fragmentation (FEATURES table stakes), navigation declutter (FEATURES)
-**Avoids:** Layout height breaks (PITFALLS #4), double-header (PITFALLS #4)
+### Phase 2: Single-Ad + Batch Classification Pipeline
+- **Rationale:** Two-tier classification enables both interactive and bulk use cases.
+- **Scope:** `/api/classify/vision` route (on-demand), Anthropic Batch API wrapper, `/api/classify/batch` + `/api/classify/cron` routes, ClassificationJob lifecycle
+- **Addresses:** Architecture Tier 1+2, Pitfalls 2/10/16/17
+- **Risk:** Medium (Batch API integration, polling logic)
 
-### Phase 3: V1 Theme Migration
-**Rationale:** With tokens defined and layout settled, swap V1's green palette to blue and add dark mode support.
-**Delivers:** V1 uses unified tokens, dark mode works on V1, Recharts themed for both modes.
-**Addresses:** Color palette unification (FEATURES P0), dark mode (FEATURES P1), chart theming (PITFALLS #2)
-**Avoids:** Partial dark mode (PITFALLS UX2) — ships as atomic unit
+### Phase 3: Diversity Analysis Refactor
+- **Rationale:** Highest-value refactor -- eliminates redundant AI calls from the most-used analysis route.
+- **Scope:** Refactor `/api/analyze/diversity` to read from AdClassification table, remove ephemeral classification, keep recommendation AI call, update BrandAnalysisCache
+- **Addresses:** Architecture Decision 1, Pitfalls 1/7/12
+- **Risk:** Low (straightforward refactor)
 
-### Phase 4: Landing Page Polish + Cleanup
-**Rationale:** Landing page comes last because it depends on knowing the final V1/V2 look. Cleanup removes old tokens.
-**Delivers:** Landing page CTA/copy alignment, removal of old green Kiri Media tokens, minor polish.
-**Addresses:** Landing page tweaks (PROJECT.md requirement), landing inconsistency (PITFALLS UX3)
+### Phase 4: Classification UI + Distribution Charts
+- **Rationale:** Make classification data visible and browsable before building strategy on top.
+- **Scope:** Distribution charts per dimension, classification tags in ad detail, filtered views by classification, brand classification coverage stats
+- **Addresses:** TS-5 (Features), Pitfall 9 (progressive disclosure UX)
+- **Risk:** Low (frontend work, data already available)
+
+### Phase 5: Strategy Engine Extension
+- **Rationale:** Extend proven 3-step pipeline with classification-informed gap analysis.
+- **Scope:** Steps 4-6 (mechanics, formats, gap analysis), competitor-grounded strategy, gap matrix UI, concept generation from gaps
+- **Addresses:** DF-1/DF-2/DF-4 (Features), Strategy pipeline (Architecture), Pitfall 5/11
+- **Risk:** Medium (LLM output quality, UX complexity)
+
+### Phase 6: Category Benchmarking
+- **Rationale:** Requires sufficient classified brands per category. Run after bulk classification.
+- **Scope:** Cross-brand aggregation, brand vs category comparison, index scores, benchmark UI
+- **Addresses:** DF-3 (Features), Phase 6 (Architecture)
+- **Risk:** Medium (data coverage dependency)
 
 ### Phase Ordering Rationale
+- **Phase 1 before all:** Everything depends on the classification data model and taxonomy definition.
+- **Phase 2 before 3:** Diversity refactor assumes classifications exist in DB.
+- **Phase 3 before 4:** UI should show real classified data, not ephemeral results.
+- **Phase 4 before 5:** Users need to see classification data before strategy builds on it.
+- **Phase 5 before 6:** Benchmarking is additive; strategy is the core value.
+- **Phases 2+4 could partially overlap:** Batch classification (backend) and UI work can proceed in parallel once Phase 1 is done.
 
-- **Tokens before components:** Every component change depends on tokens existing. Doing tokens first means zero wasted work.
-- **Header before theme:** Layout structure changes (adding nav, extracting layout.tsx) should happen before color/theme work to avoid merge conflicts and double-work.
-- **V1 dark mode as atomic unit:** Per PITFALLS UX2, partial dark mode looks broken. V1 theme + dark mode must ship together.
-- **Landing last:** It already uses the blue palette. Minor alignment after V1 is settled.
+### Research Flags for Phases
+- **Phase 1:** Needs taxonomy validation spike -- classify 50 sample ads, measure accuracy across proposed categories. This is the riskiest design decision.
+- **Phase 2:** Verify Anthropic Batch API behavior with Vision requests (batch + vision + caching interaction).
+- **Phase 5:** Strategy quality needs testing -- generate strategies for 5 brands, evaluate specificity vs. generic-ness.
+- **Phase 6:** Evaluate data coverage first -- how many brands per category have enough ads for meaningful benchmarks?
 
-### Research Flags
+## Open Questions
 
-Phases likely needing deeper research during planning:
-- **Phase 3 (V1 Theme):** Recharts dark mode theming is tedious — needs file-by-file audit of chart components. 163 CSS variable references to update.
-
-Phases with standard patterns (skip research-phase):
-- **Phase 1 (Tokens):** Well-documented Tailwind v4 patterns, infrastructure already exists
-- **Phase 2 (Header):** Standard Next.js layout extraction, existing nav components to reference
-- **Phase 4 (Polish):** Copy/CSS changes only
+1. **Vercel plan tier?** Hobby (300s max) vs Pro (800s max) significantly affects architecture. Pro is recommended ($20/mo).
+2. **Exact taxonomy values?** Motion's 8 categories are confirmed but exact tag lists per category are product IP. Need to define our own.
+3. **Inngest vs cron-only?** Stack research recommends Inngest; Architecture research shows cron+Batch API may suffice. Decision can be deferred to Phase 2.
+4. **AdAnalysis deprecation?** Existing per-ad Vision analysis (`AdAnalysis` model) overlaps with `AdClassification`. Decide whether to deprecate or keep for different purpose.
 
 ## Confidence Assessment
 
-| Area | Confidence | Notes |
-|------|------------|-------|
-| Stack | HIGH | No new deps needed. All tools already installed and partially configured. |
-| Features | HIGH | Based on direct codebase analysis — every inconsistency is observable in source. |
-| Architecture | HIGH | Tailwind v4 `@theme inline` already in use; dependency chain clear from grep counts. |
-| Pitfalls | HIGH | Specific to this codebase — 308 ternaries, 163 var references, 385 hardcoded hex measured directly. |
-
-**Overall confidence:** HIGH
-
-### Gaps to Address
-
-- **Should V1 support dark mode toggle, or only read preference?** Research recommends: read from localStorage/system preference, no toggle UI on V1 itself.
-- **Should landing page stay forced-dark or respect user preference?** Research recommends: keep forced dark (marketing material).
-- **Font stack alignment:** V1 uses DM Sans via Google Fonts import, layout.tsx loads Geist via `next/font`. Shared nav needs one consistent font.
-- **V2 ternary cleanup scope:** Not in v5.1, but the 308 ternaries create a visible inconsistency in code quality. Flag for v5.2.
-
-## Sources
-
-### Primary (HIGH confidence)
-- Direct codebase analysis: `globals.css`, `v2-shell.tsx`, `v2-context.tsx`, `landing-nav.tsx`, `analyser/page.tsx`
-- Tailwind CSS v4 official docs (dark mode, @theme directive)
-- next-themes GitHub docs (v0.4.6)
-
-### Secondary (MEDIUM confidence)
-- SaaS UI design patterns (The Alien Design, Pencil & Paper, Appcues)
-- Competitor analysis (AdSpy, BigSpy, Foreplay patterns)
-- Community Tailwind v4 + next-themes integration guides
-
----
-*Research completed: 2026-03-18*
-*Ready for roadmap: yes*
+| Dimension | Confidence | Key Uncertainty |
+|-----------|------------|-----------------|
+| Stack | HIGH | Inngest vs cron decision |
+| Features | MEDIUM-HIGH | Motion taxonomy exact values |
+| Architecture | HIGH | Batch API + Vision + caching interaction |
+| Pitfalls | HIGH | Actual classification accuracy at scale |

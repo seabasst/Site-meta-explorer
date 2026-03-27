@@ -1,156 +1,292 @@
-# Feature Research
+# Features Research -- Creative Strategy Engine (v8.0)
 
-**Domain:** Ad intelligence platform -- visual consistency across V1 (analyser), V2 (dashboard), and landing page
-**Researched:** 2026-03-18
-**Confidence:** HIGH (based on codebase analysis + SaaS design patterns)
+**Domain:** AI-powered ad creative intelligence and strategy generation
+**Researched:** 2026-03-27
+**Overall confidence:** MEDIUM-HIGH
 
-## Current State Analysis
+## Executive Summary
 
-Three distinct visual surfaces exist today, each with its own identity:
+The creative intelligence tool market has matured rapidly through 2025-2026, with a clear split emerging between **analysis tools** (Motion, MagicBrief, Superads) and **generation tools** (AdCreative.ai, Atria, Predis.ai). The winning products combine both -- analyze what works, then generate what to test next. This is exactly the trajectory v8.0 is on.
 
-| Surface | Theme | Colors | Typography | Navigation |
-|---------|-------|--------|------------|------------|
-| **Landing (/)** | Dark-only | `#101322` bg, `#1235e2` primary, white text | Instrument Serif (hero) + DM Sans | Fixed top bar: logo + "Try Free" + "Get Pro" pill |
-| **V1 (/analyser)** | Light-only | Green palette (`#1a3933` accent, `#f8f8f5` bg), uses CSS custom properties | DM Sans | Sticky top bar: "Ad Analyser" text logo, How it works/About/Contact/Feedback/Roadmap, "Pro -- Coming Soon" CTA |
-| **V2 (/dashboard/v2)** | Dark/Light toggle | Dark: `#101322` bg, `#1235e2` primary. Light: `#f6f6f8` bg, `#1235e2` primary | DM Sans | Sidebar with BarChart3 icon logo + "Ad Library Pro" brand |
+Motion has set the standard with their 8-category AI taxonomy (Asset Type, Visual Format, Hook Tactic, Messaging Angle, Seasonality, Offer Type, Intended Audience, plus one more). Their 2026 Creative Benchmarks report analyzing $1.3B in spend across 550K+ ads is the industry reference. Foreplay has established the workflow standard: save ads -> build brand profile -> generate briefs -> produce scripts. MagicBrief bridges analytics and briefing with competitive tracking.
 
-**Key inconsistencies:**
-1. V1 uses a completely different color palette (greens) vs V2/Landing (blues)
-2. V1 brand text says "Ad Analyser" -- V2 and Landing say "Ad Library Pro"
-3. V1 CTA says "Pro -- Coming Soon" -- Landing has "Get Pro" linking to pricing
-4. V1 has no dark mode support
-5. V1 nav has 5 links (How it works, About, Contact, Feedback, Roadmap) -- most irrelevant to the V2 product direction
-6. Landing nav and V2 sidebar both use the BarChart3 icon + blue pill logo; V1 has plain text
+The existing v7.0 Creative Lab already has strong foundations: Five Pillar diversity scoring, Andromeda metrics, brand strategy intake with website scraping, a 3-step strategy pipeline (Brand Profile -> Messaging Strategy -> Ad Hooks), and UGC brief generation. The v8.0 opportunity is to add **Motion-grade classification taxonomy** as a new analysis layer, then build strategy features on top of that richer data.
 
----
+The biggest differentiator opportunity: most tools require users to have their OWN ad account data (Motion requires Meta ad account connection). This platform has 514+ brands of competitor data already ingested -- offering strategy generation grounded in competitor intelligence is unique positioning.
 
-## Feature Landscape
+## Competitive Landscape
 
-### Table Stakes (Users Expect These)
+### Key Players and Their Approaches
 
-Features that, if missing, make the product feel unfinished or untrustworthy. A user navigating from landing to analyser to dashboard should not feel like they landed on a different product.
+**Motion** (market leader in creative analytics, $1.3B spend analyzed)
+- 8-category AI taxonomy: Asset Type, Visual Format, Hook/Headline Tactic, Messaging Angle, Seasonality, Offer Type, Intended Audience, Creative Angle
+- AI auto-tags all ads in connected Meta accounts
+- Gap analysis showing overused formats and underexplored creative territories
+- Creative Benchmarks by vertical (fashion, finance, home/lifestyle, etc.)
+- Requires Meta ad account connection -- analyzes YOUR ads only
+- Pricing: starts ~$500/mo for serious teams
+- Sources: [Motion AI Tagging](https://motionapp.com/releases/introducing-ai-tagging), [2026 Benchmarks Methodology](https://motionapp.com/thumbstop-pulse/cb2026-methodology-and-definitions)
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Unified color palette on V1** | Green palette screams "different product." Users lose trust when pages look disconnected. Reducing cognitive load is the #1 design consistency principle. | Low | Replace `--accent-green` family with `#1235e2` blue family. Keep CSS var structure, just swap values. |
-| **Consistent brand identity on V1** | "Ad Analyser" vs "Ad Library Pro" is confusing. Same logo lockup (BarChart3 icon + "Ad Library Pro") must appear everywhere. | Low | Replace text-only logo with the same icon+text lockup used in landing-nav.tsx and v2-shell.tsx. |
-| **Dark/light mode on V1** | V2 has it, landing is dark-only, V1 is light-only. Users who toggle dark mode in V2 then visit V1 get a jarring flash. | Medium | V1 needs to read and respect the same dark mode state. Use V2's dark palette (`#101322` bg, slate text scale). |
-| **Typography alignment** | V1 already uses DM Sans (shared globals.css), but font weights and sizes may drift. | Low | Audit heading/body sizes. Ensure V1 body text, headings, and labels match V2's scale (text-sm for labels, text-base for body). |
-| **Consistent spacing and border radii** | V1 uses mixed radius values and spacing. V2 has a tighter system. | Low | Standardize to V2's `rounded-lg` (cards), `rounded-full` (pills/buttons), and `gap-3`/`gap-4`/`gap-6` spacing rhythm. |
-| **Correct CTA destination** | V1 currently links to `/coming-soon`. Landing links to `#pricing`. This mismatch confuses users about the product's state. | Low | V1 CTA should link to landing page pricing section (`/#pricing`) or directly to V2 dashboard. |
+**Foreplay** (creative workflow leader)
+- Swipe file with Chrome extension (save from Facebook Ad Library, TikTok, Instagram)
+- Brand profiles with colors, fonts, guidelines (reusable across briefs)
+- AI brief generator: brand profile baked in, storyboards auto-generated
+- AI script generation broken into sections (hooks, product descriptions, testimonials)
+- Landing page screenshot capture (desktop + mobile)
+- Focus: workflow efficiency, not deep analytics
+- Sources: [Foreplay Briefs](https://www.foreplay.co/briefs), [Foreplay Swipe File](https://www.foreplay.co/swipe-file)
 
-### Differentiators (Make V1-to-V2 Transition Feel Premium)
+**MagicBrief** (creative research + analytics bridge)
+- 12M+ ad database for competitive research
+- Brand following with strategy change tracking over time
+- Creative analytics syncing Meta, TikTok, YouTube, LinkedIn
+- AI-generated scripts informed by what's already working
+- Visual reports comparing formats, creators, angles
+- Modular briefing system with creative context retention
+- Sources: [MagicBrief Features](https://magicbrief.com/features), [Creative Analytics](https://magicbrief.com/creative-analytics)
 
-Features that are not strictly expected but make the product feel polished, intentional, and worth paying for. These are what separate "we updated the colors" from "this feels like a real product."
+**AdCreative.ai** (generation-first)
+- AI generates ad creatives with conversion scoring (claims 90%+ prediction accuracy)
+- Creative Scoring AI evaluates 25 creatives at a time
+- Component analysis (logos, CTAs, products) + saliency AI (predicts eye focus)
+- Text Generator using AIDA, PAS, BAB copywriting frameworks
+- No competitor analysis -- generates from brand inputs only
+- Sources: [Creative Scoring](https://www.adcreative.ai/creative-scoring)
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **V1 header with branded logo + upgrade CTA** | A minimal header with the BarChart3 logo, link home, and a prominent "Upgrade to Pro" or "Open Dashboard" CTA creates a clear upgrade funnel. Best freemium SaaS practice: every free surface subtly signals the paid product exists. | Low-Medium | Replace V1's 5-link nav with: [Logo link to /] ... [Upgrade CTA pill]. The Appcues pattern: "subtle but persistent reminder" without interrupting workflow. |
-| **Contextual upgrade prompt below results** | After a user completes a free analysis, show a tasteful card: "Want to track this brand over time? Save ads, get AI insights." Links to V2 dashboard or pricing. | Low | More effective than banner -- users have just gotten value and are primed to want more. Conversion-centered design principle. |
-| **Smooth theme transition animations** | When navigating between pages, avoid a hard flash from dark to light. Use `transition-colors duration-200` on body/background. | Low | CSS-only. Prevents the jarring "flash" when moving between surfaces. |
-| **Shared dark mode persistence** | Dark mode preference set in V2 automatically applies to V1 (and vice versa). Single localStorage key or cookie. | Low | V2 already uses `useV2()` context for darkMode. V1 can read the same localStorage key directly. |
-| **Landing page minor polish** | Small alignment/copy tweaks to tighten the landing-to-analyser-to-dashboard funnel. Ensure CTAs are consistent ("Try Free Analyser" and "Get Pro Dashboard"). | Low | Copy and spacing only. No structural changes. |
+**Atria** (inspiration + AI engine)
+- 25M+ ad library from Meta and TikTok
+- Classification by creative theme: Features/Benefits, Testimonial, Comparison, etc.
+- AI auto-tagging with search by element
+- Radar feature: scores ads on ROAS, CTR, hook rate, retention
+- Multi-level board and tagging system for idea curation
+- Sources: [Atria](https://www.tryatria.com/)
 
-### Anti-Features (Do NOT Build for v5.1)
+**Minea** (ecommerce ad spy, less relevant)
+- 921M+ ads scanned, updated 8x daily
+- Product-focused (winning products, not creative strategy)
+- Success score based on 25 metrics
+- Not a creative strategy tool -- more dropshipping-oriented
+- Sources: [Minea](https://www.minea.com/)
 
-Common temptations that would bloat this milestone beyond its scope. The goal is visual consistency, not new functionality.
+### Where This Platform Fits
 
-| Anti-Feature | Why Tempting | Why Problematic | Alternative |
-|--------------|-------------|-----------------|-------------|
-| **Full design system / component library extraction** | "While we're updating colors, let's build a proper design system with Storybook." | Massive scope creep. The V1 page is a freemium entry point, not a growing surface. It does not need a component library. | Update CSS variables and hardcoded colors in V1. Document the palette in a comment block. |
-| **V1 feature parity with V2** | "Users on V1 should be able to toggle dark mode with a button like V2." | V1 is the free tool, not the dashboard. Adding UI controls to V1 increases maintenance surface. | V1 reads dark mode preference silently from localStorage. No toggle UI on V1 itself -- the system preference or V2 setting controls it. |
-| **Rebuilding V1 page structure** | "The analyser is a 500-line monolith, let's refactor it into components." | Refactoring is not visual consistency. It adds risk and testing burden with no user-visible benefit for this milestone. | Scope to CSS/styling changes and header component swap only. Refactor in a future milestone if needed. |
-| **Adding new pages or routes** | "We should add an /upgrade page or /features comparison page." | New routes = new content = new maintenance. Not needed for visual consistency. | Use existing landing page pricing section as the upgrade destination. |
-| **Animated page transitions between V1 and V2** | "Let's add a smooth crossfade when users navigate from analyser to dashboard." | Requires layout groups, shared state, or View Transitions API. High complexity for low impact. | Simple `transition-colors` on body background is sufficient. |
-| **V1 sidebar navigation** | "V1 should have a sidebar like V2 for consistency." | V1 is a single-purpose tool (paste URL, get analysis). Adding sidebar navigation implies it is a multi-page app, which it is not. | Keep V1 as a single-page tool with a minimal top header. |
+The platform's unique position: **competitor intelligence data + AI strategy generation**. Motion needs your ad account; Foreplay needs manual ad saving; MagicBrief's research is separate from analytics. This platform already has 514+ brands with ads, demographics, and diversity analysis -- building strategy on top of that data is the differentiator.
 
----
+## Table Stakes Features
+
+Features users expect from any creative intelligence tool in 2026. Missing these makes the product feel incomplete.
+
+### TS-1: AI Ad Classification Taxonomy
+
+**What:** Automatically classify every ad across multiple dimensions (visual format, hook type, messaging angle, etc.)
+**Why expected:** Motion established this as the standard. Foreplay and MagicBrief both offer tagging. Users expect to filter and analyze by creative dimension.
+**Complexity:** HIGH
+**What exists already:** Five Pillar diversity scoring classifies ads into format, tone, journey phase, visual style, messenger. But this is aggregate scoring, not per-ad tagging.
+**Gap:** Need per-ad classification stored in DB, not just aggregate scores. Motion uses 8 categories; the v8.0 plan proposes 46 visual formats, 8 creative mechanics, 35 hook tactics, 5 awareness stages, 8 psychological triggers -- this is more granular than Motion.
+**Confidence:** HIGH (based on Motion's published taxonomy and multiple competitor implementations)
+
+### TS-2: Brand Context Auto-Population
+
+**What:** Auto-generate brand profile from existing data (ads, category, website) without manual input
+**Why expected:** Foreplay does this with brand profiles + website scraping. Users hate filling forms when the tool already has their data.
+**Complexity:** LOW-MEDIUM (already partially built)
+**What exists already:** `/api/creative-lab/scrape-brand` scrapes websites for voice/audience/differentiators. Strategy Step 1 pulls from BrandAnalysisCache and top ads.
+**Gap:** Could enrich further by analyzing ad copy patterns, demographic data, and category benchmarks automatically. Current implementation requires user to optionally fill in audience/differentiators/positioning -- these could be pre-filled from existing DB data.
+**Confidence:** HIGH (already partially implemented)
+
+### TS-3: Strategy Generation from Data
+
+**What:** Generate messaging strategy, personas, and angles grounded in real ad performance data
+**Why expected:** MagicBrief generates scripts "informed by what's already working." Motion's gap analysis recommends what to test. Users expect AI recommendations.
+**Complexity:** MEDIUM (already partially built)
+**What exists already:** 3-step pipeline (Brand Profile -> Messaging Strategy -> Ad Hooks) with Claude integration, Schwartz awareness stages, 8 psychological triggers.
+**Gap:** Current implementation is solid but relies heavily on text ad copy. v8.0 should ground strategy in the richer classification taxonomy (not just text patterns).
+**Confidence:** HIGH (already implemented, needs enhancement)
+
+### TS-4: Hook/Copy Generation
+
+**What:** Generate scroll-stopping ad hooks and copy variations mapped to strategy
+**Why expected:** Every competitor offers some form of copy generation. GetHookd, AdCreative.ai, Foreplay all generate hooks/scripts.
+**Complexity:** LOW-MEDIUM (already built)
+**What exists already:** Step 3 generates 15-20 hooks with 8 psychological triggers, scoring on 4 dimensions (stopping power, relevance, emotional resonance, clarity).
+**Gap:** Could add hook variation generation (same angle, different triggers), A/B pair generation, and platform-specific adaptation (TikTok vs Meta vs LinkedIn tone).
+**Confidence:** HIGH (already implemented)
+
+### TS-5: Visual Performance Reporting
+
+**What:** Visual charts showing creative dimension distribution and performance
+**Why expected:** Motion's entire product is visual reporting. MagicBrief emphasizes "visual reports everyone understands." Superads fills the gap native ad managers leave.
+**Complexity:** MEDIUM
+**What exists already:** Five Pillar diversity scores displayed as pills/bars. Demographic charts (age, gender, region).
+**Gap:** Need distribution charts per classification dimension (e.g., bar chart: "30% of your ads use testimonial format, only 5% use listicle"). Motion's AI Tagging UI shows this exact view.
+**Confidence:** HIGH
+
+## Differentiating Features
+
+Features that would set this product apart from competitors.
+
+### DF-1: Competitor-Grounded Strategy (PRIMARY DIFFERENTIATOR)
+
+**What:** Generate creative strategy by analyzing competitor ad libraries -- not requiring user's own ad account
+**Value proposition:** Motion requires your own Meta ad account. MagicBrief's research is separate from strategy generation. This platform already has 514+ brands ingested. A user can select any competitor, see their full creative taxonomy breakdown, and generate a strategy that exploits their gaps.
+**Complexity:** MEDIUM-HIGH
+**How it works:** Select a competitor -> see their classification distribution -> identify over-indexed and under-indexed creative dimensions -> generate strategy that targets their blind spots.
+**Dependency:** Requires TS-1 (AI Ad Classification Taxonomy) to be complete first.
+**Confidence:** HIGH (unique combination, no competitor does this)
+
+### DF-2: Strategy Matrix with Gap Visualization
+
+**What:** Interactive matrix crossing awareness stages x messaging angles x creative formats, showing where the brand has coverage and where gaps exist
+**Value proposition:** Motion shows gap analysis but as static reports. Making this an interactive, explorable matrix where users can click a gap cell and immediately generate concepts for it is novel.
+**Complexity:** HIGH
+**How it works:** 2D grid (e.g., awareness stage rows x format columns). Each cell shows ad count/coverage. Empty or low cells are highlighted as opportunities. Click a gap cell -> pre-populate concept generation with those parameters.
+**Dependency:** Requires TS-1 (classification data to populate the matrix).
+**What exists already:** `strategyMatrix` field on BrandStrategy model stores personas and messaging angles. Current UI shows these as lists, not as an interactive matrix.
+**Confidence:** MEDIUM (concept is clear, UX complexity is real)
+
+### DF-3: Category Benchmarking Across Creative Dimensions
+
+**What:** Compare a brand's creative dimension distribution against category averages (e.g., "Fashion brands use 40% UGC, you use 15% -- opportunity to test more UGC")
+**Value proposition:** Motion's 2026 Benchmarks report does this at the industry level but as a static report. Making it interactive and brand-specific is powerful. Their report found industry-specific patterns: fashion favors "culturally fluent visuals," finance favors "credibility-forward formats," home/lifestyle favors "demonstration."
+**Complexity:** HIGH
+**How it works:** For each classification dimension, aggregate across all brands in a category. Show brand vs. category distribution with index scores (brand is 2x over-indexed on testimonials, 0.5x under-indexed on listicles).
+**Dependency:** Requires TS-1 applied to enough brands per category. Requires having sufficient brands per category in the database.
+**What exists already:** BrandAnalysisCache stores per-brand scores. Benchmark API endpoint exists but has the broken category parameter issue (v7.0 audit Gap 2).
+**Confidence:** MEDIUM (feasibility depends on having enough classified brands per category)
+
+### DF-4: Creative Concept Generation from Gaps
+
+**What:** When a gap is identified (e.g., "no ads targeting Solution-Aware stage with Listicle format"), auto-generate a complete creative concept: hook, body copy, visual direction, CTA, and format specification
+**Value proposition:** Goes beyond hooks into full creative concepts. Foreplay generates briefs and storyboards; this would generate the actual creative direction tied to identified gaps.
+**Complexity:** MEDIUM
+**Dependency:** Requires DF-2 (gap identification) and TS-3 (strategy context).
+**What exists already:** Hook generation (Step 3) and AI creative generation (Phase 57) already produce creative outputs. This extends them with gap-aware targeting.
+**Confidence:** MEDIUM-HIGH
+
+### DF-5: Creative Velocity Tracking
+
+**What:** Track how fast a brand ships new creative and correlate with diversity scores over time
+**Value proposition:** Motion's 2026 report found "advertisers that launch more ads get more winners" and "top advertisers ship materially more creative than average." Tracking this over time and correlating with diversity shifts is unique.
+**Complexity:** MEDIUM
+**How it works:** Time-series of ad launch dates, grouped by classification dimension. Show creative velocity (ads/week), format diversification trend, and staleness indicators.
+**What exists already:** Andromeda metrics include refreshRate, stalePercentage, uniqueConcepts. Ad startDate is stored per ad.
+**Dependency:** Requires historical data retention (ads with startDate).
+**Confidence:** MEDIUM
+
+## Anti-Features
+
+Things to deliberately NOT build and why.
+
+### AF-1: Full Ad Creative Generation (Images/Video)
+
+**Why avoid:** AdCreative.ai and Atria already do this well. Competing on visual asset generation requires massive investment in diffusion models, brand kit systems, template engines, and format adaptation. The existing v7.0 image generation (Phase 56) is sufficient for basic needs.
+**What to do instead:** Focus on the STRATEGY layer -- tell users WHAT to create and WHY, not generate the actual pixels. Users already have Canva, Figma, creative teams, and tools like AdCreative.ai for production.
+**Risk of building:** Mediocre generation that cannot match dedicated tools, while diverting engineering time from the strategy differentiator.
+
+### AF-2: Swipe File / Ad Saving from External Sources
+
+**Why avoid:** Foreplay owns this workflow with their Chrome extension. Building a competitive swipe file tool requires browser extensions, cross-platform support (TikTok, Instagram, LinkedIn), and a whole collaboration layer.
+**What to do instead:** The platform already HAS the ads in its database (514+ brands). The value is in classification and analysis of those ads, not in saving new ones from external sources.
+**Risk of building:** Poor Chrome extension that cannot compete with Foreplay's polished experience, fragmenting engineering effort.
+
+### AF-3: Ad Account Connection / Performance Data Sync
+
+**Why avoid:** Motion requires Meta ad account connection to work. This is the KEY differentiator to NOT copy. The platform's value is analyzing COMPETITOR ads from the Ad Library (publicly available data) without requiring account access.
+**What to do instead:** Keep using Facebook Ad Library data and reach estimates as the performance proxy. The reach-based approach is actually what Motion uses for their benchmarks ("spend reflects how budget is allocated within accounts").
+**Risk of building:** Scope explosion, OAuth integration complexity, and losing the "analyze anyone without permission" advantage.
+
+### AF-4: Real-Time Collaboration / Team Workspace
+
+**Why avoid:** Foreplay and MagicBrief have invested heavily in team features (shared boards, Slack integration, approval workflows, work-back schedules). Building this is a product in itself.
+**What to do instead:** Focus on single-user strategy generation with export capabilities. Share via link or PDF export, not in-app collaboration.
+**Risk of building:** Half-baked collaboration that frustrates teams and requires ongoing maintenance of real-time sync, permissions, and notification systems.
+
+### AF-5: Overly Granular Taxonomy (46 Visual Formats)
+
+**Why avoid:** The v8.0 plan proposes 46 visual formats, 35 hook tactics -- this may be too granular. Motion uses 8 categories with manageable tag counts per category and calls this "the 80/20 of creative insights." Having 46 format options creates classification noise and makes gap analysis less actionable.
+**What to do instead:** Start with Motion's 8-category approach. Use ~10-15 tags per category (not 46). Validate with real classification accuracy before expanding. AI classification accuracy degrades as category count increases.
+**Risk of building:** Low classification accuracy, confusing gap analysis with too many sparse cells, and user overwhelm.
 
 ## Feature Dependencies
 
 ```
-Unified color palette (V1)
+TS-1: AI Ad Classification Taxonomy (FOUNDATION -- build first)
   |
-  +-- Dark/light mode (V1)  [depends on palette being blue-based first]
-  |     |
-  |     +-- Shared dark mode persistence  [depends on V1 supporting dark mode]
+  +---> TS-5: Visual Performance Reporting (needs classification data to chart)
   |
-  +-- Consistent brand identity (V1)  [can happen in parallel with palette]
-        |
-        +-- V1 header with branded logo + upgrade CTA  [depends on brand lockup being defined]
+  +---> DF-1: Competitor-Grounded Strategy (needs classified competitor ads)
+  |
+  +---> DF-2: Strategy Matrix with Gap Visualization (needs dimensions to cross)
+  |       |
+  |       +---> DF-4: Creative Concept Generation from Gaps (needs identified gaps)
+  |
+  +---> DF-3: Category Benchmarking (needs classified ads across brands)
 
-Landing page tweaks  [independent -- can happen in parallel with all above]
+TS-2: Brand Context Auto-Population (INDEPENDENT -- can build anytime)
 
-Contextual upgrade prompt  [independent -- can be added after header work]
+TS-3: Strategy Generation (ALREADY EXISTS -- enhance with TS-1 data)
+  |
+  +---> TS-4: Hook/Copy Generation (ALREADY EXISTS -- enhance with gap context)
+
+DF-5: Creative Velocity Tracking (INDEPENDENT -- uses existing startDate data)
 ```
 
-**Critical path:** Color palette swap must happen before dark mode support, because adding dark mode with the green palette would mean building something you immediately throw away.
+**Critical path:** TS-1 (Classification) -> DF-2 (Gap Matrix) -> DF-4 (Concept Generation)
 
----
+**Quick wins (no dependencies):** TS-2 (auto-populate brand context), DF-5 (velocity tracking)
 
-## MVP Definition
+## MVP Recommendation
 
-### v5.1 Must Have
+For the v8.0 MVP, prioritize:
 
-These are the items that, if shipped, make v5.1 feel complete:
+1. **TS-1: AI Ad Classification Taxonomy** -- The foundation everything else depends on. Start with Motion-aligned 8 categories, ~10-15 tags each. Use Claude to classify existing ads in batch. Store per-ad classifications in DB.
 
-1. **V1 color palette swap** -- Replace green accent family with `#1235e2` blue family in CSS variables. Update any hardcoded green values in the analyser page.
-2. **V1 brand identity** -- Replace "Ad Analyser" text with BarChart3 icon + "Ad Library Pro" lockup matching landing-nav and v2-shell.
-3. **V1 navigation header replacement** -- Minimal header: [Logo -> /] + [Upgrade CTA pill -> /#pricing]. Remove How it works/About/Contact/Feedback/Roadmap links (these are secondary pages, not core nav).
-4. **V1 dark mode support** -- Read darkMode preference from same localStorage key V2 uses. Apply V2's dark palette. No toggle UI on V1.
-5. **CTA consistency** -- V1 CTA points to `/#pricing` instead of `/coming-soon`. Copy reads "Get Pro" or "Open Dashboard" (matching landing page language).
-6. **Landing page minor tweaks** -- Any copy/spacing inconsistencies between landing CTAs and V1/V2 terminology.
+2. **TS-5: Visual Performance Reporting** -- Make classification data visible. Distribution bar charts per dimension. Immediate value from TS-1 investment.
 
-### Defer to Later
+3. **DF-2: Strategy Matrix with Gap Visualization** -- The interactive matrix is the "wow" feature. Cross awareness stages x formats, highlight gaps, click-to-generate.
 
-- **V1 page refactor** -- Structural code quality improvements. Not user-visible.
-- **Design token extraction** -- Formalizing CSS variables into a shared design token file. Nice-to-have but not blocking.
-- **V1 mobile nav redesign** -- Current mobile hamburger works. Polish later.
-- **Animated transitions** -- View Transitions API or framer-motion page transitions. Future milestone.
-- **Storybook / component library** -- Only worthwhile if V1 grows in scope, which is not planned.
+4. **DF-1: Competitor-Grounded Strategy** -- Select any of 514+ brands, see their creative breakdown, identify their blind spots. This is the unique value proposition.
 
----
+**Defer to post-v8.0:**
 
-## Feature Prioritization Matrix
+- **DF-3: Category Benchmarking** -- Needs enough brands classified per category. Run classification batch first, evaluate data coverage, then build.
+- **DF-4: Creative Concept Generation from Gaps** -- Enhancement to gap matrix, not critical for initial launch.
+- **DF-5: Creative Velocity Tracking** -- Nice-to-have, time-series features can come later.
+- **TS-2 enhancement** -- Current auto-population is functional. Deeper enrichment is incremental.
 
-| Feature | User Impact | Effort | Risk | Priority |
-|---------|------------|--------|------|----------|
-| V1 color palette swap | HIGH (eliminates "two different products" feeling) | LOW (CSS var changes) | LOW | P0 |
-| V1 brand identity | HIGH (name consistency) | LOW (copy icon lockup from landing-nav) | LOW | P0 |
-| V1 nav header replacement | HIGH (funnel improvement + declutter) | LOW-MED (new component, remove old nav) | LOW | P0 |
-| V1 dark mode | MEDIUM (prevents jarring flash for dark-mode users) | MEDIUM (conditional classes throughout V1 page) | LOW-MED (V1 is a big file, many style references) | P1 |
-| Shared dark mode persistence | LOW-MEDIUM (convenience) | LOW (read localStorage) | LOW | P1 |
-| CTA destination fix | MEDIUM (fixes broken funnel) | LOW (href change) | LOW | P0 |
-| Landing page copy tweaks | LOW-MEDIUM (polish) | LOW (text changes) | LOW | P2 |
-| Contextual upgrade prompt | MEDIUM (conversion optimization) | LOW (new small component) | LOW | P2 |
-| Theme transition smoothing | LOW (prevents flash) | LOW (CSS transition) | LOW | P2 |
+## Phase Ordering Rationale
 
----
+1. **Phase 1: Classification Engine** -- Build the taxonomy, create the classification pipeline (Claude batch), store per-ad tags. This unlocks everything else.
+2. **Phase 2: Classification UI + Distribution Charts** -- Make the data visible, browsable, filterable.
+3. **Phase 3: Gap Analysis Matrix** -- The interactive strategy matrix crossing dimensions.
+4. **Phase 4: Strategy Enhancement** -- Upgrade existing 3-step strategy pipeline to use classification data. Competitor-grounded strategy generation.
+5. **Phase 5: Category Benchmarking** -- Cross-brand comparisons by creative dimension (if data coverage is sufficient).
 
-## Competitor Feature Analysis
+## Confidence Assessment
 
-How do similar SaaS ad intelligence tools handle their free-to-paid surface?
-
-| Product | Free Surface | Paid Surface | Consistency Approach | Upgrade Pattern |
-|---------|-------------|-------------|---------------------|-----------------|
-| **AdSpy** | Search page with limited results | Same page, unlocked filters | Single surface, gated features | Inline "Upgrade" on locked filters |
-| **BigSpy** | Dashboard with watermarked results | Same dashboard, clean results | Unified UI, tier-gated | Persistent top banner + inline locks |
-| **Meta Ad Library** | Public, free | N/A | Single surface (not SaaS) | N/A |
-| **Foreplay** | Swipe file with limits | Full dashboard + boards | Different nav depth but same visual language | "Upgrade" in sidebar |
-| **Motion (creative analytics)** | No free tier | Full product | N/A | N/A |
-
-**Pattern observed:** The most polished ad intelligence tools use a single visual surface with tier-gated features rather than visually distinct free/paid pages. When they do have separate surfaces, the brand identity, color palette, and navigation style are always consistent.
-
-**Implication for this project:** V1 and V2 being visually distinct is acceptable (V1 is simpler by design), but they MUST share the same brand identity, color palette, and navigation language. The visual gap today is too large -- it looks like two different products.
-
----
+| Area | Confidence | Notes |
+|------|------------|-------|
+| Competitive landscape | HIGH | Multiple sources cross-referenced, products verified via official pages |
+| Motion's taxonomy | MEDIUM-HIGH | Official blog and help center confirm 8 categories, exact tag lists not fully enumerated |
+| Feature categorization | HIGH | Based on cross-referencing 6+ competitor products |
+| Complexity estimates | MEDIUM | Based on existing codebase understanding, not detailed technical analysis |
+| Anti-features | HIGH | Strong rationale grounded in competitor positioning |
+| Dependency graph | HIGH | Based on direct code inspection of existing API routes and data models |
 
 ## Sources
 
-- Codebase analysis: `src/app/globals.css` (CSS variables and theme definitions), `src/app/analyser/page.tsx` (V1 page structure and styling), `src/components/landing/landing-nav.tsx` (landing navigation), `src/app/dashboard/v2/v2-shell.tsx` (V2 shell and dark mode), `src/components/landing/hero-section.tsx` (landing theme)
-- [SaaS UI Design Guide - The Alien Design](https://www.thealien.design/insights/saas-ui-design) -- design consistency principles
-- [Navigation UX Best Practices for SaaS - Pencil & Paper](https://www.pencilandpaper.io/articles/ux-pattern-analysis-navigation) -- navigation patterns for multi-surface products
-- [Freemium Upgrade Prompts - Appcues](https://www.appcues.com/blog/best-freemium-upgrade-prompts) -- upgrade prompt design patterns
-- [Conversion-Centered Design for SaaS Upgrades - The Good](https://thegood.com/insights/saas-upgrades/) -- CTA and conversion principles
-- [SaaS Navigation Menu Design - Lollypop](https://lollypop.design/blog/2025/december/saas-navigation-menu-design/) -- minimal header patterns
-- [Freemium Conversion Tips 2025 - 5W PR](https://www.5wpr.com/new/how-freemium-models-drive-conversions-in-saas-tips-for-2025/) -- freemium-to-paid strategy
+- [Motion AI Tagging Introduction](https://motionapp.com/releases/introducing-ai-tagging)
+- [Motion 2026 Creative Benchmarks](https://motionapp.com/thumbstop-pulse/creative-benchmarks-2026)
+- [Motion 2026 Benchmarks Methodology](https://motionapp.com/thumbstop-pulse/cb2026-methodology-and-definitions)
+- [Motion Help Center: AI Tagging](https://help.motionapp.com/en/articles/12461770-getting-started-with-ai-tagging-in-motion)
+- [Motion: How to do Creative Strategy in 2025](https://motionapp.com/blog/how-to-do-creative-strategy-in-2025)
+- [Foreplay Briefs](https://www.foreplay.co/briefs)
+- [Foreplay Swipe File](https://www.foreplay.co/swipe-file)
+- [MagicBrief Features](https://magicbrief.com/features)
+- [MagicBrief Creative Analytics](https://magicbrief.com/creative-analytics)
+- [AdCreative.ai Creative Scoring](https://www.adcreative.ai/creative-scoring)
+- [Atria AI Platform](https://www.tryatria.com/)
+- [Foxwell Digital: AI Tagging End of Naming Convention Chaos](https://www.foxwelldigital.com/blog/ai-tagging-the-end-of-naming-convention-chaos-and-the-start-of-smarter-creative-analysis)
+- [Creative Diversity as #1 Performance Lever 2026](https://www.superads.ai/blog/creative-diversity-in-ads)
+- [Perform Digital: Creative Diversity Key to Scaling Meta Ads](https://www.performdigitalmedia.com/why-creative-diversity-is-the-key-to-scaling-meta-ads-in-2026/)
+- [Motion GitHub: Creative Strategy Skills](https://github.com/motion-team/creative-strategy-skills)
