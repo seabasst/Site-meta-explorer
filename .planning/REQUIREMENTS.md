@@ -18,15 +18,15 @@ Requirements for v8.0 milestone. Each maps to roadmap phases.
 
 ### Brand Context
 
-- [ ] **BRND-01**: Brand profile auto-populates from existing DB data (ads, category, demographics) without requiring manual input
+- [x] **BRND-01**: Brand profile auto-populates from existing DB data (ads, category, demographics) without requiring manual input
 
 ### Strategy & Gap Analysis
 
-- [ ] **STRT-01**: Strategy generation uses classification taxonomy data (not just text ad copy patterns)
-- [ ] **STRT-02**: User can select any brand and see their full creative taxonomy breakdown (format distribution, tactic usage, awareness stage coverage)
-- [ ] **STRT-03**: User can view an interactive gap matrix crossing awareness stages x creative formats, with coverage heatmap
-- [ ] **STRT-04**: User can click a gap cell in the matrix to auto-generate creative concepts targeting that gap
-- [ ] **STRT-05**: Generated concepts include visual format, creative mechanic, hook, messaging angle, and production brief
+- [x] **STRT-01**: Strategy generation uses classification taxonomy data (not just text ad copy patterns)
+- [x] **STRT-02**: User can select any brand and see their full creative taxonomy breakdown (format distribution, tactic usage, awareness stage coverage)
+- [x] **STRT-03**: User can view an interactive gap matrix crossing awareness stages x creative formats, with coverage heatmap
+- [x] **STRT-04**: User can click a gap cell in the matrix to auto-generate creative concepts targeting that gap
+- [x] **STRT-05**: Generated concepts include visual format, creative mechanic, hook, messaging angle, and production brief
 
 ### Visual Reporting
 
@@ -82,12 +82,12 @@ Which phases cover which requirements. Updated by create-roadmap.
 | CLSF-04 | Phase 62 | Complete |
 | CLSF-05 | Phase 63 | Complete |
 | CLSF-06 | Phase 64 | Complete |
-| BRND-01 | Phase 66 | Pending |
-| STRT-01 | Phase 66 | Pending |
-| STRT-02 | Phase 66 | Pending |
-| STRT-03 | Phase 66 | Pending |
-| STRT-04 | Phase 66 | Pending |
-| STRT-05 | Phase 66 | Pending |
+| BRND-01 | Phase 66 | Complete |
+| STRT-01 | Phase 66 | Complete |
+| STRT-02 | Phase 66 | Complete |
+| STRT-03 | Phase 66 | Complete |
+| STRT-04 | Phase 66 | Complete |
+| STRT-05 | Phase 66 | Complete |
 | REPT-01 | Phase 65 | Complete |
 | REPT-02 | Phase 65 | Complete |
 | BNCH-01 | Phase 67 | Pending |
@@ -100,4 +100,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-03-27*
-*Last updated: 2026-03-27 — Phase 63 requirements marked Complete*
+*Last updated: 2026-03-27 — Phase 66 requirements marked Complete*
