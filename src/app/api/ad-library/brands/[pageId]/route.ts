@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
+import { CATEGORY_KEYS, type CategoryKey } from '@/lib/classification/taxonomy';
 
 // =============================================================================
 // Types
@@ -319,8 +320,8 @@ export async function GET(
     const orderByField = validSortFields.includes(sortBy) ? sortBy : 'startDate';
     const orderBy: Record<string, 'asc' | 'desc'> = { [orderByField]: sortOrder };
 
-    // Fetch ads and total count in parallel
-    const [ads, totalAds] = await Promise.all([
+    // Fetch ads, total count, and classification data in parallel
+    const [ads, totalAds, classifiedCount, classifications] = await Promise.all([
       prisma.adLibraryAd.findMany({
         where: adsWhere,
         include: {
@@ -345,9 +346,46 @@ export async function GET(
         take: pageSize,
       }),
       prisma.adLibraryAd.count({ where: adsWhere }),
+      prisma.adClassification.count({
+        where: { ad: { brandId: brand.id } },
+      }),
+      prisma.adClassification.findMany({
+        where: { ad: { brandId: brand.id } },
+        select: {
+          assetType: true,
+          visualFormat: true,
+          hookTactic: true,
+          messagingAngle: true,
+          awarenessStage: true,
+          creativeMechanic: true,
+          offerType: true,
+          intendedAudience: true,
+        },
+      }),
     ]);
 
     const totalPages = Math.ceil(totalAds / pageSize);
+
+    // Build classification distribution from DB records
+    const distribution: Record<string, Record<string, number>> = {};
+    if (classifications.length > 0) {
+      for (const key of CATEGORY_KEYS) {
+        distribution[key] = {};
+      }
+      for (const c of classifications) {
+        for (const key of CATEGORY_KEYS) {
+          const value = c[key as keyof typeof c] as string | null;
+          if (value) {
+            distribution[key][value] = (distribution[key][value] || 0) + 1;
+          }
+        }
+      }
+    }
+
+    // Total ads for the brand (unfiltered) for coverage calculation
+    const totalBrandAds = await prisma.adLibraryAd.count({
+      where: { brandId: brand.id },
+    });
 
     return NextResponse.json({
       brand: serializeBrand(brand),
@@ -358,6 +396,11 @@ export async function GET(
         pageSize,
         totalPages,
       },
+      classificationCoverage: {
+        classified: classifiedCount,
+        total: totalBrandAds,
+      },
+      classificationDistribution: classifications.length > 0 ? distribution : {},
     });
   } catch (error) {
     console.error('[GET /api/ad-library/brands/[pageId]] Error:', error);
