@@ -59,12 +59,21 @@ Help brands and agencies see what competitors are running and how they're reachi
 - ✓ Dead code cleanup — removed orphaned stats-bar.tsx, pagination.tsx, AdLibraryStats interface — v6.1
 - ✓ Build fix — useSearchParams Suspense boundary resolved — v6.1
 - ✓ Facebook token verification — all 3 tokens valid, demographics API working — v6.1
+- ✓ Creative Lab with analysis view (Andromeda metrics, diversity scoring) — v7.0
+- ✓ AI image generation (Flux Schnell) with brand-aware config — v7.0
+- ✓ UGC Creator Briefs with shot list and talking points — v7.0
+- ✓ Brand Guidelines system (voice, audience, visual identity) — v7.0
+- ✓ Brand search with category in Creative Lab — v7.0
+- ✓ Dead code cleanup and gap closure — v7.0+
 
-### Active (v7.0 Creative Lab)
+### Active (v8.0 Creative Strategy Engine)
 
-- [ ] Creative Generation — AI image generation (DALL-E/Flux) + template remixing from high-performing ads, multiple format variants
-- [ ] Text Overlay Editor — template-based editor: pick template, swap text/images, customize colors/fonts, export as image
-- [ ] UGC Creator Briefs — structured briefs with shot list, talking points, hook script based on ad library data
+- [ ] Motion-based Ad Classification — Claude Vision classifies ads across 46 visual formats, 8 creative mechanics, 35 hook tactics, 5 awareness stages, 8 psychological triggers
+- [ ] Brand Strategy Intake — auto-generate brand context from existing DB ads/metadata, extract pain points, personas, positioning, build pain × persona × messaging angle matrix
+- [ ] Strategy Matrix & Gap Analysis — map brand's ads across full Motion matrix, identify missing awareness stages, underused mechanics, format blind spots, hook tactic coverage
+- [ ] Hook Generation Pipeline — generate hooks using 35 tactics + 8 triggers, tailored to identified gaps and brand voice, organized by awareness stage
+- [ ] Creative Concept Generation — full concepts (visual format + mechanic + hook + messaging), AI image generation, production briefs addressing strategic gaps
+- [ ] Category Benchmarking (Motion dimensions) — brand vs category comparison across Motion dimensions, replacing Five Pillars
 
 ### Planned (v4.5 Industry Benchmarks — Admin Only)
 
@@ -75,7 +84,8 @@ Help brands and agencies see what competitors are running and how they're reachi
 
 ### Out of Scope
 
-- Creative Analysis (brand vs category benchmark) — deferred to v7.1
+- Five Pillars diversity scoring — replaced by Motion-dimension classification in v8.0
+- Website/review scraping for brand context — DB-only data sources
 - Full canvas editor — template-based only, keep complexity manageable
 - Competitors monitoring page — hidden, may delete later
 - Benchmarking pages — hidden, may delete later
@@ -105,6 +115,9 @@ Help brands and agencies see what competitors are running and how they're reachi
 - **EU Data Only:** Demographics only available for EU-targeted ads via DSA
 - **Tech stack:** Next.js 16, maintain existing architecture
 - **DB:** Shared Neon PostgreSQL (same DB for local + production)
+- **Vision API Cost:** Claude Vision classification adds per-ad cost — needs batching/caching strategy
+- **Data Source:** Brand strategy intake uses DB ads/metadata only — no external scraping
+- **Motion Framework:** Reference/inspiration only — own implementation, not their npm package
 
 ## Key Decisions
 
@@ -129,7 +142,7 @@ Help brands and agencies see what competitors are running and how they're reachi
 ## Context
 
 **Current State:**
-- Shipped v6.1 Brand Monitoring & Cleanup with ~44,576 LOC TypeScript
+- Shipped v7.0 Creative Lab + Gap Closure
 - Tech stack: Next.js 16, React 19, Recharts, Tailwind CSS v4, Auth.js, Stripe, Prisma + Neon PostgreSQL
 - Deployed to Vercel at facebookadexplorer.kirimedia.co
 - Cloudflare R2 for ad asset storage
@@ -149,4 +162,4 @@ Help brands and agencies see what competitors are running and how they're reachi
 - --accent-green CSS vars preserved for 46 files outside V1 scope
 
 ---
-*Last updated: 2026-03-21 after v7.0 milestone started*
+*Last updated: 2026-03-27 after v8.0 Creative Strategy Engine milestone started*
