@@ -11,6 +11,10 @@
     {
       "path": "/api/ad-library/cron/sov-snapshot",
       "schedule": "0 6 * * 1"
+    },
+    {
+      "path": "/api/ad-library/cron/classify-poll",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
