@@ -116,7 +116,11 @@ Plans:
   2. Diversity scores reflect actual stored classification data
   3. BrandAnalysisCache is updated with classification-based scores
   4. No AI classification calls are made during diversity analysis (only recommendation generation)
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 64-01-PLAN.md — Schema migration + diversity route refactor (DB read replaces Claude classification)
+- [ ] 64-02-PLAN.md — Frontend + benchmark + creative-lab routes updated to 8-category taxonomy
 
 ### Phase 65: Classification UI
 **Goal**: Make classification data visible — distribution charts and per-ad tags
@@ -162,10 +166,10 @@ Phases execute in numeric order: 62 → 63 → 64 → 65 → 66 → 67
 |-------|---------------|--------|-----------|
 | 62. Classification Foundation | 2/2 | ✓ Complete | 2026-03-27 |
 | 63. Classification Pipeline | 2/2 | ✓ Complete | 2026-03-27 |
-| 64. Diversity Refactor | 0/TBD | Not started | — |
+| 64. Diversity Refactor | 0/2 | In Progress | — |
 | 65. Classification UI | 0/TBD | Not started | — |
 | 66. Strategy Engine | 0/TBD | Not started | — |
 | 67. Category Benchmarking | 0/TBD | Not started | — |
 
 ---
-*Last updated: 2026-03-27 — Phase 63 complete*
+*Last updated: 2026-03-27 — Phase 64 planned*
