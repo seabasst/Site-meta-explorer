@@ -172,7 +172,9 @@ function buildCategorySection(key: CategoryKey): string {
   const descriptions = VALUE_DESCRIPTIONS[key];
   const lines = [`### ${key}`, `${category.description}`, "", "Values:"];
   for (const value of category.values) {
-    const desc = descriptions[value] || category.labels[value];
+    const desc =
+      descriptions[value] ||
+      (category.labels as Record<string, string>)[value];
     lines.push(`- \`${value}\`: ${desc}`);
   }
   return lines.join("\n");
