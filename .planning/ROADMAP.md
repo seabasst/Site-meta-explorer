@@ -100,7 +100,11 @@ Plans:
   2. User can trigger batch classification of a brand's ads via Anthropic Batch API
   3. Batch jobs track progress (pending/processing/complete/failed) and display estimated cost
   4. Classifications are persisted to AdClassification table and never re-computed for already-classified ads
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 63-01-PLAN.md — Single-ad on-demand classification (classify-single lib + POST API route)
+- [ ] 63-02-PLAN.md — Batch classification pipeline (classify-batch lib + batch API routes + cron polling)
 
 ### Phase 64: Diversity Refactor
 **Goal**: Eliminate redundant AI calls by making diversity analysis read from stored classifications
@@ -157,11 +161,11 @@ Phases execute in numeric order: 62 → 63 → 64 → 65 → 66 → 67
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 62. Classification Foundation | 2/2 | ✓ Complete | 2026-03-27 |
-| 63. Classification Pipeline | 0/TBD | Not started | — |
+| 63. Classification Pipeline | 0/2 | Not started | — |
 | 64. Diversity Refactor | 0/TBD | Not started | — |
 | 65. Classification UI | 0/TBD | Not started | — |
 | 66. Strategy Engine | 0/TBD | Not started | — |
 | 67. Category Benchmarking | 0/TBD | Not started | — |
 
 ---
-*Last updated: 2026-03-27 — Phase 62 complete*
+*Last updated: 2026-03-27 — Phase 63 planned*
