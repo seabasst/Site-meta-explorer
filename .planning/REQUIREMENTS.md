@@ -14,7 +14,7 @@ Requirements for v8.0 milestone. Each maps to roadmap phases.
 - [x] **CLSF-03**: User can trigger batch classification of a brand's ads via Anthropic Batch API (50% cost discount)
 - [ ] **CLSF-04**: Classification taxonomy covers ~8-10 categories with ~10 tags each (visual format, hook tactic, messaging angle, awareness stage, creative mechanic, offer type, intended audience, asset type)
 - [x] **CLSF-05**: Batch classification jobs track progress and cost (ClassificationJob + ApiCostLog models)
-- [ ] **CLSF-06**: Existing diversity analysis route reads from stored classifications instead of re-classifying
+- [x] **CLSF-06**: Existing diversity analysis route reads from stored classifications instead of re-classifying
 
 ### Brand Context
 
@@ -81,7 +81,7 @@ Which phases cover which requirements. Updated by create-roadmap.
 | CLSF-03 | Phase 63 | Complete |
 | CLSF-04 | Phase 62 | Complete |
 | CLSF-05 | Phase 63 | Complete |
-| CLSF-06 | Phase 64 | Pending |
+| CLSF-06 | Phase 64 | Complete |
 | BRND-01 | Phase 66 | Pending |
 | STRT-01 | Phase 66 | Pending |
 | STRT-02 | Phase 66 | Pending |
