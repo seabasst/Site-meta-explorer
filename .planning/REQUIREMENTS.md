@@ -30,8 +30,8 @@ Requirements for v8.0 milestone. Each maps to roadmap phases.
 
 ### Visual Reporting
 
-- [ ] **REPT-01**: User sees distribution bar charts per classification dimension (e.g., "30% testimonial, 5% listicle")
-- [ ] **REPT-02**: Individual ads display their classification tags in ad detail view
+- [x] **REPT-01**: User sees distribution bar charts per classification dimension (e.g., "30% testimonial, 5% listicle")
+- [x] **REPT-02**: Individual ads display their classification tags in ad detail view
 
 ### Category Benchmarking
 
@@ -88,8 +88,8 @@ Which phases cover which requirements. Updated by create-roadmap.
 | STRT-03 | Phase 66 | Pending |
 | STRT-04 | Phase 66 | Pending |
 | STRT-05 | Phase 66 | Pending |
-| REPT-01 | Phase 65 | Pending |
-| REPT-02 | Phase 65 | Pending |
+| REPT-01 | Phase 65 | Complete |
+| REPT-02 | Phase 65 | Complete |
 | BNCH-01 | Phase 67 | Pending |
 | BNCH-02 | Phase 67 | Pending |
 
