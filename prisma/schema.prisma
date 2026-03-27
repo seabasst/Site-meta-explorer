@@ -248,7 +248,8 @@ model AdLibraryBrand {
   monitoredBy    MonitoredBrand[]
   templates      AdTemplate[]
   sovSnapshots   SovSnapshot[]
-  analysisCache  BrandAnalysisCache?
+  analysisCache       BrandAnalysisCache?
+  classificationJobs  ClassificationJob[]
 
   @@index([ingestionStatus, priority])
   @@index([category])
@@ -301,9 +302,10 @@ model AdLibraryAd {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  assets   AdAsset[]
-  savedBy  SavedAd[]
-  analysis AdAnalysis?
+  assets         AdAsset[]
+  savedBy        SavedAd[]
+  analysis       AdAnalysis?
+  classification AdClassification?
 
   @@index([brandId, isActive])
   @@index([brandId, startDate])
@@ -437,6 +439,92 @@ model AdAnalysis {
 
   @@unique([adId])
   @@index([adId])
+}
+
+// =============================================================================
+// Ad Classification (8-category taxonomy, Phase 62)
+// =============================================================================
+
+model AdClassification {
+  id    String @id @default(cuid())
+  adId  String @unique
+  ad    AdLibraryAd @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  // 8 classification categories (indexed columns, not JSON)
+  assetType         String
+  visualFormat      String
+  hookTactic        String
+  messagingAngle    String
+  awarenessStage    String
+  creativeMechanic  String
+  offerType         String
+  intendedAudience  String
+
+  // Quality metrics
+  hookScore         Int
+  conceptCluster    String
+
+  // Metadata
+  confidence           Float    @default(0.8)
+  classifiedBy         String   @default("haiku-4.5")
+  classificationSource String   @default("text")
+  schemaVersion        Int      @default(1)
+  classifiedAt         DateTime @default(now())
+
+  @@index([assetType])
+  @@index([visualFormat])
+  @@index([hookTactic])
+  @@index([messagingAngle])
+  @@index([awarenessStage])
+  @@index([creativeMechanic])
+  @@index([offerType])
+  @@index([adId])
+}
+
+model ClassificationJob {
+  id        String   @id @default(cuid())
+  brandId   String
+  brand     AdLibraryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  status         String   @default("queued")
+  totalAds       Int      @default(0)
+  classifiedAds  Int      @default(0)
+  failedAds      Int      @default(0)
+  skippedAds     Int      @default(0)
+
+  anthropicBatchId String?
+  batchSubmittedAt DateTime?
+  batchCompletedAt DateTime?
+
+  estimatedCostUsd Float?
+  actualCostUsd    Float?
+  inputTokens      Int?
+  outputTokens     Int?
+
+  errorMessage     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([brandId, status])
+  @@index([status, createdAt])
+  @@index([anthropicBatchId])
+}
+
+model ApiCostLog {
+  id            String   @id @default(cuid())
+  date          DateTime @db.Date
+  model         String
+  operation     String
+  inputTokens   Int
+  outputTokens  Int
+  estimatedCost Float
+  brandId       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([date, operation])
+  @@index([date])
 }
 
 model AdTemplate {
