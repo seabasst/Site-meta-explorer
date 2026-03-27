@@ -9,11 +9,11 @@ Requirements for v8.0 milestone. Each maps to roadmap phases.
 
 ### Classification Engine
 
-- [ ] **CLSF-01**: User can trigger AI classification of a single ad via Claude Vision (on-demand, ~2-4s)
+- [x] **CLSF-01**: User can trigger AI classification of a single ad via Claude Vision (on-demand, ~2-4s)
 - [ ] **CLSF-02**: Ad classifications are stored persistently in the database (AdClassification model, indexed columns)
-- [ ] **CLSF-03**: User can trigger batch classification of a brand's ads via Anthropic Batch API (50% cost discount)
+- [x] **CLSF-03**: User can trigger batch classification of a brand's ads via Anthropic Batch API (50% cost discount)
 - [ ] **CLSF-04**: Classification taxonomy covers ~8-10 categories with ~10 tags each (visual format, hook tactic, messaging angle, awareness stage, creative mechanic, offer type, intended audience, asset type)
-- [ ] **CLSF-05**: Batch classification jobs track progress and cost (ClassificationJob + ApiCostLog models)
+- [x] **CLSF-05**: Batch classification jobs track progress and cost (ClassificationJob + ApiCostLog models)
 - [ ] **CLSF-06**: Existing diversity analysis route reads from stored classifications instead of re-classifying
 
 ### Brand Context
@@ -76,11 +76,11 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLSF-01 | Phase 63 | Pending |
+| CLSF-01 | Phase 63 | Complete |
 | CLSF-02 | Phase 62 | Complete |
-| CLSF-03 | Phase 63 | Pending |
+| CLSF-03 | Phase 63 | Complete |
 | CLSF-04 | Phase 62 | Complete |
-| CLSF-05 | Phase 63 | Pending |
+| CLSF-05 | Phase 63 | Complete |
 | CLSF-06 | Phase 64 | Pending |
 | BRND-01 | Phase 66 | Pending |
 | STRT-01 | Phase 66 | Pending |
@@ -100,4 +100,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-03-27*
-*Last updated: 2026-03-27 — Phase 62 requirements marked Complete*
+*Last updated: 2026-03-27 — Phase 63 requirements marked Complete*
