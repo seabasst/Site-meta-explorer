@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 
 ## Current Position
 
-Phase: 65 of 67 (Classification UI)
+Phase: 65 of 67 (Classification UI) -- COMPLETE
 Plan: 02 of 02 complete
-Status: In progress
-Last activity: 2026-03-27 — Completed 65-02-PLAN.md (classification tags in lightbox)
+Status: Phase 65 complete, ready for Phase 66
+Last activity: 2026-03-27 — Completed 65-01-PLAN.md (distribution charts on brand detail)
 
-Progress: █████░░░░░ ~55%
+Progress: ██████░░░░ ~60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 128
+- Total plans completed: 129
 - Average duration: —
 - Total execution time: —
 
@@ -60,6 +60,8 @@ Recent decisions affecting current work:
 - (64-02): Renamed fivePillars to categories in strategy brandContext for consistent naming
 - (65-02): Classification data included in ads API via Prisma select (8 fields only, minimal payload)
 - (65-02): Graceful absence pattern for unclassified ads (no section, not empty state)
+- (65-01): In-memory aggregation for distribution (single findMany + loop over CATEGORY_KEYS)
+- (65-01): Unfiltered brand ad count for coverage denominator (not paginated subset)
 
 ### Existing Infrastructure
 
@@ -82,6 +84,8 @@ Recent decisions affecting current work:
 - BrandAnalysisCache: 8-category scores (assetTypeScore through intendedAudienceScore) + overallScore
 - Ads API includes classification data (8 fields or null) in every ad response
 - Ad detail lightbox shows colored classification pills with TAXONOMY labels
+- Brand detail API returns classificationCoverage + classificationDistribution
+- Brand detail page shows 8-category distribution bar charts + coverage badge
 
 ### Motion Framework Reference
 
@@ -97,5 +101,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Completed 65-02-PLAN.md
+Stopped at: Phase 65 complete — ready for Phase 66
 Resume file: None
