@@ -102,11 +102,14 @@ export async function POST(request: NextRequest) {
     // 5. Build diversity scores and distribution for prompt
     // ------------------------------------------------------------------
     const scores = {
-      format: cache.formatScore,
-      tone: cache.toneScore,
-      journeyPhase: cache.journeyPhaseScore,
-      visualStyle: cache.visualStyleScore,
-      messenger: cache.messengerScore,
+      assetType: cache.assetTypeScore,
+      visualFormat: cache.visualFormatScore,
+      hookTactic: cache.hookTacticScore,
+      messagingAngle: cache.messagingAngleScore,
+      awarenessStage: cache.awarenessStageScore,
+      creativeMechanic: cache.creativeMechanicScore,
+      offerType: cache.offerTypeScore,
+      intendedAudience: cache.intendedAudienceScore,
       overall: cache.overallScore,
     };
 

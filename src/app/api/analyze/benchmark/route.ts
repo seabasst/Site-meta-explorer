@@ -101,11 +101,14 @@ export async function POST(request: NextRequest) {
     const poolForAverages = otherAnalyses.length > 0 ? otherAnalyses : categoryAnalyses;
 
     const avgScores = {
-      format: avgInt(poolForAverages.map((a) => a.formatScore)),
-      tone: avgInt(poolForAverages.map((a) => a.toneScore)),
-      journeyPhase: avgInt(poolForAverages.map((a) => a.journeyPhaseScore)),
-      visualStyle: avgInt(poolForAverages.map((a) => a.visualStyleScore)),
-      messenger: avgInt(poolForAverages.map((a) => a.messengerScore)),
+      assetType: avgInt(poolForAverages.map((a) => a.assetTypeScore)),
+      visualFormat: avgInt(poolForAverages.map((a) => a.visualFormatScore)),
+      hookTactic: avgInt(poolForAverages.map((a) => a.hookTacticScore)),
+      messagingAngle: avgInt(poolForAverages.map((a) => a.messagingAngleScore)),
+      awarenessStage: avgInt(poolForAverages.map((a) => a.awarenessStageScore)),
+      creativeMechanic: avgInt(poolForAverages.map((a) => a.creativeMechanicScore)),
+      offerType: avgInt(poolForAverages.map((a) => a.offerTypeScore)),
+      intendedAudience: avgInt(poolForAverages.map((a) => a.intendedAudienceScore)),
       overall: avgInt(poolForAverages.map((a) => a.overallScore)),
     };
 
@@ -124,22 +127,28 @@ export async function POST(request: NextRequest) {
 
     // 6. Compute per-pillar indexing
     const indexing = {
-      format: computeIndex(brandCache.formatScore, avgScores.format),
-      tone: computeIndex(brandCache.toneScore, avgScores.tone),
-      journeyPhase: computeIndex(brandCache.journeyPhaseScore, avgScores.journeyPhase),
-      visualStyle: computeIndex(brandCache.visualStyleScore, avgScores.visualStyle),
-      messenger: computeIndex(brandCache.messengerScore, avgScores.messenger),
+      assetType: computeIndex(brandCache.assetTypeScore, avgScores.assetType),
+      visualFormat: computeIndex(brandCache.visualFormatScore, avgScores.visualFormat),
+      hookTactic: computeIndex(brandCache.hookTacticScore, avgScores.hookTactic),
+      messagingAngle: computeIndex(brandCache.messagingAngleScore, avgScores.messagingAngle),
+      awarenessStage: computeIndex(brandCache.awarenessStageScore, avgScores.awarenessStage),
+      creativeMechanic: computeIndex(brandCache.creativeMechanicScore, avgScores.creativeMechanic),
+      offerType: computeIndex(brandCache.offerTypeScore, avgScores.offerType),
+      intendedAudience: computeIndex(brandCache.intendedAudienceScore, avgScores.intendedAudience),
       overall: computeIndex(brandCache.overallScore, avgScores.overall),
       andromeda: computeIndex(brandCache.andromedaScore, avgAndromedaScore),
     };
 
     // 7. Generate recommendations based on indexing
-    const pillarLabels: Record<string, { brandScore: number; categoryAvg: number }> = {
-      format: { brandScore: brandCache.formatScore, categoryAvg: avgScores.format },
-      tone: { brandScore: brandCache.toneScore, categoryAvg: avgScores.tone },
-      journeyPhase: { brandScore: brandCache.journeyPhaseScore, categoryAvg: avgScores.journeyPhase },
-      visualStyle: { brandScore: brandCache.visualStyleScore, categoryAvg: avgScores.visualStyle },
-      messenger: { brandScore: brandCache.messengerScore, categoryAvg: avgScores.messenger },
+    const categoryLabels: Record<string, { brandScore: number; categoryAvg: number }> = {
+      assetType: { brandScore: brandCache.assetTypeScore, categoryAvg: avgScores.assetType },
+      visualFormat: { brandScore: brandCache.visualFormatScore, categoryAvg: avgScores.visualFormat },
+      hookTactic: { brandScore: brandCache.hookTacticScore, categoryAvg: avgScores.hookTactic },
+      messagingAngle: { brandScore: brandCache.messagingAngleScore, categoryAvg: avgScores.messagingAngle },
+      awarenessStage: { brandScore: brandCache.awarenessStageScore, categoryAvg: avgScores.awarenessStage },
+      creativeMechanic: { brandScore: brandCache.creativeMechanicScore, categoryAvg: avgScores.creativeMechanic },
+      offerType: { brandScore: brandCache.offerTypeScore, categoryAvg: avgScores.offerType },
+      intendedAudience: { brandScore: brandCache.intendedAudienceScore, categoryAvg: avgScores.intendedAudience },
       overall: { brandScore: brandCache.overallScore, categoryAvg: avgScores.overall },
       andromeda: { brandScore: brandCache.andromedaScore, categoryAvg: avgAndromedaScore },
     };
@@ -147,7 +156,7 @@ export async function POST(request: NextRequest) {
     const gaps: Recommendation[] = [];
     const strengths: Recommendation[] = [];
 
-    for (const [pillar, scores] of Object.entries(pillarLabels)) {
+    for (const [pillar, scores] of Object.entries(categoryLabels)) {
       const diff = scores.brandScore - scores.categoryAvg;
       if (diff < -5) {
         gaps.push({
@@ -181,11 +190,14 @@ export async function POST(request: NextRequest) {
       brand: {
         name: brand.pageName,
         scores: {
-          format: brandCache.formatScore,
-          tone: brandCache.toneScore,
-          journeyPhase: brandCache.journeyPhaseScore,
-          visualStyle: brandCache.visualStyleScore,
-          messenger: brandCache.messengerScore,
+          assetType: brandCache.assetTypeScore,
+          visualFormat: brandCache.visualFormatScore,
+          hookTactic: brandCache.hookTacticScore,
+          messagingAngle: brandCache.messagingAngleScore,
+          awarenessStage: brandCache.awarenessStageScore,
+          creativeMechanic: brandCache.creativeMechanicScore,
+          offerType: brandCache.offerTypeScore,
+          intendedAudience: brandCache.intendedAudienceScore,
           overall: brandCache.overallScore,
         },
         andromedaScore: brandCache.andromedaScore,

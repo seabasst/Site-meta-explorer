@@ -93,21 +93,24 @@ export async function POST(request: NextRequest) {
     // 4. Build diversity scores and distribution for prompt
     // ------------------------------------------------------------------
     const scores = {
-      format: cache.formatScore,
-      tone: cache.toneScore,
-      journeyPhase: cache.journeyPhaseScore,
-      visualStyle: cache.visualStyleScore,
-      messenger: cache.messengerScore,
+      assetType: cache.assetTypeScore,
+      visualFormat: cache.visualFormatScore,
+      hookTactic: cache.hookTacticScore,
+      messagingAngle: cache.messagingAngleScore,
+      awarenessStage: cache.awarenessStageScore,
+      creativeMechanic: cache.creativeMechanicScore,
+      offerType: cache.offerTypeScore,
+      intendedAudience: cache.intendedAudienceScore,
       overall: cache.overallScore,
     };
 
     const distribution = cache.distributionJson as Record<string, Record<string, number>> | null;
 
-    // Identify gaps: pillars scoring below 60
-    const gapPillars = Object.entries(scores)
+    // Identify gaps: categories scoring below 60
+    const gapCategories = Object.entries(scores)
       .filter(([key, score]) => key !== 'overall' && score < 60)
       .sort((a, b) => a[1] - b[1])
-      .map(([pillar, score]) => `${pillar}: ${score}/100`);
+      .map(([category, score]) => `${category}: ${score}/100`);
 
     // ------------------------------------------------------------------
     // 5. Call Claude for structured suggestions
@@ -128,8 +131,8 @@ export async function POST(request: NextRequest) {
 **Diversity Scores (0-100, lower = bigger gap):**
 ${JSON.stringify(scores, null, 2)}
 
-**Gap Pillars (scoring below 60):**
-${gapPillars.length > 0 ? gapPillars.join('\n') : 'No major gaps (all pillars above 60)'}
+**Gap Categories (scoring below 60):**
+${gapCategories.length > 0 ? gapCategories.join('\n') : 'No major gaps (all categories above 60)'}
 
 **Distribution Data:**
 ${distribution ? JSON.stringify(distribution, null, 2) : 'No distribution data available'}
@@ -145,7 +148,7 @@ ${brandGuidelinesBlock}
 Generate 5-7 ad creative suggestions. Each suggestion should address a specific gap or weakness. Prioritize the weakest pillars.
 
 For each suggestion provide:
-- pillar: which pillar or metric this addresses (format, tone, journeyPhase, visualStyle, messenger, refreshRate, hookQuality, conceptDiversity, funnelBalance)
+- pillar: which category or metric this addresses (assetType, visualFormat, hookTactic, messagingAngle, awarenessStage, creativeMechanic, offerType, intendedAudience, refreshRate, hookQuality, conceptDiversity, funnelBalance)
 - reasoning: 1 sentence user-facing explanation of WHY this fills a gap
 - format: ad format (static-image, video, carousel, reel, story)
 - aspectRatio: recommended aspect ratio (1:1, 9:16, 4:5, 16:9)
@@ -189,9 +192,9 @@ Return ONLY a valid JSON array of suggestion objects. No markdown, no explanatio
     }));
 
     // Build gap summary
-    const gapSummary = gapPillars.length > 0
-      ? `${brand.pageName} has gaps in ${gapPillars.length} pillar${gapPillars.length > 1 ? 's' : ''}: ${gapPillars.join(', ')}. Overall diversity score is ${scores.overall}/100.`
-      : `${brand.pageName} has solid diversity across all pillars (overall ${scores.overall}/100). Suggestions focus on refreshing stale formats and improving Andromeda metrics.`;
+    const gapSummary = gapCategories.length > 0
+      ? `${brand.pageName} has gaps in ${gapCategories.length} categor${gapCategories.length > 1 ? 'ies' : 'y'}: ${gapCategories.join(', ')}. Overall diversity score is ${scores.overall}/100.`
+      : `${brand.pageName} has solid diversity across all categories (overall ${scores.overall}/100). Suggestions focus on refreshing stale formats and improving Andromeda metrics.`;
 
     const config: GenerationConfig = {
       brandName: brand.pageName,
