@@ -1,107 +1,103 @@
-# Requirements: Ad Library Pro — v7.0 Creative Lab
+# Requirements: Ad Library Pro — v8.0 Creative Strategy Engine
 
-**Defined:** 2026-03-21
-**Core Value:** Turn ad insights into action — generate, remix, and customize ad creatives directly in the platform.
+**Defined:** 2026-03-27
+**Core Value:** Help brands and agencies see what competitors are running and how they're reaching their audiences — browse, save, analyze, compare.
 
 ## v1 Requirements
 
-Requirements for v7.0 milestone. Each maps to roadmap phases.
+Requirements for v8.0 milestone. Each maps to roadmap phases.
 
-### Creative Analysis
+### Classification Engine
 
-- [x] **ANLZ-01**: User can select their brand and a category to benchmark against
-- [x] **ANLZ-02**: Category benchmark aggregates Five Pillars + Andromeda scores across all brands in that category from the database
-- [x] **ANLZ-03**: User sees brand vs. category comparison with per-pillar indexing (e.g., "your format diversity is 62 vs. category avg 78")
-- [x] **ANLZ-04**: Comparison highlights gaps and strengths with actionable recommendations
+- [ ] **CLSF-01**: User can trigger AI classification of a single ad via Claude Vision (on-demand, ~2-4s)
+- [ ] **CLSF-02**: Ad classifications are stored persistently in the database (AdClassification model, indexed columns)
+- [ ] **CLSF-03**: User can trigger batch classification of a brand's ads via Anthropic Batch API (50% cost discount)
+- [ ] **CLSF-04**: Classification taxonomy covers ~8-10 categories with ~10 tags each (visual format, hook tactic, messaging angle, awareness stage, creative mechanic, offer type, intended audience, asset type)
+- [ ] **CLSF-05**: Batch classification jobs track progress and cost (ClassificationJob + ApiCostLog models)
+- [ ] **CLSF-06**: Existing diversity analysis route reads from stored classifications instead of re-classifying
 
-### Creative Generation
+### Brand Context
 
-- [x] **GENR-01**: User can generate AI images from analysis recommendations using Flux Schnell
-- [x] **GENR-02**: User can select target ad format/size (1080x1080, 1080x1920, 1200x628, etc.)
-- [x] **GENR-03**: User can generate multiple format variants from a single prompt
-- [x] **GENR-04**: User can download generated images
-- [x] **GENR-05**: Generation is driven by analysis gaps (recommendations feed directly into generation prompts)
+- [ ] **BRND-01**: Brand profile auto-populates from existing DB data (ads, category, demographics) without requiring manual input
 
-### AI Creative Generation (REPLACES Text Overlay Editor)
+### Strategy & Gap Analysis
 
-- [x] **AIGEN-01**: User can trigger ad generation from analysis gap recommendations
-- [x] **AIGEN-02**: AI pre-fills config screen with suggested formats, quantity, style, and copy angles based on gaps + brand guidelines + competitor data
-- [x] **AIGEN-03**: Each suggestion shows reasoning (why this ad concept was suggested)
-- [x] **AIGEN-04**: User can adjust any pre-filled setting before generating
-- [x] **AIGEN-05**: Generated ads appear in a gallery view with download (individual or zip)
+- [ ] **STRT-01**: Strategy generation uses classification taxonomy data (not just text ad copy patterns)
+- [ ] **STRT-02**: User can select any brand and see their full creative taxonomy breakdown (format distribution, tactic usage, awareness stage coverage)
+- [ ] **STRT-03**: User can view an interactive gap matrix crossing awareness stages x creative formats, with coverage heatmap
+- [ ] **STRT-04**: User can click a gap cell in the matrix to auto-generate creative concepts targeting that gap
+- [ ] **STRT-05**: Generated concepts include visual format, creative mechanic, hook, messaging angle, and production brief
 
-### UGC Creator Briefs
+### Visual Reporting
 
-- [x] **UGC-01**: User can generate a structured UGC brief from a brand's ad library data
-- [x] **UGC-02**: Brief includes shot list with scene descriptions
-- [x] **UGC-03**: Brief includes talking points and hook script
-- [x] **UGC-04**: Brief includes B-roll suggestions based on brand category
-- [x] **UGC-05**: User can copy or download brief as formatted document
+- [ ] **REPT-01**: User sees distribution bar charts per classification dimension (e.g., "30% testimonial, 5% listicle")
+- [ ] **REPT-02**: Individual ads display their classification tags in ad detail view
+
+### Category Benchmarking
+
+- [ ] **BNCH-01**: User can compare a brand's creative dimension distribution against category averages
+- [ ] **BNCH-02**: Comparison shows index scores (e.g., "2x over-indexed on testimonials, 0.5x under-indexed on listicles")
 
 ## v2 Requirements
 
-Deferred to future release (v7.1+). Tracked but not in current roadmap.
+Deferred to future release (v8.1+). Tracked but not in current roadmap.
 
-### Creative Analysis (Advanced)
+### Creative Velocity
 
-- **ANLZ-05**: User can create custom competitive sets (not just category-level)
-- **ANLZ-06**: Trend analysis showing benchmark changes over time
-- **ANLZ-07**: AI-generated strategy narrative summarizing brand position
+- **VLCT-01**: User sees creative velocity metrics (ads/week, format diversification trend)
+- **VLCT-02**: Staleness indicators highlight when a brand hasn't shipped new formats
 
-### Creative Generation (Advanced)
+### Brand Context (Advanced)
 
-- **GENR-06**: Template remixing from high-performing competitor ads
-- **GENR-07**: Batch generation (generate full campaign set in one action)
-- **GENR-08**: Generation history with saved prompts and outputs
+- **BRND-02**: Extract voice, positioning, and pain points from ad copy text patterns
+- **BRND-03**: Auto-detect brand personality shifts over time
 
-### AI Creative Generation (Advanced)
+### Benchmarking (Advanced)
 
-- **AIGEN-06**: Light post-generation editing (text copy tweaks, color swaps)
-- **AIGEN-07**: Regenerate/variations of specific results
-- **AIGEN-08**: Campaign history with saved generations
+- **BNCH-03**: Custom competitive sets (hand-pick brands to benchmark against)
+- **BNCH-04**: Benchmark trends over time (how category norms shift)
 
 ## Out of Scope
 
+Explicitly excluded. Documented to prevent scope creep.
+
 | Feature | Reason |
 |---------|--------|
-| Full canvas editor (Figma-like) | AI-driven approach — user shouldn't need to edit manually |
-| Video generation | High cost, different tech stack — defer to later |
-| AI model selection (DALL-E vs Flux vs Gemini) | Start with Flux Schnell, upgrade path later |
-| Real-time collaboration | Single-user tool for now |
-| Asset management/library | Store locally or download — no persistent asset library yet |
-| Scheduled generation | No background job infrastructure for this |
+| Full image/video generation | AdCreative.ai owns this; focus on strategy layer |
+| Swipe file / Chrome extension | Foreplay owns this; platform already has 514+ brands |
+| Ad account connection | Removes competitor intelligence advantage (the primary differentiator) |
+| Team collaboration | Scope explosion; single-user tool |
+| 46-format taxonomy | Start with ~8-10 categories; expand after accuracy validation |
+| Creative velocity tracking | Nice-to-have; deferred to v2 |
 
 ## Traceability
 
+Which phases cover which requirements. Updated by create-roadmap.
+
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ANLZ-01 | Phase 55 | Complete |
-| ANLZ-02 | Phase 55 | Complete |
-| ANLZ-03 | Phase 55 | Complete |
-| ANLZ-04 | Phase 55 | Complete |
-| GENR-01 | Phase 56 | Complete |
-| GENR-02 | Phase 56 | Complete |
-| GENR-03 | Phase 56 | Complete |
-| GENR-04 | Phase 56 | Complete |
-| GENR-05 | Phase 56 | Complete |
-| ~~EDIT-01~~ | ~~Phase 57~~ | Superseded by AIGEN-01..05 |
-| AIGEN-01 | Phase 57 | Complete |
-| AIGEN-02 | Phase 57 | Complete |
-| AIGEN-03 | Phase 57 | Complete |
-| AIGEN-04 | Phase 57 | Complete |
-| AIGEN-05 | Phase 57 | Complete |
-| UGC-01 | Phase 58 | Complete |
-| UGC-02 | Phase 58 | Complete |
-| UGC-03 | Phase 58 | Complete |
-| UGC-04 | Phase 58 | Complete |
-| UGC-05 | Phase 58 | Complete |
+| CLSF-01 | TBD | Pending |
+| CLSF-02 | TBD | Pending |
+| CLSF-03 | TBD | Pending |
+| CLSF-04 | TBD | Pending |
+| CLSF-05 | TBD | Pending |
+| CLSF-06 | TBD | Pending |
+| BRND-01 | TBD | Pending |
+| STRT-01 | TBD | Pending |
+| STRT-02 | TBD | Pending |
+| STRT-03 | TBD | Pending |
+| STRT-04 | TBD | Pending |
+| STRT-05 | TBD | Pending |
+| REPT-01 | TBD | Pending |
+| REPT-02 | TBD | Pending |
+| BNCH-01 | TBD | Pending |
+| BNCH-02 | TBD | Pending |
 
 **Coverage:**
-- v1 requirements: 19 total (+ Phase 59 cross-cutting integration)
-- Mapped to phases: 19
-- Unmapped: 0 ✓
-- Superseded: EDIT-01..05 replaced by AIGEN-01..05 (2026-03-23)
+- v1 requirements: 16 total
+- Mapped to phases: 0 (awaiting roadmap)
+- Unmapped: 16
 
 ---
-*Requirements defined: 2026-03-21*
-*Last updated: 2026-03-23 after Phase 58 completion*
+*Requirements defined: 2026-03-27*
+*Last updated: 2026-03-27 after v8.0 scope definition*
