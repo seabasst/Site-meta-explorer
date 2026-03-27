@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 
 ## Current Position
 
-Phase: 63 of 67 (Classification Pipeline) — ✓ VERIFIED
-Plan: Ready for Phase 64
-Status: Phase 63 verified (4/4 must-haves passed), proceeding to Phase 64
-Last activity: 2026-03-27 — Phase 63 complete (2 plans, 7 commits)
+Phase: 64 of 67 (Diversity Refactor)
+Plan: 1 of 2 complete
+Status: In progress — Plan 01 (backend refactor) complete, Plan 02 (frontend) remaining
+Last activity: 2026-03-27 — Completed 64-01-PLAN.md (2 tasks, 2 commits)
 
-Progress: ██░░░░░░░░ ~33%
+Progress: ██░░░░░░░░ ~35%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 125
+- Total plans completed: 126
 - Average duration: —
 - Total execution time: —
 
@@ -54,13 +54,16 @@ Recent decisions affecting current work:
 - (63-02): Fire-and-forget batch submission (POST returns immediately, job tracks progress)
 - (63-02): 5-minute cron polling for batch results (*/5 * * * *)
 - (63-02): skipDuplicates on createMany for idempotent result processing
+- (64-01): @default(0) on new BrandAnalysisCache columns for safe migration with existing rows
+- (64-01): Schwartz awareness stages mapped to 3 funnel buckets (awareness/consideration/conversion)
+- (64-01): Return 422 with needsClassification flag when <3 ads classified
 
 ### Existing Infrastructure
 
 - Creative Lab page at `/dashboard/v2/creative-lab/page.tsx`
 - AnalysisView at `/dashboard/v2/creative-lab/analysis-view.tsx`
-- Diversity analysis API at `/api/analyze/diversity` (caches to BrandAnalysisCache)
-- Benchmark API at `/api/analyze/benchmark`
+- Diversity analysis API at `/api/analyze/diversity` (reads from AdClassification, caches to BrandAnalysisCache with 8-category scores)
+- Benchmark API at `/api/analyze/benchmark` (NEEDS UPDATE: still references old 5-pillar column names)
 - Brand search API at `/api/search-pages`
 - Anthropic SDK already integrated (Claude Haiku/Sonnet)
 - Classification taxonomy at `src/lib/classification/taxonomy.ts` (8 categories, 71 values)
@@ -73,6 +76,7 @@ Recent decisions affecting current work:
 - Batch classification at `src/lib/classification/classify-batch.ts` (submitBatchClassification, processBatchResults)
 - Batch API: POST `/api/classify/batch` (start), GET `/api/classify/batch/status` (progress)
 - Cron polling: GET `/api/ad-library/cron/classify-poll` (every 5 min, processes completed batches)
+- BrandAnalysisCache: 8-category scores (assetTypeScore through intendedAudienceScore) + overallScore
 
 ### Motion Framework Reference
 
@@ -82,11 +86,11 @@ Recent decisions affecting current work:
 ### Blockers/Concerns
 
 - TOKEN2 expires 2026-04-24, TOKEN3 expires 2026-04-25 — schedule refresh mid-April
+- 4 downstream routes have TS errors from old BrandAnalysisCache column names (benchmark, generate-config, generate-brief, generate-strategy) — must be fixed in Plan 02
 - Claude Vision classification cost — batch + caching strategy required
-- Taxonomy accuracy at scale — needs validation spike in Phase 62
 
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 63 verified — ready for Phase 64
+Stopped at: Completed 64-01-PLAN.md — ready for 64-02
 Resume file: None
