@@ -52,157 +52,112 @@ Phases 46-51 — See milestones/v6.0-ROADMAP.md for full details
 Phases 52-54 — See milestones/v6.1-ROADMAP.md for full details
 </details>
 
+<details>
+<summary>✅ v7.0 Creative Lab (Phases 55-61) — SHIPPED 2026-03-26</summary>
+Phases 55-61 — Creative analysis, AI generation, UGC briefs, brand guidelines, gap closure
+</details>
+
 ---
 
-### v7.0 Creative Lab (In Progress)
+### 🚧 v8.0 Creative Strategy Engine (In Progress)
 
-**Milestone Goal:** Turn ad insights into action — generate, remix, and customize ad creatives directly in the platform.
+**Milestone Goal:** Replace Five Pillars with Motion-powered ad classification, then build competitor-grounded strategy generation and category benchmarking on top.
 
 ## Phases
 
-- [x] **Phase 55: Creative Analysis** - Brand vs. category benchmarking with Five Pillars + Andromeda
-- [x] **Phase 56: Image Generation** - AI image generation with format selection driven by analysis gaps
-- [x] **Phase 56.1: Brand Guidelines Setup** - Brand persona form (voice, audience, visual identity) to steer AI generation (INSERTED)
-- [x] **Phase 57: AI Creative Generation** - AI-driven ad creation from analysis gaps + brand guidelines + competitor insights (REPLACES Text Overlay Editor)
-- [x] **Phase 58: UGC Creator Briefs** - Structured briefs with shot list, talking points, hooks
-- [x] **Phase 59: Creative Lab Integration** - Unified Creative Lab page connecting analysis, generation, and briefs
-- [ ] **Phase 60: Analysis View Data Wiring** - Fix interface mismatch and wrong category param breaking analysis display (GAP CLOSURE)
-- [ ] **Phase 61: Dead Code Cleanup** - Remove orphaned Phase 56 components and fix stale error string (GAP CLOSURE)
+- [ ] **Phase 62: Classification Foundation** - Prisma models, taxonomy definition, cost tracking utility
+- [ ] **Phase 63: Classification Pipeline** - On-demand single-ad + Anthropic Batch API bulk classification
+- [ ] **Phase 64: Diversity Refactor** - Rewrite diversity route to read stored classifications instead of re-classifying
+- [ ] **Phase 65: Classification UI** - Distribution charts per dimension + classification tags in ad detail
+- [ ] **Phase 66: Strategy Engine** - Brand context auto-populate, gap matrix, concept generation from gaps
+- [ ] **Phase 67: Category Benchmarking** - Brand vs category comparison across classification dimensions
 
 ## Phase Details
 
-### Phase 55: Creative Analysis
-**Goal**: Users can benchmark their brand's creative strategy against category averages
-**Depends on**: Nothing (first phase — extends existing Andromeda analysis)
-**Requirements**: ANLZ-01, ANLZ-02, ANLZ-03, ANLZ-04
+### Phase 62: Classification Foundation
+**Goal**: Define the classification data model and taxonomy that all downstream features depend on
+**Depends on**: Nothing (first phase)
+**Requirements**: CLSF-02, CLSF-04
+**Research flag**: Likely — taxonomy validation spike needed (classify 50 sample ads, measure accuracy)
 **Success Criteria** (what must be TRUE):
-  1. User can select their brand AND a category to compare against
-  2. Category benchmark shows aggregated Five Pillars + Andromeda scores across all brands in that category
-  3. User sees side-by-side comparison with per-pillar indexing (brand score vs. category average)
-  4. Comparison highlights gaps and strengths with actionable recommendations
-**Plans:** 2 plans
-Plans:
-- [x] 55-01-PLAN.md — Analysis caching + benchmark API
-- [x] 55-02-PLAN.md — Category selector UI + benchmark comparison component
+  1. AdClassification, ClassificationJob, and ApiCostLog Prisma models exist with indexed columns (not JSON blobs)
+  2. Classification taxonomy is defined with ~8-10 categories and ~10 tags each (visual format, hook tactic, messaging angle, awareness stage, creative mechanic, offer type, intended audience, asset type)
+  3. Classification prompt with few-shot examples produces consistent results across sample ads
+  4. Cost tracker utility can log API spend per classification job
+**Plans**: TBD
 
-### Phase 56: Image Generation
-**Goal**: Users can generate AI ad creatives in multiple formats from analysis-driven prompts
-**Depends on**: Phase 55 (recommendations feed into generation)
-**Requirements**: GENR-01, GENR-02, GENR-03, GENR-04, GENR-05
+### Phase 63: Classification Pipeline
+**Goal**: Users can classify individual ads on-demand and trigger batch classification of entire brands
+**Depends on**: Phase 62
+**Requirements**: CLSF-01, CLSF-03, CLSF-05
+**Research flag**: Likely — verify Anthropic Batch API behavior with Vision requests
 **Success Criteria** (what must be TRUE):
-  1. User can generate an AI image from any recommendation with one click
-  2. User can select target ad format/size before generating
-  3. User can generate multiple format variants from the same prompt
-  4. User can download any generated image
-  5. Generation prompts are pre-filled from analysis gap recommendations
-**Plans:** 1 plan
-Plans:
-- [x] 56-01-PLAN.md — Format selector, multi-format generation, blob download
+  1. User can trigger AI classification of a single ad and see results in 2-4 seconds
+  2. User can trigger batch classification of a brand's ads via Anthropic Batch API
+  3. Batch jobs track progress (pending/processing/complete/failed) and display estimated cost
+  4. Classifications are persisted to AdClassification table and never re-computed for already-classified ads
+**Plans**: TBD
 
-### Phase 56.1: Brand Guidelines Setup (INSERTED)
-**Goal**: Users can define their brand persona (voice, mission, target audience, visual identity) to steer AI-generated creatives toward brand consistency
-**Depends on**: Phase 56 (brand guidelines feed into generation prompts)
-**Requirements**: TBD (to be defined during planning)
+### Phase 64: Diversity Refactor
+**Goal**: Eliminate redundant AI calls by making diversity analysis read from stored classifications
+**Depends on**: Phase 63 (classifications must exist in DB)
+**Requirements**: CLSF-06
+**Research flag**: Unlikely — straightforward refactor of existing route
 **Success Criteria** (what must be TRUE):
-  1. User can input brand voice & personality description
-  2. User can set a mission statement
-  3. User can select target audience demographics and interests
-  4. User can upload a logo and define core brand colors (primary, secondary, accent)
-  5. User can upload reference images to an image library
-  6. Brand guidelines are saved and persist across sessions
-  7. Saved guidelines feed into image generation prompts for brand-consistent output
-**Plans:** 2 plans
-Plans:
-- [x] 56.1-01-PLAN.md — Prisma model, CRUD API, upload API, generation integration
-- [x] 56.1-02-PLAN.md — Brand Guidelines page UI + sidebar navigation
+  1. `/api/analyze/diversity` reads from AdClassification table instead of calling Claude Vision per-request
+  2. Diversity scores reflect actual stored classification data
+  3. BrandAnalysisCache is updated with classification-based scores
+  4. No AI classification calls are made during diversity analysis (only recommendation generation)
+**Plans**: TBD
 
-**Design Reference**: Figma file `w3UPPS0z6hGsWPoZWxXjkO` node `0:3` — adapted to existing design system (#1235e2 primary, dark/light mode, V2Shell/V2Card)
-
-### Phase 57: AI Creative Generation (REPLACES Text Overlay Editor)
-**Goal**: AI analyzes user's ads + competitor top performers + brand guidelines, then generates high-performing ad creatives with minimal user input
-**Depends on**: Phase 55 (analysis gaps drive suggestions), Phase 56 (image generation), Phase 56.1 (brand guidelines steer output)
-**Requirements**: AIGEN-01, AIGEN-02, AIGEN-03, AIGEN-04, AIGEN-05
+### Phase 65: Classification UI
+**Goal**: Make classification data visible — distribution charts and per-ad tags
+**Depends on**: Phase 64 (data should be real, not ephemeral)
+**Requirements**: REPT-01, REPT-02
+**Research flag**: Unlikely — frontend work with data already available
 **Success Criteria** (what must be TRUE):
-  1. User can trigger ad generation from analysis gap recommendations
-  2. AI pre-fills a config screen with suggested formats, quantity, style, and copy angles based on gaps + brand guidelines + competitor data
-  3. Each suggestion shows reasoning (why this ad concept was suggested)
-  4. User can adjust any pre-filled setting before generating
-  5. Generated ads appear in a gallery view
-  6. User can download individual images or all as a zip
-**Plans:** 2 plans
-Plans:
-- [x] 57-01-PLAN.md — Backend APIs (generate-config + generate-batch) + shared types
-- [x] 57-02-PLAN.md — Frontend rewrite (config screen, suggestion cards, gallery, page orchestration)
+  1. User sees distribution bar charts per classification dimension (e.g., "30% testimonial, 5% listicle")
+  2. Individual ads display their classification tags in ad detail view
+  3. Brand classification coverage is visible (X of Y ads classified)
+**Plans**: TBD
 
-**Context**: 57-CONTEXT.md (gathered 2026-03-23)
-
-### Phase 58: UGC Creator Briefs
-**Goal**: Users can generate structured UGC briefs based on a brand's ad library data
-**Depends on**: Phase 55 (analysis data informs brief content)
-**Requirements**: UGC-01, UGC-02, UGC-03, UGC-04, UGC-05
+### Phase 66: Strategy Engine
+**Goal**: Users can analyze any brand's creative strategy and generate concepts that fill identified gaps
+**Depends on**: Phase 65 (users need to see classification data before strategy builds on it)
+**Requirements**: BRND-01, STRT-01, STRT-02, STRT-03, STRT-04, STRT-05
+**Research flag**: Likely — strategy quality testing needed (generate for 5 brands, evaluate specificity)
 **Success Criteria** (what must be TRUE):
-  1. User can generate a UGC brief for any brand in the database
-  2. Brief includes a shot list with scene descriptions
-  3. Brief includes talking points and a hook script
-  4. Brief includes B-roll suggestions relevant to the brand's category
-  5. User can copy the brief to clipboard or download as a formatted document
-**Plans:** 2 plans
-Plans:
-- [x] 58-01-PLAN.md — UGC brief types + Claude-powered generate-brief API
-- [x] 58-02-PLAN.md — Frontend: mode selector, brief view component, copy/download actions
+  1. Brand profile auto-populates from existing DB data (ads, category, demographics) without manual input
+  2. User can select any brand and see their full creative taxonomy breakdown (format distribution, tactic usage, awareness stage coverage)
+  3. User can view an interactive gap matrix crossing awareness stages x creative formats with coverage heatmap
+  4. User can click a gap cell to auto-generate creative concepts targeting that gap
+  5. Generated concepts include visual format, creative mechanic, hook, messaging angle, and production brief
+**Plans**: TBD
 
-### Phase 59: Creative Lab Integration
-**Goal**: Unified Creative Lab page connecting analysis, AI generation, and briefs into one workflow
-**Depends on**: Phases 55-58
-**Requirements**: (cross-cutting — connects all features)
+### Phase 67: Category Benchmarking
+**Goal**: Users can compare a brand's creative strategy against category averages
+**Depends on**: Phase 66 (strategy engine provides the per-brand data)
+**Requirements**: BNCH-01, BNCH-02
+**Research flag**: Likely — evaluate data coverage (brands per category with enough classified ads)
 **Success Criteria** (what must be TRUE):
-  1. Creative Lab page has clear navigation between Analysis, Generation, and Briefs
-  2. User can flow from analysis gaps → AI generation config → results gallery seamlessly
-  3. Analysis recommendations link directly to generation and brief creation
-**Plans:** 2 plans
-Plans:
-- [x] 59-01-PLAN.md — AnalysisView component + BenchmarkComparison cleanup
-- [x] 59-02-PLAN.md — Page integration: 3-mode selector, analysis flow state, error UX
-
-### Phase 60: Analysis View Data Wiring (GAP CLOSURE)
-**Goal**: Fix broken analysis display — DiversityResult interface mismatch and wrong category parameter prevent score pills and benchmarks from rendering
-**Depends on**: Phase 59
-**Gap Closure**: Closes 2 integration gaps + 2 broken E2E flows from v7.0 audit
-**Success Criteria** (what must be TRUE):
-  1. Diversity score pills render actual numeric values (not undefined/NaN)
-  2. Benchmark API receives the brand's actual product category (not `brand.source`)
-  3. E2E Flow 1 (Analysis) completes with meaningful data displayed
-  4. E2E Flow 4 (Unified) completes through analysis step
-Plans:
-- [x] 60-01-PLAN.md — Fix DiversityResult interface + category param wiring
-
-### Phase 61: Dead Code Cleanup (GAP CLOSURE)
-**Goal**: Remove orphaned components from Phase 56 and fix stale error string in page.tsx
-**Depends on**: Phase 60
-**Gap Closure**: Closes 3 tech debt items from v7.0 audit
-**Success Criteria** (what must be TRUE):
-  1. `format-selector.tsx` deleted (superseded by config-screen.tsx)
-  2. `generation-results.tsx` deleted (superseded by generation-gallery.tsx)
-  3. Error string comparison in page.tsx line 139 matches actual API response
-  4. Build passes with no import errors
-Plans:
-- [ ] 61-01-PLAN.md — Delete orphaned files + fix error string
+  1. User can compare a brand's classification dimension distribution against category averages
+  2. Comparison shows index scores (e.g., "2x over-indexed on testimonials, 0.5x under-indexed on listicles")
+  3. Category averages are computed from all classified brands in that category
+**Plans**: TBD
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 55 → 56 → 56.1 → 57 → 58 → 59 → 60 → 61
+Phases execute in numeric order: 62 → 63 → 64 → 65 → 66 → 67
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 55. Creative Analysis | 2/2 | Complete | 2026-03-21 |
-| 56. Image Generation | 1/1 | Complete | 2026-03-22 |
-| 56.1. Brand Guidelines Setup | 2/2 | Complete | 2026-03-23 |
-| 57. AI Creative Generation | 2/2 | Complete | 2026-03-23 |
-| 58. UGC Creator Briefs | 2/2 | Complete | 2026-03-23 |
-| 59. Creative Lab Integration | 2/2 | Complete | 2026-03-23 |
-| 60. Analysis View Data Wiring | 1/1 | Complete | 2026-03-24 |
-| 61. Dead Code Cleanup | 0/1 | Pending | — |
+| 62. Classification Foundation | 0/TBD | Not started | — |
+| 63. Classification Pipeline | 0/TBD | Not started | — |
+| 64. Diversity Refactor | 0/TBD | Not started | — |
+| 65. Classification UI | 0/TBD | Not started | — |
+| 66. Strategy Engine | 0/TBD | Not started | — |
+| 67. Category Benchmarking | 0/TBD | Not started | — |
 
 ---
-*Last updated: 2026-03-24 — Phase 60 complete*
+*Last updated: 2026-03-27 — v8.0 roadmap created*

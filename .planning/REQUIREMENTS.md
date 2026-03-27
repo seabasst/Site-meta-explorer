@@ -76,27 +76,27 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLSF-01 | TBD | Pending |
-| CLSF-02 | TBD | Pending |
-| CLSF-03 | TBD | Pending |
-| CLSF-04 | TBD | Pending |
-| CLSF-05 | TBD | Pending |
-| CLSF-06 | TBD | Pending |
-| BRND-01 | TBD | Pending |
-| STRT-01 | TBD | Pending |
-| STRT-02 | TBD | Pending |
-| STRT-03 | TBD | Pending |
-| STRT-04 | TBD | Pending |
-| STRT-05 | TBD | Pending |
-| REPT-01 | TBD | Pending |
-| REPT-02 | TBD | Pending |
-| BNCH-01 | TBD | Pending |
-| BNCH-02 | TBD | Pending |
+| CLSF-01 | Phase 63 | Pending |
+| CLSF-02 | Phase 62 | Pending |
+| CLSF-03 | Phase 63 | Pending |
+| CLSF-04 | Phase 62 | Pending |
+| CLSF-05 | Phase 63 | Pending |
+| CLSF-06 | Phase 64 | Pending |
+| BRND-01 | Phase 66 | Pending |
+| STRT-01 | Phase 66 | Pending |
+| STRT-02 | Phase 66 | Pending |
+| STRT-03 | Phase 66 | Pending |
+| STRT-04 | Phase 66 | Pending |
+| STRT-05 | Phase 66 | Pending |
+| REPT-01 | Phase 65 | Pending |
+| REPT-02 | Phase 65 | Pending |
+| BNCH-01 | Phase 67 | Pending |
+| BNCH-02 | Phase 67 | Pending |
 
 **Coverage:**
 - v1 requirements: 16 total
-- Mapped to phases: 0 (awaiting roadmap)
-- Unmapped: 16
+- Mapped to phases: 16 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-27*
