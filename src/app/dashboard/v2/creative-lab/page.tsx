@@ -11,6 +11,7 @@ import {
   Sparkles,
   FileText,
   BarChart3,
+  Target,
 } from 'lucide-react';
 import { V2Shell } from '../v2-shell';
 import { useV2 } from '../v2-context';
@@ -18,6 +19,7 @@ import { ConfigScreen } from './config-screen';
 import { GenerationGallery } from './generation-gallery';
 import { UGCBriefView } from './ugc-brief-view';
 import { AnalysisView } from './analysis-view';
+import { StrategyView } from './strategy-view';
 import type {
   GenerationConfig,
   GenerationSuggestion,
@@ -38,7 +40,7 @@ interface SearchResult {
   source: string;
 }
 
-type FlowState = 'search' | 'mode-select' | 'analysis' | 'config' | 'gallery' | 'brief-loading' | 'brief';
+type FlowState = 'search' | 'mode-select' | 'analysis' | 'strategy' | 'config' | 'gallery' | 'brief-loading' | 'brief';
 
 // ---------------------------------------------------------------------------
 // Main Component
@@ -107,6 +109,8 @@ function CreativeLabPage() {
       setSearchQuery(pageName);
       if (mode === 'analysis') {
         setFlowState('analysis');
+      } else if (mode === 'strategy') {
+        setFlowState('strategy');
       } else if (mode === 'generate') {
         setFlowState('mode-select');
       } else {
@@ -155,6 +159,10 @@ function CreativeLabPage() {
 
   function handleChooseAnalysis() {
     setFlowState('analysis');
+  }
+
+  function handleChooseStrategy() {
+    setFlowState('strategy');
   }
 
   // -- Mode: Generate Ad Creatives -> load config ---------------------------
@@ -465,7 +473,7 @@ function CreativeLabPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Analyze Brand */}
             <button
               onClick={handleChooseAnalysis}
@@ -480,7 +488,28 @@ function CreativeLabPage() {
               </div>
               <h3 className="text-base font-bold mb-1">Analyze Brand</h3>
               <p className={`text-sm ${muted}`}>
-                Benchmark creative strategy against category with Five Pillars analysis.
+                Benchmark creative strategy against category with 8-dimension diversity analysis.
+              </p>
+            </button>
+
+            {/* Strategy */}
+            <button
+              onClick={handleChooseStrategy}
+              className={`group text-left rounded-xl border-2 p-6 transition-all relative ${
+                darkMode
+                  ? 'border-[#1235e2]/30 bg-[#101322] hover:border-[#1235e2]/60 hover:bg-[#1235e2]/5'
+                  : 'border-[#1235e2]/20 bg-white hover:border-[#1235e2] hover:bg-blue-50/30'
+              }`}
+            >
+              <span className="absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#1235e2]/10 text-[#1235e2]">
+                New
+              </span>
+              <div className="w-12 h-12 rounded-xl bg-[#1235e2]/10 flex items-center justify-center mb-4 group-hover:bg-[#1235e2]/20 transition-colors">
+                <Target className="w-6 h-6 text-[#1235e2]" />
+              </div>
+              <h3 className="text-base font-bold mb-1">Strategy</h3>
+              <p className={`text-sm ${muted}`}>
+                Creative strategy + hooks with scoring across 5 awareness stages.
               </p>
             </button>
 
@@ -531,6 +560,17 @@ function CreativeLabPage() {
             darkMode={darkMode}
             onGenerateCreatives={handleChooseCreatives}
             onGenerateBrief={handleGenerateBrief}
+            onBack={handleBackToModeSelect}
+          />
+        </div>
+      )}
+
+      {/* Strategy state */}
+      {flowState === 'strategy' && selectedBrand && (
+        <div className="max-w-4xl mx-auto">
+          <StrategyView
+            brand={selectedBrand}
+            darkMode={darkMode}
             onBack={handleBackToModeSelect}
           />
         </div>

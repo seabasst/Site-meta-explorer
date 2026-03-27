@@ -18,11 +18,14 @@ import type { BenchmarkResult } from './benchmark-comparison';
 // ---------------------------------------------------------------------------
 
 interface DiversityScores {
-  format: number;
-  tone: number;
-  journeyPhase: number;
-  visualStyle: number;
-  messenger: number;
+  assetType: number;
+  visualFormat: number;
+  hookTactic: number;
+  messagingAngle: number;
+  awarenessStage: number;
+  creativeMechanic: number;
+  offerType: number;
+  intendedAudience: number;
   overall: number;
 }
 
@@ -47,12 +50,15 @@ interface AnalysisViewProps {
 // Score pill config
 // ---------------------------------------------------------------------------
 
-const PILLAR_PILLS: { key: keyof DiversityScores; label: string; color: string }[] = [
-  { key: 'format', label: 'Format', color: '#3b82f6' },
-  { key: 'tone', label: 'Tone', color: '#8b5cf6' },
-  { key: 'journeyPhase', label: 'Journey', color: '#f59e0b' },
-  { key: 'visualStyle', label: 'Visual', color: '#10b981' },
-  { key: 'messenger', label: 'Messenger', color: '#ec4899' },
+const CATEGORY_PILLS: { key: keyof DiversityScores; label: string; color: string }[] = [
+  { key: 'assetType', label: 'Asset Type', color: '#3b82f6' },
+  { key: 'visualFormat', label: 'Visual Format', color: '#8b5cf6' },
+  { key: 'hookTactic', label: 'Hook Tactic', color: '#f59e0b' },
+  { key: 'messagingAngle', label: 'Messaging', color: '#10b981' },
+  { key: 'awarenessStage', label: 'Awareness', color: '#ec4899' },
+  { key: 'creativeMechanic', label: 'Mechanic', color: '#06b6d4' },
+  { key: 'offerType', label: 'Offer Type', color: '#f97316' },
+  { key: 'intendedAudience', label: 'Audience', color: '#a855f7' },
   { key: 'overall', label: 'Overall', color: '#1235e2' },
 ];
 
@@ -89,12 +95,16 @@ export function AnalysisView({
       const res = await fetch('/api/analyze/diversity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageId: brand.pageId }),
+        body: JSON.stringify({ pageId: brand.pageId, pageName: brand.pageName, category: brand.category }),
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setDiversityError(data.error || 'Failed to analyze brand. Please try again.');
+        if (data.needsClassification) {
+          setDiversityError(`${data.classifiedCount} of ${data.totalAds} ads classified. Classify more ads to enable analysis.`);
+        } else {
+          setDiversityError(data.error || 'Failed to analyze brand. Please try again.');
+        }
         return;
       }
 
@@ -242,7 +252,7 @@ export function AnalysisView({
           Diversity Scores
         </h3>
         <div className="flex flex-wrap gap-3">
-          {PILLAR_PILLS.map(({ key, label, color }) => (
+          {CATEGORY_PILLS.map(({ key, label, color }) => (
             <div
               key={key}
               className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"

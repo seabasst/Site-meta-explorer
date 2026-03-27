@@ -14,11 +14,14 @@ import { V2Card } from '../v2-shell';
 // ---------------------------------------------------------------------------
 
 interface DiversityScores {
-  format: number;
-  tone: number;
-  journeyPhase: number;
-  visualStyle: number;
-  messenger: number;
+  assetType: number;
+  visualFormat: number;
+  hookTactic: number;
+  messagingAngle: number;
+  awarenessStage: number;
+  creativeMechanic: number;
+  offerType: number;
+  intendedAudience: number;
   overall: number;
 }
 
@@ -53,11 +56,14 @@ export interface BenchmarkResult {
     avgAndromedaScore: number;
   };
   indexing: {
-    format: PillarIndex;
-    tone: PillarIndex;
-    journeyPhase: PillarIndex;
-    visualStyle: PillarIndex;
-    messenger: PillarIndex;
+    assetType: PillarIndex;
+    visualFormat: PillarIndex;
+    hookTactic: PillarIndex;
+    messagingAngle: PillarIndex;
+    awarenessStage: PillarIndex;
+    creativeMechanic: PillarIndex;
+    offerType: PillarIndex;
+    intendedAudience: PillarIndex;
     overall: PillarIndex;
     andromeda: PillarIndex;
   };
@@ -70,12 +76,15 @@ export interface BenchmarkResult {
 // Default Pillar Config
 // ---------------------------------------------------------------------------
 
-const DEFAULT_PILLAR_CONFIG: Record<string, { label: string; color: string; allValues: string[] }> = {
-  format: { label: 'Format', color: '#3b82f6', allValues: ['static-image', 'video', 'carousel', 'reel', 'story'] },
-  tone: { label: 'Tone', color: '#8b5cf6', allValues: ['aspirational', 'problem-solving', 'educational', 'social-proof', 'humor', 'urgency'] },
-  journeyPhase: { label: 'Journey Phase', color: '#f59e0b', allValues: ['awareness', 'consideration', 'conversion'] },
-  visualStyle: { label: 'Visual Style', color: '#10b981', allValues: ['studio', 'ugc', 'minimal', 'lifestyle', 'before-after', 'product-shot'] },
-  messenger: { label: 'Messenger', color: '#ec4899', allValues: ['brand', 'influencer', 'customer', 'expert', 'anonymous'] },
+const DEFAULT_CATEGORY_CONFIG: Record<string, { label: string; color: string; allValues: string[] }> = {
+  assetType: { label: 'Asset Type', color: '#3b82f6', allValues: ['ugc', 'studio', 'graphic-design', 'stock', 'screen-capture', 'ai-generated', 'editorial', 'mixed'] },
+  visualFormat: { label: 'Visual Format', color: '#8b5cf6', allValues: ['talking-head', 'product-demo', 'testimonial', 'lifestyle', 'before-after', 'unboxing', 'tutorial', 'skit', 'slideshow', 'text-overlay', 'split-screen'] },
+  hookTactic: { label: 'Hook Tactic', color: '#f59e0b', allValues: ['question', 'bold-claim', 'statistic', 'pain-point', 'curiosity-gap', 'social-proof', 'controversy', 'how-to', 'direct-address', 'storytelling'] },
+  messagingAngle: { label: 'Messaging', color: '#10b981', allValues: ['price-value', 'problem-solution', 'aspirational', 'educational', 'social-proof', 'urgency-scarcity', 'emotional', 'comparison', 'authority', 'community'] },
+  awarenessStage: { label: 'Awareness', color: '#ec4899', allValues: ['unaware', 'problem-aware', 'solution-aware', 'product-aware', 'most-aware'] },
+  creativeMechanic: { label: 'Mechanic', color: '#06b6d4', allValues: ['before-after', 'listicle', 'reaction', 'day-in-life', 'challenge', 'transformation', 'process-reveal', 'review'] },
+  offerType: { label: 'Offer Type', color: '#f97316', allValues: ['discount', 'free-trial', 'bundle', 'limited-time', 'evergreen', 'seasonal', 'giveaway', 'no-offer'] },
+  intendedAudience: { label: 'Audience', color: '#a855f7', allValues: ['broad', 'niche-interest', 'demographic-specific', 'retargeting', 'lookalike', 'competitor-audience'] },
 };
 
 // ---------------------------------------------------------------------------
@@ -86,7 +95,7 @@ interface BenchmarkComparisonProps {
   result: BenchmarkResult | null;
   loading: boolean;
   darkMode: boolean;
-  pillarConfig?: Record<string, { label: string; color: string; allValues: string[] }>;
+  categoryConfig?: Record<string, { label: string; color: string; allValues: string[] }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -163,10 +172,10 @@ function ScoreCard({ label, index, color, darkMode }: {
 // Main Component
 // ---------------------------------------------------------------------------
 
-const PILLAR_KEYS = ['format', 'tone', 'journeyPhase', 'visualStyle', 'messenger'] as const;
+const CATEGORY_KEYS = ['assetType', 'visualFormat', 'hookTactic', 'messagingAngle', 'awarenessStage', 'creativeMechanic', 'offerType', 'intendedAudience'] as const;
 
-export function BenchmarkComparison({ result, loading, darkMode, pillarConfig }: BenchmarkComparisonProps) {
-  const config = pillarConfig ?? DEFAULT_PILLAR_CONFIG;
+export function BenchmarkComparison({ result, loading, darkMode, categoryConfig }: BenchmarkComparisonProps) {
+  const config = categoryConfig ?? DEFAULT_CATEGORY_CONFIG;
   const muted = darkMode ? 'text-slate-400' : 'text-slate-500';
 
   // Loading state
@@ -216,9 +225,9 @@ export function BenchmarkComparison({ result, loading, darkMode, pillarConfig }:
 
       {/* Per-pillar comparison bars */}
       <V2Card className="p-6 mb-6">
-        <h4 className="text-sm font-bold mb-4">Five Pillars Comparison</h4>
+        <h4 className="text-sm font-bold mb-4">Category Comparison</h4>
         <div className="space-y-4">
-          {PILLAR_KEYS.map((key) => {
+          {CATEGORY_KEYS.map((key) => {
             const cfg = config[key];
             const index = result.indexing[key];
             if (!cfg || !index) return null;
