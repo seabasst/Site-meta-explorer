@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 64 — Diversity Refactor
+**Current focus:** Phase 65 — Classification UI
 
 ## Current Position
 
-Phase: 64 of 67 (Diversity Refactor) — ✓ VERIFIED
-Plan: Ready for Phase 65
-Status: Phase 64 verified (4/4 must-haves passed), proceeding to Phase 65
-Last activity: 2026-03-27 — Phase 64 complete (2 plans, 5 commits)
+Phase: 65 of 67 (Classification UI)
+Plan: 02 of 02 complete
+Status: In progress
+Last activity: 2026-03-27 — Completed 65-02-PLAN.md (classification tags in lightbox)
 
-Progress: ████░░░░░░ ~50%
+Progress: █████░░░░░ ~55%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 127
+- Total plans completed: 128
 - Average duration: —
 - Total execution time: —
 
@@ -58,6 +58,8 @@ Recent decisions affecting current work:
 - (64-01): Schwartz awareness stages mapped to 3 funnel buckets (awareness/consideration/conversion)
 - (64-01): Return 422 with needsClassification flag when <3 ads classified
 - (64-02): Renamed fivePillars to categories in strategy brandContext for consistent naming
+- (65-02): Classification data included in ads API via Prisma select (8 fields only, minimal payload)
+- (65-02): Graceful absence pattern for unclassified ads (no section, not empty state)
 
 ### Existing Infrastructure
 
@@ -78,6 +80,8 @@ Recent decisions affecting current work:
 - Batch API: POST `/api/classify/batch` (start), GET `/api/classify/batch/status` (progress)
 - Cron polling: GET `/api/ad-library/cron/classify-poll` (every 5 min, processes completed batches)
 - BrandAnalysisCache: 8-category scores (assetTypeScore through intendedAudienceScore) + overallScore
+- Ads API includes classification data (8 fields or null) in every ad response
+- Ad detail lightbox shows colored classification pills with TAXONOMY labels
 
 ### Motion Framework Reference
 
@@ -93,5 +97,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Phase 64 verified — ready for Phase 65
+Stopped at: Completed 65-02-PLAN.md
 Resume file: None
