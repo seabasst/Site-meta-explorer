@@ -625,13 +625,16 @@ model BrandAnalysisCache {
   brandId   String   @unique
   brand     AdLibraryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
-  // Five Pillars diversity scores (0-100)
-  formatScore       Int
-  toneScore         Int
-  journeyPhaseScore Int
-  visualStyleScore  Int
-  messengerScore    Int
-  overallScore      Int
+  // 8-category diversity scores (0-100)
+  assetTypeScore        Int @default(0)
+  visualFormatScore     Int @default(0)
+  hookTacticScore       Int @default(0)
+  messagingAngleScore   Int @default(0)
+  awarenessStageScore   Int @default(0)
+  creativeMechanicScore Int @default(0)
+  offerTypeScore        Int @default(0)
+  intendedAudienceScore Int @default(0)
+  overallScore          Int
 
   // Andromeda score (0-100 composite)
   andromedaScore    Int
