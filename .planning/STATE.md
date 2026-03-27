@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 ## Current Position
 
 Phase: 63 of 67 (Classification Pipeline)
-Plan: 02 of 04 complete
-Status: In progress
-Last activity: 2026-03-27 — Completed 63-02-PLAN.md (batch classification pipeline)
+Plan: 01 + 02 of 02 complete
+Status: Phase complete
+Last activity: 2026-03-27 — Completed 63-01-PLAN.md (single ad classification)
 
-Progress: █░░░░░░░░░ ~18%
+Progress: ██░░░░░░░░ ~20%
 
 ## Performance Metrics
 
@@ -48,6 +48,9 @@ Recent decisions affecting current work:
 - (62-01): schemaVersion field on AdClassification for taxonomy evolution
 - (62-02): Dynamic prompt building from TAXONOMY (stays in sync automatically)
 - (62-02): Fire-and-forget cost logging (never breaks classification)
+- (63-01): messages.parse() with zodOutputFormat for auto-parsed structured output
+- (63-01): Cache-first pattern — check DB before calling Claude
+- (63-01): Vision classification when image asset available, text-only otherwise
 - (63-02): Fire-and-forget batch submission (POST returns immediately, job tracks progress)
 - (63-02): 5-minute cron polling for batch results (*/5 * * * *)
 - (63-02): skipDuplicates on createMany for idempotent result processing
@@ -65,6 +68,8 @@ Recent decisions affecting current work:
 - AdClassification, ClassificationJob, ApiCostLog Prisma models (in Neon DB)
 - Classification prompt at `src/lib/classification/prompt.ts` (buildClassificationPrompt, buildAdContext)
 - Cost tracker at `src/lib/classification/cost-tracker.ts` (logApiCost, getDailySpend, getSpendByOperation)
+- Single classification at `src/lib/classification/classify-single.ts` (classifySingleAd with zodOutputFormat)
+- Single classification API: POST `/api/classify/single` (cache-first, persists, logs cost)
 - Batch classification at `src/lib/classification/classify-batch.ts` (submitBatchClassification, processBatchResults)
 - Batch API: POST `/api/classify/batch` (start), GET `/api/classify/batch/status` (progress)
 - Cron polling: GET `/api/ad-library/cron/classify-poll` (every 5 min, processes completed batches)
@@ -83,5 +88,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Completed 63-02-PLAN.md — Batch classification pipeline
+Stopped at: Completed 63-01-PLAN.md — Phase 63 complete (01 + 02 done)
 Resume file: None
