@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 
 ## Current Position
 
-Phase: 62 of 67 (Classification Foundation) — ✓ VERIFIED
-Plan: Ready for Phase 63
-Status: Phase 62 verified, proceeding to Phase 63
-Last activity: 2026-03-27 — Phase 62 verified (9/9 must-haves passed)
+Phase: 63 of 67 (Classification Pipeline)
+Plan: 02 of 04 complete
+Status: In progress
+Last activity: 2026-03-27 — Completed 63-02-PLAN.md (batch classification pipeline)
 
-Progress: █░░░░░░░░░ ~17%
+Progress: █░░░░░░░░░ ~18%
 
 ## Performance Metrics
 
@@ -48,6 +48,9 @@ Recent decisions affecting current work:
 - (62-01): schemaVersion field on AdClassification for taxonomy evolution
 - (62-02): Dynamic prompt building from TAXONOMY (stays in sync automatically)
 - (62-02): Fire-and-forget cost logging (never breaks classification)
+- (63-02): Fire-and-forget batch submission (POST returns immediately, job tracks progress)
+- (63-02): 5-minute cron polling for batch results (*/5 * * * *)
+- (63-02): skipDuplicates on createMany for idempotent result processing
 
 ### Existing Infrastructure
 
@@ -62,6 +65,9 @@ Recent decisions affecting current work:
 - AdClassification, ClassificationJob, ApiCostLog Prisma models (in Neon DB)
 - Classification prompt at `src/lib/classification/prompt.ts` (buildClassificationPrompt, buildAdContext)
 - Cost tracker at `src/lib/classification/cost-tracker.ts` (logApiCost, getDailySpend, getSpendByOperation)
+- Batch classification at `src/lib/classification/classify-batch.ts` (submitBatchClassification, processBatchResults)
+- Batch API: POST `/api/classify/batch` (start), GET `/api/classify/batch/status` (progress)
+- Cron polling: GET `/api/ad-library/cron/classify-poll` (every 5 min, processes completed batches)
 
 ### Motion Framework Reference
 
@@ -77,5 +83,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Completed 62-02-PLAN.md — Phase 62 complete, ready for Phase 63
+Stopped at: Completed 63-02-PLAN.md — Batch classification pipeline
 Resume file: None
