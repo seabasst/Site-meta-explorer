@@ -182,15 +182,13 @@ function CreativeLabPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        if (res.status === 404) {
-          setConfigError(
-            data.error?.includes('No cached analysis')
-              ? 'This brand hasn\'t been analyzed yet. Run a diversity analysis first from the Ad Library.'
-              : data.error || 'Brand not found.'
-          );
-        } else {
-          setConfigError(data.error || 'Failed to generate config. Please try again.');
+        if (res.status === 404 && data.error?.includes('No cached analysis')) {
+          // Auto-redirect to analysis which will classify + cache
+          setConfigLoading(false);
+          setFlowState('analysis');
+          return;
         }
+        setConfigError(data.error || 'Failed to generate config. Please try again.');
         return;
       }
 
@@ -221,6 +219,12 @@ function CreativeLabPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
+        if (res.status === 404 && data.error?.includes('No cached analysis')) {
+          // Auto-redirect to analysis which will classify + cache
+          setBriefLoading(false);
+          setFlowState('analysis');
+          return;
+        }
         setBriefError(data.error || 'Failed to generate brief. Please try again.');
         return;
       }

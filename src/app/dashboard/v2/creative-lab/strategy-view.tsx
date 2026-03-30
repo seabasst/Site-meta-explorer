@@ -98,6 +98,7 @@ export function StrategyView({ brand, darkMode, onBack }: StrategyViewProps) {
   // Data loading
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [statusMsg, setStatusMsg] = useState('');
   const [strategyData, setStrategyData] = useState<StrategyData | null>(null);
 
   // Concept generation
@@ -118,22 +119,47 @@ export function StrategyView({ brand, darkMode, onBack }: StrategyViewProps) {
   const cardBg = darkMode ? 'bg-[#101322]' : 'bg-white';
 
   // -------------------------------------------------------------------------
-  // Data loading
+  // Data loading (with auto-classify)
   // -------------------------------------------------------------------------
 
   useEffect(() => {
     async function loadStrategy() {
       setLoading(true);
       setError('');
+      setStatusMsg('');
       try {
         const res = await fetch(`/api/strategy/${brand.pageId}`);
         if (res.status === 422) {
           const data = await res.json().catch(() => ({}));
-          setError(
-            data.needsClassification
-              ? `Only ${data.classifiedCount} of ${data.totalAds} ads classified. Classify more ads from the Ad Library before using Strategy.`
-              : data.error || 'Insufficient classification data.'
-          );
+          if (data.needsClassification && data.brandId) {
+            // Auto-classify inline, then retry
+            setStatusMsg('Classifying ads with AI...');
+            const classRes = await fetch('/api/classify/inline', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ brandId: data.brandId, limit: 30 }),
+            });
+            const classData = await classRes.json();
+
+            if (!classRes.ok || (classData.classified === 0 && classData.alreadyClassified < 3)) {
+              setError(`Classification insufficient. ${classData.alreadyClassified || 0} ads classified (need at least 3).`);
+              return;
+            }
+
+            setStatusMsg(`Classified ${classData.classified} ads. Loading strategy...`);
+
+            // Retry strategy load
+            const retryRes = await fetch(`/api/strategy/${brand.pageId}`);
+            if (!retryRes.ok) {
+              const retryData = await retryRes.json().catch(() => ({}));
+              throw new Error(retryData.error || 'Failed to load strategy after classification');
+            }
+            const retryData: StrategyData = await retryRes.json();
+            setStrategyData(retryData);
+            setStatusMsg('');
+            return;
+          }
+          setError(data.error || 'Insufficient classification data.');
           return;
         }
         if (!res.ok) {
@@ -247,10 +273,10 @@ ${concept.productionBrief}`;
               <Loader2 className="w-8 h-8 text-[#1235e2] animate-spin" />
             </div>
             <h2 className="text-lg font-bold mb-2">
-              Loading strategy for {brand.pageName}...
+              {statusMsg ? 'Preparing strategy...' : `Loading strategy for ${brand.pageName}...`}
             </h2>
             <p className={`text-sm ${muted}`}>
-              Assembling taxonomy breakdown and gap matrix
+              {statusMsg || 'Assembling taxonomy breakdown and gap matrix'}
             </p>
           </div>
           <div className="space-y-4 animate-pulse">

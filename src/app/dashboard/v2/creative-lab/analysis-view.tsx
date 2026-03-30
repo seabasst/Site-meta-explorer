@@ -76,6 +76,7 @@ export function AnalysisView({
   const [diversity, setDiversity] = useState<DiversityResult | null>(null);
   const [diversityLoading, setDiversityLoading] = useState(true);
   const [diversityError, setDiversityError] = useState('');
+  const [classifyStatus, setClassifyStatus] = useState('');
 
   const [benchmark, setBenchmark] = useState<BenchmarkResult | null>(null);
   const [benchmarkLoading, setBenchmarkLoading] = useState(false);
@@ -83,11 +84,42 @@ export function AnalysisView({
   const muted = darkMode ? 'text-slate-400' : 'text-slate-500';
   const mutedBg = darkMode ? 'bg-slate-800/50' : 'bg-slate-100';
 
+  // -- Auto-classify (inline, synchronous) ------------------------------------
+
+  async function triggerClassification(brandDbId: string): Promise<boolean> {
+    setClassifyStatus('Classifying ads with AI...');
+    try {
+      const res = await fetch('/api/classify/inline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brandId: brandDbId, limit: 30 }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setClassifyStatus(`Classification failed: ${data.error || 'Unknown error'}`);
+        return false;
+      }
+
+      if (data.classified === 0 && data.alreadyClassified > 0) {
+        setClassifyStatus('All ads already classified.');
+        return true;
+      }
+
+      setClassifyStatus(`Classified ${data.classified} ads. Running analysis...`);
+      return data.classified > 0 || data.alreadyClassified >= 3;
+    } catch {
+      setClassifyStatus('Failed to classify ads.');
+      return false;
+    }
+  }
+
   // -- Fetch diversity analysis -----------------------------------------------
 
   const runAnalysis = useCallback(async () => {
     setDiversityLoading(true);
     setDiversityError('');
+    setClassifyStatus('');
     setDiversity(null);
     setBenchmark(null);
 
@@ -101,7 +133,34 @@ export function AnalysisView({
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         if (data.needsClassification) {
-          setDiversityError(`${data.classifiedCount} of ${data.totalAds} ads classified. Classify more ads to enable analysis.`);
+          // Use the brand DB id from the response to auto-trigger classification
+          const brandDbId = data.brandId;
+
+          if (brandDbId) {
+            const success = await triggerClassification(brandDbId);
+            if (success) {
+              // Retry analysis after classification
+              setClassifyStatus('Running analysis...');
+              const retryRes = await fetch('/api/analyze/diversity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pageId: brand.pageId, pageName: brand.pageName, category: brand.category }),
+              });
+              if (retryRes.ok) {
+                const retryData: DiversityResult = await retryRes.json();
+                setDiversity(retryData);
+                setClassifyStatus('');
+                if (brand.category) fetchBenchmark();
+                return;
+              }
+              const retryError = await retryRes.json().catch(() => ({}));
+              setDiversityError(retryError.error || 'Analysis failed after classification.');
+            } else {
+              setDiversityError('Classification failed. Try again.');
+            }
+          } else {
+            setDiversityError(`${data.classifiedCount} of ${data.totalAds} ads classified. Brand not found for auto-classification.`);
+          }
         } else {
           setDiversityError(data.error || 'Failed to analyze brand. Please try again.');
         }
@@ -167,10 +226,12 @@ export function AnalysisView({
               <Loader2 className="w-8 h-8 text-[#1235e2] animate-spin" />
             </div>
             <h2 className="text-lg font-bold mb-2">
-              Analyzing {brand.pageName}&apos;s creative strategy...
+              {classifyStatus
+                ? 'Preparing analysis...'
+                : `Analyzing ${brand.pageName}'s creative strategy...`}
             </h2>
             <p className={`text-sm ${muted}`}>
-              (This may take up to a minute for first-time analysis)
+              {classifyStatus || '(This may take up to a minute for first-time analysis)'}
             </p>
           </div>
 

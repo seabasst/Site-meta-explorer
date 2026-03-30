@@ -86,6 +86,7 @@ export async function POST(request: NextRequest) {
         classifiedCount: classifications.length,
         totalAds: ads.length,
         needsClassification: true,
+        brandId: brand.id,
       }, { status: 422 });
     }
 

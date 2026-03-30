@@ -73,6 +73,7 @@ export async function GET(
           needsClassification: true,
           classifiedCount: classifications.length,
           totalAds: totalActiveAds,
+          brandId: brand.id,
         },
         { status: 422 }
       );
