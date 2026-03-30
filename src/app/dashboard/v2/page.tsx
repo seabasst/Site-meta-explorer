@@ -15,6 +15,7 @@ import { FormatDistributionChart } from '@/components/dashboard/format-distribut
 import { AdsTimelineChart } from '@/components/dashboard/ads-timeline-chart';
 import { PlatformBreakdownChart } from '@/components/dashboard/platform-breakdown-chart';
 import { TopBrandsTable } from '@/components/dashboard/top-brands-table';
+import { TopPartnershipBrands } from '@/components/dashboard/top-partnership-brands';
 import { DashboardFilters } from '@/components/dashboard/dashboard-filters';
 import { ConfigManager } from '@/components/dashboard/config-manager';
 
@@ -209,24 +210,7 @@ function DashboardContent() {
                 <PlatformBreakdownChart
                   data={fullStats?.adsByPlatform ?? []}
                 />
-                <V2Card className="p-6 flex items-center justify-center">
-                  <div className="text-center">
-                    <p
-                      className={`text-sm font-medium ${
-                        darkMode ? 'text-slate-400' : 'text-slate-500'
-                      }`}
-                    >
-                      More insights coming soon
-                    </p>
-                    <p
-                      className={`text-xs mt-1 ${
-                        darkMode ? 'text-slate-500' : 'text-slate-400'
-                      }`}
-                    >
-                      Additional analytics widgets
-                    </p>
-                  </div>
-                </V2Card>
+                <TopPartnershipBrands />
               </>
             )}
           </div>

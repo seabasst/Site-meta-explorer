@@ -250,6 +250,7 @@ model AdLibraryBrand {
   sovSnapshots   SovSnapshot[]
   analysisCache       BrandAnalysisCache?
   classificationJobs  ClassificationJob[]
+  creatorPartnerships CreatorPartnership[]
 
   @@index([ingestionStatus, priority])
   @@index([category])
@@ -619,6 +620,56 @@ model RoadmapUpvote {
 // =============================================================================
 // Brand Analysis Cache (for category benchmarking)
 // =============================================================================
+
+// =============================================================================
+// Creators & Partnerships
+// =============================================================================
+
+model AdCreator {
+  id         String   @id @default(cuid())
+  pageId     String   @unique
+  pageName   String
+  totalAds   Int      @default(0)
+  totalReach Int      @default(0)
+  brandCount Int      @default(0)
+  tier       String   @default("possible") // confirmed, likely, possible, noise
+  score      Int      @default(0)
+  creatorType String  @default("unknown")  // person, business, unknown
+  categories String[]
+  signals    String[]
+
+  partnerships CreatorPartnership[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tier])
+  @@index([score])
+  @@index([creatorType])
+}
+
+model CreatorPartnership {
+  id         String @id @default(cuid())
+  creatorId  String
+  creator    AdCreator      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  brandId    String
+  brand      AdLibraryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  adCount      Int      @default(0)
+  totalReach   Int      @default(0)
+  metaAdIds    String[] // Meta ad IDs of the actual partnership ads
+  snapshotUrls String[] // Snapshot render URLs for the actual partnership ads
+  mediaUrls    String[] // R2 URLs of downloaded ad creatives (images/videos)
+  mediaTypes   String[] // "image" or "video" for each mediaUrl
+  adBodies     String[] // Primary text of each ad
+  adTitles     String[] // Headline of each ad
+
+  createdAt DateTime @default(now())
+
+  @@unique([creatorId, brandId])
+  @@index([brandId])
+  @@index([creatorId])
+}
 
 model BrandAnalysisCache {
   id        String   @id @default(cuid())

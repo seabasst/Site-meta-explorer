@@ -1,0 +1,4255 @@
+{
+  "exportedAt": "2026-03-30T08:43:16.275Z",
+  "creatorCount": 132,
+  "partnershipCount": 132,
+  "creators": [
+    {
+      "pageId": "scraped_erik_grankvist",
+      "pageName": "Erik Grankvist",
+      "totalAds": 1,
+      "totalReach": 31242,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "254718231329930",
+          "brandName": "RevolutionRace",
+          "adCount": 1,
+          "totalReach": 31242,
+          "metaAdIds": [
+            "2715777012120975"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2715777012120975&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2715777012120975.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_high_quality_eyewear",
+      "pageName": "High quality eyewear",
+      "totalAds": 1,
+      "totalReach": 4,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1415151682063242",
+          "brandName": "Meller",
+          "adCount": 1,
+          "totalReach": 4,
+          "metaAdIds": [
+            "1634852627431442"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1634852627431442&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            ""
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_lilyr",
+      "pageName": "LilyR",
+      "totalAds": 2,
+      "totalReach": 142241,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1415151682063242",
+          "brandName": "Meller",
+          "adCount": 2,
+          "totalReach": 142241,
+          "metaAdIds": [
+            "4415381148729762",
+            "683013531535285"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=4415381148729762&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=683013531535285&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/683013531535285.jpg"
+          ],
+          "mediaTypes": [
+            "image",
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_the_independent",
+      "pageName": "The Independent",
+      "totalAds": 3,
+      "totalReach": 7333,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1415151682063242",
+          "brandName": "Meller",
+          "adCount": 3,
+          "totalReach": 7333,
+          "metaAdIds": [
+            "1448537743734789",
+            "1248125160781058",
+            "2075811286314418"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1448537743734789&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1248125160781058&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=2075811286314418&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1448537743734789.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1248125160781058.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2075811286314418.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_johannakaneryd",
+      "pageName": "johannakaneryd",
+      "totalAds": 1,
+      "totalReach": 12,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1653880254721745",
+          "brandName": "CAIA Cosmetics",
+          "adCount": 1,
+          "totalReach": 12,
+          "metaAdIds": [
+            "940171361886937"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=940171361886937&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/940171361886937.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_ann_kathrin_gotze2022",
+      "pageName": "Ann-Kathrin Gotze2022",
+      "totalAds": 1,
+      "totalReach": 665,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1653880254721745",
+          "brandName": "CAIA Cosmetics",
+          "adCount": 1,
+          "totalReach": 665,
+          "metaAdIds": [
+            "1307712871278069"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1307712871278069&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1307712871278069.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_isabellampyw",
+      "pageName": "isabellampyw",
+      "totalAds": 2,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1653880254721745",
+          "brandName": "CAIA Cosmetics",
+          "adCount": 2,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1891633524816055",
+            "1262831789281756"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1891633524816055&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1262831789281756&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1891633524816055.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1262831789281756.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_lizzy_claire",
+      "pageName": "Lizzy claire",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1653880254721745",
+          "brandName": "CAIA Cosmetics",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "960745693560106"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=960745693560106&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/960745693560106.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_diana_kbn",
+      "pageName": "diana.kbn",
+      "totalAds": 1,
+      "totalReach": 238,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1653880254721745",
+          "brandName": "CAIA Cosmetics",
+          "adCount": 1,
+          "totalReach": 238,
+          "metaAdIds": [
+            "1348355787321470"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1348355787321470&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1348355787321470.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_matildaasv",
+      "pageName": "matildaasv",
+      "totalAds": 1,
+      "totalReach": 1961,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1653880254721745",
+          "brandName": "CAIA Cosmetics",
+          "adCount": 1,
+          "totalReach": 1961,
+          "metaAdIds": [
+            "1604316050675027"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1604316050675027&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1604316050675027.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_fleurnijkamp",
+      "pageName": "fleurnijkamp",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1653880254721745",
+          "brandName": "CAIA Cosmetics",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1300433635283655"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1300433635283655&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1300433635283655.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_carolinabenitamakeup",
+      "pageName": "carolinabenitamakeup",
+      "totalAds": 2,
+      "totalReach": 194,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1653880254721745",
+          "brandName": "CAIA Cosmetics",
+          "adCount": 2,
+          "totalReach": 194,
+          "metaAdIds": [
+            "1643091900151034",
+            "1268629325231616"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1643091900151034&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1268629325231616&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1643091900151034.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1268629325231616.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_truong_adrien",
+      "pageName": "Truong Adrien",
+      "totalAds": 1,
+      "totalReach": 361509,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "15087023444",
+          "brandName": "Topshop",
+          "adCount": 1,
+          "totalReach": 361509,
+          "metaAdIds": [
+            "808622605040096"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=808622605040096&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/808622605040096.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_oemer",
+      "pageName": "OEMER",
+      "totalAds": 1,
+      "totalReach": 509301,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "15087023444",
+          "brandName": "Topshop",
+          "adCount": 1,
+          "totalReach": 509301,
+          "metaAdIds": [
+            "943102611566330"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=943102611566330&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/943102611566330.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_peterfagnoni",
+      "pageName": "peterfagnoni",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "15087023444",
+          "brandName": "Topshop",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1267619225433897"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1267619225433897&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1267619225433897.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_lisalegov",
+      "pageName": "lisalegov",
+      "totalAds": 3,
+      "totalReach": 32313,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "829738024024491",
+          "brandName": "Ninepine",
+          "adCount": 3,
+          "totalReach": 32313,
+          "metaAdIds": [
+            "1923877944937590",
+            "26194797613508913",
+            "1243116158021240"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1923877944937590&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=26194797613508913&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1243116158021240&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1923877944937590.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/26194797613508913.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1243116158021240.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_sandraemilia",
+      "pageName": "SandraEmilia",
+      "totalAds": 9,
+      "totalReach": 22144,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "829738024024491",
+          "brandName": "Ninepine",
+          "adCount": 9,
+          "totalReach": 22144,
+          "metaAdIds": [
+            "1596043765035670",
+            "2130435914425132",
+            "1831781314173466",
+            "1578904939834160",
+            "1462863485503120",
+            "1478490280730866",
+            "1283251237044130",
+            "1687481265604595",
+            "946120334631763"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1596043765035670&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=2130435914425132&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1831781314173466&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1578904939834160&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1462863485503120&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1478490280730866&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1283251237044130&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1687481265604595&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=946120334631763&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1596043765035670.jpg",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2130435914425132.mp4",
+            "",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1578904939834160.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1462863485503120.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1478490280730866.jpg",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1283251237044130.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1687481265604595.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/946120334631763.jpg"
+          ],
+          "mediaTypes": [
+            "image",
+            "video",
+            "image",
+            "video",
+            "video",
+            "image",
+            "video",
+            "video",
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_olivialczak",
+      "pageName": "olivialczak",
+      "totalAds": 1,
+      "totalReach": 4046,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "829738024024491",
+          "brandName": "Ninepine",
+          "adCount": 1,
+          "totalReach": 4046,
+          "metaAdIds": [
+            "1347638167385755"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1347638167385755&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1347638167385755.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_janneke_de_haas",
+      "pageName": "Janneke de Haas",
+      "totalAds": 11,
+      "totalReach": 19150,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "115867246072",
+          "brandName": "Vestiaire Collective",
+          "adCount": 11,
+          "totalReach": 19150,
+          "metaAdIds": [
+            "25956076054034426",
+            "1288371123165000",
+            "2372575423255459",
+            "1332838768625067",
+            "1261120195369472",
+            "1844254419607444",
+            "822249430134258",
+            "1458000272602424",
+            "1322597593023247",
+            "2909313452752095",
+            "782781427888509"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=25956076054034426&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1288371123165000&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=2372575423255459&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1332838768625067&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1261120195369472&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1844254419607444&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=822249430134258&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1458000272602424&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1322597593023247&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=2909313452752095&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=782781427888509&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/25956076054034426.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1288371123165000.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2372575423255459.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1332838768625067.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1261120195369472.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1844254419607444.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/822249430134258.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1458000272602424.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1322597593023247.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2909313452752095.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/782781427888509.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video",
+            "video",
+            "video",
+            "video",
+            "video",
+            "video",
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_kailee_mckenzie_m",
+      "pageName": "Kailee McKenzie M",
+      "totalAds": 3,
+      "totalReach": 17184,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "115867246072",
+          "brandName": "Vestiaire Collective",
+          "adCount": 3,
+          "totalReach": 17184,
+          "metaAdIds": [
+            "1963931860873842",
+            "2110235709761391",
+            "1942527473317154"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1963931860873842&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=2110235709761391&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1942527473317154&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1963931860873842.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2110235709761391.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1942527473317154.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_xana_vogue",
+      "pageName": "Xana Vogue",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "115867246072",
+          "brandName": "Vestiaire Collective",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "912940468173241"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=912940468173241&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/912940468173241.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_sasha_izum___personal_stylist",
+      "pageName": "Sasha Izum - personal stylist",
+      "totalAds": 1,
+      "totalReach": 1533,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "115867246072",
+          "brandName": "Vestiaire Collective",
+          "adCount": 1,
+          "totalReach": 1533,
+          "metaAdIds": [
+            "1442818800856086"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1442818800856086&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1442818800856086.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_kaye_esmas",
+      "pageName": "Kaye Esmas",
+      "totalAds": 2,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "115867246072",
+          "brandName": "Vestiaire Collective",
+          "adCount": 2,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1272490594289971",
+            "1105086075138533"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1272490594289971&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1105086075138533&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1272490594289971.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1105086075138533.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_dylan_kelly___writer",
+      "pageName": "Dylan Kelly - Writer",
+      "totalAds": 1,
+      "totalReach": 1505,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "115867246072",
+          "brandName": "Vestiaire Collective",
+          "adCount": 1,
+          "totalReach": 1505,
+          "metaAdIds": [
+            "1328856435782203"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1328856435782203&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1328856435782203.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_kavita_cola",
+      "pageName": "Kavita Cola",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "115867246072",
+          "brandName": "Vestiaire Collective",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "809572444943622"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=809572444943622&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/809572444943622.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_monica_marriott_mills",
+      "pageName": "Monica Marriott-Mills",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "115867246072",
+          "brandName": "Vestiaire Collective",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1456826142846483"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1456826142846483&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1456826142846483.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_mafilledavril",
+      "pageName": "mafilledavril",
+      "totalAds": 1,
+      "totalReach": 6919,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "104801596234536",
+          "brandName": "Photowall",
+          "adCount": 1,
+          "totalReach": 6919,
+          "metaAdIds": [
+            "1213159643927544"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1213159643927544&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1213159643927544.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_juste_in_deco",
+      "pageName": "juste.in.deco",
+      "totalAds": 1,
+      "totalReach": 10367,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "104801596234536",
+          "brandName": "Photowall",
+          "adCount": 1,
+          "totalReach": 10367,
+          "metaAdIds": [
+            "969299615755752"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=969299615755752&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/969299615755752.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_villa_melti",
+      "pageName": "villa_melti",
+      "totalAds": 1,
+      "totalReach": 1918,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "104801596234536",
+          "brandName": "Photowall",
+          "adCount": 1,
+          "totalReach": 1918,
+          "metaAdIds": [
+            "26143006842031771"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=26143006842031771&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/26143006842031771.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_nuances_pivoines",
+      "pageName": "nuances_pivoines",
+      "totalAds": 1,
+      "totalReach": 6558,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "104801596234536",
+          "brandName": "Photowall",
+          "adCount": 1,
+          "totalReach": 6558,
+          "metaAdIds": [
+            "1982828495948970"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1982828495948970&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1982828495948970.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_poulinettechacha",
+      "pageName": "Poulinettechacha",
+      "totalAds": 1,
+      "totalReach": 2443,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "104801596234536",
+          "brandName": "Photowall",
+          "adCount": 1,
+          "totalReach": 2443,
+          "metaAdIds": [
+            "780263581819512"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=780263581819512&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/780263581819512.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_les_avis_de_coralie",
+      "pageName": "Les Avis de Coralie",
+      "totalAds": 4,
+      "totalReach": 257966,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "254811818003716",
+          "brandName": "Cabaïa",
+          "adCount": 4,
+          "totalReach": 257966,
+          "metaAdIds": [
+            "1465904105070051",
+            "1648169386332729",
+            "781128864742156",
+            "1991612481394469"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1465904105070051&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1648169386332729&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=781128864742156&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1991612481394469&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1465904105070051.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1648169386332729.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/781128864742156.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1991612481394469.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_emmawinterhagen",
+      "pageName": "emmawinterhagen",
+      "totalAds": 1,
+      "totalReach": 3317,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "527417557349551",
+          "brandName": "aim'n",
+          "adCount": 1,
+          "totalReach": 3317,
+          "metaAdIds": [
+            "1287583863296917"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1287583863296917&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1287583863296917.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_josefin_svanberg",
+      "pageName": "Josefin Svanberg",
+      "totalAds": 2,
+      "totalReach": 3703,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "527417557349551",
+          "brandName": "aim'n",
+          "adCount": 2,
+          "totalReach": 3703,
+          "metaAdIds": [
+            "1556223959399455",
+            "818318394657061"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1556223959399455&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=818318394657061&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1556223959399455.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/818318394657061.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_filippzorz",
+      "pageName": "filippzorz",
+      "totalAds": 3,
+      "totalReach": 2610,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "527417557349551",
+          "brandName": "aim'n",
+          "adCount": 3,
+          "totalReach": 2610,
+          "metaAdIds": [
+            "888876887475759",
+            "1208842921329060",
+            "1490445676026618"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=888876887475759&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1208842921329060&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1490445676026618&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/888876887475759.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1208842921329060.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1490445676026618.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_angie_smith_style",
+      "pageName": "ANGIE SMITH STYLE",
+      "totalAds": 5,
+      "totalReach": 12023,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "245755372102045",
+          "brandName": "Sézane",
+          "adCount": 5,
+          "totalReach": 12023,
+          "metaAdIds": [
+            "1224573689876497",
+            "974760441786227",
+            "1368326198675029",
+            "2521976088218046",
+            "1630136081447001"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1224573689876497&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=974760441786227&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1368326198675029&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=2521976088218046&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1630136081447001&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1224573689876497.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/974760441786227.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1368326198675029.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2521976088218046.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1630136081447001.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_ida_louise",
+      "pageName": "Ida-Louise",
+      "totalAds": 1,
+      "totalReach": 2813,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 2813,
+          "metaAdIds": [
+            "1492460982318857"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1492460982318857&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1492460982318857.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_siiri",
+      "pageName": "SIIRI",
+      "totalAds": 1,
+      "totalReach": 95,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 95,
+          "metaAdIds": [
+            "1253750196949573"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1253750196949573&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1253750196949573.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_aadafit",
+      "pageName": "AadaFit",
+      "totalAds": 1,
+      "totalReach": 3462,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 3462,
+          "metaAdIds": [
+            "948513584542817"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=948513584542817&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/948513584542817.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_terri___crossfit_athlete",
+      "pageName": "Terri / CrossFit Athlete",
+      "totalAds": 1,
+      "totalReach": 2382,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 2382,
+          "metaAdIds": [
+            "1459331312536886"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1459331312536886&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1459331312536886.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_femke_vermaas",
+      "pageName": "femke.vermaas",
+      "totalAds": 1,
+      "totalReach": 124,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 124,
+          "metaAdIds": [
+            "834653629657922"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=834653629657922&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/834653629657922.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_ritapiiii",
+      "pageName": "ritapiiii",
+      "totalAds": 1,
+      "totalReach": 454,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 454,
+          "metaAdIds": [
+            "1489087999296423"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1489087999296423&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1489087999296423.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_sannakorpua",
+      "pageName": "sannakorpua",
+      "totalAds": 1,
+      "totalReach": 2120,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 2120,
+          "metaAdIds": [
+            "1437463097860241"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1437463097860241&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1437463097860241.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_franzerovic",
+      "pageName": "Franzerovic",
+      "totalAds": 1,
+      "totalReach": 7127,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 7127,
+          "metaAdIds": [
+            "2029791064561916"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2029791064561916&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2029791064561916.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_vanessa_reinicke",
+      "pageName": "vanessa.reinicke",
+      "totalAds": 1,
+      "totalReach": 270,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 270,
+          "metaAdIds": [
+            "1444751300681770"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1444751300681770&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1444751300681770.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_runningjeanine",
+      "pageName": "runningjeanine",
+      "totalAds": 1,
+      "totalReach": 1615,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 1615,
+          "metaAdIds": [
+            "922779480534119"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=922779480534119&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/922779480534119.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_john",
+      "pageName": "JOHN",
+      "totalAds": 1,
+      "totalReach": 4188,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 4188,
+          "metaAdIds": [
+            "2090169244857949"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2090169244857949&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2090169244857949.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_lenaulr",
+      "pageName": "Lenaulr",
+      "totalAds": 1,
+      "totalReach": 638,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "505427296149709",
+          "brandName": "ICANIWILL",
+          "adCount": 1,
+          "totalReach": 638,
+          "metaAdIds": [
+            "4333644703540537"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=4333644703540537&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/4333644703540537.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_taraneh_khamaneh",
+      "pageName": "Taraneh Khamaneh",
+      "totalAds": 1,
+      "totalReach": 27883,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "25364247895",
+          "brandName": "Gina Tricot",
+          "adCount": 1,
+          "totalReach": 27883,
+          "metaAdIds": [
+            "912143804967313"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=912143804967313&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/912143804967313.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_valrose",
+      "pageName": "Valrose",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "281454815587222",
+          "brandName": "Nudient",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1656270665711336"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1656270665711336&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1656270665711336.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_mia_dickerson",
+      "pageName": "Mia Dickerson",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "281454815587222",
+          "brandName": "Nudient",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "2020458565546192"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2020458565546192&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2020458565546192.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_becky_fitnesss",
+      "pageName": "Becky.fitnesss",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "282592881929497",
+          "brandName": "Huel",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1441701477701805"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1441701477701805&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1441701477701805.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_finally__a_meal_that_can_keep_up_with_you___",
+      "pageName": "Finally, a meal that can keep up with you ⚡️",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "282592881929497",
+          "brandName": "Huel",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1269426788447324"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1269426788447324&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1269426788447324.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_the_urban_challenger",
+      "pageName": "The Urban Challenger",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "282592881929497",
+          "brandName": "Huel",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1391360632744328"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1391360632744328&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1391360632744328.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_misspii",
+      "pageName": "Misspii",
+      "totalAds": 2,
+      "totalReach": 22371,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "144873565563070",
+          "brandName": "Desenio",
+          "adCount": 2,
+          "totalReach": 22371,
+          "metaAdIds": [
+            "26813836774906895",
+            "1230874629114257"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=26813836774906895&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1230874629114257&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/26813836774906895.jpg",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1230874629114257.jpg"
+          ],
+          "mediaTypes": [
+            "image",
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_kleid___kuchen",
+      "pageName": "Kleid & Kuchen",
+      "totalAds": 2,
+      "totalReach": 86044,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "144873565563070",
+          "brandName": "Desenio",
+          "adCount": 2,
+          "totalReach": 86044,
+          "metaAdIds": [
+            "926617273635276",
+            "1411413526937651"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=926617273635276&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1411413526937651&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/926617273635276.jpg",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1411413526937651.jpg"
+          ],
+          "mediaTypes": [
+            "image",
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_lexielah",
+      "pageName": "Lexielah",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "144873565563070",
+          "brandName": "Desenio",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "2666985347035433"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2666985347035433&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2666985347035433.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_timm_lachenmair",
+      "pageName": "timm.lachenmair",
+      "totalAds": 1,
+      "totalReach": 29278,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "144873565563070",
+          "brandName": "Desenio",
+          "adCount": 1,
+          "totalReach": 29278,
+          "metaAdIds": [
+            "933011319106620"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=933011319106620&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/933011319106620.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_villawhimsical",
+      "pageName": "VillaWhimsical",
+      "totalAds": 1,
+      "totalReach": 24440,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "144873565563070",
+          "brandName": "Desenio",
+          "adCount": 1,
+          "totalReach": 24440,
+          "metaAdIds": [
+            "1467034455206776"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1467034455206776&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1467034455206776.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_mrs__brightside",
+      "pageName": "Mrs. Brightside",
+      "totalAds": 1,
+      "totalReach": 90532,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "144873565563070",
+          "brandName": "Desenio",
+          "adCount": 1,
+          "totalReach": 90532,
+          "metaAdIds": [
+            "855858257503135"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=855858257503135&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/855858257503135.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_kleinundzart",
+      "pageName": "kleinundzart",
+      "totalAds": 1,
+      "totalReach": 32859,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "144873565563070",
+          "brandName": "Desenio",
+          "adCount": 1,
+          "totalReach": 32859,
+          "metaAdIds": [
+            "951060920926634"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=951060920926634&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/951060920926634.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_art_will_save_us",
+      "pageName": "Art will save us",
+      "totalAds": 1,
+      "totalReach": 6651,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "144873565563070",
+          "brandName": "Desenio",
+          "adCount": 1,
+          "totalReach": 6651,
+          "metaAdIds": [
+            "2152599075499120"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2152599075499120&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2152599075499120.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_omaksikodiksi",
+      "pageName": "Omaksikodiksi",
+      "totalAds": 1,
+      "totalReach": 1639,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "144873565563070",
+          "brandName": "Desenio",
+          "adCount": 1,
+          "totalReach": 1639,
+          "metaAdIds": [
+            "1434781275016222"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1434781275016222&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1434781275016222.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_interiortian",
+      "pageName": "Interiortian",
+      "totalAds": 1,
+      "totalReach": 19888,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "144873565563070",
+          "brandName": "Desenio",
+          "adCount": 1,
+          "totalReach": 19888,
+          "metaAdIds": [
+            "744292131970956"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=744292131970956&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/744292131970956.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_deniseandthefam",
+      "pageName": "deniseandthefam",
+      "totalAds": 1,
+      "totalReach": 3117,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "144873565563070",
+          "brandName": "Desenio",
+          "adCount": 1,
+          "totalReach": 3117,
+          "metaAdIds": [
+            "938299725348851"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=938299725348851&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/938299725348851.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_countryside_tails",
+      "pageName": "Countryside Tails",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "502907276560052",
+          "brandName": "Butternut Box",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1736754547703055"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1736754547703055&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1736754547703055.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_bexcxmpbell",
+      "pageName": "BexCxmpbell",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "21631697312",
+          "brandName": "LOOKFANTASTIC",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "931397112940479"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=931397112940479&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/931397112940479.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_nicole_laneeee",
+      "pageName": "Nicole Laneeee",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "21631697312",
+          "brandName": "LOOKFANTASTIC",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "2009933079866523"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2009933079866523&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2009933079866523.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_julianandluka",
+      "pageName": "julianandluka",
+      "totalAds": 1,
+      "totalReach": 95,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "133137093423758",
+          "brandName": "flaconi",
+          "adCount": 1,
+          "totalReach": 95,
+          "metaAdIds": [
+            "944699111378989"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=944699111378989&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/944699111378989.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_victor_reis",
+      "pageName": "Victor Reis",
+      "totalAds": 1,
+      "totalReach": 65810,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "177897195574994",
+          "brandName": "Suitsupply",
+          "adCount": 1,
+          "totalReach": 65810,
+          "metaAdIds": [
+            "941348001624403"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=941348001624403&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/941348001624403.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_diogoforreal",
+      "pageName": "Diogoforreal",
+      "totalAds": 1,
+      "totalReach": 19812,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "177897195574994",
+          "brandName": "Suitsupply",
+          "adCount": 1,
+          "totalReach": 19812,
+          "metaAdIds": [
+            "1586590742395365"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1586590742395365&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1586590742395365.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_daniel_duku",
+      "pageName": "Daniel Duku",
+      "totalAds": 1,
+      "totalReach": 95915,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "177897195574994",
+          "brandName": "Suitsupply",
+          "adCount": 1,
+          "totalReach": 95915,
+          "metaAdIds": [
+            "25223736690635860"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=25223736690635860&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/25223736690635860.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_williamjwade",
+      "pageName": "Williamjwade",
+      "totalAds": 2,
+      "totalReach": 625360,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "177897195574994",
+          "brandName": "Suitsupply",
+          "adCount": 2,
+          "totalReach": 625360,
+          "metaAdIds": [
+            "1483387030072059",
+            "907245155383989"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1483387030072059&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=907245155383989&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1483387030072059.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/907245155383989.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_bryaninheelee",
+      "pageName": "bryaninheelee",
+      "totalAds": 1,
+      "totalReach": 15868,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "177897195574994",
+          "brandName": "Suitsupply",
+          "adCount": 1,
+          "totalReach": 15868,
+          "metaAdIds": [
+            "1214499317338393"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1214499317338393&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1214499317338393.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_daniel_victor",
+      "pageName": "Daniel Victor",
+      "totalAds": 1,
+      "totalReach": 183163,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "177897195574994",
+          "brandName": "Suitsupply",
+          "adCount": 1,
+          "totalReach": 183163,
+          "metaAdIds": [
+            "25092393980437269"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=25092393980437269&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/25092393980437269.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_cyisthelimit",
+      "pageName": "Cyisthelimit",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "10936503735",
+          "brandName": "ASOS",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1705628707474568"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1705628707474568&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1705628707474568.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_amarlb_",
+      "pageName": "amarlb_",
+      "totalAds": 1,
+      "totalReach": 763964,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1200593000116487",
+          "brandName": "Typology",
+          "adCount": 1,
+          "totalReach": 763964,
+          "metaAdIds": [
+            "1546959229728211"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1546959229728211&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1546959229728211.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_life_and_threads___chloe_hayward",
+      "pageName": "Life and Threads - Chloe Hayward",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "10936503735",
+          "brandName": "ASOS",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "933652335716849"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=933652335716849&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/933652335716849.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_fayepmills",
+      "pageName": "Fayepmills",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "10936503735",
+          "brandName": "ASOS",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1259043545611628"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1259043545611628&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1259043545611628.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_matilda_djerf",
+      "pageName": "Matilda Djerf",
+      "totalAds": 11,
+      "totalReach": 6767,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "100670288038447",
+          "brandName": "Djerf Avenue",
+          "adCount": 11,
+          "totalReach": 6767,
+          "metaAdIds": [
+            "1302249518632829",
+            "1440625467468952",
+            "898997426341041",
+            "2126286621558592",
+            "970952965285731",
+            "808643581704674",
+            "2013652362694533",
+            "1272536641086444",
+            "1301573575371613",
+            "1281597310506636",
+            "1234504985387073"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1302249518632829&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1440625467468952&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=898997426341041&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=2126286621558592&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=970952965285731&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=808643581704674&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=2013652362694533&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1272536641086444&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1301573575371613&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1281597310506636&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1234504985387073&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1302249518632829.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1440625467468952.jpg",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/898997426341041.jpg",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2126286621558592.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/970952965285731.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/808643581704674.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2013652362694533.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1272536641086444.jpg",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1301573575371613.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1281597310506636.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1234504985387073.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "image",
+            "image",
+            "video",
+            "video",
+            "video",
+            "video",
+            "image",
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_the_kiki_glow",
+      "pageName": "The Kiki Glow",
+      "totalAds": 1,
+      "totalReach": 17,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "100670288038447",
+          "brandName": "Djerf Avenue",
+          "adCount": 1,
+          "totalReach": 17,
+          "metaAdIds": [
+            "1451364906699309"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1451364906699309&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1451364906699309.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_content_by_els",
+      "pageName": "Content by Els",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "221609751278598",
+          "brandName": "Gousto",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1449083046658327"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1449083046658327&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1449083046658327.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_malyalapreethi",
+      "pageName": "malyalapreethi",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "221609751278598",
+          "brandName": "Gousto",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "931163679519470"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=931163679519470&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/931163679519470.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_jaycreatezz",
+      "pageName": "jaycreatezz",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "221609751278598",
+          "brandName": "Gousto",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "807065842431525"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=807065842431525&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/807065842431525.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_s0phienne",
+      "pageName": "s0phienne",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "221609751278598",
+          "brandName": "Gousto",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "4339723696303998"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=4339723696303998&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/4339723696303998.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_a_mac_x",
+      "pageName": "a.mac.x",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "221609751278598",
+          "brandName": "Gousto",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "2189284498146234"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2189284498146234&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2189284498146234.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_bysamanthaanne_",
+      "pageName": "bysamanthaanne_",
+      "totalAds": 2,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "221609751278598",
+          "brandName": "Gousto",
+          "adCount": 2,
+          "totalReach": 0,
+          "metaAdIds": [
+            "942290848363559",
+            "1551109119330836"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=942290848363559&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1551109119330836&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/942290848363559.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1551109119330836.jpg"
+          ],
+          "mediaTypes": [
+            "video",
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_emma_gilligan_fitness",
+      "pageName": "Emma Gilligan Fitness",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "221609751278598",
+          "brandName": "Gousto",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "2024233638498058"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2024233638498058&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2024233638498058.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_claire_howard",
+      "pageName": "Claire Howard",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "221609751278598",
+          "brandName": "Gousto",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1504670601175494"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1504670601175494&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1504670601175494.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_christian_bordin",
+      "pageName": "Christian Bordin",
+      "totalAds": 1,
+      "totalReach": 3014,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "163357535087",
+          "brandName": "Alo Yoga",
+          "adCount": 1,
+          "totalReach": 3014,
+          "metaAdIds": [
+            "1533591441072439"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1533591441072439&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1533591441072439.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_gabriela_flores",
+      "pageName": "Gabriela flores",
+      "totalAds": 1,
+      "totalReach": 10454,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "163357535087",
+          "brandName": "Alo Yoga",
+          "adCount": 1,
+          "totalReach": 10454,
+          "metaAdIds": [
+            "965872166100138"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=965872166100138&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/965872166100138.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_olivia_boll",
+      "pageName": "Olivia Boll",
+      "totalAds": 1,
+      "totalReach": 135,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "146418154596",
+          "brandName": "Björn Borg",
+          "adCount": 1,
+          "totalReach": 135,
+          "metaAdIds": [
+            "1138426475039899"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1138426475039899&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1138426475039899.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_uino",
+      "pageName": "Uino",
+      "totalAds": 1,
+      "totalReach": 16329,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "146418154596",
+          "brandName": "Björn Borg",
+          "adCount": 1,
+          "totalReach": 16329,
+          "metaAdIds": [
+            "1071382331877181"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1071382331877181&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1071382331877181.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_chlo__schuterman",
+      "pageName": "Chloé Schuterman",
+      "totalAds": 1,
+      "totalReach": 5062,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "146418154596",
+          "brandName": "Björn Borg",
+          "adCount": 1,
+          "totalReach": 5062,
+          "metaAdIds": [
+            "961623486210304"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=961623486210304&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/961623486210304.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_i_y_",
+      "pageName": "I.Y.",
+      "totalAds": 1,
+      "totalReach": 145,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "146418154596",
+          "brandName": "Björn Borg",
+          "adCount": 1,
+          "totalReach": 145,
+          "metaAdIds": [
+            "867921789636577"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=867921789636577&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/867921789636577.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_heidistromberg",
+      "pageName": "heidistromberg",
+      "totalAds": 1,
+      "totalReach": 217,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "146418154596",
+          "brandName": "Björn Borg",
+          "adCount": 1,
+          "totalReach": 217,
+          "metaAdIds": [
+            "1718419049527392"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1718419049527392&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1718419049527392.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped____________________________",
+      "pageName": "𝙴𝚕𝚒𝚗 𝚆𝚊𝚛𝚗𝚚𝚟𝚒𝚜𝚝",
+      "totalAds": 1,
+      "totalReach": 5438,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "146418154596",
+          "brandName": "Björn Borg",
+          "adCount": 1,
+          "totalReach": 5438,
+          "metaAdIds": [
+            "1401439257886038"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1401439257886038&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1401439257886038.jpg"
+          ],
+          "mediaTypes": [
+            "image"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_alexandranilsson",
+      "pageName": "alexandranilsson",
+      "totalAds": 1,
+      "totalReach": 30947,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "146418154596",
+          "brandName": "Björn Borg",
+          "adCount": 1,
+          "totalReach": 30947,
+          "metaAdIds": [
+            "1274984201245030"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1274984201245030&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1274984201245030.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_nessa_lyo",
+      "pageName": "Nessa Lyo",
+      "totalAds": 1,
+      "totalReach": 24201,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1587533624819819",
+          "brandName": "Tediber",
+          "adCount": 1,
+          "totalReach": 24201,
+          "metaAdIds": [
+            "2369229143540416"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2369229143540416&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2369229143540416.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_leacreationugc",
+      "pageName": "leacreationugc",
+      "totalAds": 1,
+      "totalReach": 32020,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1587533624819819",
+          "brandName": "Tediber",
+          "adCount": 1,
+          "totalReach": 32020,
+          "metaAdIds": [
+            "1466205401954314"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1466205401954314&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1466205401954314.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_sarabiswas_kreat_r",
+      "pageName": "Sarabiswas Kreatör",
+      "totalAds": 1,
+      "totalReach": 148115,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "600002290036230",
+          "brandName": "Zeeksack",
+          "adCount": 1,
+          "totalReach": 148115,
+          "metaAdIds": [
+            "699487539916962"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=699487539916962&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/699487539916962.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_wanderwithmiia",
+      "pageName": "wanderwithmiia",
+      "totalAds": 1,
+      "totalReach": 16807,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "600002290036230",
+          "brandName": "Zeeksack",
+          "adCount": 1,
+          "totalReach": 16807,
+          "metaAdIds": [
+            "900185939670051"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=900185939670051&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/900185939670051.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_ellxbutler",
+      "pageName": "ellxbutler",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "475517412502376",
+          "brandName": "Najell",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "2019883638912575"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2019883638912575&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2019883638912575.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_ceciliewthemsen",
+      "pageName": "ceciliewthemsen",
+      "totalAds": 1,
+      "totalReach": 18264,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "475517412502376",
+          "brandName": "Najell",
+          "adCount": 1,
+          "totalReach": 18264,
+          "metaAdIds": [
+            "1812587846101150"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1812587846101150&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1812587846101150.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_laradvanture",
+      "pageName": "Laradvanture",
+      "totalAds": 2,
+      "totalReach": 12713,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "275112176212224",
+          "brandName": "PURELEI",
+          "adCount": 2,
+          "totalReach": 12713,
+          "metaAdIds": [
+            "1481984123556064",
+            "2057975094764428"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1481984123556064&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=2057975094764428&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1481984123556064.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2057975094764428.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_isabel_g_termann",
+      "pageName": "Isabel Gütermann",
+      "totalAds": 4,
+      "totalReach": 136455,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "275112176212224",
+          "brandName": "PURELEI",
+          "adCount": 4,
+          "totalReach": 136455,
+          "metaAdIds": [
+            "1484685836561019",
+            "1218167470476795",
+            "1463314105303551",
+            "1226241025923225"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1484685836561019&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1218167470476795&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1463314105303551&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1226241025923225&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1484685836561019.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1218167470476795.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1463314105303551.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1226241025923225.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_selmadudakovic",
+      "pageName": "Selmadudakovic",
+      "totalAds": 2,
+      "totalReach": 24451,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "140344030787",
+          "brandName": "SAS - Scandinavian Airlines",
+          "adCount": 2,
+          "totalReach": 24451,
+          "metaAdIds": [
+            "1918007256255583",
+            "1604256920824679"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1918007256255583&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1604256920824679&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1918007256255583.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1604256920824679.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_caroline_stordal",
+      "pageName": "Caroline Stordal",
+      "totalAds": 1,
+      "totalReach": 10398,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "140344030787",
+          "brandName": "SAS - Scandinavian Airlines",
+          "adCount": 1,
+          "totalReach": 10398,
+          "metaAdIds": [
+            "926931940317655"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=926931940317655&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/926931940317655.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_gio_armani",
+      "pageName": "Gio Armani",
+      "totalAds": 3,
+      "totalReach": 10259,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "326139854113578",
+          "brandName": "Hatstore",
+          "adCount": 3,
+          "totalReach": 10259,
+          "metaAdIds": [
+            "4345016375766071",
+            "1186986766653732",
+            "1613960876598488"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=4345016375766071&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1186986766653732&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1613960876598488&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/4345016375766071.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1186986766653732.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1613960876598488.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_donavan_bagou",
+      "pageName": "Donavan Bagou",
+      "totalAds": 3,
+      "totalReach": 5983,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "326139854113578",
+          "brandName": "Hatstore",
+          "adCount": 3,
+          "totalReach": 5983,
+          "metaAdIds": [
+            "1658481428735276",
+            "1261896272047675",
+            "1631713794529081"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1658481428735276&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1261896272047675&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1631713794529081&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1658481428735276.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1261896272047675.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1631713794529081.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_lucas_guichard",
+      "pageName": "Lucas Guichard",
+      "totalAds": 1,
+      "totalReach": 185765,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "232776817160740",
+          "brandName": "Horace",
+          "adCount": 1,
+          "totalReach": 185765,
+          "metaAdIds": [
+            "892448630322377"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=892448630322377&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/892448630322377.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_snaachez",
+      "pageName": "snaachez",
+      "totalAds": 1,
+      "totalReach": 74071,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "232776817160740",
+          "brandName": "Horace",
+          "adCount": 1,
+          "totalReach": 74071,
+          "metaAdIds": [
+            "3357785537736120"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=3357785537736120&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/3357785537736120.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_manondeclaire",
+      "pageName": "manondeclaire",
+      "totalAds": 1,
+      "totalReach": 13107,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1200593000116487",
+          "brandName": "Typology",
+          "adCount": 1,
+          "totalReach": 13107,
+          "metaAdIds": [
+            "3494315080723859"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=3494315080723859&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/3494315080723859.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_lisa_belyanina",
+      "pageName": "lisa_belyanina",
+      "totalAds": 1,
+      "totalReach": 30802,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1200593000116487",
+          "brandName": "Typology",
+          "adCount": 1,
+          "totalReach": 30802,
+          "metaAdIds": [
+            "2534151310320660"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2534151310320660&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2534151310320660.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_faustine_clerc",
+      "pageName": "Faustine.clerc",
+      "totalAds": 1,
+      "totalReach": 104029,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1200593000116487",
+          "brandName": "Typology",
+          "adCount": 1,
+          "totalReach": 104029,
+          "metaAdIds": [
+            "1303156794989213"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1303156794989213&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1303156794989213.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_inoushhhh",
+      "pageName": "Inoushhhh",
+      "totalAds": 1,
+      "totalReach": 186355,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1200593000116487",
+          "brandName": "Typology",
+          "adCount": 1,
+          "totalReach": 186355,
+          "metaAdIds": [
+            "1708688730292354"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1708688730292354&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1708688730292354.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_theresa_lena_forster",
+      "pageName": "Theresa Lena Forster",
+      "totalAds": 1,
+      "totalReach": 794870,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1200593000116487",
+          "brandName": "Typology",
+          "adCount": 1,
+          "totalReach": 794870,
+          "metaAdIds": [
+            "3014199478771888"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=3014199478771888&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/3014199478771888.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_elin_pierina_jonasson",
+      "pageName": "ELIN PIERINA JONASSON",
+      "totalAds": 6,
+      "totalReach": 222,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "2350793288288464",
+          "brandName": "Estrid",
+          "adCount": 6,
+          "totalReach": 222,
+          "metaAdIds": [
+            "928561766585708",
+            "1157037576457143",
+            "1651747355828090",
+            "1265990808308147",
+            "1706064974085915",
+            "34495052713472191"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=928561766585708&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1157037576457143&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1651747355828090&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1265990808308147&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1706064974085915&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=34495052713472191&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/928561766585708.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1157037576457143.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1651747355828090.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1265990808308147.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1706064974085915.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/34495052713472191.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video",
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_tasha_green",
+      "pageName": "Tasha Green",
+      "totalAds": 2,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "2350793288288464",
+          "brandName": "Estrid",
+          "adCount": 2,
+          "totalReach": 0,
+          "metaAdIds": [
+            "696373576866993",
+            "2381397658951906"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=696373576866993&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=2381397658951906&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/696373576866993.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2381397658951906.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_antonija_mandir",
+      "pageName": "Antonija Mandir",
+      "totalAds": 4,
+      "totalReach": 24052,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1861223217443520",
+          "brandName": "Under Your Skin",
+          "adCount": 4,
+          "totalReach": 24052,
+          "metaAdIds": [
+            "925079179935091",
+            "1250237693948085",
+            "1954857502090863",
+            "1496759135373068"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=925079179935091&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1250237693948085&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1954857502090863&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1496759135373068&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/925079179935091.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1250237693948085.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1954857502090863.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1496759135373068.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video",
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_lovisahahn",
+      "pageName": "lovisahahn",
+      "totalAds": 1,
+      "totalReach": 74,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1861223217443520",
+          "brandName": "Under Your Skin",
+          "adCount": 1,
+          "totalReach": 74,
+          "metaAdIds": [
+            "1500080001582622"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1500080001582622&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1500080001582622.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_jemimah_duncan",
+      "pageName": "Jemimah Duncan",
+      "totalAds": 1,
+      "totalReach": 181095,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "117216279093",
+          "brandName": "Lindex",
+          "adCount": 1,
+          "totalReach": 181095,
+          "metaAdIds": [
+            "34442797538700683"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=34442797538700683&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/34442797538700683.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_molly_egelind",
+      "pageName": "Molly Egelind",
+      "totalAds": 1,
+      "totalReach": 154745,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "117216279093",
+          "brandName": "Lindex",
+          "adCount": 1,
+          "totalReach": 154745,
+          "metaAdIds": [
+            "949833334403890"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=949833334403890&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/949833334403890.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_julie_blichfeld",
+      "pageName": "Julie Blichfeld",
+      "totalAds": 1,
+      "totalReach": 8124,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "117216279093",
+          "brandName": "Lindex",
+          "adCount": 1,
+          "totalReach": 8124,
+          "metaAdIds": [
+            "901419849553636"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=901419849553636&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/901419849553636.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_morag_cooper",
+      "pageName": "Morag Cooper",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "1290806184329490",
+          "brandName": "Zooki",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1927195844644843"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1927195844644843&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1927195844644843.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_livi_wild",
+      "pageName": "livi_wild",
+      "totalAds": 2,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "24808861862",
+          "brandName": "Myprotein",
+          "adCount": 2,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1619575205851740",
+            "921138930668305"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1619575205851740&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=921138930668305&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1619575205851740.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/921138930668305.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_caitlinduxbury",
+      "pageName": "caitlinduxbury",
+      "totalAds": 2,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "24808861862",
+          "brandName": "Myprotein",
+          "adCount": 2,
+          "totalReach": 0,
+          "metaAdIds": [
+            "2379941922506716",
+            "1458187995652104"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=2379941922506716&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD",
+            "https://www.facebook.com/ads/archive/render_ad/?id=1458187995652104&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/2379941922506716.mp4",
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1458187995652104.mp4"
+          ],
+          "mediaTypes": [
+            "video",
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_marinos_katsouris",
+      "pageName": "Marinos Katsouris",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "24808861862",
+          "brandName": "Myprotein",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1284492563577937"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1284492563577937&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1284492563577937.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_ashleyjameess",
+      "pageName": "ashleyjameess",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "24808861862",
+          "brandName": "Myprotein",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "893265670383184"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=893265670383184&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/893265670383184.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_this_year_isn_t_about_perfection___it_s_about_consistency_",
+      "pageName": "This year isn’t about perfection - it’s about consistency.",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "24808861862",
+          "brandName": "Myprotein",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "1203764168564772"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=1203764168564772&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/1203764168564772.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_myskinwears",
+      "pageName": "myskinwears",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "83716583666",
+          "brandName": "Monica Vinader",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "26202715669336955"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=26202715669336955&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/26202715669336955.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    },
+    {
+      "pageId": "scraped_kel__king",
+      "pageName": "kel__king",
+      "totalAds": 1,
+      "totalReach": 0,
+      "brandCount": 1,
+      "tier": "confirmed",
+      "creatorType": "person",
+      "score": 60,
+      "partnerships": [
+        {
+          "brandPageId": "83716583666",
+          "brandName": "Monica Vinader",
+          "adCount": 1,
+          "totalReach": 0,
+          "metaAdIds": [
+            "880075485023439"
+          ],
+          "snapshotUrls": [
+            "https://www.facebook.com/ads/archive/render_ad/?id=880075485023439&access_token=EAAL5cjB9B0QBQ9STZArnggQavycfyLVFLjZAY78aXO1hh1ZC8h2WRjr1Lix54HOqEQ30fIsfOK2NY01EkPRQGI8oxBWWFFemiPZBEiRMDsk0BUnkNg5GRudaWqgblfQFnNTAOzcvF0e39KdQPRsZAL2RYIMsvRkkKw5FmNbSXNWROVi7ZBPnjXFXU9U56ocQZDZD"
+          ],
+          "mediaUrls": [
+            "https://pub-25ef069908854da9871d20aea605675a.r2.dev/creators/880075485023439.mp4"
+          ],
+          "mediaTypes": [
+            "video"
+          ]
+        }
+      ]
+    }
+  ]
+}

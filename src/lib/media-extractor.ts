@@ -71,6 +71,30 @@ export async function extractMediaFromSnapshot(
 
     await page.goto(snapshotUrl, { waitUntil: 'networkidle2', timeout: 15000 });
 
+    // Dismiss Facebook cookie consent wall if present
+    const dismissedCookie = await page.evaluate(() => {
+      const buttons = Array.from(document.querySelectorAll('button, [role="button"]'));
+      for (const btn of buttons) {
+        const text = (btn as HTMLElement).innerText?.toLowerCase() || '';
+        if (text.includes('decline optional') || text.includes('allow essential')) {
+          (btn as HTMLElement).click();
+          return true;
+        }
+      }
+      for (const btn of buttons) {
+        const text = (btn as HTMLElement).innerText?.toLowerCase() || '';
+        if (text.includes('allow all')) {
+          (btn as HTMLElement).click();
+          return true;
+        }
+      }
+      return false;
+    });
+    if (dismissedCookie) {
+      // Wait for ad content to render after dismissing cookie dialog
+      await new Promise((r) => setTimeout(r, 2000));
+    }
+
     const extracted = await page.evaluate(() => {
       const media: { src: string; tag: string; w: number; h: number }[] = [];
 
