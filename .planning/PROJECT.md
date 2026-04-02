@@ -66,14 +66,25 @@ Help brands and agencies see what competitors are running and how they're reachi
 - ✓ Brand search with category in Creative Lab — v7.0
 - ✓ Dead code cleanup and gap closure — v7.0+
 
-### Active (v8.0 Creative Strategy Engine)
+### Active (v9.0 Brand Profile & AI Context System)
 
-- [ ] Motion-based Ad Classification — Claude Vision classifies ads across 46 visual formats, 8 creative mechanics, 35 hook tactics, 5 awareness stages, 8 psychological triggers
-- [ ] Brand Strategy Intake — auto-generate brand context from existing DB ads/metadata, extract pain points, personas, positioning, build pain × persona × messaging angle matrix
-- [ ] Strategy Matrix & Gap Analysis — map brand's ads across full Motion matrix, identify missing awareness stages, underused mechanics, format blind spots, hook tactic coverage
-- [ ] Hook Generation Pipeline — generate hooks using 35 tactics + 8 triggers, tailored to identified gaps and brand voice, organized by awareness stage
-- [ ] Creative Concept Generation — full concepts (visual format + mechanic + hook + messaging), AI image generation, production briefs addressing strategic gaps
-- [ ] Category Benchmarking (Motion dimensions) — brand vs category comparison across Motion dimensions, replacing Five Pillars
+- [ ] BrandProfile Prisma model — structured brand data (voice, audience, visual identity, competitors, pain points, positioning)
+- [ ] Onboarding wizard UI — guided multi-step flow to capture brand context on first use
+- [ ] Manus API integration — async deep-research agent for brand extraction from existing ads/metadata
+- [ ] Context injection — brand profile injected into Claude and Manus system prompts for brand-aware responses
+- [ ] Message router — Claude for fast streaming responses, Manus for deep async analysis with polling UI
+- [ ] Auto-enrichment background jobs — re-analyze brand profile as new ads come in
+- [ ] Brand management page — view, edit, delete brand profiles
+- [ ] Brand selector in chat — switch active brand context in Hikaru
+
+### Validated (v8.0 Creative Strategy Engine)
+
+- ✓ Motion-based Ad Classification — Claude Vision classifies ads across 46 visual formats, 8 creative mechanics, 35 hook tactics, 5 awareness stages, 8 psychological triggers
+- ✓ Brand Strategy Intake — auto-generate brand context from existing DB ads/metadata, extract pain points, personas, positioning
+- ✓ Strategy Matrix & Gap Analysis — map brand's ads across full Motion matrix, identify gaps
+- ✓ Hook Generation Pipeline — generate hooks using 35 tactics + 8 triggers, tailored to gaps and brand voice
+- ✓ Creative Concept Generation — full concepts with AI image generation and production briefs
+- ✓ Category Benchmarking (Motion dimensions) — brand vs category comparison across Motion dimensions
 
 ### Planned (v4.5 Industry Benchmarks — Admin Only)
 
@@ -139,27 +150,38 @@ Help brands and agencies see what competitors are running and how they're reachi
 | localStorage config persistence | No backend needed for dashboard presets | ✓ Good |
 | URL param hydration for drill-downs | Deep-linkable filtered views across pages | ✓ Good |
 
+## Current Milestone: v9.0 Brand Profile & AI Context System
+
+**Goal:** Make Hikaru Chat brand-aware — users onboard their brand, and every AI response is contextualized with their brand voice, audience, competitors, and strategy.
+
+**Target features:**
+- BrandProfile data model with structured brand intelligence
+- Onboarding wizard for guided brand context capture
+- Manus API as async deep-research backend (brand extraction, competitive analysis)
+- Context injection into all AI calls (Claude streaming + Manus async)
+- Dual-model message routing (fast Claude responses + deep Manus analysis)
+- Auto-enrichment as new ad data arrives
+- Brand management CRUD
+- Brand selector in Hikaru chat
+
 ## Context
 
 **Current State:**
-- Shipped v7.0 Creative Lab + Gap Closure
+- Shipped v8.0 Creative Strategy Engine (Motion classification, strategy matrix, gap analysis, concepts, benchmarking)
 - Tech stack: Next.js 16, React 19, Recharts, Tailwind CSS v4, Auth.js, Stripe, Prisma + Neon PostgreSQL
 - Deployed to Vercel at facebookadexplorer.kirimedia.co
 - Cloudflare R2 for ad asset storage
-- 514 brands in database, ingestion pipeline with 3 token rotation
-- Landing page at `/` with 3-tier pricing (Free/$49/$149)
-- V1 public analyser at `/analyser` — branded header, blue design system, upgrade card
-- V2 dashboard at `/dashboard/v2` with analytics, AI chat, and ad library
-- Ad library: composable components, filter/sort bar, load-more, analytics strip, lightbox, demographic peek
-- Brand detail: monitor toggle with persistence, demographics charts, top ads by reach
-- Consistent brand identity (BarChart3 lockup, #1235e2 blue) across all surfaces
-- All 3 Facebook tokens valid (TOKEN1 permanent, TOKEN2/3 expire late April 2026)
+- 514+ brands in database, ingestion pipeline with 3 token rotation
+- Hikaru AI chat at `/dashboard/v2/hikaru` with embedded charts via :::chart protocol
+- Creative Lab with analysis view, strategy view, concept generation
+- Classification infrastructure: AdClassification model, batch/single classify, cron polling
+- Manus API (https://open.manus.ai) identified as async agent backend
 
 **Known Issues:**
-- "More insights coming soon" placeholder widget in dashboard (cosmetic)
 - TOKEN2 expires 2026-04-24, TOKEN3 expires 2026-04-25 — schedule refresh mid-April
-- Brand detail page does not use AdDetailLightbox (potential future enhancement)
-- --accent-green CSS vars preserved for 46 files outside V1 scope
+- Hikaru currently has no brand context — responses are generic
+- No structured brand profile storage yet
+- Manus API integration not yet built
 
 ---
-*Last updated: 2026-03-27 after v8.0 Creative Strategy Engine milestone started*
+*Last updated: 2026-04-02 after v9.0 Brand Profile & AI Context System milestone started*
