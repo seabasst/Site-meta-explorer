@@ -27,6 +27,7 @@ model User {
   savedAds        SavedAd[]
   monitoredBrands MonitoredBrand[]
   brandGuidelines BrandGuidelines?
+  brandProfiles   BrandProfile[]
 }
 
 model SavedAd {
@@ -236,6 +237,10 @@ model AdLibraryBrand {
   priority        Int      @default(0)         // Higher = process first
   failCount       Int      @default(0)         // Number of consecutive failures (paused at 3+)
 
+  // User requests
+  requestedAt   DateTime? // When a user requested this brand
+  requestNote   String?   // Optional note from the requester
+
   // Aggregated demographics (stored as JSON for flexibility)
   demographicsJson     Json?     // Full AggregatedDemographics object
   demographicsUpdatedAt DateTime? // When demographics were last fetched
@@ -251,6 +256,7 @@ model AdLibraryBrand {
   analysisCache       BrandAnalysisCache?
   classificationJobs  ClassificationJob[]
   creatorPartnerships CreatorPartnership[]
+  competitorOf        BrandCompetitor[]
 
   @@index([ingestionStatus, priority])
   @@index([category])
@@ -707,4 +713,60 @@ model BrandAnalysisCache {
   analyzedAt        DateTime @default(now())
 
   @@index([brandId])
+}
+
+// =============================================================================
+// Brand Profiles (v9.0 - replaces/evolves BrandGuidelines)
+// =============================================================================
+
+model BrandProfile {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name             String   // Brand name (required)
+
+  // Brand Voice & Positioning
+  brandVoice       String?  // Tone of voice description
+  missionStatement String?  // Mission/purpose statement
+  positioning      String?  // Market positioning statement
+
+  // Audience
+  painPoints       String[] // Customer pain points
+  demographics     String[] // Target demographics
+  interests        String[] // Audience interests
+
+  // Visual Identity
+  logoUrl          String?  // Public URL to uploaded logo
+  logoKey          String?  // R2 object key for logo
+  primaryColor     String?  // Hex color
+  secondaryColor   String?  // Hex color
+  accentColor      String?  // Hex color
+  referenceImages  Json?    // Array of { url, key, name } objects
+
+  // State
+  isActive         Boolean  @default(false) // Currently selected profile
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  competitors      BrandCompetitor[]
+
+  @@index([userId])
+  @@index([userId, isActive])
+}
+
+model BrandCompetitor {
+  id               String         @id @default(cuid())
+  profileId        String
+  profile          BrandProfile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  adLibraryBrandId String
+  adLibraryBrand   AdLibraryBrand @relation(fields: [adLibraryBrandId], references: [id], onDelete: Cascade)
+
+  notes            String?        // Why this competitor matters
+
+  createdAt        DateTime       @default(now())
+
+  @@unique([profileId, adLibraryBrandId])
+  @@index([profileId])
 }
