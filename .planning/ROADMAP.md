@@ -57,131 +57,118 @@ Phases 52-54 — See milestones/v6.1-ROADMAP.md for full details
 Phases 55-61 — Creative analysis, AI generation, UGC briefs, brand guidelines, gap closure
 </details>
 
+<details>
+<summary>✅ v8.0 Creative Strategy Engine (Phases 62-67) — SHIPPED 2026-03-27</summary>
+Phases 62-67 — Motion classification, strategy matrix, gap analysis, concepts, benchmarking
+</details>
+
 ---
 
-### v8.0 Creative Strategy Engine (In Progress)
+### 🚧 v9.0 Brand Profile & AI Context System (In Progress)
 
-**Milestone Goal:** Replace Five Pillars with Motion-powered ad classification, then build competitor-grounded strategy generation and category benchmarking on top.
+**Milestone Goal:** Make Hikaru Chat brand-aware — users onboard their brand, and every AI response is contextualized with their brand voice, audience, competitors, and strategy.
 
 ## Phases
 
-- [x] **Phase 62: Classification Foundation** - Prisma models, taxonomy definition, cost tracking utility
-- [x] **Phase 63: Classification Pipeline** - On-demand single-ad + Anthropic Batch API bulk classification
-- [x] **Phase 64: Diversity Refactor** - Rewrite diversity route to read stored classifications instead of re-classifying
-- [x] **Phase 65: Classification UI** - Distribution charts per dimension + classification tags in ad detail
-- [ ] **Phase 66: Strategy Engine** - Brand context auto-populate, gap matrix, concept generation from gaps
-- [ ] **Phase 67: Category Benchmarking** - Brand vs category comparison across classification dimensions
+- [ ] **Phase 68: Brand Profile Schema & CRUD** - Data model, management UI, brand selector
+- [ ] **Phase 69: Context Injection & Onboarding** - Brand-aware AI responses + guided wizard
+- [ ] **Phase 70: Auto-Enrichment from Ad Data** - Auto-populate profiles from existing intelligence
+- [ ] **Phase 71: Manus Integration & Deep Research** - Async research backend + website enrichment
+- [ ] **Phase 72: Brand Intelligence & Polish** - Health overview + personalized strategy
 
 ## Phase Details
 
-### Phase 62: Classification Foundation
-**Goal**: Define the classification data model and taxonomy that all downstream features depend on
-**Depends on**: Nothing (first phase)
-**Requirements**: CLSF-02, CLSF-04
-**Plans:** 2 plans
+### Phase 68: Brand Profile Schema & CRUD
+**Goal**: Structured brand profile data model with full CRUD and brand selector for context switching
+**Depends on**: Nothing (first phase of v9.0)
+**Requirements**: PROF-01, PROF-02, PROF-03, PROF-04, PROF-05, CTXI-03
+**Research flag**: Unlikely — standard Prisma patterns, BrandGuidelines migration is the main concern
+**Success Criteria** (what must be TRUE):
+  1. User can create a brand profile with voice, audience, positioning, competitors, and pain points
+  2. User can view and edit brand profile via tab-based settings page
+  3. User can link competitor brands from existing DB to their profile
+  4. User can delete a brand profile
+  5. User can switch active brand via dropdown in chat header (URL param `?brand=` persisted)
+**Plans**: TBD
 
 Plans:
-- [ ] 62-01-PLAN.md — Prisma models (AdClassification, ClassificationJob, ApiCostLog) + taxonomy + Zod schemas
-- [ ] 62-02-PLAN.md — Classification prompt with few-shot examples + cost tracker utility
+- [ ] 68-01: Prisma schema + migration (BrandProfile + related tables + BrandGuidelines migration)
+- [ ] 68-02: CRUD API routes + brand management UI + brand selector component
 
+### Phase 69: Context Injection & Onboarding
+**Goal**: Brand context flows into all AI responses; users can create profiles via guided wizard or AI interview
+**Depends on**: Phase 68 (BrandProfile must exist)
+**Requirements**: CTXI-01, CTXI-02, CTXI-04, ONBD-01, ONBD-02, ONBD-03, ONBD-04
+**Research flag**: Unlikely — context compiler needs prototyping but patterns are well-known
 **Success Criteria** (what must be TRUE):
-  1. AdClassification, ClassificationJob, and ApiCostLog Prisma models exist with indexed columns (not JSON blobs)
-  2. Classification taxonomy is defined with ~8-10 categories and ~10 tags each (visual format, hook tactic, messaging angle, awareness stage, creative mechanic, offer type, intended audience, asset type)
-  3. Classification prompt with few-shot examples produces consistent results across sample ads
-  4. Cost tracker utility can log API spend per classification job
-
-### Phase 63: Classification Pipeline
-**Goal**: Users can classify individual ads on-demand and trigger batch classification of entire brands
-**Depends on**: Phase 62
-**Requirements**: CLSF-01, CLSF-03, CLSF-05
-**Research flag**: Likely — verify Anthropic Batch API behavior with Vision requests
-**Success Criteria** (what must be TRUE):
-  1. User can trigger AI classification of a single ad and see results in 2-4 seconds
-  2. User can trigger batch classification of a brand's ads via Anthropic Batch API
-  3. Batch jobs track progress (pending/processing/complete/failed) and display estimated cost
-  4. Classifications are persisted to AdClassification table and never re-computed for already-classified ads
-**Plans:** 2 plans
+  1. Hikaru responses reflect selected brand's voice, audience, and positioning
+  2. Creative Lab analysis and generation flows use brand context
+  3. User sees soft onboarding prompt on first Creative Lab or Hikaru visit (always skippable)
+  4. User can complete 3-5 step wizard or AI interview to build profile
+  5. Context stays under ~2K tokens via intelligent field selection per query
+**Plans**: TBD
 
 Plans:
-- [ ] 63-01-PLAN.md — Single-ad on-demand classification (classify-single lib + POST API route)
-- [ ] 63-02-PLAN.md — Batch classification pipeline (classify-batch lib + batch API routes + cron polling)
+- [ ] 69-01: Context compiler (token-budgeted, XML-tagged system prompt injection)
+- [ ] 69-02: Onboarding wizard UI (multi-step form + auto-save drafts)
+- [ ] 69-03: AI interview mode (conversational profile building)
 
-### Phase 64: Diversity Refactor
-**Goal**: Eliminate redundant AI calls by making diversity analysis read from stored classifications
-**Depends on**: Phase 63 (classifications must exist in DB)
-**Requirements**: CLSF-06
-**Research flag**: Unlikely — straightforward refactor of existing route
+### Phase 70: Auto-Enrichment from Ad Data
+**Goal**: Auto-populate brand profiles from existing ad classifications, analyses, and metadata
+**Depends on**: Phase 69 (profile + context injection must work first)
+**Requirements**: ENRC-01, ENRC-03
+**Research flag**: Unlikely — uses existing classification infrastructure
 **Success Criteria** (what must be TRUE):
-  1. `/api/analyze/diversity` reads from AdClassification table instead of calling Claude Vision per-request
-  2. Diversity scores reflect actual stored classification data
-  3. BrandAnalysisCache is updated with classification-based scores
-  4. No AI classification calls are made during diversity analysis (only recommendation generation)
-**Plans:** 2 plans
+  1. User can trigger auto-populate from existing ad library data (classifications, analyses, metadata)
+  2. Enrichment uses change detection to skip redundant runs
+  3. Cost budgets cap API usage per enrichment run
+**Plans**: TBD
 
 Plans:
-- [ ] 64-01-PLAN.md — Schema migration + diversity route refactor (DB read replaces Claude classification)
-- [ ] 64-02-PLAN.md — Frontend + benchmark + creative-lab routes updated to 8-category taxonomy
+- [ ] 70-01: Enrichment pipeline (ad data → profile fields) + change detection + cost budgets
 
-### Phase 65: Classification UI
-**Goal**: Make classification data visible — distribution charts and per-ad tags
-**Depends on**: Phase 64 (data should be real, not ephemeral)
-**Requirements**: REPT-01, REPT-02
-**Research flag**: Unlikely — frontend work with data already available
+### Phase 71: Manus Integration & Deep Research
+**Goal**: Async deep research via Manus API for complex brand analysis and website enrichment
+**Depends on**: Phase 68 (BrandProfile for storing results)
+**Requirements**: MANS-01, MANS-02, MANS-03, MANS-04, ENRC-02
+**Research flag**: Likely — Manus API v2 is new, exact payloads and webhook formats need live verification
 **Success Criteria** (what must be TRUE):
-  1. User sees distribution bar charts per classification dimension (e.g., "30% testimonial, 5% listicle")
-  2. Individual ads display their classification tags in ad detail view
-  3. Brand classification coverage is visible (X of Y ads classified)
-**Plans:** 2 plans
+  1. Deep research queries route to Manus API as async tasks with polling UI
+  2. Simple/fast queries continue routing to Claude for instant streaming
+  3. User can auto-populate profile from website URL crawl via Manus
+  4. Routing uses keyword matching + UI toggle ("Deep Research" mode), not LLM-classified
+**Plans**: TBD
 
 Plans:
-- [ ] 65-01-PLAN.md — Distribution charts + coverage indicator on brand detail page
-- [ ] 65-02-PLAN.md — Classification tags in ad detail lightbox
+- [ ] 71-01: Manus API wrapper + three-endpoint pattern (create/poll/webhook)
+- [ ] 71-02: Website enrichment flow + deep research UI + message routing
 
-### Phase 66: Strategy Engine
-**Goal**: Users can analyze any brand's creative strategy and generate concepts that fill identified gaps
-**Depends on**: Phase 65 (users need to see classification data before strategy builds on it)
-**Requirements**: BRND-01, STRT-01, STRT-02, STRT-03, STRT-04, STRT-05
-**Plans:** 2 plans
+### Phase 72: Brand Intelligence & Polish
+**Goal**: Brand health insights comparing user's ads to competitors, personalized strategy recommendations
+**Depends on**: Phase 69 (context injection) + Phase 70 (enrichment) for full profile data
+**Requirements**: INTL-01, INTL-02
+**Research flag**: Unlikely — builds on existing strategy engine from v8.0
+**Success Criteria** (what must be TRUE):
+  1. User sees auto-generated brand health overview comparing their ads to linked competitors
+  2. Creative Lab strategy view uses full brand profile for personalized gap analysis and recommendations
+**Plans**: TBD
 
 Plans:
-- [ ] 66-01-PLAN.md — Strategy API + brand context (GET /api/strategy/[pageId] with gap matrix, POST /api/strategy/generate-concept)
-- [ ] 66-02-PLAN.md — Strategy UI (rewrite strategy-view.tsx, gap-matrix.tsx component, concept generation modal)
-
-**Success Criteria** (what must be TRUE):
-  1. Brand profile auto-populates from existing DB data (ads, category, demographics) without manual input
-  2. User can select any brand and see their full creative taxonomy breakdown (format distribution, tactic usage, awareness stage coverage)
-  3. User can view an interactive gap matrix crossing awareness stages x creative formats with coverage heatmap
-  4. User can click a gap cell to auto-generate creative concepts targeting that gap
-  5. Generated concepts include visual format, creative mechanic, hook, messaging angle, and production brief
-
-### Phase 67: Category Benchmarking
-**Goal**: Users can compare a brand's creative strategy against category averages
-**Depends on**: Phase 66 (strategy engine provides the per-brand data)
-**Requirements**: BNCH-01, BNCH-02
-**Plans:** 2 plans
-
-Plans:
-- [ ] 67-01-PLAN.md — Benchmark utils + API extension (distribution comparison + index scores)
-- [ ] 67-02-PLAN.md — Distribution comparison UI in BenchmarkComparison component
-
-**Success Criteria** (what must be TRUE):
-  1. User can compare a brand's classification dimension distribution against category averages
-  2. Comparison shows index scores (e.g., "2x over-indexed on testimonials, 0.5x under-indexed on listicles")
-  3. Category averages are computed from all classified brands in that category
+- [ ] 72-01: Brand health overview (competitor comparison + health scores)
+- [ ] 72-02: Personalized strategy integration (profile-aware gap analysis + recommendations)
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 62 → 63 → 64 → 65 → 66 → 67
+Phases execute in numeric order: 68 → 69 → 70 → 71 → 72
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 62. Classification Foundation | 2/2 | ✓ Complete | 2026-03-27 |
-| 63. Classification Pipeline | 2/2 | ✓ Complete | 2026-03-27 |
-| 64. Diversity Refactor | 2/2 | ✓ Complete | 2026-03-27 |
-| 65. Classification UI | 2/2 | ✓ Complete | 2026-03-27 |
-| 66. Strategy Engine | 2/2 | ✓ Complete | 2026-03-27 |
-| 67. Category Benchmarking | 0/2 | Not started | — |
+| 68. Brand Profile Schema & CRUD | 0/2 | Not started | — |
+| 69. Context Injection & Onboarding | 0/3 | Not started | — |
+| 70. Auto-Enrichment from Ad Data | 0/1 | Not started | — |
+| 71. Manus Integration & Deep Research | 0/2 | Not started | — |
+| 72. Brand Intelligence & Polish | 0/2 | Not started | — |
 
 ---
-*Last updated: 2026-03-27 — Phase 67 planned*
+*Last updated: 2026-04-03 — v9.0 roadmap created (5 phases, 22 requirements)*

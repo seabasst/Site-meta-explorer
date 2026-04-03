@@ -86,34 +86,34 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROF-01 | — | Pending |
-| PROF-02 | — | Pending |
-| PROF-03 | — | Pending |
-| PROF-04 | — | Pending |
-| PROF-05 | — | Pending |
-| CTXI-01 | — | Pending |
-| CTXI-02 | — | Pending |
-| CTXI-03 | — | Pending |
-| CTXI-04 | — | Pending |
-| ONBD-01 | — | Pending |
-| ONBD-02 | — | Pending |
-| ONBD-03 | — | Pending |
-| ONBD-04 | — | Pending |
-| ENRC-01 | — | Pending |
-| ENRC-02 | — | Pending |
-| ENRC-03 | — | Pending |
-| MANS-01 | — | Pending |
-| MANS-02 | — | Pending |
-| MANS-03 | — | Pending |
-| MANS-04 | — | Pending |
-| INTL-01 | — | Pending |
-| INTL-02 | — | Pending |
+| PROF-01 | Phase 68 | Pending |
+| PROF-02 | Phase 68 | Pending |
+| PROF-03 | Phase 68 | Pending |
+| PROF-04 | Phase 68 | Pending |
+| PROF-05 | Phase 68 | Pending |
+| CTXI-01 | Phase 69 | Pending |
+| CTXI-02 | Phase 69 | Pending |
+| CTXI-03 | Phase 68 | Pending |
+| CTXI-04 | Phase 69 | Pending |
+| ONBD-01 | Phase 69 | Pending |
+| ONBD-02 | Phase 69 | Pending |
+| ONBD-03 | Phase 69 | Pending |
+| ONBD-04 | Phase 69 | Pending |
+| ENRC-01 | Phase 70 | Pending |
+| ENRC-02 | Phase 71 | Pending |
+| ENRC-03 | Phase 70 | Pending |
+| MANS-01 | Phase 71 | Pending |
+| MANS-02 | Phase 71 | Pending |
+| MANS-03 | Phase 71 | Pending |
+| MANS-04 | Phase 71 | Pending |
+| INTL-01 | Phase 72 | Pending |
+| INTL-02 | Phase 72 | Pending |
 
 **Coverage:**
 - v1 requirements: 22 total
-- Mapped to phases: 0
-- Unmapped: 22 (awaiting roadmap creation)
+- Mapped to phases: 22
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-03*
-*Last updated: 2026-04-03 after v9.0 initial definition*
+*Last updated: 2026-04-03 after roadmap creation*
