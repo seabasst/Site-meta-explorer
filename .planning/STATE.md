@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 
 ## Current Position
 
-Phase: 68 of 72 (Brand Profile Schema & CRUD) — COMPLETE ✓
-Plan: 2/2 complete
-Status: Verified, ready for Phase 69
-Last activity: 2026-04-03 — Phase 68 executed and verified (schema, CRUD API, settings UI, brand selector)
+Phase: 69 of 72 (Context Injection & Onboarding)
+Plan: 1/2 complete
+Status: In progress
+Last activity: 2026-04-03 — Completed 69-01-PLAN.md (context compiler + route wiring)
 
-Progress: ██░░░░░░░░ 20%
+Progress: ██▓░░░░░░░ 25%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 133
+- Total plans completed: 134
 - Average duration: —
 - Total execution time: —
 
@@ -45,6 +45,8 @@ Recent decisions affecting current work:
 - (v9.0): Context injection into system prompts with ~2K token budget
 - (v9.0): Onboarding wizard — soft prompt, never blocking
 - (v9.0): Keyword-based message routing, not LLM-classified
+- (69-01): compileBrandContext() as shared utility for all AI routes, character-based budgeting (7500 chars)
+- (69-01): BrandGuidelines model kept as dead code, all routes now read from BrandProfile
 
 ### Blockers/Concerns
 
@@ -54,5 +56,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-04-03
-Stopped at: Phase 68 complete — ready to plan Phase 69
+Stopped at: Completed 69-01-PLAN.md — ready for 69-02
 Resume file: None
