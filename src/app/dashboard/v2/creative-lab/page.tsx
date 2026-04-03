@@ -26,6 +26,7 @@ import type {
   GenerationResult,
   UGCBrief,
 } from '@/lib/creative-lab-types';
+import { OnboardingPrompt } from '@/components/onboarding-prompt';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -381,6 +382,8 @@ function CreativeLabPage() {
 
   return (
     <V2Shell title="Creative Lab">
+      <OnboardingPrompt darkMode={darkMode} />
+
       {/* Search state */}
       {flowState === 'search' && (
         <div className="max-w-2xl mx-auto pt-12">
@@ -391,7 +394,7 @@ function CreativeLabPage() {
             </div>
             <h1 className="text-2xl font-black mb-2">Creative Lab</h1>
             <p className={`text-sm ${muted} max-w-md mx-auto`}>
-              Search for a brand to analyze creative strategy, generate AI ad creatives, or create UGC briefs.
+              Search for a brand to analyze creative strategy and benchmark against competitors.
             </p>
           </div>
 
@@ -471,13 +474,13 @@ function CreativeLabPage() {
           {renderBrandHeader(handleBackToSearch)}
 
           <div className="text-center mb-8">
-            <h2 className="text-lg font-bold mb-1">What would you like to create?</h2>
+            <h2 className="text-lg font-bold mb-1">What would you like to do?</h2>
             <p className={`text-sm ${muted}`}>
-              Choose a generation mode for {selectedBrand?.pageName}
+              Choose an analysis mode for {selectedBrand?.pageName}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
             {/* Analyze Brand */}
             <button
               onClick={handleChooseAnalysis}
@@ -516,42 +519,6 @@ function CreativeLabPage() {
                 Taxonomy-based gap analysis with interactive concept generation.
               </p>
             </button>
-
-            {/* Generate Ad Creatives */}
-            <button
-              onClick={handleChooseCreatives}
-              className={`group text-left rounded-xl border-2 p-6 transition-all ${
-                darkMode
-                  ? 'border-[#1235e2]/10 bg-[#101322] hover:border-[#1235e2]/40 hover:bg-[#1235e2]/5'
-                  : 'border-slate-200 bg-white hover:border-[#1235e2] hover:bg-blue-50/30'
-              }`}
-            >
-              <div className="w-12 h-12 rounded-xl bg-[#1235e2]/10 flex items-center justify-center mb-4 group-hover:bg-[#1235e2]/20 transition-colors">
-                <Sparkles className="w-6 h-6 text-[#1235e2]" />
-              </div>
-              <h3 className="text-base font-bold mb-1">Generate Ad Creatives</h3>
-              <p className={`text-sm ${muted}`}>
-                AI-generated images based on diversity gaps and brand guidelines.
-              </p>
-            </button>
-
-            {/* Generate UGC Brief */}
-            <button
-              onClick={handleGenerateBrief}
-              className={`group text-left rounded-xl border-2 p-6 transition-all ${
-                darkMode
-                  ? 'border-[#1235e2]/10 bg-[#101322] hover:border-[#1235e2]/40 hover:bg-[#1235e2]/5'
-                  : 'border-slate-200 bg-white hover:border-[#1235e2] hover:bg-blue-50/30'
-              }`}
-            >
-              <div className="w-12 h-12 rounded-xl bg-[#1235e2]/10 flex items-center justify-center mb-4 group-hover:bg-[#1235e2]/20 transition-colors">
-                <FileText className="w-6 h-6 text-[#1235e2]" />
-              </div>
-              <h3 className="text-base font-bold mb-1">Generate UGC Brief</h3>
-              <p className={`text-sm ${muted}`}>
-                Structured creator brief with shot list, hooks, and talking points.
-              </p>
-            </button>
           </div>
         </div>
       )}
@@ -562,8 +529,6 @@ function CreativeLabPage() {
           <AnalysisView
             brand={selectedBrand}
             darkMode={darkMode}
-            onGenerateCreatives={handleChooseCreatives}
-            onGenerateBrief={handleGenerateBrief}
             onBack={handleBackToModeSelect}
           />
         </div>

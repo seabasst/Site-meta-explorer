@@ -23,6 +23,7 @@ import { V2Shell } from '../v2-shell';
 import { useV2 } from '../v2-context';
 import { HikaruChart, type ChartSpec } from './hikaru-charts';
 import { BrandSelector } from '@/components/brand-selector';
+import { OnboardingPrompt } from '@/components/onboarding-prompt';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -738,6 +739,9 @@ export default function HikaruPage() {
           {/* Messages area */}
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-3xl mx-auto px-4">
+              <div className="pt-4">
+                <OnboardingPrompt darkMode={darkMode} />
+              </div>
               {isEmpty ? (
                 <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1235e2] to-[#0a1f8f] flex items-center justify-center mb-6 shadow-lg shadow-[#1235e2]/20">
