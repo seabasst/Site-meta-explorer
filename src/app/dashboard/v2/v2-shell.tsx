@@ -1,7 +1,9 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import type { LucideIcon } from 'lucide-react';
 import {
   BarChart3,
@@ -18,6 +20,11 @@ import {
   Layers,
   Wand2,
   MessageSquare,
+  Users,
+  LogIn,
+  LogOut,
+  ChevronDown,
+  Inbox,
 } from 'lucide-react';
 import { useV2 } from './v2-context';
 
@@ -59,7 +66,6 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { id: '/dashboard/v2', icon: LayoutDashboard, label: 'Dashboard' },
       { id: '/dashboard/v2/creative-lab', icon: Wand2, label: 'Creative Lab' },
-      { id: '/dashboard/v2/brand-guidelines', icon: Palette, label: 'Brand Guidelines' },
     ],
   },
   {
@@ -68,6 +74,7 @@ const NAV_SECTIONS: NavSection[] = [
       { id: '/dashboard/v2/ad-library', icon: BookOpen, label: 'Ad Library' },
       { id: '/dashboard/v2/saved', icon: Heart, label: 'Saved Ads' },
       { id: '/dashboard/v2/brands', icon: Globe, label: 'Brands' },
+      { id: '/dashboard/v2/creators', icon: Users, label: 'Creators' },
       { id: '/dashboard/v2/categories', icon: Layers, label: 'Categories' },
     ],
   },
@@ -75,6 +82,8 @@ const NAV_SECTIONS: NavSection[] = [
     // Standalone items
     items: [
       { id: '/dashboard/v2/hikaru', icon: MessageSquare, label: 'Hikaru AI' },
+      { id: '/dashboard/v2/requests', icon: Inbox, label: 'Requests' },
+      { id: '/dashboard/v2/settings/brand-profiles', icon: Palette, label: 'Brand Profiles' },
     ],
   },
   {
@@ -92,6 +101,89 @@ const NAV_SECTIONS: NavSection[] = [
 */
 
 const SETTINGS_ITEM: NavItem = { id: '/dashboard/v2/settings', icon: Settings, label: 'Settings' };
+
+function UserMenu({ darkMode }: { darkMode: boolean }) {
+  const { data: session, status } = useSession();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  if (status === 'loading') {
+    return <div className={`h-10 w-10 rounded-full animate-pulse ${darkMode ? 'bg-slate-700' : 'bg-slate-200'}`} />;
+  }
+
+  if (!session?.user) {
+    return (
+      <button
+        onClick={() => signIn()}
+        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          darkMode
+            ? 'bg-[#1235e2] text-white hover:bg-[#0e2bc4]'
+            : 'bg-[#1235e2] text-white hover:bg-[#0e2bc4]'
+        }`}
+      >
+        <LogIn className="w-4 h-4" />
+        Sign in
+      </button>
+    );
+  }
+
+  const initials = (session.user.name || session.user.email || 'U')
+    .split(/[\s@]/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(s => s[0].toUpperCase())
+    .join('');
+
+  return (
+    <div ref={menuRef} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors ${
+          darkMode ? 'hover:bg-[#1235e2]/10' : 'hover:bg-slate-100'
+        }`}
+      >
+        <div className="h-9 w-9 rounded-full bg-[#1235e2]/20 border-2 border-[#1235e2] flex items-center justify-center text-sm font-bold text-[#1235e2]">
+          {initials}
+        </div>
+        <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''} ${darkMode ? 'text-slate-400' : 'text-slate-500'}`} />
+      </button>
+
+      {open && (
+        <div className={`absolute right-0 top-full mt-2 w-56 rounded-xl border shadow-lg py-2 z-50 ${
+          darkMode ? 'bg-[#181b2e] border-[#1235e2]/20' : 'bg-white border-slate-200'
+        }`}>
+          <div className={`px-4 py-2 border-b ${darkMode ? 'border-[#1235e2]/10' : 'border-slate-100'}`}>
+            <p className={`text-sm font-medium truncate ${darkMode ? 'text-slate-200' : 'text-slate-900'}`}>
+              {session.user.name || 'User'}
+            </p>
+            <p className={`text-xs truncate ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              {session.user.email}
+            </p>
+          </div>
+          <button
+            onClick={() => { setOpen(false); signOut({ callbackUrl: '/dashboard/v2' }); }}
+            className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
+              darkMode
+                ? 'text-slate-300 hover:bg-[#1235e2]/10'
+                : 'text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            <LogOut className="w-4 h-4" />
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function V2Shell({
   children,
@@ -217,9 +309,7 @@ export function V2Shell({
             }`}>
               <Bell className="w-5 h-5" />
             </button>
-            <div className="h-10 w-10 rounded-full bg-[#1235e2]/20 border-2 border-[#1235e2] flex items-center justify-center text-sm font-bold text-[#1235e2]">
-              U
-            </div>
+            <UserMenu darkMode={darkMode} />
           </div>
         </header>
 
