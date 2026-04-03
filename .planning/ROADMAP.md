@@ -64,7 +64,7 @@ Phases 62-67 — Motion classification, strategy matrix, gap analysis, concepts,
 
 ---
 
-### 🚧 v9.0 Brand Profile & AI Context System (In Progress)
+### v9.0 Brand Profile & AI Context System (In Progress)
 
 **Milestone Goal:** Make Hikaru Chat brand-aware — users onboard their brand, and every AI response is contextualized with their brand voice, audience, competitors, and strategy.
 
@@ -106,12 +106,12 @@ Plans:
   3. User sees soft onboarding prompt on first Creative Lab or Hikaru visit (always skippable)
   4. User can complete 3-5 step wizard or AI interview to build profile
   5. Context stays under ~2K tokens via intelligent field selection per query
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 69-01: Context compiler (token-budgeted, XML-tagged system prompt injection)
-- [ ] 69-02: Onboarding wizard UI (multi-step form + auto-save drafts)
-- [ ] 69-03: AI interview mode (conversational profile building)
+- [ ] 69-01-PLAN.md — Context compiler utility + injection into Hikaru and Creative Lab routes
+- [ ] 69-02-PLAN.md — Onboarding wizard UI (5-step form + auto-save drafts) + soft prompt banner
+- [ ] 69-03-PLAN.md — AI interview mode (conversational profile building endpoint + chat UI)
 
 ### Phase 70: Auto-Enrichment from Ad Data
 **Goal**: Auto-populate brand profiles from existing ad classifications, analyses, and metadata
@@ -171,4 +171,4 @@ Phases execute in numeric order: 68 → 69 → 70 → 71 → 72
 | 72. Brand Intelligence & Polish | 0/2 | Not started | — |
 
 ---
-*Last updated: 2026-04-03 — Phase 68 complete (2/2 plans, verified ✓)*
+*Last updated: 2026-04-03 — Phase 69 planned (3 plans in 1 wave)*
