@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     });
 
     // ------------------------------------------------------------------
-    // 4. Optionally fetch brand guidelines (auth-gated, non-blocking)
+    // 4. Optionally fetch brand profile (auth-gated, non-blocking)
     // ------------------------------------------------------------------
     let brandVoice: string | null = null;
     let brandColors: string[] = [];
@@ -78,24 +78,24 @@ export async function POST(request: NextRequest) {
     try {
       const session = await auth();
       if (session?.user?.id) {
-        const guidelines = await prisma.brandGuidelines.findUnique({
-          where: { userId: session.user.id },
+        const profile = await prisma.brandProfile.findFirst({
+          where: { userId: session.user.id, isActive: true },
         });
-        if (guidelines) {
-          brandVoice = guidelines.brandVoice?.slice(0, 200) ?? null;
+        if (profile) {
+          brandVoice = profile.brandVoice?.slice(0, 200) ?? null;
           brandColors = [
-            guidelines.primaryColor,
-            guidelines.secondaryColor,
-            guidelines.accentColor,
+            profile.primaryColor,
+            profile.secondaryColor,
+            profile.accentColor,
           ].filter((c): c is string => !!c);
           brandAudience = [
-            ...(guidelines.demographics || []),
-            ...(guidelines.interests || []),
+            ...(profile.demographics || []),
+            ...(profile.interests || []),
           ];
         }
       }
     } catch {
-      // Non-blocking: proceed without brand guidelines
+      // Non-blocking: proceed without brand profile
     }
 
     // ------------------------------------------------------------------
@@ -118,8 +118,8 @@ export async function POST(request: NextRequest) {
     // ------------------------------------------------------------------
     // 6. Build prompt sections
     // ------------------------------------------------------------------
-    const brandGuidelinesBlock = brandVoice || brandColors.length > 0 || brandAudience.length > 0
-      ? `\n**Brand Guidelines (use to tailor the brief):**
+    const brandProfileBlock = brandVoice || brandColors.length > 0 || brandAudience.length > 0
+      ? `\n**Brand Profile (use to tailor the brief):**
 - Voice: ${brandVoice || 'Not specified'}
 - Brand colors: ${brandColors.length > 0 ? brandColors.join(', ') : 'Not specified'}
 - Target audience: ${brandAudience.length > 0 ? brandAudience.slice(0, 10).join(', ') : 'Not specified'}`
@@ -154,7 +154,7 @@ ${distribution ? JSON.stringify(distribution, null, 2) : 'No distribution data a
 - Hook quality avg: ${cache.hookQualityAvg}/10
 - Unique concepts: ${cache.uniqueConcepts}
 - Funnel balance: ${cache.funnelAwareness}% awareness / ${cache.funnelConsideration}% consideration / ${cache.funnelConversion}% conversion
-${brandGuidelinesBlock}
+${brandProfileBlock}
 ${topAdsBlock}
 
 Generate a UGC creator brief as a JSON object with EXACTLY this structure:

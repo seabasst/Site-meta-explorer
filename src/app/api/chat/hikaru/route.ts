@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import Anthropic from '@anthropic-ai/sdk';
+import { compileBrandContext } from '@/lib/brand-context';
+import type { BrandProfileFull } from '@/lib/brand-profile-types';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -26,9 +28,11 @@ When answering:
 - Format responses with clear sections and headers. Use tables for comparisons. Use bold for key metrics.
 - Keep responses focused and actionable. No filler.
 
-Available brand categories in the database: airline, fast_food, car_rental, fashion, beauty, tech, food, fitness, and more.
+Available brand categories in the database: airline, fast_food, car_rental, fashion, beauty, tech, food, fitness, home, wellness, pets, kids, travel, and more.
 
-You have 9 tools at your disposal. Use them aggressively — it's better to over-query than to guess.
+You also have access to the creator/influencer partnership database. Creators are people/pages that run partnership ads (e.g. "lisalegov with Ninepine" format in Meta Ad Library). You can search creators by name, brand, or category, and see which brands they work with.
+
+You have 10 tools at your disposal. Use them aggressively — it's better to over-query than to guess.
 
 When your answer involves comparing numbers, showing distributions, or illustrating trends, include an inline chart using this exact format:
 
@@ -232,6 +236,38 @@ const tools: Anthropic.Tool[] = [
         category: {
           type: 'string',
           description: 'Category to analyze (partial match)',
+        },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'search_creators',
+    description:
+      'Search creator/influencer partnerships. Find creators by name, by the brands they work with, or by brand category. Returns creator names, partnership counts, total reach, and which brands they collaborate with. Use this for questions about influencers, creators, partnerships, or collaborations.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        creatorName: {
+          type: 'string',
+          description: 'Search by creator name (partial match)',
+        },
+        brandName: {
+          type: 'string',
+          description: 'Find creators who partner with this brand (partial match)',
+        },
+        category: {
+          type: 'string',
+          description: 'Find creators who work with brands in this category (e.g. fashion, beauty, fitness)',
+        },
+        sortBy: {
+          type: 'string',
+          enum: ['totalReach', 'totalAds', 'brandCount'],
+          description: 'Sort by reach, ad count, or number of brand partnerships (default: totalReach)',
+        },
+        limit: {
+          type: 'number',
+          description: 'Max results (default: 10, max: 25)',
         },
       },
       required: [],
@@ -701,6 +737,82 @@ async function getFormatBreakdown(input: { brandName?: string; category?: string
   };
 }
 
+async function searchCreators(input: {
+  creatorName?: string;
+  brandName?: string;
+  category?: string;
+  sortBy?: string;
+  limit?: number;
+}) {
+  const limit = Math.min(input.limit || 10, 25);
+  const sortBy = input.sortBy || 'totalReach';
+
+  // Build where clause for creators
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = {};
+
+  if (input.creatorName) {
+    where.pageName = { contains: input.creatorName, mode: 'insensitive' };
+  }
+
+  // Filter by brand or category through partnerships
+  if (input.brandName || input.category) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const partnershipWhere: any = {};
+    if (input.brandName) {
+      partnershipWhere.brand = { pageName: { contains: input.brandName, mode: 'insensitive' } };
+    }
+    if (input.category) {
+      partnershipWhere.brand = {
+        ...(partnershipWhere.brand || {}),
+        category: { contains: input.category, mode: 'insensitive' },
+      };
+    }
+    where.partnerships = { some: partnershipWhere };
+  }
+
+  const creators = await prisma.adCreator.findMany({
+    where,
+    orderBy: { [sortBy]: 'desc' },
+    take: limit,
+    select: {
+      pageName: true,
+      totalAds: true,
+      totalReach: true,
+      brandCount: true,
+      partnerships: {
+        select: {
+          adCount: true,
+          totalReach: true,
+          brand: { select: { pageName: true, category: true, country: true } },
+        },
+        orderBy: { totalReach: 'desc' },
+        take: 5,
+      },
+    },
+  });
+
+  const totalCreators = await prisma.adCreator.count({ where });
+
+  return {
+    totalMatching: totalCreators,
+    showing: creators.length,
+    creators: creators.map((c) => ({
+      name: c.pageName,
+      totalAds: c.totalAds,
+      totalReach: c.totalReach,
+      brandCount: c.brandCount,
+      topBrands: c.partnerships.map((p) => ({
+        brand: p.brand.pageName,
+        category: p.brand.category,
+        country: p.brand.country,
+        ads: p.adCount,
+        reach: p.totalReach,
+      })),
+    })),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Tool dispatcher
 // ---------------------------------------------------------------------------
@@ -779,6 +891,12 @@ async function executeTool(
       summary = `Format breakdown: ${res.totalAds} ads across ${res.formats.length} formats`;
       break;
     }
+    case 'search_creators': {
+      const res = await searchCreators(input as Parameters<typeof searchCreators>[0]);
+      data = res;
+      summary = `Found ${res.totalMatching} creators${input.brandName ? ` partnering with "${input.brandName}"` : ''}${input.category ? ` in ${input.category}` : ''} (showing ${res.showing})`;
+      break;
+    }
     default:
       data = { error: `Unknown tool: ${name}` };
       summary = `Unknown tool: ${name}`;
@@ -810,6 +928,8 @@ function toolThinkingLabel(name: string, input: Record<string, unknown>): string
       return `Fetching ad templates${input.category ? ` for ${input.category}` : ''}...`;
     case 'get_format_breakdown':
       return `Breaking down formats${input.brandName ? ` for ${input.brandName}` : ''}...`;
+    case 'search_creators':
+      return `Searching creators${input.brandName ? ` partnering with ${input.brandName}` : ''}${input.category ? ` in ${input.category}` : ''}...`;
     default:
       return `Running ${name}...`;
   }
@@ -820,7 +940,7 @@ function toolThinkingLabel(name: string, input: Record<string, unknown>): string
 // ---------------------------------------------------------------------------
 export async function POST(request: NextRequest) {
   try {
-    const { messages } = await request.json();
+    const { messages, brandProfileId } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(JSON.stringify({ error: 'messages array required' }), { status: 400 });
@@ -833,6 +953,30 @@ export async function POST(request: NextRequest) {
         content: m.content,
       })
     );
+
+    // Fetch brand profile and build dynamic system prompt (once, before the loop)
+    let systemPrompt = HIKARU_SYSTEM_PROMPT;
+    if (brandProfileId && typeof brandProfileId === 'string') {
+      try {
+        const profile = await prisma.brandProfile.findUnique({
+          where: { id: brandProfileId },
+          include: {
+            competitors: {
+              include: {
+                adLibraryBrand: {
+                  select: { id: true, pageId: true, pageName: true, profilePicUrl: true },
+                },
+              },
+            },
+          },
+        });
+        if (profile) {
+          systemPrompt += compileBrandContext(profile as unknown as BrandProfileFull);
+        }
+      } catch {
+        // Non-blocking: proceed without brand context
+      }
+    }
 
     const encoder = new TextEncoder();
 
@@ -853,7 +997,7 @@ export async function POST(request: NextRequest) {
             const response = await client.messages.create({
               model: 'claude-sonnet-4-20250514',
               max_tokens: 4096,
-              system: HIKARU_SYSTEM_PROMPT,
+              system: systemPrompt,
               tools,
               messages: currentMessages,
             });
