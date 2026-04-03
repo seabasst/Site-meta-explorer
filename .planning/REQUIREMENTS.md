@@ -1,46 +1,55 @@
-# Requirements: Ad Library Pro — v8.0 Creative Strategy Engine
+# Requirements: Ad Library Intelligence Platform — v9.0 Brand Profile & AI Context System
 
-**Defined:** 2026-03-27
+**Defined:** 2026-04-03
 **Core Value:** Help brands and agencies see what competitors are running and how they're reaching their audiences — browse, save, analyze, compare.
 
 ## v1 Requirements
 
-Requirements for v8.0 milestone. Each maps to roadmap phases.
+Requirements for v9.0 milestone. Each maps to roadmap phases.
 
-### Classification Engine
+### Brand Profile
 
-- [x] **CLSF-01**: User can trigger AI classification of a single ad via Claude Vision (on-demand, ~2-4s)
-- [ ] **CLSF-02**: Ad classifications are stored persistently in the database (AdClassification model, indexed columns)
-- [x] **CLSF-03**: User can trigger batch classification of a brand's ads via Anthropic Batch API (50% cost discount)
-- [ ] **CLSF-04**: Classification taxonomy covers ~8-10 categories with ~10 tags each (visual format, hook tactic, messaging angle, awareness stage, creative mechanic, offer type, intended audience, asset type)
-- [x] **CLSF-05**: Batch classification jobs track progress and cost (ClassificationJob + ApiCostLog models)
-- [x] **CLSF-06**: Existing diversity analysis route reads from stored classifications instead of re-classifying
+- [ ] **PROF-01**: User can create a brand profile with voice, audience, positioning, competitors, and pain points
+- [ ] **PROF-02**: Brand profile stored as multi-table structure (BrandProfile + related tables) with BrandGuidelines migration
+- [ ] **PROF-03**: User can view and edit brand profile via tab-based settings page
+- [ ] **PROF-04**: User can link competitor brands (from existing DB) to their brand profile
+- [ ] **PROF-05**: User can delete a brand profile
 
-### Brand Context
+### Context Injection
 
-- [x] **BRND-01**: Brand profile auto-populates from existing DB data (ads, category, demographics) without requiring manual input
+- [ ] **CTXI-01**: Brand context injected into Hikaru chat system prompt (under 2K tokens, XML-tagged sections)
+- [ ] **CTXI-02**: Brand context injected into Creative Lab generation and analysis flows
+- [ ] **CTXI-03**: User can select active brand via dropdown in chat header (URL param `?brand=` for shareability)
+- [ ] **CTXI-04**: Context compiler selects relevant profile fields per query to stay within token budget
 
-### Strategy & Gap Analysis
+### Onboarding
 
-- [x] **STRT-01**: Strategy generation uses classification taxonomy data (not just text ad copy patterns)
-- [x] **STRT-02**: User can select any brand and see their full creative taxonomy breakdown (format distribution, tactic usage, awareness stage coverage)
-- [x] **STRT-03**: User can view an interactive gap matrix crossing awareness stages x creative formats, with coverage heatmap
-- [x] **STRT-04**: User can click a gap cell in the matrix to auto-generate creative concepts targeting that gap
-- [x] **STRT-05**: Generated concepts include visual format, creative mechanic, hook, messaging angle, and production brief
+- [ ] **ONBD-01**: User sees soft onboarding prompt on first Creative Lab or Hikaru visit (never blocks access)
+- [ ] **ONBD-02**: User can complete 3-5 step form wizard (name/URL, voice/tone, audience, competitors, visual identity)
+- [ ] **ONBD-03**: Wizard auto-saves drafts to prevent state loss on navigation
+- [ ] **ONBD-04**: User can alternatively use AI interview to build profile from natural language conversation
 
-### Visual Reporting
+### Auto-Enrichment
 
-- [x] **REPT-01**: User sees distribution bar charts per classification dimension (e.g., "30% testimonial, 5% listicle")
-- [x] **REPT-02**: Individual ads display their classification tags in ad detail view
+- [ ] **ENRC-01**: User can auto-populate brand profile from existing ad library data (classifications, analyses, metadata)
+- [ ] **ENRC-02**: User can auto-populate brand profile from website URL crawl (voice, colors, audience extraction)
+- [ ] **ENRC-03**: Auto-enrichment respects cost budgets and uses change detection to avoid redundant runs
 
-### Category Benchmarking
+### Manus Integration
 
-- [ ] **BNCH-01**: User can compare a brand's creative dimension distribution against category averages
-- [ ] **BNCH-02**: Comparison shows index scores (e.g., "2x over-indexed on testimonials, 0.5x under-indexed on listicles")
+- [ ] **MANS-01**: Deep research queries route to Manus API as async tasks with polling UI
+- [ ] **MANS-02**: Simple/fast queries continue routing to Claude for instant streaming responses
+- [ ] **MANS-03**: Manus task results display with clear async state ("Researching... usually takes 2-5 minutes")
+- [ ] **MANS-04**: Routing is keyword-based + UI toggle ("Deep Research" mode), not LLM-classified
+
+### Brand Intelligence
+
+- [ ] **INTL-01**: User sees auto-generated brand health overview comparing their ads to linked competitors
+- [ ] **INTL-02**: Creative Lab strategy view uses full brand profile for personalized gap analysis and recommendations
 
 ## v2 Requirements
 
-Deferred to future release (v8.1+). Tracked but not in current roadmap.
+Deferred to future release (v9.1+). Tracked but not in current roadmap.
 
 ### Creative Velocity
 
@@ -52,10 +61,10 @@ Deferred to future release (v8.1+). Tracked but not in current roadmap.
 - **BRND-02**: Extract voice, positioning, and pain points from ad copy text patterns
 - **BRND-03**: Auto-detect brand personality shifts over time
 
-### Benchmarking (Advanced)
+### Auto-Enrichment (Advanced)
 
-- **BNCH-03**: Custom competitive sets (hand-pick brands to benchmark against)
-- **BNCH-04**: Benchmark trends over time (how category norms shift)
+- **ENRC-04**: Scheduled monthly re-enrichment of brand profiles
+- **ENRC-05**: Manus research results shown as "suggested updates" requiring user approval before profile changes
 
 ## Out of Scope
 
@@ -63,12 +72,13 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Feature | Reason |
 |---------|--------|
-| Full image/video generation | AdCreative.ai owns this; focus on strategy layer |
-| Swipe file / Chrome extension | Foreplay owns this; platform already has 514+ brands |
-| Ad account connection | Removes competitor intelligence advantage (the primary differentiator) |
-| Team collaboration | Scope explosion; single-user tool |
-| 46-format taxonomy | Start with ~8-10 categories; expand after accuracy validation |
-| Creative velocity tracking | Nice-to-have; deferred to v2 |
+| Full brand guidelines editor (Canva/Figma-style) | Design tool scope creep; minimal visual identity is sufficient |
+| Real-time Manus streaming | Manus is async by design; faking real-time creates fragile UX |
+| AI model selection UI | Users want answers, not model menus; route automatically |
+| Mandatory onboarding | Never block access; all features work without brand profile |
+| Per-user brand profiles | Brand profiles are workspace-level; plan for sharing even if v9.0 is single-user |
+| Auto-sync Manus results to profile | AI hallucination risk; require human review before profile changes |
+| Complex RBAC for brand access | Premature for v9.0; simple ownership model until paying teams exist |
 
 ## Traceability
 
@@ -76,28 +86,34 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLSF-01 | Phase 63 | Complete |
-| CLSF-02 | Phase 62 | Complete |
-| CLSF-03 | Phase 63 | Complete |
-| CLSF-04 | Phase 62 | Complete |
-| CLSF-05 | Phase 63 | Complete |
-| CLSF-06 | Phase 64 | Complete |
-| BRND-01 | Phase 66 | Complete |
-| STRT-01 | Phase 66 | Complete |
-| STRT-02 | Phase 66 | Complete |
-| STRT-03 | Phase 66 | Complete |
-| STRT-04 | Phase 66 | Complete |
-| STRT-05 | Phase 66 | Complete |
-| REPT-01 | Phase 65 | Complete |
-| REPT-02 | Phase 65 | Complete |
-| BNCH-01 | Phase 67 | Pending |
-| BNCH-02 | Phase 67 | Pending |
+| PROF-01 | — | Pending |
+| PROF-02 | — | Pending |
+| PROF-03 | — | Pending |
+| PROF-04 | — | Pending |
+| PROF-05 | — | Pending |
+| CTXI-01 | — | Pending |
+| CTXI-02 | — | Pending |
+| CTXI-03 | — | Pending |
+| CTXI-04 | — | Pending |
+| ONBD-01 | — | Pending |
+| ONBD-02 | — | Pending |
+| ONBD-03 | — | Pending |
+| ONBD-04 | — | Pending |
+| ENRC-01 | — | Pending |
+| ENRC-02 | — | Pending |
+| ENRC-03 | — | Pending |
+| MANS-01 | — | Pending |
+| MANS-02 | — | Pending |
+| MANS-03 | — | Pending |
+| MANS-04 | — | Pending |
+| INTL-01 | — | Pending |
+| INTL-02 | — | Pending |
 
 **Coverage:**
-- v1 requirements: 16 total
-- Mapped to phases: 16 ✓
-- Unmapped: 0
+- v1 requirements: 22 total
+- Mapped to phases: 0
+- Unmapped: 22 (awaiting roadmap creation)
 
 ---
-*Requirements defined: 2026-03-27*
-*Last updated: 2026-03-27 — Phase 66 requirements marked Complete*
+*Requirements defined: 2026-04-03*
+*Last updated: 2026-04-03 after v9.0 initial definition*
