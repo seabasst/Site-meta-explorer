@@ -1,127 +1,159 @@
-# Research Summary -- v8.0 Creative Strategy Engine
+# Research Summary: v9.0 Brand Profile & AI Context System
 
-**Synthesized:** 2026-03-27
-**Dimensions:** Stack, Features, Architecture, Pitfalls
-**Overall confidence:** HIGH
+**Domain:** Ad Intelligence SaaS — brand profiling, AI context injection, dual-model routing
+**Researched:** 2026-04-03
+**Overall Confidence:** MEDIUM-HIGH
+
+---
 
 ## Executive Summary
 
-The v8.0 Creative Strategy Engine adds AI Vision-based ad classification, strategy gap analysis, and creative concept generation to an existing ad intelligence platform with 514+ brands. Research across all 4 dimensions converges on a clear architecture: **persist per-ad classifications** (the single biggest architectural change), use **Claude Haiku 4.5 Vision + Batch API** for cost-effective classification (~$51 for 25K ads), extend the **existing 3-step strategy pipeline** to 6 steps, and manage costs with a **daily budget tracker**.
+v9.0 adds brand awareness to the platform's AI features. The research reveals a surprisingly lean implementation path: **one new dependency** (Inngest for background jobs), a thin fetch wrapper for Manus API, and structured Prisma models feeding into system prompt injection. No vector databases, no LangChain, no Vercel AI SDK migration needed.
 
-The platform's unique differentiator is **competitor-grounded strategy** -- Motion requires your own ad account, Foreplay requires manual saving, but this platform already has 514+ brands of competitor data. No competitor offers "pick any brand, see their creative taxonomy, generate strategy exploiting their gaps."
+The critical insight across all four research dimensions: **context injection quality is the make-or-break factor**. Naive full-profile injection degrades LLM accuracy by 30%+. A "context compiler" pattern — budget-limited, query-aware selection of profile fields — is essential.
 
-### Three Critical Decisions
+The second critical insight: **Manus is fundamentally async** and must not be forced into the synchronous chat pattern. Fire-and-forget with webhook + cron safety net (already proven in the classify-poll pattern) is the right approach.
 
-1. **Start with ~8-10 categories, not 46 formats.** The planned 46x8x35x5x8 taxonomy (515K combinations) is unusable. Motion uses 8 categories. Start there, expand after validation.
-
-2. **Persist classifications, don't recompute.** The current diversity route classifies-and-discards on every run. Storing per-ad classifications in an `AdClassification` table eliminates redundant AI calls and enables all downstream features (gap analysis, benchmarking, filtering).
-
-3. **Batch API + cron polling, not Inngest.** The Anthropic Batch API (50% discount, up to 100K requests) handles the heavy lifting. Vercel cron polls for completion. No new infrastructure dependencies needed beyond what already exists.
+---
 
 ## Key Findings by Dimension
 
-### Stack
-- **Stay with Claude.** Haiku 4.5 for classification ($0.002/ad with batch+cache), Sonnet 4.6 for strategy ($0.12/brand).
-- **One-time backfill cost: ~$82** (25K ads classification + 500 brands strategy).
-- **Incremental cost: ~$0.002/ad** for new ads.
-- **Only new dependency:** Potentially `inngest` for job orchestration, but Batch API + cron may suffice.
-- **Avoid:** OpenAI/Gemini (no benefit over existing Claude integration), LangChain (over-abstraction), pgvector/embeddings (wrong tool for categorical data), BullMQ/Redis (unnecessary infrastructure).
+### Stack (HIGH confidence)
+- **One new dependency:** `inngest` for background job orchestration (Manus polling, auto-enrichment)
+- **Keep raw Anthropic SDK** — existing agentic tool loop + SSE + :::chart protocol works well; Vercel AI SDK migration would cost without benefit
+- **Manus API v2 is REST-only** — build a thin ~50-line fetch wrapper, no SDK exists
+- **No vector DB or LangChain needed** — brand context is structured relational data, Prisma queries beat vector search
+- **Bump `@anthropic-ai/sdk`** from ^0.78.0 to ^0.82.0
 
-### Features
-- **Table stakes:** Per-ad classification taxonomy, brand context auto-population, strategy from data, hook generation, visual reporting.
-- **Differentiators:** Competitor-grounded strategy (primary), interactive gap matrix, category benchmarking, creative concept generation from gaps.
-- **Anti-features:** Full image generation (AdCreative.ai owns this), swipe file/Chrome extension (Foreplay owns this), ad account connection (removes competitor intelligence advantage), team collaboration.
-- **Critical path:** Classification Engine -> Gap Matrix -> Concept Generation.
-- **Motion's taxonomy:** 8 categories (Asset Type, Visual Format, Hook Tactic, Messaging Angle, Seasonality, Offer Type, Intended Audience, Creative Angle). Start here, not with 46 formats.
+### Features (MEDIUM-HIGH confidence)
+- **Brand profile + context injection is table stakes** — Jasper, HubSpot, Microsoft Copilot all have it
+- **Auto-enrichment from ad data is the killer differentiator** — no competitor has real-time ad intelligence to auto-populate brand context
+- **Dual-model routing (Manus) is Phase 3 material** — core brand-aware AI ships fully without it
+- **Onboarding must be opt-in, never blocking** — platform's open-access browsing is an asset
+- **Context token budget ~2K tokens max** — critical design constraint for prompt injection
 
-### Architecture
-- **Two-tier classification:** On-demand single-ad (Haiku 4.5, 2-4s, ~$0.005/ad) + Anthropic Batch API (50% discount, async <1hr) for bulk.
-- **New Prisma models:** `AdClassification` (per-ad, indexed columns not JSON), `ClassificationJob` (batch state), `ApiCostLog` (cost tracking).
-- **Diversity route refactor:** Currently ephemeral (classify-discard-aggregate). Becomes pure DB aggregation from stored classifications.
-- **Strategy pipeline:** Extend existing 3-step to 6-step. Steps 4-6 add mechanics, formats, gap analysis.
-- **Vercel constraints solvable:** `after()` for small batches, Batch API for large ones, cron polling for completion.
+### Architecture (MEDIUM-HIGH confidence)
+- **Context injection = system prompt enhancement** — zero changes to streaming/tool infrastructure
+- **Message router should be keyword-based, not LLM-based** — 500ms+ latency and doubled cost for a 2-option decision space isn't worth it
+- **Brand selector via URL params** (`?brand=clxyz123`) — shareable, survives navigation, works with server components
+- **5-phase build order:** Schema/CRUD -> Context Injection + Onboarding (parallel) -> Manus -> Message Router
+- **Fire-and-forget + webhook + cron** for Manus (matches existing classify-poll pattern)
 
-### Pitfalls (by severity)
-- **Critical:** Vision API cost explosion without caching, Vercel timeout on multi-image calls, classification inconsistency across runs.
-- **High:** Taxonomy bloat (46 formats unusable), strategy converging to generic advice, database bloat from JSON classifications, 4.5MB payload limit, no cost tracking.
-- **Medium:** Missing images degrading quality, dashboard-for-dashboards UX, prompt caching not utilized, strategy context loss between steps, race conditions on concurrent analysis, cold starts, maxDuration mismatches.
+### Pitfalls (HIGH confidence)
+- **CRITICAL: Context stuffing degrades AI quality** — need context compiler with token budgets and XML tags
+- **CRITICAL: Manus polling times out on Vercel** — three-endpoint pattern (create/poll/webhook) is mandatory
+- **CRITICAL: Wizard state loss on navigation** — single parent state + auto-save drafts to DB
+- **CRITICAL: BrandGuidelines overlap** — migrate don't duplicate; plan the migration before building
+- **CRITICAL: Dual-model UX inconsistency** — make routing explicit with clear mode indicators
+- **MODERATE: Auto-enrichment runaway costs** — change detection + cost budgets before enabling auto-triggers
+- **MODERATE: Brand switch breaks chat context** — start new conversation on brand change
 
-## Cross-Cutting Themes
+---
 
-1. **Classification is the foundation.** Every research dimension identifies per-ad classification as the prerequisite for all other features. Build it first, build it right.
+## Critical Design Decisions
 
-2. **Cost control is non-negotiable.** At ~$0.005/ad standard rate, costs scale linearly. Batch API (50% off) + prompt caching (90% off on system prompt) + persistent caching (classify once) are all required.
+| Decision | Recommendation | Rationale |
+|----------|---------------|-----------|
+| BrandProfile vs extend BrandGuidelines | New `BrandProfile` model + migrate data | BrandGuidelines is user-scoped; BrandProfile needs to be brand-scoped. Overlapping fields = source of truth confusion |
+| Single table vs multi-table | Multi-table (BrandProfile + BrandVoice + BrandAudience + BrandVisualIdentity) | Prevents god object, enables selective queries, reduces migration risk |
+| Context injection format | XML-tagged sections with token budget per section | Prevents "lost in the middle" effect, keeps prompt under 2K tokens |
+| Message router approach | Keyword matching + UI toggle, not LLM classifier | 500ms+ latency per message for 2-option decision isn't justified |
+| Manus integration pattern | Fire-and-forget + webhook + cron safety net | Matches existing classify-poll pattern; Vercel timeout-safe |
+| Onboarding trigger | Soft prompt on first Creative Lab / Hikaru visit, always skippable | Never block value discovery; progressive profiling over time |
+| Brand selector state | URL search params + React Context | Shareable URLs, survives navigation, server component compatible |
+| Auto-enrichment trigger | Manual + monthly scheduled, NOT per-ingestion | Per-ingestion at 514+ brands = runaway API costs |
 
-3. **Start simple, expand later.** Both Features and Pitfalls research strongly recommend starting with Motion's 8-category approach (~10 tags per category) rather than the planned 46x8x35x5x8 taxonomy.
-
-4. **The existing codebase is a strong foundation.** The 3-step strategy pipeline, diversity analysis, brand analysis cache, and Anthropic SDK integration all extend cleanly. No rewrites needed.
+---
 
 ## Implications for Roadmap
 
 Based on research, suggested phase structure:
 
-### Phase 1: Classification Foundation
-- **Rationale:** Every feature depends on stored per-ad classifications. This is the foundation.
-- **Scope:** AdClassification + ClassificationJob + ApiCostLog Prisma models, cost tracker utility, classification taxonomy definition (8-10 categories, ~10 tags each), classification prompt with few-shot examples
-- **Addresses:** TS-1 (Features), Decision 1 (Architecture), Pitfalls 1/3/6/15
-- **Risk:** Medium (prompt engineering for taxonomy accuracy)
+### Phase 1: BrandProfile Schema + CRUD + Brand Selector
+- **Addresses:** TS-1 (Brand Profile CRUD), TS-6 (Management UI), TS-4 (Brand selector)
+- **Avoids:** Pitfall #4 (god object) via multi-table design, Pitfall #10 (BrandGuidelines overlap) via migration plan
+- **Uses:** Prisma (existing), no new dependencies
+- **Must include:** BrandGuidelines -> BrandProfile data migration script
 
-### Phase 2: Single-Ad + Batch Classification Pipeline
-- **Rationale:** Two-tier classification enables both interactive and bulk use cases.
-- **Scope:** `/api/classify/vision` route (on-demand), Anthropic Batch API wrapper, `/api/classify/batch` + `/api/classify/cron` routes, ClassificationJob lifecycle
-- **Addresses:** Architecture Tier 1+2, Pitfalls 2/10/16/17
-- **Risk:** Medium (Batch API integration, polling logic)
+### Phase 2: Context Injection + Onboarding Wizard (parallelizable)
+- **Addresses:** TS-2 (Chat context), TS-3 (Creative Lab context), TS-5 (Onboarding wizard)
+- **Avoids:** Pitfall #1 (context stuffing) via token budgets + XML tags, Pitfall #3 (wizard state loss) via auto-save drafts, Pitfall #9 (blocking onboarding) via skip option
+- **Uses:** Existing Anthropic SDK, React Hook Form + Zod (existing)
+- **Key constraint:** Context must stay under ~2K tokens
 
-### Phase 3: Diversity Analysis Refactor
-- **Rationale:** Highest-value refactor -- eliminates redundant AI calls from the most-used analysis route.
-- **Scope:** Refactor `/api/analyze/diversity` to read from AdClassification table, remove ephemeral classification, keep recommendation AI call, update BrandAnalysisCache
-- **Addresses:** Architecture Decision 1, Pitfalls 1/7/12
-- **Risk:** Low (straightforward refactor)
+### Phase 3: Auto-Enrichment from Ad Data
+- **Addresses:** DF-2 (ad data enrichment — the unique differentiator)
+- **Avoids:** Pitfall #6 (runaway costs) via change detection + cost budgets
+- **Uses:** Existing classification data, Claude API
+- **Why before Manus:** Uses existing infrastructure, ships the unique competitive advantage first
 
-### Phase 4: Classification UI + Distribution Charts
-- **Rationale:** Make classification data visible and browsable before building strategy on top.
-- **Scope:** Distribution charts per dimension, classification tags in ad detail, filtered views by classification, brand classification coverage stats
-- **Addresses:** TS-5 (Features), Pitfall 9 (progressive disclosure UX)
-- **Risk:** Low (frontend work, data already available)
+### Phase 4: Manus Integration + Deep Research
+- **Addresses:** DF-3 (dual-model routing), DF-1 (website enrichment via Manus)
+- **Avoids:** Pitfall #2 (serverless timeout) via three-endpoint pattern, Pitfall #8 (credit waste) via cost tracking + dedup, Pitfall #12 (webhook security) via signature validation
+- **Uses:** Inngest (new), Manus API fetch wrapper (new)
+- **Risk flag:** Manus API v2 is new, exact payload formats need verification at implementation time
 
-### Phase 5: Strategy Engine Extension
-- **Rationale:** Extend proven 3-step pipeline with classification-informed gap analysis.
-- **Scope:** Steps 4-6 (mechanics, formats, gap analysis), competitor-grounded strategy, gap matrix UI, concept generation from gaps
-- **Addresses:** DF-1/DF-2/DF-4 (Features), Strategy pipeline (Architecture), Pitfall 5/11
-- **Risk:** Medium (LLM output quality, UX complexity)
+### Phase 5: Message Router + Polish
+- **Addresses:** DF-3 completion (chat routing), Pitfall #5 (UX consistency), Pitfall #7 (brand switch context)
+- **Avoids:** Pitfall #5 (inconsistent UX) via explicit mode indicators
+- **Uses:** Keyword-based router, UI toggle for "Deep Research" mode
+- **Depends on:** Phase 2 (context injection) + Phase 4 (Manus) both working
 
-### Phase 6: Category Benchmarking
-- **Rationale:** Requires sufficient classified brands per category. Run after bulk classification.
-- **Scope:** Cross-brand aggregation, brand vs category comparison, index scores, benchmark UI
-- **Addresses:** DF-3 (Features), Phase 6 (Architecture)
-- **Risk:** Medium (data coverage dependency)
+**Phase ordering rationale:**
+- Phase 1 first because everything depends on the BrandProfile model
+- Phase 2 is highest-impact: makes profiles immediately useful in AI responses
+- Phase 3 before Phase 4: ad data enrichment uses existing infra and ships the unique differentiator without Manus dependency
+- Phase 4 (Manus) is highest-risk and highest-complexity — isolated so failures don't block core value
+- Phase 5 last because it requires both Claude context injection AND Manus to be functional
 
-### Phase Ordering Rationale
-- **Phase 1 before all:** Everything depends on the classification data model and taxonomy definition.
-- **Phase 2 before 3:** Diversity refactor assumes classifications exist in DB.
-- **Phase 3 before 4:** UI should show real classified data, not ephemeral results.
-- **Phase 4 before 5:** Users need to see classification data before strategy builds on it.
-- **Phase 5 before 6:** Benchmarking is additive; strategy is the core value.
-- **Phases 2+4 could partially overlap:** Batch classification (backend) and UI work can proceed in parallel once Phase 1 is done.
+**Research flags for phases:**
+- Phase 1: Standard patterns, unlikely to need deeper research
+- Phase 2: Context compiler design may need prototyping to find the right token budget
+- Phase 3: Standard patterns, uses existing classification data
+- Phase 4: **Likely needs deeper research** — Manus API v2 is new, exact response formats and webhook signatures need verification against live API
+- Phase 5: Standard patterns once Phase 2 + 4 are proven
 
-### Research Flags for Phases
-- **Phase 1:** Needs taxonomy validation spike -- classify 50 sample ads, measure accuracy across proposed categories. This is the riskiest design decision.
-- **Phase 2:** Verify Anthropic Batch API behavior with Vision requests (batch + vision + caching interaction).
-- **Phase 5:** Strategy quality needs testing -- generate strategies for 5 brands, evaluate specificity vs. generic-ness.
-- **Phase 6:** Evaluate data coverage first -- how many brands per category have enough ads for meaningful benchmarks?
+---
+
+## New Dependencies Summary
+
+| Package | Version | Purpose | Phase |
+|---------|---------|---------|-------|
+| `inngest` | ^3.x | Background job orchestration (Manus + enrichment) | Phase 4 |
+
+**Bump:** `@anthropic-ai/sdk` from ^0.78.0 to ^0.82.0 (Phase 2)
+
+---
 
 ## Open Questions
 
-1. **Vercel plan tier?** Hobby (300s max) vs Pro (800s max) significantly affects architecture. Pro is recommended ($20/mo).
-2. **Exact taxonomy values?** Motion's 8 categories are confirmed but exact tag lists per category are product IP. Need to define our own.
-3. **Inngest vs cron-only?** Stack research recommends Inngest; Architecture research shows cron+Batch API may suffice. Decision can be deferred to Phase 2.
-4. **AdAnalysis deprecation?** Existing per-ad Vision analysis (`AdAnalysis` model) overlaps with `AdClassification`. Decide whether to deprecate or keep for different purpose.
+1. **BrandGuidelines migration path** — extend or replace? Research recommends replace with migration script
+2. **Context token budget** — needs prototyping to determine how much of a full profile fits in 2K tokens usefully
+3. **Manus API v2 exact schemas** — response payloads, webhook format, error codes need live verification
+4. **Manus credit economics** — 150-500 credits per task ($1.50-$5.00); need to validate against expected usage patterns
+5. **Multi-brand UX for agencies** — how many brand profiles per user? Monetization decision, not technical
+6. **Inngest free tier capacity** — 50K runs/month vs expected volume for 514+ brands
+
+---
 
 ## Confidence Assessment
 
-| Dimension | Confidence | Key Uncertainty |
-|-----------|------------|-----------------|
-| Stack | HIGH | Inngest vs cron decision |
-| Features | MEDIUM-HIGH | Motion taxonomy exact values |
-| Architecture | HIGH | Batch API + Vision + caching interaction |
-| Pitfalls | HIGH | Actual classification accuracy at scale |
+| Area | Level | Notes |
+|------|-------|-------|
+| Schema design | HIGH | Follows existing Prisma patterns |
+| Context injection | HIGH | Standard prompt engineering, well-documented |
+| Onboarding patterns | HIGH | Well-documented SaaS patterns |
+| Feature prioritization | HIGH | Verified against HubSpot, Jasper, Microsoft Copilot |
+| Manus API specifics | MEDIUM | API v2 is new, docs confirm patterns but exact formats need verification |
+| Cost projections | MEDIUM | Based on published pricing, actual usage patterns unknown |
+| Build order | HIGH | Based on concrete dependency analysis |
+
+---
+
+## Sources
+
+See individual research files for detailed source lists:
+- `STACK.md` — technology recommendations with versions and rationale
+- `FEATURES.md` — feature landscape with table stakes, differentiators, anti-features
+- `ARCHITECTURE.md` — component boundaries, data flows, build order
+- `PITFALLS.md` — 13 pitfalls across critical/moderate/minor severity

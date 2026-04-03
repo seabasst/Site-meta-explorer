@@ -1,387 +1,314 @@
-# Stack Research -- AI Ad Classification & Strategy Engine
+# Technology Stack: v9.0 Brand Profile & AI Context System
 
-**Project:** Facebook Ad Explorer v8.0 -- Creative Strategy Engine
-**Researched:** 2026-03-27
-**Mode:** Ecosystem (Stack dimension)
+**Project:** Facebook Ad Explorer - v9.0 milestone
+**Researched:** 2026-04-03
+**Scope:** NEW stack elements only. Existing stack (Next.js 16, React 19, Prisma 7, Neon PostgreSQL, R2, Auth.js, Stripe) is not re-evaluated.
 
-## Executive Summary
+---
 
-The existing platform already uses Claude (Anthropic SDK `^0.78.0`) for vision-based ad analysis via Haiku 4.5 and strategy generation via Sonnet 4. The v8.0 milestone scales this from on-demand single-ad analysis to batch classification of entire ad libraries (500+ brands, ~25,000 ads). The critical cost lever is the **Batch API** (50% discount) combined with **prompt caching** (90% discount on cache hits). For batch job orchestration on Vercel's serverless platform, **Inngest** is the recommended approach -- it integrates natively with Vercel and supports long-running step functions without Redis infrastructure. No new AI providers are needed; Claude remains the right choice for both vision classification and strategy generation.
+## Recommended New Stack
 
-## Vision API Selection
+### AI Layer: Keep Raw Anthropic SDK, Do NOT Migrate to Vercel AI SDK
 
-### Recommended: Claude Haiku 4.5 (classification) + Sonnet 4.6 (strategy generation)
+| Technology | Version | Purpose | Confidence |
+|---|---|---|---|
+| `@anthropic-ai/sdk` | ^0.82.0 (current: ^0.78.0) | Claude streaming + tool use for Hikaru chat | HIGH |
 
-**Confidence: HIGH** -- Based on official Anthropic pricing docs and the project's existing successful use of these models.
+**Rationale:** The codebase already has a working agentic tool loop with manual SSE streaming in `src/app/api/chat/hikaru/route.ts`. This custom implementation gives you full control over the tool execution loop, thinking events, and the `:::chart` fenced block protocol. Migrating to Vercel AI SDK (`ai@6.x` + `@ai-sdk/anthropic@3.x`) would require rewriting all of this for marginal benefit (the `useChat` hook saves boilerplate, but you already have the SSE plumbing working).
 
-**Why Claude over alternatives:**
+**What to change:** Bump `@anthropic-ai/sdk` from `^0.78.0` to `^0.82.0` for latest streaming improvements and 1M token context window support on newer models. The SDK API is stable -- this is a patch bump, no breaking changes.
 
-1. **Already integrated.** The codebase uses `@anthropic-ai/sdk` with working vision analysis (`src/app/api/analyze/route.ts`) and strategy generation (`src/app/api/creative-lab/generate-strategy/route.ts`). Switching providers adds integration risk for zero benefit.
+**What NOT to use:**
+- `ai` (Vercel AI SDK) -- unnecessary abstraction layer over what you already have. Would force rewrite of tool loop and chart protocol for no gain.
+- `@anthropic-ai/claude-agent-sdk` -- this is for building Claude Code-style autonomous agents, not chat interfaces. Overkill for your use case.
 
-2. **Batch API with 50% discount.** Anthropic's Message Batches API processes up to 10,000 requests per batch asynchronously, completing within 24 hours at half price. This is purpose-built for bulk classification.
+### Manus API Integration: Direct HTTP Client (No SDK)
 
-3. **Prompt caching stacks with batch.** The classification system prompt (taxonomy of 46 formats, 8 mechanics, 35 hooks, etc.) is large and identical across all ads. Cache it once, pay 0.1x on every subsequent hit. Combined with batch: ~75% total cost reduction.
+| Technology | Version | Purpose | Confidence |
+|---|---|---|---|
+| Native `fetch` | Built-in | HTTP calls to Manus API v2 | HIGH |
 
-4. **URL-based image input.** Claude accepts image URLs directly -- the platform already stores assets on Cloudflare R2 with public URLs. No base64 encoding overhead, no downloading images to the server.
+**Rationale:** Manus has no official TypeScript SDK. The API is a simple REST interface (create task, poll status, receive webhook). Building a thin wrapper around `fetch` is the right approach -- no need for a third-party SDK.
 
-**Model assignment:**
+**Manus API key facts (verified from official docs at open.manus.im):**
+- **Base URL:** `https://api.manus.im/v2` (v1 is deprecated)
+- **Auth:** Bearer JWT token
+- **Task creation:** `POST /v2/tasks` with `taskMode` (chat|adaptive|agent) and `agentProfile` (speed|quality)
+- **Task polling:** `GET /v2/tasks/:id` for status
+- **Webhooks:** RSA-SHA256 signed callbacks for async completion
+- **File upload:** Presigned URLs via `/v2/files`, attach by `file_id`
+- **Cost:** ~150 credits per typical task (~$1.50 on consumer tiers)
 
-| Task | Model | Rationale |
-|------|-------|-----------|
-| Ad visual classification | Claude Haiku 4.5 | Fast, cheap, sufficient for structured classification |
-| Strategy matrix generation | Claude Sonnet 4.6 | Complex reasoning, persona development |
-| Hook/concept generation | Claude Sonnet 4.6 | Creative output quality matters |
-| Gap analysis | Claude Haiku 4.5 | Primarily data comparison, structured output |
+**Architecture recommendation:** Create a `src/lib/manus/client.ts` wrapper:
+```typescript
+// Thin wrapper -- NOT a full SDK, just typed fetch calls
+export async function createManusTask(prompt: string, opts?: ManusTaskOptions): Promise<ManusTask>
+export async function getManusTask(taskId: string): Promise<ManusTask>
+export async function cancelManusTask(taskId: string): Promise<void>
+```
 
-### Alternatives Considered
+**What NOT to use:**
+- `@aimlapi/manus` or community SDKs -- unofficial, may lag behind API v2
+- OpenManus / self-hosted Manus alternatives -- defeats the purpose of using Manus's deep research capabilities
 
-| Provider | Input/MTok | Output/MTok | Vision? | Batch? | Why Not |
-|----------|-----------|-------------|---------|--------|---------|
-| **Claude Haiku 4.5** | $1.00 | $5.00 | Yes | Yes (50% off) | **RECOMMENDED for classification** |
-| **Claude Sonnet 4.6** | $3.00 | $15.00 | Yes | Yes (50% off) | **RECOMMENDED for strategy** |
-| GPT-4o (OpenAI) | $2.50 | $10.00 | Yes | Yes | Comparable price, but requires new SDK integration, new API key management, different error handling. No benefit over Claude given existing integration. |
-| GPT-4o-mini (OpenAI) | $0.15 | $0.60 | Yes | Yes | Cheapest option but requires new provider integration. Classification accuracy unverified for advertising taxonomy. |
-| Gemini 2.0 Flash | ~$0.10 | ~$0.40 | Yes | Yes | Extremely cheap but Google Cloud integration complexity. Would need to evaluate classification accuracy for ad-specific taxonomy. |
-| Open-source (LLaVA, etc.) | Free (compute) | Free (compute) | Limited | N/A | Requires GPU infrastructure. Quality insufficient for 46-format taxonomy. Not viable on Vercel. |
+**Confidence:** MEDIUM -- Manus API v2 is new (v1 recently deprecated). The exact endpoint shapes may evolve. Build the wrapper to be easy to update.
 
-**Decision:** Stay with Claude. The 50% batch discount on Haiku 4.5 makes it $0.50/$2.50 per MTok -- competitive with GPT-4o-mini -- without any migration cost. The existing codebase already handles Claude API errors, retries, and JSON parsing.
+### Background Job Processing: Inngest
 
-### Cost Analysis
+| Technology | Version | Purpose | Confidence |
+|---|---|---|---|
+| `inngest` | latest (^3.x) | Async job orchestration for Manus tasks + auto-enrichment | HIGH |
 
-**Image token formula (from Anthropic docs):** `tokens = (width * height) / 750`
+**Rationale:** v9.0 needs background processing for:
+1. **Manus deep research tasks** (minutes to complete, need polling/webhooks)
+2. **Brand auto-enrichment** (scrape website, extract colors/voice/audience on profile creation)
+3. **Context pre-computation** (rebuild brand context when new ads are ingested)
 
-**Typical ad image (1080x1080):** ~1,555 tokens input per image
+**Why Inngest over alternatives:**
 
-**Classification prompt:** ~2,000 tokens (taxonomy definitions + instructions)
+| Criteria | Inngest | Trigger.dev | QStash | Vercel Cron |
+|---|---|---|---|---|
+| Vercel integration | Native, first-class | Good but separate infra | Good, lightweight | Built-in |
+| Multi-step workflows | Yes (step functions) | Yes | No (single delivery) | No |
+| Retries with backoff | Yes, automatic | Yes | Yes, basic | No |
+| Sleep/wait between steps | Yes (`step.sleep()`) | Yes | No | No |
+| Free tier | 50K runs/mo | 5K runs/mo | 500 msgs/day | Varies by plan |
+| Setup complexity | Low (SDK + API route) | Medium (separate deploy) | Low | Lowest |
+| Long-running support | Yes (via step chaining) | Yes (dedicated compute) | No | No (300s max) |
 
-**Classification output:** ~500 tokens (structured JSON)
+**Why Inngest wins:** Manus integration is a multi-step workflow: create task -> poll/wait for completion -> process results -> store in DB. Inngest's `step.waitForEvent()` and `step.sleep()` are purpose-built for this. QStash is too primitive (just HTTP delivery). Trigger.dev is good but requires separate infrastructure and has a smaller free tier.
 
-**Per-ad cost with Haiku 4.5:**
+**What NOT to use:**
+- Vercel Cron alone -- 300s max execution, no workflow orchestration, no retries
+- QStash -- too primitive for multi-step Manus integration; fine for fire-and-forget but not for "wait for result, then process"
+- Trigger.dev -- excellent but overkill; separate compute layer is unnecessary when Inngest runs within your Vercel functions
+- Bull/BullMQ -- requires Redis infrastructure you don't have and don't need
 
-| Scenario | Input Cost | Output Cost | Total/Ad | 25K Ads Total |
-|----------|-----------|-------------|----------|---------------|
-| Standard API | $0.00356 | $0.00250 | $0.00606 | $151.40 |
-| Batch API (50% off) | $0.00178 | $0.00125 | $0.00303 | $75.70 |
-| Batch + Cache (prompt cached) | $0.00078* | $0.00125 | $0.00203 | $50.63 |
+### Context Injection: Prisma + Structured Prompt Assembly
 
-*Cache hit on 2,000-token system prompt: 0.1x = $0.0001/MTok for cached portion.
+| Technology | Version | Purpose | Confidence |
+|---|---|---|---|
+| Prisma (existing) | ^7.4.2 | BrandProfile data model + queries | HIGH |
+| Zod (existing) | ^4.3.6 | Brand profile validation | HIGH |
 
-**Strategy generation with Sonnet 4.6 (per brand, ~1 per brand):**
-
-| Component | Input Tokens | Output Tokens | Cost/Brand |
-|-----------|-------------|---------------|------------|
-| Brand profile | ~3,000 | ~500 | $0.0165 |
-| Messaging strategy | ~5,000 | ~2,000 | $0.0450 |
-| Hook generation | ~6,000 | ~3,000 | $0.0630 |
-| **Total per brand** | | | **$0.1245** |
-| **500 brands (batch)** | | | **$31.13** |
-
-**Total v8.0 budget estimate (batch + caching):**
-- Classification of 25,000 ads: ~$51
-- Strategy generation for 500 brands: ~$31
-- **Total: ~$82** (one-time backfill)
-- Incremental cost for new ads: ~$0.002/ad
-
-## Batch Processing
-
-### Recommended Approach: Claude Batch API + Inngest Orchestration
-
-**Confidence: HIGH**
+**Rationale:** Context injection means assembling brand-specific data into the Hikaru system prompt before each message. This is a data layer + prompt engineering problem, not a library problem.
 
 **Architecture:**
-
-```
-User triggers "Classify Brand" or "Classify All"
-        |
-        v
-  Inngest Event: "ad/classify.requested"
-        |
-        v
-  Inngest Step Function:
-    Step 1: Fetch unclassified ads for brand (DB query)
-    Step 2: Build batch request (up to 10,000 items)
-    Step 3: Submit to Claude Batch API
-    Step 4: Poll for completion (Inngest.sleep between polls)
-    Step 5: Parse results, write to DB
-    Step 6: Trigger strategy generation if all ads classified
-```
-
-**Why this pattern:**
-
-1. **Claude Batch API handles the AI processing.** Submit up to 10,000 messages per batch. Results within 24 hours. 50% cost reduction. No rate limit pressure.
-
-2. **Inngest handles orchestration.** Step functions survive Vercel's serverless timeouts. Each step is independently retryable. Sleep between poll checks costs nothing. No Redis, no BullMQ, no infrastructure.
-
-3. **Vercel Cron as fallback trigger.** The project already uses Vercel cron for asset downloads and ingestion. A cron job can trigger Inngest events for scheduled re-classification.
-
-### Why NOT BullMQ
-
-BullMQ requires Redis. The project runs on Vercel (serverless) with Neon PostgreSQL. Adding Redis (via Upstash or Redis Cloud) adds:
-- Another managed service to maintain
-- Another cost line item
-- Connection management complexity in serverless
-
-Inngest replaces BullMQ for this use case with zero infrastructure.
-
-### Why NOT Vercel Cron Alone
-
-Vercel cron jobs are limited to 60 seconds on Pro plan. Classifying 25,000 ads cannot complete in one cron invocation. The project already works around this by processing in batches per cron run (see `BRANDS_PER_RUN = 10` in the ingest cron). But the Claude Batch API is asynchronous (results in hours), which means the cron would need to:
-1. Submit batch
-2. On next invocation, check if batch is done
-3. Process results
-
-This is exactly what Inngest step functions solve elegantly with `inngest.sleep()` between steps.
-
-### Queue/Job System: Inngest
-
-**Version:** `inngest@3.x` (current stable)
-
-**Pricing:** Free tier = 50,000 executions/month. A full 25,000-ad classification run = ~5 Inngest executions (5 batches of 5,000). Monthly incremental = ~50 executions. Well within free tier.
-
-**Integration pattern:**
-
 ```typescript
-// src/inngest/client.ts
-import { Inngest } from 'inngest';
-export const inngest = new Inngest({ id: 'ad-explorer' });
-
-// src/inngest/functions/classify-brand.ts
-export const classifyBrand = inngest.createFunction(
-  { id: 'classify-brand', retries: 3 },
-  { event: 'ad/classify.brand' },
-  async ({ event, step }) => {
-    const ads = await step.run('fetch-ads', async () => {
-      // Fetch unclassified ads for this brand
-    });
-
-    const batchId = await step.run('submit-batch', async () => {
-      // Submit to Claude Batch API
-    });
-
-    // Poll every 5 minutes until done
-    let result = null;
-    while (!result) {
-      await step.sleep('wait-for-batch', '5m');
-      result = await step.run('check-batch', async () => {
-        // Check batch status
-      });
-    }
-
-    await step.run('save-results', async () => {
-      // Parse and save classification results
-    });
-  }
-);
+// src/lib/brand-context.ts
+export async function buildBrandContext(brandId: string): Promise<string> {
+  // 1. Fetch BrandProfile from Prisma
+  // 2. Fetch recent ad stats
+  // 3. Fetch classification distribution
+  // 4. Assemble into structured prompt section
+  // Returns: markdown string injected into HIKARU_SYSTEM_PROMPT
+}
 ```
 
-## Caching Strategy
+**No new libraries needed.** The existing Prisma + Zod stack handles this. The BrandProfile model extends the existing `BrandGuidelines` model or replaces it.
 
-### Classification Result Storage: PostgreSQL (Prisma)
+**What NOT to use:**
+- LangChain / LlamaIndex -- massive abstraction layers for RAG pipelines you don't need. You have structured data in PostgreSQL, not unstructured documents.
+- Vector databases (Pinecone, Weaviate) -- your brand context is structured relational data, not embeddings. Prisma queries are faster and more predictable than vector similarity search for this use case.
+- Prompt template libraries -- your prompt is a single system message with concatenated sections. Template literals are sufficient.
 
-**Confidence: HIGH**
+### Data Model Changes: Prisma Schema Extensions
 
-**Do NOT add a separate cache layer.** The project already has the `AdAnalysis` model in Prisma that stores per-ad analysis results. Extend this model for the new Motion classification taxonomy.
+**New model: `BrandProfile`**
 
-**Recommended schema extension:**
+This extends the existing `BrandGuidelines` model with richer context for AI injection. The current `BrandGuidelines` is user-scoped (tied to `User`). The new `BrandProfile` should be brand-scoped (tied to `AdLibraryBrand`) so context works for any brand the user selects in chat.
 
 ```prisma
-model AdClassification {
-  id    String @id @default(cuid())
-  adId  String @unique
-  ad    AdLibraryAd @relation(fields: [adId], references: [id], onDelete: Cascade)
+model BrandProfile {
+  id        String   @id @default(cuid())
+  brandId   String   @unique
+  brand     AdLibraryBrand @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
-  // Motion taxonomy
-  visualFormat      String    // e.g. "talking-head", "product-demo" (1 of 46)
-  creativeMechanic  String    // e.g. "before-after", "unboxing" (1 of 8)
-  hookTactic        String    // e.g. "pattern-interrupt", "identity-callout" (1 of 35)
-  awarenessStage    String    // e.g. "problem-aware" (1 of 5)
-  psychTriggers     String[]  // e.g. ["curiosity-gap", "social-proof"] (from 8)
+  // Identity (from onboarding wizard or auto-enrichment)
+  brandVoice       String?   // Tone description
+  missionStatement String?
+  tagline          String?
+  website          String?
+  logoUrl          String?
 
-  // Confidence & metadata
-  confidence        Float     // 0-1, model's self-assessed confidence
-  modelUsed         String    // "claude-haiku-4-5"
-  classifiedAt      DateTime  @default(now())
+  // Target audience
+  targetDemographics Json?    // { ageRanges, genders, interests, locations }
 
-  // Full structured output for flexibility
-  fullClassification Json
+  // Visual identity
+  primaryColor     String?
+  secondaryColor   String?
+  accentColor      String?
 
-  @@index([adId])
-  @@index([visualFormat])
-  @@index([creativeMechanic])
-  @@index([awarenessStage])
+  // AI-enriched context (populated by auto-enrichment jobs)
+  enrichedContext  Json?     // Structured AI analysis of brand's ad strategy
+  competitorIds    String[]  // Brand IDs of key competitors
+
+  // Manus deep research results
+  manusResearchId  String?   // Last Manus task ID
+  manusResearch    Json?     // Stored Manus research output
+  manusResearchAt  DateTime?
+
+  // Status
+  isComplete       Boolean  @default(false) // Has minimum required fields
+  source           String   @default("manual") // manual, auto-enriched, manus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([brandId])
 }
 ```
 
-**Why PostgreSQL over Redis/embeddings:**
-- Classifications are structured categorical data, not vectors
-- Need SQL queries: "Show me all pattern-interrupt hooks for fashion brands"
-- Already have Prisma + Neon PostgreSQL
-- Indexed columns give fast filtering
+**New model: `ManusTask`** (for tracking async Manus jobs)
 
-### Embedding Approach: NOT Recommended for v8.0
+```prisma
+model ManusTask {
+  id             String   @id @default(cuid())
+  externalTaskId String   @unique  // Manus API task ID
+  brandId        String?  // Optional: which brand this research is for
 
-**Confidence: MEDIUM**
+  // Task config
+  prompt         String
+  taskMode       String   @default("agent")  // chat|adaptive|agent
+  agentProfile   String   @default("quality") // speed|quality
 
-pgvector with Prisma is maturing (Prisma 7 adds extension support), but embeddings solve the wrong problem here. The classification system assigns discrete categories (1 of 46 formats, 1 of 8 mechanics, etc.) -- this is structured data, not similarity search. Embeddings would be useful for:
-- "Find ads similar to this one" (future feature)
-- Clustering ads by visual similarity
-- Semantic search across ad copy
+  // Status
+  status         String   @default("pending") // pending|running|completed|failed
+  result         Json?    // Stored Manus output
+  error          String?
 
-**Recommendation:** Defer embeddings to a future milestone. Use indexed PostgreSQL columns for v8.0 classification queries.
+  // Cost tracking
+  creditsUsed    Int?
 
-### Prompt Caching for Classification
+  // Timing
+  submittedAt    DateTime @default(now())
+  completedAt    DateTime?
 
-The classification system prompt (taxonomy definitions) is ~2,000 tokens and identical for every ad. Use Anthropic's prompt caching:
-
-```typescript
-const response = await client.messages.create({
-  model: 'claude-haiku-4-5-20251001',
-  max_tokens: 500,
-  system: [
-    {
-      type: 'text',
-      text: CLASSIFICATION_TAXONOMY_PROMPT, // ~2,000 tokens
-      cache_control: { type: 'ephemeral' } // Cache for 5 minutes
-    }
-  ],
-  messages: [{ role: 'user', content: [...] }]
-});
+  @@index([status])
+  @@index([brandId])
+}
 ```
 
-For batch API, caching is handled differently -- the system prompt is included in each batch request. The batch API itself provides the 50% discount, and within a batch, Anthropic may internally optimize repeated system prompts. The combined discount (batch + any internal caching) makes the per-ad cost minimal.
+**Confidence:** HIGH -- these are straightforward Prisma model additions that follow the existing codebase patterns.
 
-## Strategy Generation Stack
+### Chat History Storage
 
-### LLM for Strategy/Hook Generation: Claude Sonnet 4.6
+| Technology | Version | Purpose | Confidence |
+|---|---|---|---|
+| Prisma (existing) | ^7.4.2 | Chat message persistence for brand-scoped conversations | HIGH |
 
-**Confidence: HIGH**
+**Rationale:** Currently Hikaru chat is stateless (messages sent from client each request). For brand context injection to work well, conversations need persistence so the user can switch brands and resume context.
 
-The existing strategy generation pipeline (`generate-strategy/route.ts`) already uses `claude-sonnet-4-20250514`. Upgrade to `claude-sonnet-4-6` (the latest) for improved reasoning.
+```prisma
+model ChatConversation {
+  id       String   @id @default(cuid())
+  userId   String?
+  brandId  String?  // Which brand context was active
+  title    String?  // Auto-generated from first message
 
-**Current 3-step pipeline (keep and extend):**
-1. Step 1: Brand Profile (data assembly, no LLM needed)
-2. Step 2: Messaging Strategy (Sonnet -- personas, angles, awareness stages)
-3. Step 3: Hook Generation (Sonnet -- 15-20 hooks with scoring)
+  messages ChatMessage[]
 
-**New steps for v8.0:**
-4. Step 4: Gap Analysis (Haiku -- compare brand's classified ads against taxonomy, identify missing formats/mechanics/stages)
-5. Step 5: Creative Concepts (Sonnet -- generate concepts that fill identified gaps)
-6. Step 6: Category Benchmarking (Haiku -- aggregate classification data across brands in same category)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-### Prompt Architecture
+  @@index([userId, updatedAt])
+  @@index([brandId])
+}
 
-**Classification prompt structure (Haiku 4.5):**
+model ChatMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
-```
-SYSTEM (cached, ~2,000 tokens):
-  - Complete taxonomy definitions
-  - 46 visual formats with descriptions
-  - 8 creative mechanics with examples
-  - 35 hook tactics with examples
-  - 5 awareness stages
-  - 8 psychological triggers
-  - Output JSON schema
+  role           String   // user|assistant|system
+  content        String
+  toolCalls      Json?    // Tool calls made during this message
 
-USER (per-ad, ~1,555 tokens image + ~200 tokens context):
-  - Ad image (URL from R2)
-  - Ad copy (body, title, caption)
-  - Brand name and category
-  - Display format (image/video/carousel)
-```
+  createdAt DateTime @default(now())
 
-**Strategy prompt structure (Sonnet 4.6):**
-
-```
-SYSTEM (cached, ~3,000 tokens):
-  - Strategy framework (Eugene Schwartz awareness stages)
-  - Five Pillars of Creative Diversity
-  - 8 psychological triggers with examples
-  - Output schemas per step
-
-USER (per-brand, ~4,000-6,000 tokens):
-  - Brand classification summary (aggregated from per-ad classifications)
-  - Distribution across taxonomy dimensions
-  - Gap identification
-  - Top-performing ad patterns
-  - Category benchmark comparison
+  @@index([conversationId, createdAt])
+}
 ```
 
-## Libraries & Tools
+### Onboarding Wizard: No New Libraries
 
-### Recommended
+The brand onboarding wizard (multi-step form for creating BrandProfile) uses existing stack:
+- React Hook Form (`react-hook-form@^7.71.1`) -- already installed
+- Zod (`zod@^4.3.6`) -- already installed for validation
+- Radix UI primitives -- already installed
 
-| Library | Version | Purpose | Confidence |
-|---------|---------|---------|------------|
-| `@anthropic-ai/sdk` | `^0.78.0` (existing) | Claude API -- vision, batch, caching | HIGH |
-| `inngest` | `^3.x` | Serverless background job orchestration | HIGH |
-| `zod` | `^4.3.6` (existing) | Schema validation for classification outputs | HIGH |
-| `prisma` | `^7.4.2` (existing) | ORM for classification storage | HIGH |
+**What NOT to use:**
+- Multi-step form libraries (react-step-wizard, etc.) -- unnecessary abstraction. A simple state machine with `useState` for current step is cleaner.
 
-**No new major dependencies needed.** The only new package is `inngest`.
+---
 
-### Avoid
-
-| Library/Approach | Why Avoid |
-|------------------|-----------|
-| `bullmq` | Requires Redis; unnecessary infrastructure for Vercel serverless |
-| `openai` SDK | Adds second AI provider with no benefit; Claude already integrated |
-| `langchain` | Over-abstraction for direct API calls; adds complexity without value when using single provider |
-| `pgvector` / embeddings | Wrong tool for categorical classification; defer to future milestone |
-| `sharp` for image preprocessing | Claude handles images natively; resizing adds latency without quality benefit for ad images already at standard sizes |
-| Custom queue in PostgreSQL | Inngest solves this without polling-based approaches |
-| Upstash Redis | Additional managed service for queue that Inngest replaces |
-
-### Existing Dependencies to Leverage
-
-| Existing | How v8.0 Uses It |
-|----------|-----------------|
-| `@anthropic-ai/sdk` | Batch API, vision, prompt caching |
-| `zod` | Validate all classification and strategy JSON outputs |
-| Prisma + Neon PostgreSQL | Store classifications, aggregate for benchmarking |
-| Cloudflare R2 | Image URLs passed directly to Claude vision (no download needed) |
-| Vercel Cron | Trigger periodic re-classification of new ads |
-| `sonner` | Toast notifications for classification progress |
-
-## Installation
+## Summary: What to Install
 
 ```bash
-# Only new dependency
+# New dependency
 npm install inngest
 
-# No other new packages needed
+# Bump existing
+npm install @anthropic-ai/sdk@latest
 ```
 
-## Vercel Configuration
+That is it. One new dependency. Everything else is built with existing stack or thin wrappers over `fetch`.
 
-```json
-// vercel.json (add Inngest route)
-{
-  "crons": [
-    { "path": "/api/ad-library/cron/ingest", "schedule": "0 */6 * * *" },
-    { "path": "/api/ad-library/cron/assets", "schedule": "30 */2 * * *" },
-    { "path": "/api/ad-library/cron/classify", "schedule": "0 3 * * *" }
-  ]
-}
-```
+---
+
+## Alternatives Considered
+
+| Category | Recommended | Alternative | Why Not |
+|---|---|---|---|
+| AI SDK | Raw `@anthropic-ai/sdk` | Vercel AI SDK (`ai@6.x`) | Already have working tool loop + SSE; migration cost > benefit |
+| Manus client | Native `fetch` wrapper | Community SDKs | No official TS SDK; community ones lag behind API v2 |
+| Background jobs | Inngest | Trigger.dev | Separate infra unnecessary; smaller free tier |
+| Background jobs | Inngest | QStash | Too primitive for multi-step Manus workflow |
+| Background jobs | Inngest | Vercel Cron | No workflow orchestration, no retries, 300s limit |
+| Context injection | Prisma queries + prompt assembly | LangChain | Massive abstraction for structured data; Prisma is faster |
+| Context injection | Prisma queries + prompt assembly | Vector DB (Pinecone) | Data is relational, not unstructured; SQL beats vector search here |
+| Chat persistence | Prisma PostgreSQL | Redis | Already have PostgreSQL; no need for another data store |
+| Form wizard | React Hook Form + Zod | Multi-step libraries | Already installed; simple state is sufficient |
+
+---
+
+## Version Matrix
+
+| Package | Current Version | Recommended Version | Action |
+|---|---|---|---|
+| `@anthropic-ai/sdk` | ^0.78.0 | ^0.82.0 | Bump |
+| `inngest` | not installed | ^3.x (latest) | Install |
+| `prisma` | ^7.4.2 | ^7.4.2 | No change |
+| `@prisma/client` | ^7.4.2 | ^7.4.2 | No change |
+| `react-hook-form` | ^7.71.1 | ^7.71.1 | No change |
+| `zod` | ^4.3.6 | ^4.3.6 | No change |
+| `next` | 16.1.2 | 16.1.2 | No change |
+
+---
 
 ## Confidence Assessment
 
-| Component | Confidence | Notes |
-|-----------|------------|-------|
-| Vision API (Haiku 4.5) | HIGH | Already used in codebase; pricing verified from official docs |
-| Batch API | HIGH | Official docs confirm 50% discount, 10K/batch, vision support |
-| Cost estimates | HIGH | Formula from official docs: `tokens = (w*h)/750`; pricing from official pricing page |
-| Inngest | MEDIUM | Well-documented Vercel integration, but not yet used in this codebase; need to verify Vercel Pro compatibility |
-| Prompt caching | HIGH | Official docs confirm 0.1x cache hit pricing; stacks with batch |
-| Schema design | HIGH | Extends existing Prisma patterns (AdAnalysis model) |
-| Strategy pipeline | HIGH | Extends existing 3-step pipeline that is already working |
-| Embeddings deferral | MEDIUM | pgvector+Prisma is maturing but genuinely not needed for categorical classification |
+| Area | Confidence | Notes |
+|---|---|---|
+| Anthropic SDK approach | HIGH | Verified from npm, existing codebase works, stable API |
+| Manus API integration | MEDIUM | API v2 is new, v1 recently deprecated; endpoint shapes may evolve |
+| Inngest for background jobs | HIGH | Well-documented Vercel integration, battle-tested, generous free tier |
+| Data model (BrandProfile) | HIGH | Follows existing Prisma patterns in codebase |
+| Context injection approach | HIGH | Standard prompt engineering, no exotic dependencies |
+| Chat persistence model | HIGH | Straightforward relational model |
+| No vector DB needed | HIGH | All brand data is structured relational data |
+
+---
 
 ## Sources
 
-- [Anthropic Pricing (official)](https://platform.claude.com/docs/en/about-claude/pricing) -- Model pricing, batch discounts, caching multipliers
-- [Claude Vision Docs (official)](https://platform.claude.com/docs/en/build-with-claude/vision) -- Image token calculation, size limits, URL-based input
-- [Claude Batch Processing Docs (official)](https://platform.claude.com/docs/en/build-with-claude/batch-processing) -- Batch API usage, 10K limit, 24hr SLA
-- [Inngest Pricing](https://www.inngest.com/pricing) -- Free tier: 50K executions/month
-- [Inngest + Vercel Integration](https://www.inngest.com/docs/deploy/vercel) -- Native Vercel deployment
-- [Prisma pgvector support](https://www.prisma.io/blog/orm-6-13-0-ci-cd-workflows-and-pgvector-for-prisma-postgres) -- Early access, Prisma 7 improvements
+- [@anthropic-ai/sdk on npm](https://www.npmjs.com/package/@anthropic-ai/sdk) -- version 0.82.0 confirmed
+- [Manus API Documentation](https://manus.im/docs/integrations/manus-api) -- official REST API docs
+- [Manus API Introduction](https://open.manus.im/docs) -- API v2 reference, task modes, agent profiles
+- [Manus Webhooks](https://open.manus.im/docs/webhooks) -- webhook verification with RSA-SHA256
+- [Manus Pricing](https://www.getaiperks.com/en/articles/manus-ai-pricing) -- credit-based pricing, ~150 credits per task
+- [Inngest + Vercel Integration](https://www.inngest.com/blog/vercel-integration) -- first-class Vercel support
+- [Next.js Background Jobs Comparison](https://www.hashbuilds.com/articles/next-js-background-jobs-inngest-vs-trigger-dev-vs-vercel-cron) -- Inngest vs Trigger.dev vs Vercel Cron
+- [Vercel AI SDK](https://ai-sdk.dev/docs/introduction) -- evaluated and rejected for this use case
+- [Prisma 7 Release](https://www.prisma.io/blog/announcing-prisma-orm-7-0-0) -- current version confirmed
+- [Anthropic Platform Release Notes](https://platform.claude.com/docs/en/release-notes/overview) -- streaming improvements, 1M context
