@@ -89,11 +89,11 @@ Phases 62-67 — Motion classification, strategy matrix, gap analysis, concepts,
   3. User can link competitor brands from existing DB to their profile
   4. User can delete a brand profile
   5. User can switch active brand via dropdown in chat header (URL param `?brand=` persisted)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 68-01: Prisma schema + migration (BrandProfile + related tables + BrandGuidelines migration)
-- [ ] 68-02: CRUD API routes + brand management UI + brand selector component
+- [ ] 68-01-PLAN.md — Prisma schema (BrandProfile + BrandCompetitor models) + CRUD API routes
+- [ ] 68-02-PLAN.md — Brand management UI (tab-based settings page) + brand selector in chat header
 
 ### Phase 69: Context Injection & Onboarding
 **Goal**: Brand context flows into all AI responses; users can create profiles via guided wizard or AI interview
@@ -164,11 +164,11 @@ Phases execute in numeric order: 68 → 69 → 70 → 71 → 72
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 68. Brand Profile Schema & CRUD | 0/2 | Not started | — |
+| 68. Brand Profile Schema & CRUD | 0/2 | Planned | — |
 | 69. Context Injection & Onboarding | 0/3 | Not started | — |
 | 70. Auto-Enrichment from Ad Data | 0/1 | Not started | — |
 | 71. Manus Integration & Deep Research | 0/2 | Not started | — |
 | 72. Brand Intelligence & Polish | 0/2 | Not started | — |
 
 ---
-*Last updated: 2026-04-03 — v9.0 roadmap created (5 phases, 22 requirements)*
+*Last updated: 2026-04-03 — Phase 68 planned (2 plans, 2 waves)*
