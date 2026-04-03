@@ -9,17 +9,17 @@ Requirements for v9.0 milestone. Each maps to roadmap phases.
 
 ### Brand Profile
 
-- [ ] **PROF-01**: User can create a brand profile with voice, audience, positioning, competitors, and pain points
-- [ ] **PROF-02**: Brand profile stored as multi-table structure (BrandProfile + related tables) with BrandGuidelines migration
-- [ ] **PROF-03**: User can view and edit brand profile via tab-based settings page
-- [ ] **PROF-04**: User can link competitor brands (from existing DB) to their brand profile
-- [ ] **PROF-05**: User can delete a brand profile
+- [x] **PROF-01**: User can create a brand profile with voice, audience, positioning, competitors, and pain points
+- [x] **PROF-02**: Brand profile stored as multi-table structure (BrandProfile + related tables) with BrandGuidelines migration
+- [x] **PROF-03**: User can view and edit brand profile via tab-based settings page
+- [x] **PROF-04**: User can link competitor brands (from existing DB) to their brand profile
+- [x] **PROF-05**: User can delete a brand profile
 
 ### Context Injection
 
 - [ ] **CTXI-01**: Brand context injected into Hikaru chat system prompt (under 2K tokens, XML-tagged sections)
 - [ ] **CTXI-02**: Brand context injected into Creative Lab generation and analysis flows
-- [ ] **CTXI-03**: User can select active brand via dropdown in chat header (URL param `?brand=` for shareability)
+- [x] **CTXI-03**: User can select active brand via dropdown in chat header (URL param `?brand=` for shareability)
 - [ ] **CTXI-04**: Context compiler selects relevant profile fields per query to stay within token budget
 
 ### Onboarding
@@ -86,14 +86,14 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROF-01 | Phase 68 | Pending |
-| PROF-02 | Phase 68 | Pending |
-| PROF-03 | Phase 68 | Pending |
-| PROF-04 | Phase 68 | Pending |
-| PROF-05 | Phase 68 | Pending |
+| PROF-01 | Phase 68 | Complete |
+| PROF-02 | Phase 68 | Complete |
+| PROF-03 | Phase 68 | Complete |
+| PROF-04 | Phase 68 | Complete |
+| PROF-05 | Phase 68 | Complete |
 | CTXI-01 | Phase 69 | Pending |
 | CTXI-02 | Phase 69 | Pending |
-| CTXI-03 | Phase 68 | Pending |
+| CTXI-03 | Phase 68 | Complete |
 | CTXI-04 | Phase 69 | Pending |
 | ONBD-01 | Phase 69 | Pending |
 | ONBD-02 | Phase 69 | Pending |

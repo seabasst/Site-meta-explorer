@@ -70,7 +70,7 @@ Phases 62-67 — Motion classification, strategy matrix, gap analysis, concepts,
 
 ## Phases
 
-- [ ] **Phase 68: Brand Profile Schema & CRUD** - Data model, management UI, brand selector
+- [x] **Phase 68: Brand Profile Schema & CRUD** - Data model, management UI, brand selector
 - [ ] **Phase 69: Context Injection & Onboarding** - Brand-aware AI responses + guided wizard
 - [ ] **Phase 70: Auto-Enrichment from Ad Data** - Auto-populate profiles from existing intelligence
 - [ ] **Phase 71: Manus Integration & Deep Research** - Async research backend + website enrichment
@@ -92,8 +92,8 @@ Phases 62-67 — Motion classification, strategy matrix, gap analysis, concepts,
 **Plans**: 2 plans
 
 Plans:
-- [ ] 68-01-PLAN.md — Prisma schema (BrandProfile + BrandCompetitor models) + CRUD API routes
-- [ ] 68-02-PLAN.md — Brand management UI (tab-based settings page) + brand selector in chat header
+- [x] 68-01-PLAN.md — Prisma schema (BrandProfile + BrandCompetitor models) + CRUD API routes
+- [x] 68-02-PLAN.md — Brand management UI (tab-based settings page) + brand selector in chat header
 
 ### Phase 69: Context Injection & Onboarding
 **Goal**: Brand context flows into all AI responses; users can create profiles via guided wizard or AI interview
@@ -164,11 +164,11 @@ Phases execute in numeric order: 68 → 69 → 70 → 71 → 72
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 68. Brand Profile Schema & CRUD | 0/2 | Planned | — |
+| 68. Brand Profile Schema & CRUD | 2/2 | ✓ Complete | 2026-04-03 |
 | 69. Context Injection & Onboarding | 0/3 | Not started | — |
 | 70. Auto-Enrichment from Ad Data | 0/1 | Not started | — |
 | 71. Manus Integration & Deep Research | 0/2 | Not started | — |
 | 72. Brand Intelligence & Polish | 0/2 | Not started | — |
 
 ---
-*Last updated: 2026-04-03 — Phase 68 planned (2 plans, 2 waves)*
+*Last updated: 2026-04-03 — Phase 68 complete (2/2 plans, verified ✓)*
