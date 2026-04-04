@@ -122,10 +122,11 @@ Plans:
   1. User can trigger auto-populate from existing ad library data (classifications, analyses, metadata)
   2. Enrichment uses change detection to skip redundant runs
   3. Cost budgets cap API usage per enrichment run
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 70-01: Enrichment pipeline (ad data → profile fields) + change detection + cost budgets
+- [ ] 70-01-PLAN.md — Schema migration + enrichment pipeline (ad data gathering, Haiku synthesis, change detection, cost budgets) + API endpoint
+- [ ] 70-02-PLAN.md — Auto-Enrich UI on brand profile settings page (source brand selector, loading states, result feedback)
 
 ### Phase 71: Manus Integration & Deep Research
 **Goal**: Async deep research via Manus API for complex brand analysis and website enrichment
@@ -166,9 +167,9 @@ Phases execute in numeric order: 68 → 69 → 70 → 71 → 72
 |-------|---------------|--------|-----------|
 | 68. Brand Profile Schema & CRUD | 2/2 | ✓ Complete | 2026-04-03 |
 | 69. Context Injection & Onboarding | 3/3 | ✓ Complete | 2026-04-04 |
-| 70. Auto-Enrichment from Ad Data | 0/1 | Not started | — |
+| 70. Auto-Enrichment from Ad Data | 0/2 | Not started | — |
 | 71. Manus Integration & Deep Research | 0/2 | Not started | — |
 | 72. Brand Intelligence & Polish | 0/2 | Not started | — |
 
 ---
-*Last updated: 2026-04-04 — Phase 69 complete (3 plans, 2 waves)*
+*Last updated: 2026-04-04 — Phase 70 planned (2 plans, 2 waves)*
