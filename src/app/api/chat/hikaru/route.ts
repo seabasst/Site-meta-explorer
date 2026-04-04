@@ -989,7 +989,7 @@ export async function POST(request: NextRequest) {
         try {
           // --- Agentic tool loop (non-streaming calls) ---
           let iterations = 0;
-          const maxIterations = 8;
+          const maxIterations = 15;
 
           while (iterations < maxIterations) {
             iterations++;
