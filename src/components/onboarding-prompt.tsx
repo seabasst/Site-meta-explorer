@@ -1,24 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { X, Sparkles } from 'lucide-react';
 
 const DISMISS_KEY = 'onboarding-prompt-dismissed';
 
 export function OnboardingPrompt({ darkMode }: { darkMode: boolean }) {
-  const { data: session } = useSession();
   const [visible, setVisible] = useState(false);
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    // No session = don't show
-    if (!session?.user) {
-      setChecked(true);
-      return;
-    }
-
     // Already dismissed via localStorage
     if (localStorage.getItem(DISMISS_KEY)) {
       setChecked(true);
@@ -35,7 +27,7 @@ export function OnboardingPrompt({ darkMode }: { darkMode: boolean }) {
       })
       .catch(() => {})
       .finally(() => setChecked(true));
-  }, [session]);
+  }, []);
 
   if (!checked || !visible) return null;
 

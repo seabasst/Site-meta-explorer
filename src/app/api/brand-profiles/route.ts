@@ -55,12 +55,14 @@ export async function GET() {
   try {
     const session = await auth();
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      // v2 dashboard is open access — return empty list for unauthenticated users
+      // so onboarding prompt can check profile existence without auth
+      return NextResponse.json({ profiles: [] });
     }
 
     const user = await prisma.user.findUnique({ where: { email: session.user.email } });
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ profiles: [] });
     }
 
     const profiles = await prisma.brandProfile.findMany({
