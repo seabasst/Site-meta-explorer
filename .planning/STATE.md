@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 69 complete — ready for Phase 70
+**Current focus:** Phase 70 in progress — Auto-Enrichment from Ad Data
 
 ## Current Position
 
-Phase: 69 of 72 (Context Injection & Onboarding) — COMPLETE ✓
-Plan: 3/3 complete
-Status: Verified, ready for Phase 70
-Last activity: 2026-04-04 — Phase 69 executed and verified (context compiler, onboarding wizard, AI interview)
+Phase: 70 of 72 (Auto-Enrichment from Ad Data)
+Plan: 1/1 complete (70-01)
+Status: Phase 70 complete
+Last activity: 2026-04-04 — Completed 70-01-PLAN.md (enrichment backend pipeline)
 
-Progress: ████░░░░░░ 40%
+Progress: █████░░░░░ 42%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 136
+- Total plans completed: 137
 - Average duration: —
 - Total execution time: —
 
@@ -49,6 +49,9 @@ Recent decisions affecting current work:
 - (69-01): BrandGuidelines model kept as dead code, all routes now read from BrandProfile
 - (69-02): Removed auth gates from OnboardingPrompt and brand-profiles GET — v2 is open-access
 - (69-01): Hikaru tool loop limit bumped to 15 (was 8, too low for brand-aware queries)
+- (70-01): Haiku 4.5 for enrichment synthesis (cheap, sufficient for structured extraction)
+- (70-01): Hash-based change detection for enrichment (SHA-256 of input data)
+- (70-01): Fill-empty + append-deduplicate merge strategy (user edits preserved)
 
 ### Blockers/Concerns
 
@@ -58,5 +61,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-04-04
-Stopped at: Phase 69 complete — ready to plan Phase 70
+Stopped at: Phase 70 complete — enrichment backend built
 Resume file: None
