@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Loader2, X, Plus, ChevronDown, ChevronRight } from 'lucide-react';
+import { Loader2, X, Plus, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
 import type { BrandProfileFull, BrandCompetitorWithBrand } from '@/lib/brand-profile-types';
 import { CompetitorSearch } from './competitor-search';
 
@@ -270,6 +270,219 @@ function ColorInput({
 }
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function relativeTime(date: Date | string): string {
+  const now = Date.now();
+  const then = new Date(date).getTime();
+  const diffMs = now - then;
+  const diffSec = Math.floor(diffMs / 1000);
+  if (diffSec < 60) return 'just now';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay === 1) return 'yesterday';
+  if (diffDay < 30) return `${diffDay}d ago`;
+  return new Date(date).toLocaleDateString();
+}
+
+// ---------------------------------------------------------------------------
+// Auto-Enrich Section
+// ---------------------------------------------------------------------------
+
+function AutoEnrichSection({
+  profile,
+  onUpdate,
+  darkMode,
+}: {
+  profile: BrandProfileFull;
+  onUpdate: (profile: BrandProfileFull) => void;
+  darkMode: boolean;
+}) {
+  const competitors = profile.competitors || [];
+  const [enriching, setEnriching] = useState(false);
+  const [selectedSourceId, setSelectedSourceId] = useState<string>(
+    competitors.length === 1 ? competitors[0].adLibraryBrand.id : ''
+  );
+  const [forceOverwrite, setForceOverwrite] = useState(false);
+
+  // Reset source selection when profile competitors change
+  useEffect(() => {
+    if (competitors.length === 1) {
+      setSelectedSourceId(competitors[0].adLibraryBrand.id);
+    } else if (competitors.length === 0) {
+      setSelectedSourceId('');
+    }
+  }, [competitors]);
+
+  if (competitors.length === 0) {
+    return (
+      <div className={`rounded-lg border px-4 py-3 mb-6 ${
+        darkMode ? 'border-slate-700/50 bg-slate-800/30' : 'border-slate-200 bg-slate-50'
+      }`}>
+        <p className={`text-sm ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+          Link competitor brands to enable auto-enrichment from their ad data.
+        </p>
+      </div>
+    );
+  }
+
+  const handleEnrich = async () => {
+    if (!selectedSourceId) {
+      toast.error('Select a source brand first');
+      return;
+    }
+    setEnriching(true);
+    try {
+      const res = await fetch(`/api/brand-profiles/${profile.id}/enrich`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourcePageId: selectedSourceId,
+          forceOverwrite,
+        }),
+      });
+
+      if (res.status === 429) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || 'Daily enrichment budget exceeded. Try again tomorrow.');
+        return;
+      }
+
+      if (res.status === 400) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || 'Not enough ad data for enrichment');
+        return;
+      }
+
+      if (!res.ok) {
+        toast.error('Enrichment failed');
+        return;
+      }
+
+      const data = await res.json();
+
+      if (data.skipped) {
+        toast.info('No new ad data since last enrichment');
+        return;
+      }
+
+      if (data.enriched && data.profile) {
+        onUpdate(data.profile);
+        const fieldLabels: Record<string, string> = {
+          brandVoice: 'brand voice',
+          positioning: 'positioning',
+          missionStatement: 'mission statement',
+          demographics: 'demographics',
+          interests: 'interests',
+          painPoints: 'pain points',
+        };
+        const updated = (data.fieldsUpdated || [])
+          .map((f: string) => fieldLabels[f] || f)
+          .join(', ');
+        toast.success(updated ? `Updated: ${updated}` : 'Enrichment complete');
+      }
+    } catch {
+      toast.error('Enrichment failed');
+    } finally {
+      setEnriching(false);
+    }
+  };
+
+  return (
+    <div className={`rounded-lg border px-4 py-4 mb-6 ${
+      darkMode
+        ? 'border-[#1235e2]/20 bg-[#1235e2]/5'
+        : 'border-[#1235e2]/15 bg-[#1235e2]/[0.03]'
+    }`}>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <h3 className={`text-sm font-semibold mb-2 flex items-center gap-1.5 ${
+            darkMode ? 'text-slate-200' : 'text-slate-800'
+          }`}>
+            <Sparkles className="w-4 h-4 text-[#1235e2]" />
+            Auto-Enrich from Ad Data
+          </h3>
+
+          {/* Source brand selector */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <select
+              value={selectedSourceId}
+              onChange={(e) => setSelectedSourceId(e.target.value)}
+              disabled={enriching}
+              className={`text-sm rounded-lg border px-3 py-2 min-w-[200px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#1235e2]/40 ${
+                darkMode
+                  ? 'bg-slate-800 border-slate-700 text-slate-200'
+                  : 'bg-white border-slate-300 text-slate-900'
+              }`}
+            >
+              {competitors.length > 1 && (
+                <option value="">Select source brand...</option>
+              )}
+              {competitors.map((c) => (
+                <option key={c.adLibraryBrand.id} value={c.adLibraryBrand.id}>
+                  {c.adLibraryBrand.pageName}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={handleEnrich}
+              disabled={enriching || !selectedSourceId}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${
+                enriching || !selectedSourceId
+                  ? 'bg-[#1235e2]/50 cursor-not-allowed'
+                  : 'bg-[#1235e2] hover:bg-[#0e2bc4]'
+              }`}
+            >
+              {enriching ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Enriching...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Auto-Enrich
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Force overwrite toggle */}
+          <label className="flex items-center gap-2 mt-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={forceOverwrite}
+              onChange={(e) => setForceOverwrite(e.target.checked)}
+              disabled={enriching}
+              className="w-3.5 h-3.5 rounded border-slate-400 text-[#1235e2] focus:ring-[#1235e2]/40"
+            />
+            <span className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              Overwrite existing fields
+            </span>
+            <span className={`text-xs ${darkMode ? 'text-slate-600' : 'text-slate-400'}`}>
+              (By default, only empty fields are populated)
+            </span>
+          </label>
+        </div>
+      </div>
+
+      {/* Last enriched timestamp */}
+      {profile.enrichedAt && (
+        <p className={`text-xs mt-3 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+          Last enriched: {relativeTime(profile.enrichedAt)}
+          {profile.enrichmentSource ? ` via ${profile.enrichmentSource}` : ''}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Form Component
 // ---------------------------------------------------------------------------
 
@@ -351,6 +564,9 @@ export function BrandProfileForm({ profile, onUpdate, darkMode }: BrandProfileFo
 
   return (
     <div>
+      {/* Auto-Enrich section */}
+      <AutoEnrichSection profile={profile} onUpdate={onUpdate} darkMode={darkMode} />
+
       {/* Tab bar */}
       <div className={`flex gap-0 border-b mb-6 ${darkMode ? 'border-[#1235e2]/10' : 'border-slate-200'}`}>
         {TABS.map((tab) => (

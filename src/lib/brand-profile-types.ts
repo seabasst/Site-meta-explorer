@@ -63,6 +63,10 @@ export interface BrandProfileFull {
   // State
   isActive: boolean;
 
+  // Enrichment tracking
+  enrichedAt: Date | null;
+  enrichmentSource: string | null;
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
