@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 69 — Context Injection & Onboarding
+**Current focus:** Phase 69 complete — ready for Phase 70
 
 ## Current Position
 
-Phase: 69 of 72 (Context Injection & Onboarding)
-Plan: 1/2 complete
-Status: In progress
-Last activity: 2026-04-03 — Completed 69-01-PLAN.md (context compiler + route wiring)
+Phase: 69 of 72 (Context Injection & Onboarding) — COMPLETE ✓
+Plan: 3/3 complete
+Status: Verified, ready for Phase 70
+Last activity: 2026-04-04 — Phase 69 executed and verified (context compiler, onboarding wizard, AI interview)
 
-Progress: ██▓░░░░░░░ 25%
+Progress: ████░░░░░░ 40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 134
+- Total plans completed: 136
 - Average duration: —
 - Total execution time: —
 
@@ -47,6 +47,8 @@ Recent decisions affecting current work:
 - (v9.0): Keyword-based message routing, not LLM-classified
 - (69-01): compileBrandContext() as shared utility for all AI routes, character-based budgeting (7500 chars)
 - (69-01): BrandGuidelines model kept as dead code, all routes now read from BrandProfile
+- (69-02): Removed auth gates from OnboardingPrompt and brand-profiles GET — v2 is open-access
+- (69-01): Hikaru tool loop limit bumped to 15 (was 8, too low for brand-aware queries)
 
 ### Blockers/Concerns
 
@@ -55,6 +57,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-03
-Stopped at: Completed 69-01-PLAN.md — ready for 69-02
+Last session: 2026-04-04
+Stopped at: Phase 69 complete — ready to plan Phase 70
 Resume file: None

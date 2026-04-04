@@ -17,17 +17,17 @@ Requirements for v9.0 milestone. Each maps to roadmap phases.
 
 ### Context Injection
 
-- [ ] **CTXI-01**: Brand context injected into Hikaru chat system prompt (under 2K tokens, XML-tagged sections)
-- [ ] **CTXI-02**: Brand context injected into Creative Lab generation and analysis flows
+- [x] **CTXI-01**: Brand context injected into Hikaru chat system prompt (under 2K tokens, XML-tagged sections)
+- [x] **CTXI-02**: Brand context injected into Creative Lab generation and analysis flows
 - [x] **CTXI-03**: User can select active brand via dropdown in chat header (URL param `?brand=` for shareability)
-- [ ] **CTXI-04**: Context compiler selects relevant profile fields per query to stay within token budget
+- [x] **CTXI-04**: Context compiler selects relevant profile fields per query to stay within token budget
 
 ### Onboarding
 
-- [ ] **ONBD-01**: User sees soft onboarding prompt on first Creative Lab or Hikaru visit (never blocks access)
-- [ ] **ONBD-02**: User can complete 3-5 step form wizard (name/URL, voice/tone, audience, competitors, visual identity)
-- [ ] **ONBD-03**: Wizard auto-saves drafts to prevent state loss on navigation
-- [ ] **ONBD-04**: User can alternatively use AI interview to build profile from natural language conversation
+- [x] **ONBD-01**: User sees soft onboarding prompt on first Creative Lab or Hikaru visit (never blocks access)
+- [x] **ONBD-02**: User can complete 3-5 step form wizard (name/URL, voice/tone, audience, competitors, visual identity)
+- [x] **ONBD-03**: Wizard auto-saves drafts to prevent state loss on navigation
+- [x] **ONBD-04**: User can alternatively use AI interview to build profile from natural language conversation
 
 ### Auto-Enrichment
 
@@ -91,14 +91,14 @@ Which phases cover which requirements. Updated by create-roadmap.
 | PROF-03 | Phase 68 | Complete |
 | PROF-04 | Phase 68 | Complete |
 | PROF-05 | Phase 68 | Complete |
-| CTXI-01 | Phase 69 | Pending |
-| CTXI-02 | Phase 69 | Pending |
+| CTXI-01 | Phase 69 | Complete |
+| CTXI-02 | Phase 69 | Complete |
 | CTXI-03 | Phase 68 | Complete |
-| CTXI-04 | Phase 69 | Pending |
-| ONBD-01 | Phase 69 | Pending |
-| ONBD-02 | Phase 69 | Pending |
-| ONBD-03 | Phase 69 | Pending |
-| ONBD-04 | Phase 69 | Pending |
+| CTXI-04 | Phase 69 | Complete |
+| ONBD-01 | Phase 69 | Complete |
+| ONBD-02 | Phase 69 | Complete |
+| ONBD-03 | Phase 69 | Complete |
+| ONBD-04 | Phase 69 | Complete |
 | ENRC-01 | Phase 70 | Pending |
 | ENRC-02 | Phase 71 | Pending |
 | ENRC-03 | Phase 70 | Pending |
@@ -116,4 +116,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-04-03*
-*Last updated: 2026-04-03 after roadmap creation*
+*Last updated: 2026-04-04 — Phase 69 requirements marked Complete*

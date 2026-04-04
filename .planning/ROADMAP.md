@@ -71,7 +71,7 @@ Phases 62-67 — Motion classification, strategy matrix, gap analysis, concepts,
 ## Phases
 
 - [x] **Phase 68: Brand Profile Schema & CRUD** - Data model, management UI, brand selector
-- [ ] **Phase 69: Context Injection & Onboarding** - Brand-aware AI responses + guided wizard
+- [x] **Phase 69: Context Injection & Onboarding** - Brand-aware AI responses + guided wizard
 - [ ] **Phase 70: Auto-Enrichment from Ad Data** - Auto-populate profiles from existing intelligence
 - [ ] **Phase 71: Manus Integration & Deep Research** - Async research backend + website enrichment
 - [ ] **Phase 72: Brand Intelligence & Polish** - Health overview + personalized strategy
@@ -109,9 +109,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 69-01-PLAN.md — Context compiler utility + injection into Hikaru and Creative Lab routes
-- [ ] 69-02-PLAN.md — Onboarding wizard UI (5-step form + auto-save drafts) + soft prompt banner
-- [ ] 69-03-PLAN.md — AI interview mode (conversational profile building endpoint + chat UI)
+- [x] 69-01-PLAN.md — Context compiler utility + injection into Hikaru and Creative Lab routes
+- [x] 69-02-PLAN.md — Onboarding wizard UI (5-step form + auto-save drafts) + soft prompt banner
+- [x] 69-03-PLAN.md — AI interview mode (conversational profile building endpoint + chat UI)
 
 ### Phase 70: Auto-Enrichment from Ad Data
 **Goal**: Auto-populate brand profiles from existing ad classifications, analyses, and metadata
@@ -165,10 +165,10 @@ Phases execute in numeric order: 68 → 69 → 70 → 71 → 72
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 68. Brand Profile Schema & CRUD | 2/2 | ✓ Complete | 2026-04-03 |
-| 69. Context Injection & Onboarding | 0/3 | Not started | — |
+| 69. Context Injection & Onboarding | 3/3 | ✓ Complete | 2026-04-04 |
 | 70. Auto-Enrichment from Ad Data | 0/1 | Not started | — |
 | 71. Manus Integration & Deep Research | 0/2 | Not started | — |
 | 72. Brand Intelligence & Polish | 0/2 | Not started | — |
 
 ---
-*Last updated: 2026-04-03 — Phase 69 planned (3 plans in 1 wave)*
+*Last updated: 2026-04-04 — Phase 69 complete (3 plans, 2 waves)*
