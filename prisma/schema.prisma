@@ -744,6 +744,11 @@ model BrandProfile {
   accentColor      String?  // Hex color
   referenceImages  Json?    // Array of { url, key, name } objects
 
+  // Enrichment tracking
+  enrichmentHash   String?    // SHA-256 prefix of input data for change detection
+  enrichedAt       DateTime?  // When last enrichment ran
+  enrichmentSource String?    // "ad-library" | "website" | "interview"
+
   // State
   isActive         Boolean  @default(false) // Currently selected profile
 
