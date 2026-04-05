@@ -756,6 +756,7 @@ model BrandProfile {
   updatedAt        DateTime @updatedAt
 
   competitors      BrandCompetitor[]
+  manusTasks       ManusTask[]
 
   @@index([userId])
   @@index([userId, isActive])
@@ -774,4 +775,29 @@ model BrandCompetitor {
 
   @@unique([profileId, adLibraryBrandId])
   @@index([profileId])
+}
+
+// =============================================================================
+// Manus Deep Research Tasks (Phase 71)
+// =============================================================================
+
+model ManusTask {
+  id              String    @id @default(cuid())
+  manusTaskId     String    @unique
+  brandProfileId  String?
+  prompt          String
+  taskType        String    @default("research")  // "research" | "website_enrichment"
+  status          String    @default("pending")    // pending | running | completed | failed
+  resultText      String?
+  resultJson      Json?
+  manusUrl        String?
+  errorMessage    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  completedAt     DateTime?
+
+  brandProfile    BrandProfile? @relation(fields: [brandProfileId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([brandProfileId])
 }
