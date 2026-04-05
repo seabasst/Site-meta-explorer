@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 70 complete — ready for Phase 71
+**Current focus:** Phase 71 in progress — Manus Integration & Deep Research
 
 ## Current Position
 
-Phase: 70 of 72 (Auto-Enrichment from Ad Data) — COMPLETE ✓
-Plan: 2/2 complete
-Status: Verified, ready for Phase 71
-Last activity: 2026-04-06 — Phase 70 executed and verified (enrichment pipeline + auto-enrich UI)
+Phase: 71 of 72 (Manus Integration & Deep Research)
+Plan: 1/2 complete
+Status: In progress
+Last activity: 2026-04-06 — Completed 71-01-PLAN.md (Manus API backend)
 
-Progress: ██████░░░░ 60%
+Progress: ██████░░░░ 61%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 138
+- Total plans completed: 139
 - Average duration: —
 - Total execution time: —
 
@@ -52,14 +52,17 @@ Recent decisions affecting current work:
 - (70-01): Haiku 4.5 for enrichment synthesis (cheap, sufficient for structured extraction)
 - (70-01): Hash-based change detection for enrichment (SHA-256 of input data)
 - (70-01): Fill-empty + append-deduplicate merge strategy (user edits preserved)
+- (71-01): No userId on ManusTask — open-access, follows BrandProfile pattern
+- (71-01): Poll endpoint caches completed results, avoids redundant Manus API calls
+- (71-01): Manus API errors during polling don't corrupt DB state
 
 ### Blockers/Concerns
 
-- Manus API access/keys needed (Phase 71)
+- MANUS_API_KEY must be configured before live testing (Phase 71)
 - TOKEN2 expires 2026-04-24, TOKEN3 expires 2026-04-25
 
 ## Session Continuity
 
 Last session: 2026-04-06
-Stopped at: Phase 70 complete — ready to plan Phase 71
+Stopped at: Completed 71-01-PLAN.md (Manus API backend)
 Resume file: None
