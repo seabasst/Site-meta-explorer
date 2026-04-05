@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Loader2, X, Plus, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
+import { Loader2, X, Plus, ChevronDown, ChevronRight, Sparkles, Search } from 'lucide-react';
 import type { BrandProfileFull, BrandCompetitorWithBrand } from '@/lib/brand-profile-types';
 import { CompetitorSearch } from './competitor-search';
 
@@ -293,6 +293,12 @@ function relativeTime(date: Date | string): string {
 // Auto-Enrich Section
 // ---------------------------------------------------------------------------
 
+interface SourceBrand {
+  id: string;
+  pageName: string;
+  profilePicUrl: string | null;
+}
+
 function AutoEnrichSection({
   profile,
   onUpdate,
@@ -302,37 +308,60 @@ function AutoEnrichSection({
   onUpdate: (profile: BrandProfileFull) => void;
   darkMode: boolean;
 }) {
-  const competitors = profile.competitors || [];
   const [enriching, setEnriching] = useState(false);
-  const [selectedSourceId, setSelectedSourceId] = useState<string>(
-    competitors.length === 1 ? competitors[0].adLibraryBrand.id : ''
-  );
   const [forceOverwrite, setForceOverwrite] = useState(false);
+  const [sourceBrand, setSourceBrand] = useState<SourceBrand | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SourceBrand[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Reset source selection when profile competitors change
+  // Close dropdown on outside click
   useEffect(() => {
-    if (competitors.length === 1) {
-      setSelectedSourceId(competitors[0].adLibraryBrand.id);
-    } else if (competitors.length === 0) {
-      setSelectedSourceId('');
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
     }
-  }, [competitors]);
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
-  if (competitors.length === 0) {
-    return (
-      <div className={`rounded-lg border px-4 py-3 mb-6 ${
-        darkMode ? 'border-slate-700/50 bg-slate-800/30' : 'border-slate-200 bg-slate-50'
-      }`}>
-        <p className={`text-sm ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-          Link competitor brands to enable auto-enrichment from their ad data.
-        </p>
-      </div>
-    );
-  }
+  // Debounced brand search
+  const handleSearch = useCallback((q: string) => {
+    setSearchQuery(q);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (q.trim().length < 2) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
+    }
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/ad-library/brands?search=${encodeURIComponent(q.trim())}&limit=8`);
+        if (res.ok) {
+          const data = await res.json();
+          setSearchResults(data.brands || []);
+          setShowDropdown(true);
+        }
+      } catch { /* ignore */ }
+      finally { setSearching(false); }
+    }, 300);
+  }, []);
+
+  const selectBrand = (brand: SourceBrand) => {
+    setSourceBrand(brand);
+    setSearchQuery('');
+    setSearchResults([]);
+    setShowDropdown(false);
+  };
 
   const handleEnrich = async () => {
-    if (!selectedSourceId) {
-      toast.error('Select a source brand first');
+    if (!sourceBrand) {
+      toast.error('Search and select your brand first');
       return;
     }
     setEnriching(true);
@@ -341,7 +370,7 @@ function AutoEnrichSection({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sourcePageId: selectedSourceId,
+          sourcePageId: sourceBrand.id,
           forceOverwrite,
         }),
       });
@@ -398,77 +427,124 @@ function AutoEnrichSection({
         ? 'border-[#1235e2]/20 bg-[#1235e2]/5'
         : 'border-[#1235e2]/15 bg-[#1235e2]/[0.03]'
     }`}>
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex-1 min-w-0">
-          <h3 className={`text-sm font-semibold mb-2 flex items-center gap-1.5 ${
-            darkMode ? 'text-slate-200' : 'text-slate-800'
-          }`}>
-            <Sparkles className="w-4 h-4 text-[#1235e2]" />
-            Auto-Enrich from Ad Data
-          </h3>
+      <div className="flex-1 min-w-0">
+        <h3 className={`text-sm font-semibold mb-2 flex items-center gap-1.5 ${
+          darkMode ? 'text-slate-200' : 'text-slate-800'
+        }`}>
+          <Sparkles className="w-4 h-4 text-[#1235e2]" />
+          Auto-Enrich from Ad Data
+        </h3>
+        <p className={`text-xs mb-3 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+          Find your brand in the ad library to auto-populate profile fields from your ad data.
+        </p>
 
-          {/* Source brand selector */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <select
-              value={selectedSourceId}
-              onChange={(e) => setSelectedSourceId(e.target.value)}
-              disabled={enriching}
-              className={`text-sm rounded-lg border px-3 py-2 min-w-[200px] transition-colors focus:outline-none focus:ring-2 focus:ring-[#1235e2]/40 ${
+        {/* Source brand search + selected display */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {sourceBrand ? (
+            <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
+              darkMode
+                ? 'bg-slate-800 border-slate-700 text-slate-200'
+                : 'bg-white border-slate-300 text-slate-900'
+            }`}>
+              {sourceBrand.profilePicUrl && (
+                <img src={sourceBrand.profilePicUrl} alt="" className="w-5 h-5 rounded-full" />
+              )}
+              <span>{sourceBrand.pageName}</span>
+              <button
+                onClick={() => setSourceBrand(null)}
+                className={`ml-1 p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 ${
+                  darkMode ? 'text-slate-400' : 'text-slate-500'
+                }`}
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <div className="relative" ref={dropdownRef}>
+              <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 min-w-[240px] transition-colors focus-within:ring-2 focus-within:ring-[#1235e2]/40 ${
                 darkMode
-                  ? 'bg-slate-800 border-slate-700 text-slate-200'
-                  : 'bg-white border-slate-300 text-slate-900'
-              }`}
-            >
-              {competitors.length > 1 && (
-                <option value="">Select source brand...</option>
-              )}
-              {competitors.map((c) => (
-                <option key={c.adLibraryBrand.id} value={c.adLibraryBrand.id}>
-                  {c.adLibraryBrand.pageName}
-                </option>
-              ))}
-            </select>
+                  ? 'bg-slate-800 border-slate-700'
+                  : 'bg-white border-slate-300'
+              }`}>
+                <Search className={`w-4 h-4 flex-shrink-0 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
+                  placeholder="Search your brand..."
+                  disabled={enriching}
+                  className={`text-sm bg-transparent border-none outline-none flex-1 ${
+                    darkMode ? 'text-slate-200 placeholder:text-slate-500' : 'text-slate-900 placeholder:text-slate-400'
+                  }`}
+                />
+                {searching && <Loader2 className="w-4 h-4 animate-spin text-slate-400" />}
+              </div>
 
-            <button
-              onClick={handleEnrich}
-              disabled={enriching || !selectedSourceId}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${
-                enriching || !selectedSourceId
-                  ? 'bg-[#1235e2]/50 cursor-not-allowed'
-                  : 'bg-[#1235e2] hover:bg-[#0e2bc4]'
-              }`}
-            >
-              {enriching ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Enriching...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  Auto-Enrich
-                </>
+              {showDropdown && searchResults.length > 0 && (
+                <div className={`absolute z-50 mt-1 w-full rounded-lg border shadow-lg max-h-[200px] overflow-y-auto ${
+                  darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+                }`}>
+                  {searchResults.map((brand) => (
+                    <button
+                      key={brand.id}
+                      onClick={() => selectBrand(brand)}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors ${
+                        darkMode
+                          ? 'hover:bg-slate-700 text-slate-200'
+                          : 'hover:bg-slate-50 text-slate-900'
+                      }`}
+                    >
+                      {brand.profilePicUrl && (
+                        <img src={brand.profilePicUrl} alt="" className="w-5 h-5 rounded-full flex-shrink-0" />
+                      )}
+                      <span className="truncate">{brand.pageName}</span>
+                    </button>
+                  ))}
+                </div>
               )}
-            </button>
-          </div>
+            </div>
+          )}
 
-          {/* Force overwrite toggle */}
-          <label className="flex items-center gap-2 mt-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={forceOverwrite}
-              onChange={(e) => setForceOverwrite(e.target.checked)}
-              disabled={enriching}
-              className="w-3.5 h-3.5 rounded border-slate-400 text-[#1235e2] focus:ring-[#1235e2]/40"
-            />
-            <span className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-              Overwrite existing fields
-            </span>
-            <span className={`text-xs ${darkMode ? 'text-slate-600' : 'text-slate-400'}`}>
-              (By default, only empty fields are populated)
-            </span>
-          </label>
+          <button
+            onClick={handleEnrich}
+            disabled={enriching || !sourceBrand}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${
+              enriching || !sourceBrand
+                ? 'bg-[#1235e2]/50 cursor-not-allowed'
+                : 'bg-[#1235e2] hover:bg-[#0e2bc4]'
+            }`}
+          >
+            {enriching ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Enriching...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                Auto-Enrich
+              </>
+            )}
+          </button>
         </div>
+
+        {/* Force overwrite toggle */}
+        <label className="flex items-center gap-2 mt-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={forceOverwrite}
+            onChange={(e) => setForceOverwrite(e.target.checked)}
+            disabled={enriching}
+            className="w-3.5 h-3.5 rounded border-slate-400 text-[#1235e2] focus:ring-[#1235e2]/40"
+          />
+          <span className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+            Overwrite existing fields
+          </span>
+          <span className={`text-xs ${darkMode ? 'text-slate-600' : 'text-slate-400'}`}>
+            (By default, only empty fields are populated)
+          </span>
+        </label>
       </div>
 
       {/* Last enriched timestamp */}
