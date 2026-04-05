@@ -138,11 +138,11 @@ Plans:
   2. Simple/fast queries continue routing to Claude for instant streaming
   3. User can auto-populate profile from website URL crawl via Manus
   4. Routing uses keyword matching + UI toggle ("Deep Research" mode), not LLM-classified
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 71-01: Manus API wrapper + three-endpoint pattern (create/poll/webhook)
-- [ ] 71-02: Website enrichment flow + deep research UI + message routing
+- [ ] 71-01-PLAN.md — Manus API wrapper + types + routing logic + ManusTask model + create/poll API routes
+- [ ] 71-02-PLAN.md — Deep Research toggle in Hikaru chat + async polling UI + website enrichment flow
 
 ### Phase 72: Brand Intelligence & Polish
 **Goal**: Brand health insights comparing user's ads to competitors, personalized strategy recommendations
@@ -172,4 +172,4 @@ Phases execute in numeric order: 68 → 69 → 70 → 71 → 72
 | 72. Brand Intelligence & Polish | 0/2 | Not started | — |
 
 ---
-*Last updated: 2026-04-06 — Phase 70 complete (2/2 plans)*
+*Last updated: 2026-04-06 — Phase 71 planned (2 plans in 2 waves)*
