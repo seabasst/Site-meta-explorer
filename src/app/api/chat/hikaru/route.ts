@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import Anthropic from '@anthropic-ai/sdk';
 import { compileBrandContext } from '@/lib/brand-context';
 import type { BrandProfileFull } from '@/lib/brand-profile-types';
+import { shouldRouteToManus } from '@/lib/manus/router';
+import { createManusTask } from '@/lib/manus/client';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -940,11 +942,79 @@ function toolThinkingLabel(name: string, input: Record<string, unknown>): string
 // ---------------------------------------------------------------------------
 export async function POST(request: NextRequest) {
   try {
-    const { messages, brandProfileId } = await request.json();
+    const { messages, brandProfileId, deepResearch } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(JSON.stringify({ error: 'messages array required' }), { status: 400 });
     }
+
+    // Extract last user message for routing
+    const lastUserMsg = [...messages].reverse().find((m: { role: string }) => m.role === 'user');
+    const lastMessageContent = lastUserMsg?.content || '';
+
+    // -----------------------------------------------------------------------
+    // Manus routing pre-check: short-circuit to async deep research if needed
+    // -----------------------------------------------------------------------
+    if (shouldRouteToManus(lastMessageContent, !!deepResearch)) {
+      try {
+        // Build Manus prompt with optional brand context prefix
+        let manusPrompt = lastMessageContent;
+        if (brandProfileId && typeof brandProfileId === 'string') {
+          try {
+            const profile = await prisma.brandProfile.findUnique({
+              where: { id: brandProfileId },
+              include: {
+                competitors: {
+                  include: {
+                    adLibraryBrand: {
+                      select: { id: true, pageId: true, pageName: true, profilePicUrl: true },
+                    },
+                  },
+                },
+              },
+            });
+            if (profile) {
+              const brandContext = compileBrandContext(profile as unknown as BrandProfileFull);
+              manusPrompt = `Context about the user's brand:\n${brandContext}\n\nUser query:\n${lastMessageContent}`;
+            }
+          } catch {
+            // Non-blocking: proceed without brand context
+          }
+        }
+
+        const result = await createManusTask(manusPrompt);
+
+        // Persist to DB
+        const task = await prisma.manusTask.create({
+          data: {
+            manusTaskId: result.task_id,
+            brandProfileId: brandProfileId || null,
+            prompt: manusPrompt,
+            taskType: 'research',
+            status: 'running',
+            manusUrl: result.task_url || null,
+          },
+        });
+
+        return Response.json({
+          type: 'manus_task',
+          taskId: task.id,
+          manusTaskId: result.task_id,
+          message: 'Deep research started. This usually takes 2-5 minutes.',
+        });
+      } catch (manusErr) {
+        // Return a clear error for missing API key or Manus failure
+        const errMsg = manusErr instanceof Error ? manusErr.message : 'Manus API error';
+        return Response.json({
+          type: 'manus_error',
+          error: errMsg,
+        }, { status: 503 });
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // Standard Claude SSE flow (unchanged from here)
+    // -----------------------------------------------------------------------
 
     // Build typed message history
     let currentMessages: Anthropic.MessageParam[] = messages.map(

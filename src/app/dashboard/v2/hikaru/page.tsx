@@ -17,6 +17,8 @@ import {
   Trash2,
   PanelLeftClose,
   PanelLeft,
+  Search,
+  AlertCircle,
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { V2Shell } from '../v2-shell';
@@ -40,6 +42,8 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   steps?: ThinkingStep[];
+  manusTaskId?: string;
+  manusStatus?: 'running' | 'completed' | 'failed';
 }
 
 interface ChatSummary {
@@ -348,6 +352,129 @@ function FollowUpSuggestions({ darkMode, onSelect, lastMessage }: {
 }
 
 // ---------------------------------------------------------------------------
+// Manus polling hook
+// ---------------------------------------------------------------------------
+
+function useManusTask(taskId: string | null): {
+  status: 'running' | 'completed' | 'failed' | null;
+  resultText: string | null;
+} {
+  const [status, setStatus] = useState<'running' | 'completed' | 'failed' | null>(null);
+  const [resultText, setResultText] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!taskId) {
+      setStatus(null);
+      setResultText(null);
+      return;
+    }
+
+    setStatus('running');
+    let active = true;
+
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/manus/${taskId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (!active) return;
+
+        if (data.status === 'completed') {
+          setStatus('completed');
+          setResultText(data.resultText || 'Research completed.');
+          return; // stop polling
+        }
+        if (data.status === 'failed') {
+          setStatus('failed');
+          setResultText(data.error || 'Research failed.');
+          return; // stop polling
+        }
+
+        // Still running -- schedule next poll
+        setTimeout(() => { if (active) poll(); }, 5000);
+      } catch {
+        // Network error -- retry
+        setTimeout(() => { if (active) poll(); }, 5000);
+      }
+    };
+
+    poll();
+
+    return () => { active = false; };
+  }, [taskId]);
+
+  return { status, resultText };
+}
+
+// ---------------------------------------------------------------------------
+// Manus polling card (inline in chat)
+// ---------------------------------------------------------------------------
+
+function ManusPollingCard({
+  status,
+  darkMode,
+  startTime,
+}: {
+  status: 'running' | 'completed' | 'failed';
+  darkMode: boolean;
+  startTime: number;
+}) {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    if (status !== 'running') return;
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [status, startTime]);
+
+  const formatElapsed = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
+
+  if (status === 'failed') {
+    return (
+      <div className={`rounded-xl border px-4 py-3 flex items-center gap-3 ${
+        darkMode ? 'bg-red-500/10 border-red-500/20' : 'bg-red-50 border-red-200'
+      }`}>
+        <AlertCircle className={`w-5 h-5 shrink-0 ${darkMode ? 'text-red-400' : 'text-red-500'}`} />
+        <div>
+          <p className={`text-sm font-medium ${darkMode ? 'text-red-300' : 'text-red-700'}`}>
+            Research failed
+          </p>
+          <p className={`text-xs mt-0.5 ${darkMode ? 'text-red-400/70' : 'text-red-500/70'}`}>
+            Try again or use a simpler query.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`rounded-xl border px-4 py-3 flex items-center gap-3 ${
+      darkMode ? 'bg-[#1235e2]/5 border-[#1235e2]/15' : 'bg-[#1235e2]/[0.03] border-[#1235e2]/10'
+    }`}>
+      <div className="relative">
+        <Loader2 className="w-5 h-5 animate-spin text-[#1235e2]" />
+      </div>
+      <div className="flex-1">
+        <p className={`text-sm font-medium ${darkMode ? 'text-slate-200' : 'text-slate-700'}`}>
+          Researching...
+        </p>
+        <p className={`text-xs mt-0.5 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+          Deep research usually takes 2-5 minutes ({formatElapsed(elapsed)} elapsed)
+        </p>
+      </div>
+      <Search className={`w-4 h-4 shrink-0 ${darkMode ? 'text-[#1235e2]/50' : 'text-[#1235e2]/40'}`} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Starter suggestions
 // ---------------------------------------------------------------------------
 
@@ -492,6 +619,12 @@ export default function HikaruPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Deep Research (Manus) toggle
+  const [deepResearch, setDeepResearch] = useState(false);
+  const [pollingTaskId, setPollingTaskId] = useState<string | null>(null);
+  const [pollingStartTime, setPollingStartTime] = useState<number>(0);
+  const manusResult = useManusTask(pollingTaskId);
+
   // Brand profile state
   const [activeBrandId, setActiveBrandId] = useState<string | null>(
     searchParams.get('brand')
@@ -598,6 +731,38 @@ export default function HikaruPage() {
     refreshChats();
   }, [refreshChats]);
 
+  // Handle Manus task completion: update the polling message with results
+  useEffect(() => {
+    if (!pollingTaskId || !manusResult.status) return;
+    if (manusResult.status === 'completed' || manusResult.status === 'failed') {
+      setMessages((prev) => {
+        const updated = prev.map((msg) => {
+          if (msg.manusTaskId === pollingTaskId) {
+            return {
+              ...msg,
+              manusStatus: manusResult.status as 'completed' | 'failed',
+              content: manusResult.resultText || msg.content,
+            };
+          }
+          return msg;
+        });
+
+        // Save completed result to history
+        if (manusResult.status === 'completed') {
+          const userMsg = [...prev].reverse().find((m) => m.role === 'user');
+          const assistantMsg = updated.find((m) => m.manusTaskId === pollingTaskId);
+          if (userMsg && assistantMsg) {
+            saveMessages(userMsg, assistantMsg, activeChatId);
+          }
+        }
+
+        return updated;
+      });
+      setPollingTaskId(null);
+      setLoading(false);
+    }
+  }, [manusResult.status, manusResult.resultText, pollingTaskId, activeChatId, saveMessages]);
+
   const sendMessage = async (text?: string) => {
     const trimmed = (text || input).trim();
     if (!trimmed || loading) return;
@@ -618,8 +783,38 @@ export default function HikaruPage() {
         body: JSON.stringify({
           messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
           ...(activeBrandId ? { brandProfileId: activeBrandId } : {}),
+          deepResearch,
         }),
       });
+
+      // Check if response is JSON (Manus task) vs SSE stream (Claude)
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await res.json();
+
+        if (data.type === 'manus_task') {
+          // Switch to polling mode
+          const manusMessage: Message = {
+            role: 'assistant',
+            content: data.message || 'Deep research started...',
+            manusTaskId: data.taskId,
+            manusStatus: 'running',
+          };
+          setMessages([...newMessages, manusMessage]);
+          setPollingTaskId(data.taskId);
+          setPollingStartTime(Date.now());
+          // Keep loading true -- the polling effect will clear it
+          return;
+        }
+
+        if (data.type === 'manus_error') {
+          throw new Error(data.error || 'Deep research failed');
+        }
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+      }
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: 'Request failed' }));
@@ -793,10 +988,24 @@ export default function HikaruPage() {
                               <Sparkles className="w-4 h-4 text-white" />
                             </div>
                             <div className={`flex-1 text-sm leading-relaxed ${darkMode ? 'text-slate-200' : 'text-slate-700'}`}>
-                              <MessageContent content={msg.content} darkMode={darkMode} isUser={false} />
+                              {msg.manusTaskId && msg.manusStatus === 'running' ? (
+                                <ManusPollingCard
+                                  status="running"
+                                  darkMode={darkMode}
+                                  startTime={pollingStartTime}
+                                />
+                              ) : msg.manusTaskId && msg.manusStatus === 'failed' ? (
+                                <ManusPollingCard
+                                  status="failed"
+                                  darkMode={darkMode}
+                                  startTime={pollingStartTime}
+                                />
+                              ) : (
+                                <MessageContent content={msg.content} darkMode={darkMode} isUser={false} />
+                              )}
                             </div>
                           </div>
-                          {i === messages.length - 1 && !loading && (
+                          {i === messages.length - 1 && !loading && !msg.manusStatus && (
                             <FollowUpSuggestions darkMode={darkMode} onSelect={sendMessage} lastMessage={msg.content} />
                           )}
                         </div>
@@ -867,6 +1076,19 @@ export default function HikaruPage() {
                   style={{ minHeight: '24px', maxHeight: '160px' }}
                 />
                 <button
+                  onClick={() => setDeepResearch(!deepResearch)}
+                  title={deepResearch ? 'Deep Research ON (Manus)' : 'Deep Research OFF (Claude)'}
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                    deepResearch
+                      ? 'bg-[#1235e2] text-white shadow-sm'
+                      : darkMode
+                        ? 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800'
+                        : 'bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+                <button
                   onClick={() => sendMessage()}
                   disabled={!input.trim() || loading}
                   className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all ${
@@ -881,7 +1103,13 @@ export default function HikaruPage() {
                 </button>
               </div>
               <p className={`text-xs text-center mt-2 ${darkMode ? 'text-slate-600' : 'text-slate-400'}`}>
-                Hikaru can analyze your ad library data to provide strategic insights
+                {deepResearch ? (
+                  <span className="text-[#1235e2]">
+                    Deep Research mode ON -- queries will use Manus for async analysis (2-5 min)
+                  </span>
+                ) : (
+                  'Hikaru can analyze your ad library data to provide strategic insights'
+                )}
               </p>
             </div>
           </div>
