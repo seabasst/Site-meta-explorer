@@ -31,9 +31,9 @@ Requirements for v9.0 milestone. Each maps to roadmap phases.
 
 ### Auto-Enrichment
 
-- [ ] **ENRC-01**: User can auto-populate brand profile from existing ad library data (classifications, analyses, metadata)
+- [x] **ENRC-01**: User can auto-populate brand profile from existing ad library data (classifications, analyses, metadata)
 - [ ] **ENRC-02**: User can auto-populate brand profile from website URL crawl (voice, colors, audience extraction)
-- [ ] **ENRC-03**: Auto-enrichment respects cost budgets and uses change detection to avoid redundant runs
+- [x] **ENRC-03**: Auto-enrichment respects cost budgets and uses change detection to avoid redundant runs
 
 ### Manus Integration
 

@@ -72,7 +72,7 @@ Phases 62-67 — Motion classification, strategy matrix, gap analysis, concepts,
 
 - [x] **Phase 68: Brand Profile Schema & CRUD** - Data model, management UI, brand selector
 - [x] **Phase 69: Context Injection & Onboarding** - Brand-aware AI responses + guided wizard
-- [ ] **Phase 70: Auto-Enrichment from Ad Data** - Auto-populate profiles from existing intelligence
+- [x] **Phase 70: Auto-Enrichment from Ad Data** - Auto-populate profiles from existing intelligence
 - [ ] **Phase 71: Manus Integration & Deep Research** - Async research backend + website enrichment
 - [ ] **Phase 72: Brand Intelligence & Polish** - Health overview + personalized strategy
 
@@ -125,8 +125,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 70-01-PLAN.md — Schema migration + enrichment pipeline (ad data gathering, Haiku synthesis, change detection, cost budgets) + API endpoint
-- [ ] 70-02-PLAN.md — Auto-Enrich UI on brand profile settings page (source brand selector, loading states, result feedback)
+- [x] 70-01-PLAN.md — Schema migration + enrichment pipeline (ad data gathering, Haiku synthesis, change detection, cost budgets) + API endpoint
+- [x] 70-02-PLAN.md — Auto-Enrich UI on brand profile settings page (brand search, loading states, result feedback)
 
 ### Phase 71: Manus Integration & Deep Research
 **Goal**: Async deep research via Manus API for complex brand analysis and website enrichment
@@ -167,9 +167,9 @@ Phases execute in numeric order: 68 → 69 → 70 → 71 → 72
 |-------|---------------|--------|-----------|
 | 68. Brand Profile Schema & CRUD | 2/2 | ✓ Complete | 2026-04-03 |
 | 69. Context Injection & Onboarding | 3/3 | ✓ Complete | 2026-04-04 |
-| 70. Auto-Enrichment from Ad Data | 0/2 | Not started | — |
+| 70. Auto-Enrichment from Ad Data | 2/2 | ✓ Complete | 2026-04-06 |
 | 71. Manus Integration & Deep Research | 0/2 | Not started | — |
 | 72. Brand Intelligence & Polish | 0/2 | Not started | — |
 
 ---
-*Last updated: 2026-04-04 — Phase 70 planned (2 plans, 2 waves)*
+*Last updated: 2026-04-06 — Phase 70 complete (2/2 plans)*
