@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Loader2, X, Plus, ChevronDown, ChevronRight, Sparkles, Search } from 'lucide-react';
+import { Loader2, X, Plus, ChevronDown, ChevronRight, Sparkles, Search, Globe, CheckCircle2, AlertCircle } from 'lucide-react';
 import type { BrandProfileFull, BrandCompetitorWithBrand } from '@/lib/brand-profile-types';
 import { CompetitorSearch } from './competitor-search';
 
@@ -559,6 +559,224 @@ function AutoEnrichSection({
 }
 
 // ---------------------------------------------------------------------------
+// Website Enrich via Manus Section
+// ---------------------------------------------------------------------------
+
+function WebsiteEnrichSection({
+  profile,
+  onUpdate,
+  darkMode,
+}: {
+  profile: BrandProfileFull;
+  onUpdate: (profile: BrandProfileFull) => void;
+  darkMode: boolean;
+}) {
+  const [websiteUrl, setWebsiteUrl] = useState('');
+  const [enriching, setEnriching] = useState(false);
+  const [pollingTaskId, setPollingTaskId] = useState<string | null>(null);
+  const [status, setStatus] = useState<'idle' | 'polling' | 'success' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  // Pre-fill URL from profile's linked brand website if available
+  useEffect(() => {
+    if (!websiteUrl) {
+      // Check competitors for the own brand link (first competitor could be own brand)
+      // Or use a simple heuristic: empty URL is fine for user input
+    }
+  }, [websiteUrl]);
+
+  // Polling effect
+  useEffect(() => {
+    if (!pollingTaskId) return;
+    let active = true;
+
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/manus/${pollingTaskId}`);
+        if (!res.ok) {
+          if (active) setTimeout(poll, 5000);
+          return;
+        }
+        const data = await res.json();
+        if (!active) return;
+
+        if (data.status === 'completed') {
+          setStatus('success');
+          setEnriching(false);
+          setPollingTaskId(null);
+
+          // Refresh profile data
+          try {
+            const profileRes = await fetch(`/api/brand-profiles/${profile.id}`);
+            if (profileRes.ok) {
+              const profileData = await profileRes.json();
+              if (profileData.profile) {
+                onUpdate(profileData.profile);
+              }
+            }
+          } catch { /* ignore */ }
+
+          const updated = (data.fieldsUpdated || []) as string[];
+          if (updated.length > 0) {
+            toast.success(`Profile updated: ${updated.join(', ')}`);
+          } else {
+            toast.info('Website analyzed, but no new fields to update');
+          }
+          return;
+        }
+
+        if (data.status === 'failed') {
+          setStatus('error');
+          setErrorMsg(data.error || 'Website analysis failed');
+          setEnriching(false);
+          setPollingTaskId(null);
+          return;
+        }
+
+        // Still running
+        setTimeout(poll, 5000);
+      } catch {
+        if (active) setTimeout(poll, 5000);
+      }
+    };
+
+    poll();
+    return () => { active = false; };
+  }, [pollingTaskId, profile.id, onUpdate]);
+
+  const handleEnrich = async () => {
+    if (!websiteUrl.trim()) {
+      toast.error('Enter a website URL');
+      return;
+    }
+
+    // Basic URL validation
+    try {
+      new URL(websiteUrl.trim().startsWith('http') ? websiteUrl.trim() : `https://${websiteUrl.trim()}`);
+    } catch {
+      toast.error('Enter a valid URL');
+      return;
+    }
+
+    const url = websiteUrl.trim().startsWith('http') ? websiteUrl.trim() : `https://${websiteUrl.trim()}`;
+
+    setEnriching(true);
+    setStatus('polling');
+    setErrorMsg('');
+
+    try {
+      const res = await fetch('/api/manus/enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brandProfileId: profile.id,
+          websiteUrl: url,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: 'Request failed' }));
+        throw new Error(data.error || 'Request failed');
+      }
+
+      const data = await res.json();
+      setPollingTaskId(data.taskId);
+    } catch (err) {
+      setEnriching(false);
+      setStatus('error');
+      setErrorMsg(err instanceof Error ? err.message : 'Request failed');
+    }
+  };
+
+  return (
+    <div className={`rounded-lg border px-4 py-4 mb-6 ${
+      darkMode
+        ? 'border-purple-500/20 bg-purple-500/5'
+        : 'border-purple-500/15 bg-purple-500/[0.03]'
+    }`}>
+      <div className="flex-1 min-w-0">
+        <h3 className={`text-sm font-semibold mb-2 flex items-center gap-1.5 ${
+          darkMode ? 'text-slate-200' : 'text-slate-800'
+        }`}>
+          <Globe className="w-4 h-4 text-purple-500" />
+          Enrich from Website
+        </h3>
+        <p className={`text-xs mb-3 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+          Analyze your brand website to auto-populate profile fields. Uses deep research (takes 3-5 minutes).
+        </p>
+
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 min-w-[280px] flex-1 max-w-md transition-colors focus-within:ring-2 focus-within:ring-purple-500/40 ${
+            darkMode
+              ? 'bg-slate-800 border-slate-700'
+              : 'bg-white border-slate-300'
+          }`}>
+            <Globe className={`w-4 h-4 flex-shrink-0 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />
+            <input
+              type="text"
+              value={websiteUrl}
+              onChange={(e) => setWebsiteUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleEnrich();
+              }}
+              placeholder="https://yourbrand.com"
+              disabled={enriching}
+              className={`text-sm bg-transparent border-none outline-none flex-1 ${
+                darkMode ? 'text-slate-200 placeholder:text-slate-500' : 'text-slate-900 placeholder:text-slate-400'
+              }`}
+            />
+          </div>
+
+          <button
+            onClick={handleEnrich}
+            disabled={enriching || !websiteUrl.trim()}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${
+              enriching || !websiteUrl.trim()
+                ? 'bg-purple-500/50 cursor-not-allowed'
+                : 'bg-purple-600 hover:bg-purple-700'
+            }`}
+          >
+            {enriching ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Search className="w-4 h-4" />
+                Analyze Website
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Status messages */}
+        {status === 'polling' && (
+          <div className={`flex items-center gap-2 mt-3 text-xs ${darkMode ? 'text-purple-300' : 'text-purple-600'}`}>
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <span>Analyzing website... this usually takes 3-5 minutes</span>
+          </div>
+        )}
+
+        {status === 'success' && (
+          <div className={`flex items-center gap-2 mt-3 text-xs ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Profile updated from website analysis</span>
+          </div>
+        )}
+
+        {status === 'error' && (
+          <div className={`flex items-center gap-2 mt-3 text-xs ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
+            <AlertCircle className="w-3.5 h-3.5" />
+            <span>{errorMsg || 'Website analysis failed'}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Form Component
 // ---------------------------------------------------------------------------
 
@@ -642,6 +860,9 @@ export function BrandProfileForm({ profile, onUpdate, darkMode }: BrandProfileFo
     <div>
       {/* Auto-Enrich section */}
       <AutoEnrichSection profile={profile} onUpdate={onUpdate} darkMode={darkMode} />
+
+      {/* Website enrich via Manus */}
+      <WebsiteEnrichSection profile={profile} onUpdate={onUpdate} darkMode={darkMode} />
 
       {/* Tab bar */}
       <div className={`flex gap-0 border-b mb-6 ${darkMode ? 'border-[#1235e2]/10' : 'border-slate-200'}`}>
