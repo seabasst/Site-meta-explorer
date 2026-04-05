@@ -81,10 +81,10 @@ export async function enrichFromAds(brandId: string): Promise<EnrichmentResult> 
     throw new Error(`Brand not found: ${brandId}`);
   }
 
-  const adCount = classifications.length;
+  const adCount = ads.length;
   if (adCount < 3) {
     throw new Error(
-      `Not enough classified ads for enrichment (need at least 3, found ${adCount})`
+      `Not enough active ads for enrichment (need at least 3, found ${adCount})`
     );
   }
 
@@ -111,27 +111,39 @@ export async function enrichFromAds(brandId: string): Promise<EnrichmentResult> 
   });
 
   // 5. Build prompt
+  const classificationSection = classifications.length > 0
+    ? `\n**Ad Classification Distribution (what types of ads they run):**\n${JSON.stringify(distribution, null, 2)}`
+    : "";
+
+  const analysisSection = analyses.length > 0
+    ? `\n**Ad Tone/Style Analysis:**\n${analyses
+        .slice(0, 10)
+        .map(
+          (a) =>
+            `- Tone: ${a.emotionalTone || "?"}, Style: ${a.visualStyle || "?"}, Audience: ${a.targetAudience || "?"}`
+        )
+        .join("\n")}`
+    : "";
+
+  // Include CTA data from ads
+  const ctaSamples = ads
+    .filter((a) => a.ctaText || a.ctaType)
+    .slice(0, 10)
+    .map((a) => `- CTA: ${a.ctaText || a.ctaType || "?"}${a.title ? `, Title: ${a.title}` : ""}`)
+    .join("\n");
+
   const prompt = `Analyze this brand's ad library data and extract profile fields.
 
 **Brand:** ${brand.pageName}
 **Category:** ${brand.category || "Unknown"}
 **Website:** ${brand.website || "Unknown"}
 **Active Ads Analyzed:** ${adCount}
-
-**Ad Classification Distribution (what types of ads they run):**
-${JSON.stringify(distribution, null, 2)}
+${classificationSection}
 
 **Sample Ad Copy (most recent 10):**
 ${uniqueBodies.map((b, i) => `${i + 1}. ${b.slice(0, 200)}`).join("\n")}
-
-**Ad Tone/Style Analysis:**
-${analyses
-  .slice(0, 10)
-  .map(
-    (a) =>
-      `- Tone: ${a.emotionalTone || "?"}, Style: ${a.visualStyle || "?"}, Audience: ${a.targetAudience || "?"}`
-  )
-  .join("\n")}
+${ctaSamples ? `\n**Call-to-Action Samples:**\n${ctaSamples}` : ""}
+${analysisSection}
 
 Extract these fields:
 {

@@ -119,14 +119,14 @@ export async function POST(request: NextRequest, context: RouteContext) {
       );
     }
 
-    const classifiedCount = await prisma.adClassification.count({
-      where: { ad: { brandId: sourcePageId, isActive: true } },
+    const activeAdCount = await prisma.adLibraryAd.count({
+      where: { brandId: sourcePageId, isActive: true },
     });
 
-    if (classifiedCount < 3) {
+    if (activeAdCount < 3) {
       return NextResponse.json(
         {
-          error: `Not enough classified ads (need at least 3, found ${classifiedCount})`,
+          error: `Not enough active ads (need at least 3, found ${activeAdCount})`,
         },
         { status: 400 }
       );
