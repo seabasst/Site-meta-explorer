@@ -14,6 +14,11 @@ import {
   Globe,
   ChevronDown,
   ChevronRight,
+  Lightbulb,
+  TrendingUp,
+  Zap,
+  ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 import { TAXONOMY, CATEGORY_KEYS } from '@/lib/classification/taxonomy';
 import { GapMatrix } from './gap-matrix';
@@ -35,6 +40,15 @@ interface StrategyViewProps {
   onBack: () => void;
 }
 
+interface BrandContext {
+  name: string;
+  positioning: string | null;
+  brandVoice: string | null;
+  demographics: string[];
+  painPoints: string[];
+  interests: string[];
+}
+
 interface StrategyData {
   brand: {
     pageName: string;
@@ -48,6 +62,7 @@ interface StrategyData {
   diversityScores: Record<string, number>;
   gapMatrix: Record<string, Record<string, number>>;
   maxCellCount: number;
+  brandContext?: BrandContext | null;
 }
 
 interface Concept {
@@ -89,6 +104,397 @@ const CATEGORY_LABELS: Record<string, string> = {
   intendedAudience: 'Audience',
   overall: 'Overall',
 };
+
+// ---------------------------------------------------------------------------
+// Summary & Recommendations helpers
+// ---------------------------------------------------------------------------
+
+function getOverallVerdict(score: number): { label: string; description: string } {
+  if (score >= 75) return { label: 'Strong', description: 'This account has a well-diversified creative strategy. Most taxonomy categories are covered, which helps avoid audience fatigue and keeps performance stable.' };
+  if (score >= 50) return { label: 'Moderate', description: 'This account has reasonable creative diversity but there are clear gaps. Some ad categories are over-indexed while others are underused, which can limit reach and cause fatigue.' };
+  if (score >= 30) return { label: 'Narrow', description: 'This account relies heavily on a few creative approaches. The lack of diversity means the algorithm has fewer signals to optimize against, and audiences will fatigue faster.' };
+  return { label: 'Very Narrow', description: 'This account has minimal creative diversity. Most ads follow the same pattern, severely limiting Meta\'s ability to find new audiences and optimize delivery.' };
+}
+
+function generateRecommendations(
+  diversityScores: Record<string, number>,
+  taxonomyBreakdown: Record<string, Record<string, number>>,
+  gapMatrix: Record<string, Record<string, number>>,
+  brandContext?: BrandContext | null,
+): Array<{ priority: 'high' | 'medium' | 'low'; title: string; detail: string }> {
+  const recs: Array<{ priority: 'high' | 'medium' | 'low'; title: string; detail: string }> = [];
+
+  // Brand context helpers — always guard for null/empty
+  const hasDemographics = brandContext?.demographics && brandContext.demographics.length > 0;
+  const hasPainPoints = brandContext?.painPoints && brandContext.painPoints.length > 0;
+  const hasPositioning = brandContext?.positioning && brandContext.positioning.trim().length > 0;
+
+  // Find weakest categories
+  const weakCategories = CATEGORY_KEYS
+    .filter(k => (diversityScores[k] ?? 0) < 40)
+    .sort((a, b) => (diversityScores[a] ?? 0) - (diversityScores[b] ?? 0));
+
+  // 1. Weakest category recommendations
+  for (const key of weakCategories.slice(0, 3)) {
+    const score = diversityScores[key] ?? 0;
+    const dist = taxonomyBreakdown[key] || {};
+    const entries = Object.entries(dist).sort(([, a], [, b]) => b - a);
+    const topValue = entries[0]?.[0];
+    const topCount = entries[0]?.[1] || 0;
+    const total = entries.reduce((s, [, c]) => s + c, 0);
+    const topPct = total > 0 ? Math.round((topCount / total) * 100) : 0;
+    const label = CATEGORY_LABELS[key] || key;
+    const taxCat = TAXONOMY[key];
+    const topLabel = topValue ? ((taxCat.labels as Record<string, string>)[topValue] || topValue) : 'one type';
+
+    // Find unused values
+    const usedValues = new Set(entries.map(([v]) => v));
+    const unusedValues = taxCat.values.filter((v: string) => !usedValues.has(v));
+    const unusedLabels = unusedValues
+      .slice(0, 3)
+      .map((v: string) => (taxCat.labels as Record<string, string>)[v] || v);
+
+    // Enhance with brand context for hookTactic
+    let audienceHint = '';
+    if (key === 'hookTactic' && hasDemographics) {
+      audienceHint = ` Your audience (${brandContext!.demographics.join(', ')}) may respond well to problem-agitation hooks targeting their pain points.`;
+    }
+
+    recs.push({
+      priority: score <= 20 ? 'high' : 'medium',
+      title: `Diversify ${label}`,
+      detail: `${topPct}% of ads use "${topLabel}". ${unusedLabels.length > 0 ? `Try: ${unusedLabels.join(', ')}.` : 'Experiment with different approaches.'}${audienceHint}`,
+    });
+  }
+
+  // 2. Gap matrix recommendations — find empty cells
+  const emptyGaps: Array<{ stage: string; format: string }> = [];
+  for (const [stage, formats] of Object.entries(gapMatrix)) {
+    for (const [format, count] of Object.entries(formats)) {
+      if (count === 0) {
+        emptyGaps.push({ stage, format });
+      }
+    }
+  }
+
+  if (emptyGaps.length > 0) {
+    const topGaps = emptyGaps.slice(0, 3).map(g => {
+      const stageLabel = (TAXONOMY.awarenessStage.labels as Record<string, string>)[g.stage] || g.stage;
+      const formatLabel = (TAXONOMY.visualFormat.labels as Record<string, string>)[g.format] || g.format;
+      return `${stageLabel} × ${formatLabel}`;
+    });
+
+    // Enhance with pain points reference
+    const painPointHint = hasPainPoints
+      ? ` Address "${brandContext!.painPoints[0]}" in your messaging to fill these gaps.`
+      : '';
+
+    recs.push({
+      priority: emptyGaps.length > 5 ? 'high' : 'medium',
+      title: 'Fill creative gaps',
+      detail: `${emptyGaps.length} empty cells in the gap matrix. Start with: ${topGaps.join(', ')}.${painPointHint}`,
+    });
+  }
+
+  // 3. Overall diversity tip
+  const overall = diversityScores.overall ?? 0;
+  if (overall < 50) {
+    // Enhance with positioning reference
+    const positioningHint = hasPositioning
+      ? ` Lean into your positioning ("${brandContext!.positioning!.slice(0, 80)}${brandContext!.positioning!.length > 80 ? '...' : ''}") across different creative formats to maintain consistency while adding variety.`
+      : '';
+
+    recs.push({
+      priority: 'high',
+      title: 'Increase creative volume and variety',
+      detail: `With a low overall diversity score, the algorithm has limited creative options. Aim to test 3-5 new creative concepts per week across different formats and messaging angles.${positioningHint}`,
+    });
+  }
+
+  // 4. Awareness stage balance
+  const awarenessEntries = Object.entries(taxonomyBreakdown.awarenessStage || {}).sort(([, a], [, b]) => b - a);
+  const totalAwareness = awarenessEntries.reduce((s, [, c]) => s + c, 0);
+  if (awarenessEntries.length > 0 && totalAwareness > 0) {
+    const topStagePct = Math.round((awarenessEntries[0][1] / totalAwareness) * 100);
+    if (topStagePct > 60) {
+      const topStageLabel = (TAXONOMY.awarenessStage.labels as Record<string, string>)[awarenessEntries[0][0]] || awarenessEntries[0][0];
+      recs.push({
+        priority: 'medium',
+        title: 'Rebalance funnel stages',
+        detail: `${topStagePct}% of ads target ${topStageLabel}. A balanced funnel (awareness → consideration → conversion) prevents over-saturation at one stage.`,
+      });
+    }
+  }
+
+  // Sort by priority
+  const priorityOrder = { high: 0, medium: 1, low: 2 };
+  recs.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
+  return recs.slice(0, 5);
+}
+
+function ReportSummary({
+  diversityScores,
+  taxonomyBreakdown,
+  gapMatrix,
+  classificationCoverage,
+  darkMode,
+  brandContext,
+  pageId,
+}: {
+  diversityScores: Record<string, number>;
+  taxonomyBreakdown: Record<string, Record<string, number>>;
+  gapMatrix: Record<string, Record<string, number>>;
+  classificationCoverage: { classified: number; total: number };
+  darkMode: boolean;
+  brandContext?: BrandContext | null;
+  pageId: string;
+}) {
+  const [aiInsights, setAiInsights] = useState<string[] | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState('');
+
+  const muted = darkMode ? 'text-slate-400' : 'text-slate-500';
+  const cardBorder = darkMode ? 'border-slate-700/50' : 'border-slate-200';
+  const cardBg = darkMode ? 'bg-[#101322]' : 'bg-white';
+  const overall = diversityScores.overall ?? 0;
+  const verdict = getOverallVerdict(overall);
+  const recs = generateRecommendations(diversityScores, taxonomyBreakdown, gapMatrix, brandContext);
+
+  // Compute weak categories and gap count for the AI endpoint
+  const weakCategories = CATEGORY_KEYS
+    .filter(k => (diversityScores[k] ?? 0) < 40)
+    .map(k => k);
+  const gapCount = Object.values(gapMatrix).reduce(
+    (total, formats) => total + Object.values(formats).filter(c => c === 0).length,
+    0,
+  );
+
+  async function handleGenerateInsights() {
+    setAiLoading(true);
+    setAiError('');
+    setAiInsights(null);
+
+    try {
+      const res = await fetch('/api/strategy/personalized', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pageId,
+          diversityScores,
+          weakCategories,
+          gapCount,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to generate insights');
+      }
+
+      if (data.needsProfile) {
+        setAiError(data.message || 'Create a brand profile to unlock personalized AI insights');
+        return;
+      }
+
+      setAiInsights(data.insights);
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
+  const priorityStyles = {
+    high: {
+      bg: darkMode ? 'bg-red-500/8' : 'bg-red-50',
+      border: darkMode ? 'border-red-500/20' : 'border-red-100',
+      dot: 'bg-red-500',
+      label: 'High',
+      labelColor: 'text-red-500',
+    },
+    medium: {
+      bg: darkMode ? 'bg-amber-500/8' : 'bg-amber-50',
+      border: darkMode ? 'border-amber-500/20' : 'border-amber-100',
+      dot: 'bg-amber-500',
+      label: 'Medium',
+      labelColor: 'text-amber-500',
+    },
+    low: {
+      bg: darkMode ? 'bg-blue-500/8' : 'bg-blue-50',
+      border: darkMode ? 'border-blue-500/20' : 'border-blue-100',
+      dot: 'bg-blue-500',
+      label: 'Low',
+      labelColor: 'text-blue-500',
+    },
+  };
+
+  return (
+    <>
+      {/* Summary card */}
+      <div className={`rounded-xl border p-5 ${cardBorder} ${cardBg}`}>
+        <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+          <Lightbulb className="w-4 h-4 text-[#1235e2]" />
+          Report Summary
+        </h3>
+        <div className="flex items-start gap-4">
+          <div
+            className="shrink-0 w-14 h-14 rounded-xl flex items-center justify-center text-lg font-black"
+            style={{
+              backgroundColor: scoreBg(overall, darkMode),
+              color: scoreColor(overall),
+            }}
+          >
+            {overall}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold mb-1" style={{ color: scoreColor(overall) }}>
+              {verdict.label} Creative Diversity
+            </p>
+            <p className={`text-xs leading-relaxed ${muted}`}>
+              {verdict.description}
+            </p>
+            <p className={`text-xs mt-2 ${muted}`}>
+              Based on {classificationCoverage.classified} classified ads out of {classificationCoverage.total} active.
+              The diversity score measures how evenly your ads are distributed across {CATEGORY_KEYS.length} creative dimensions
+              (format, hook, messaging, audience, funnel stage, etc). Higher scores mean the algorithm has more creative variation to test and optimize.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Recommendations card */}
+      {recs.length > 0 && (
+        <div className={`rounded-xl border p-5 ${cardBorder} ${cardBg}`}>
+          <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-[#1235e2]" />
+            Recommendations
+          </h3>
+          <div className="space-y-3">
+            {recs.map((rec, i) => {
+              const style = priorityStyles[rec.priority];
+              return (
+                <div
+                  key={i}
+                  className={`rounded-lg border p-3.5 ${style.bg} ${style.border}`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Zap className="w-3.5 h-3.5 shrink-0" style={{ color: scoreColor(rec.priority === 'high' ? 20 : rec.priority === 'medium' ? 50 : 70) }} />
+                    <span className="text-sm font-semibold">{rec.title}</span>
+                    <span className={`text-[10px] font-semibold uppercase tracking-wider ml-auto ${style.labelColor}`}>
+                      {style.label}
+                    </span>
+                  </div>
+                  <p className={`text-xs leading-relaxed ${muted} pl-5.5`}>
+                    {rec.detail}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* AI Insights section — only when brand profile exists */}
+      {brandContext && (
+        <div
+          className={`rounded-xl border p-5 ${cardBorder} ${cardBg}`}
+          style={{
+            borderImage: darkMode
+              ? 'linear-gradient(135deg, rgba(18,53,226,0.3), rgba(99,102,241,0.15)) 1'
+              : 'linear-gradient(135deg, rgba(18,53,226,0.2), rgba(99,102,241,0.1)) 1',
+          }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#1235e2]" />
+              AI-Powered Insights
+              <span
+                className={`text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                  darkMode ? 'bg-[#1235e2]/15 text-[#6b8aff]' : 'bg-[#1235e2]/10 text-[#1235e2]'
+                }`}
+              >
+                AI-Powered
+              </span>
+            </h3>
+            {!aiInsights && !aiLoading && (
+              <button
+                onClick={handleGenerateInsights}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#1235e2] text-white hover:bg-[#0f2dc4] transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Generate AI Insights
+              </button>
+            )}
+          </div>
+
+          {/* Loading state */}
+          {aiLoading && (
+            <div className="flex items-center gap-3 py-4">
+              <Loader2 className="w-5 h-5 text-[#1235e2] animate-spin" />
+              <span className={`text-sm ${muted}`}>Generating personalized insights...</span>
+            </div>
+          )}
+
+          {/* Error state */}
+          {aiError && !aiLoading && (
+            <div className={`rounded-lg border p-3 ${darkMode ? 'border-red-500/20 bg-red-500/5' : 'border-red-100 bg-red-50'}`}>
+              <p className="text-xs text-red-400">{aiError}</p>
+            </div>
+          )}
+
+          {/* Insights display */}
+          {aiInsights && aiInsights.length > 0 && (
+            <div className="space-y-3">
+              {aiInsights.map((insight, i) => (
+                <div
+                  key={i}
+                  className={`rounded-lg border p-3.5 ${
+                    darkMode
+                      ? 'border-[#1235e2]/20 bg-[#1235e2]/5'
+                      : 'border-[#1235e2]/10 bg-blue-50/50'
+                  }`}
+                >
+                  <div className="flex items-start gap-2">
+                    <span
+                      className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold mt-0.5 ${
+                        darkMode ? 'bg-[#1235e2]/20 text-[#6b8aff]' : 'bg-[#1235e2]/10 text-[#1235e2]'
+                      }`}
+                    >
+                      {i + 1}
+                    </span>
+                    <p className={`text-xs leading-relaxed ${muted}`}>{insight}</p>
+                  </div>
+                </div>
+              ))}
+              <button
+                onClick={handleGenerateInsights}
+                disabled={aiLoading}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  darkMode
+                    ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                }`}
+              >
+                <RefreshCw className={`w-3 h-3 ${aiLoading ? 'animate-spin' : ''}`} />
+                Regenerate
+              </button>
+            </div>
+          )}
+
+          {/* Empty state — prompt to generate */}
+          {!aiInsights && !aiLoading && !aiError && (
+            <p className={`text-xs ${muted}`}>
+              Get personalized strategy recommendations based on your brand profile ({brandContext.name}).
+              AI insights will reference your audience, positioning, and pain points.
+            </p>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // StrategyView
@@ -431,6 +837,17 @@ ${concept.productionBrief}`;
           })}
         </div>
       </div>
+
+      {/* B2. Report Summary + Recommendations */}
+      <ReportSummary
+        diversityScores={diversityScores}
+        taxonomyBreakdown={taxonomyBreakdown}
+        gapMatrix={gapMatrix}
+        classificationCoverage={classificationCoverage}
+        darkMode={darkMode}
+        brandContext={strategyData.brandContext}
+        pageId={brand.pageId}
+      />
 
       {/* C. Taxonomy Breakdown */}
       <div
