@@ -32,15 +32,15 @@ Requirements for v9.0 milestone. Each maps to roadmap phases.
 ### Auto-Enrichment
 
 - [x] **ENRC-01**: User can auto-populate brand profile from existing ad library data (classifications, analyses, metadata)
-- [ ] **ENRC-02**: User can auto-populate brand profile from website URL crawl (voice, colors, audience extraction)
+- [x] **ENRC-02**: User can auto-populate brand profile from website URL crawl (voice, colors, audience extraction)
 - [x] **ENRC-03**: Auto-enrichment respects cost budgets and uses change detection to avoid redundant runs
 
 ### Manus Integration
 
-- [ ] **MANS-01**: Deep research queries route to Manus API as async tasks with polling UI
-- [ ] **MANS-02**: Simple/fast queries continue routing to Claude for instant streaming responses
-- [ ] **MANS-03**: Manus task results display with clear async state ("Researching... usually takes 2-5 minutes")
-- [ ] **MANS-04**: Routing is keyword-based + UI toggle ("Deep Research" mode), not LLM-classified
+- [x] **MANS-01**: Deep research queries route to Manus API as async tasks with polling UI
+- [x] **MANS-02**: Simple/fast queries continue routing to Claude for instant streaming responses
+- [x] **MANS-03**: Manus task results display with clear async state ("Researching... usually takes 2-5 minutes")
+- [x] **MANS-04**: Routing is keyword-based + UI toggle ("Deep Research" mode), not LLM-classified
 
 ### Brand Intelligence
 
@@ -99,13 +99,13 @@ Which phases cover which requirements. Updated by create-roadmap.
 | ONBD-02 | Phase 69 | Complete |
 | ONBD-03 | Phase 69 | Complete |
 | ONBD-04 | Phase 69 | Complete |
-| ENRC-01 | Phase 70 | Pending |
-| ENRC-02 | Phase 71 | Pending |
-| ENRC-03 | Phase 70 | Pending |
-| MANS-01 | Phase 71 | Pending |
-| MANS-02 | Phase 71 | Pending |
-| MANS-03 | Phase 71 | Pending |
-| MANS-04 | Phase 71 | Pending |
+| ENRC-01 | Phase 70 | Complete |
+| ENRC-02 | Phase 71 | Complete |
+| ENRC-03 | Phase 70 | Complete |
+| MANS-01 | Phase 71 | Complete |
+| MANS-02 | Phase 71 | Complete |
+| MANS-03 | Phase 71 | Complete |
+| MANS-04 | Phase 71 | Complete |
 | INTL-01 | Phase 72 | Pending |
 | INTL-02 | Phase 72 | Pending |
 
@@ -116,4 +116,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-04-03*
-*Last updated: 2026-04-04 — Phase 69 requirements marked Complete*
+*Last updated: 2026-04-06 — Phase 71 requirements marked Complete*
