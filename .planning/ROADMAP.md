@@ -64,7 +64,7 @@ Phases 62-67 — Motion classification, strategy matrix, gap analysis, concepts,
 
 ---
 
-### v9.0 Brand Profile & AI Context System (In Progress)
+### v9.0 Brand Profile & AI Context System — SHIPPED 2026-04-06
 
 **Milestone Goal:** Make Hikaru Chat brand-aware — users onboard their brand, and every AI response is contextualized with their brand voice, audience, competitors, and strategy.
 
@@ -74,7 +74,7 @@ Phases 62-67 — Motion classification, strategy matrix, gap analysis, concepts,
 - [x] **Phase 69: Context Injection & Onboarding** - Brand-aware AI responses + guided wizard
 - [x] **Phase 70: Auto-Enrichment from Ad Data** - Auto-populate profiles from existing intelligence
 - [x] **Phase 71: Manus Integration & Deep Research** - Async research backend + website enrichment
-- [ ] **Phase 72: Brand Intelligence & Polish** - Health overview + personalized strategy
+- [x] **Phase 72: Brand Intelligence & Polish** - Health overview + personalized strategy
 
 ## Phase Details
 
@@ -155,8 +155,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 72-01-PLAN.md — Brand health API + competitor comparison UI in Creative Lab
-- [ ] 72-02-PLAN.md — Profile-aware strategy recommendations + AI-powered personalized insights
+- [x] 72-01-PLAN.md — Brand health API + competitor comparison UI in Creative Lab
+- [x] 72-02-PLAN.md — Profile-aware strategy recommendations + AI-powered personalized insights
 
 ## Progress
 
@@ -169,7 +169,7 @@ Phases execute in numeric order: 68 → 69 → 70 → 71 → 72
 | 69. Context Injection & Onboarding | 3/3 | ✓ Complete | 2026-04-04 |
 | 70. Auto-Enrichment from Ad Data | 2/2 | ✓ Complete | 2026-04-06 |
 | 71. Manus Integration & Deep Research | 2/2 | ✓ Complete | 2026-04-06 |
-| 72. Brand Intelligence & Polish | 0/2 | Not started | — |
+| 72. Brand Intelligence & Polish | 2/2 | ✓ Complete | 2026-04-06 |
 
 ---
-*Last updated: 2026-04-06 — Phase 72 planned (2 plans, 1 wave)*
+*Last updated: 2026-04-06 — Phase 72 complete, v9.0 milestone complete*

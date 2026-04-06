@@ -44,8 +44,8 @@ Requirements for v9.0 milestone. Each maps to roadmap phases.
 
 ### Brand Intelligence
 
-- [ ] **INTL-01**: User sees auto-generated brand health overview comparing their ads to linked competitors
-- [ ] **INTL-02**: Creative Lab strategy view uses full brand profile for personalized gap analysis and recommendations
+- [x] **INTL-01**: User sees auto-generated brand health overview comparing their ads to linked competitors
+- [x] **INTL-02**: Creative Lab strategy view uses full brand profile for personalized gap analysis and recommendations
 
 ## v2 Requirements
 
@@ -106,8 +106,8 @@ Which phases cover which requirements. Updated by create-roadmap.
 | MANS-02 | Phase 71 | Complete |
 | MANS-03 | Phase 71 | Complete |
 | MANS-04 | Phase 71 | Complete |
-| INTL-01 | Phase 72 | Pending |
-| INTL-02 | Phase 72 | Pending |
+| INTL-01 | Phase 72 | Complete |
+| INTL-02 | Phase 72 | Complete |
 
 **Coverage:**
 - v1 requirements: 22 total

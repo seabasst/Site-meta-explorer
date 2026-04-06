@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 72 — Brand Intelligence & Polish
+**Current focus:** v9.0 milestone complete — all 5 phases shipped
 
 ## Current Position
 
-Phase: 72 of 72 (Brand Intelligence & Polish) — COMPLETE
+Phase: 72 of 72 (Brand Intelligence & Polish) — COMPLETE ✓
 Plan: 2/2 complete
-Status: Phase 72 complete — all plans executed
-Last activity: 2026-04-06 — Completed 72-02-PLAN.md (Strategy Profile Intelligence)
+Status: v9.0 milestone complete — all phases (68-72) verified
+Last activity: 2026-04-06 — Phase 72 executed and verified (brand health + personalized strategy)
 
 Progress: ██████████ 100%
 
@@ -70,5 +70,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-04-06
-Stopped at: Phase 72 complete — all plans executed
+Stopped at: v9.0 milestone complete — ready for /gsd:audit-milestone or /gsd:complete-milestone
 Resume file: None
