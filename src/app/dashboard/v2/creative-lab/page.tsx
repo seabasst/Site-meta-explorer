@@ -12,6 +12,7 @@ import {
   FileText,
   BarChart3,
   Target,
+  Activity,
 } from 'lucide-react';
 import { V2Shell } from '../v2-shell';
 import { useV2 } from '../v2-context';
@@ -20,6 +21,7 @@ import { GenerationGallery } from './generation-gallery';
 import { UGCBriefView } from './ugc-brief-view';
 import { AnalysisView } from './analysis-view';
 import { StrategyView } from './strategy-view';
+import { BrandHealthOverview } from './brand-health-overview';
 import type {
   GenerationConfig,
   GenerationSuggestion,
@@ -41,7 +43,7 @@ interface SearchResult {
   source: string;
 }
 
-type FlowState = 'search' | 'mode-select' | 'analysis' | 'strategy' | 'config' | 'gallery' | 'brief-loading' | 'brief';
+type FlowState = 'search' | 'mode-select' | 'analysis' | 'strategy' | 'health' | 'config' | 'gallery' | 'brief-loading' | 'brief';
 
 // ---------------------------------------------------------------------------
 // Main Component
@@ -112,6 +114,8 @@ function CreativeLabPage() {
         setFlowState('analysis');
       } else if (mode === 'strategy') {
         setFlowState('strategy');
+      } else if (mode === 'health') {
+        setFlowState('health');
       } else if (mode === 'generate') {
         setFlowState('mode-select');
       } else {
@@ -164,6 +168,10 @@ function CreativeLabPage() {
 
   function handleChooseStrategy() {
     setFlowState('strategy');
+  }
+
+  function handleChooseHealth() {
+    setFlowState('health');
   }
 
   // -- Mode: Generate Ad Creatives -> load config ---------------------------
@@ -480,7 +488,7 @@ function CreativeLabPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
             {/* Analyze Brand */}
             <button
               onClick={handleChooseAnalysis}
@@ -519,6 +527,24 @@ function CreativeLabPage() {
                 Taxonomy-based gap analysis with interactive concept generation.
               </p>
             </button>
+
+            {/* Brand Health */}
+            <button
+              onClick={handleChooseHealth}
+              className={`group text-left rounded-xl border-2 p-6 transition-all ${
+                darkMode
+                  ? 'border-[#1235e2]/10 bg-[#101322] hover:border-[#1235e2]/40 hover:bg-[#1235e2]/5'
+                  : 'border-slate-200 bg-white hover:border-[#1235e2] hover:bg-blue-50/30'
+              }`}
+            >
+              <div className="w-12 h-12 rounded-xl bg-[#1235e2]/10 flex items-center justify-center mb-4 group-hover:bg-[#1235e2]/20 transition-colors">
+                <Activity className="w-6 h-6 text-[#1235e2]" />
+              </div>
+              <h3 className="text-base font-bold mb-1">Brand Health</h3>
+              <p className={`text-sm ${muted}`}>
+                Compare your scores side-by-side against linked competitors.
+              </p>
+            </button>
           </div>
         </div>
       )}
@@ -538,6 +564,17 @@ function CreativeLabPage() {
       {flowState === 'strategy' && selectedBrand && (
         <div className="max-w-6xl mx-auto">
           <StrategyView
+            brand={selectedBrand}
+            darkMode={darkMode}
+            onBack={handleBackToModeSelect}
+          />
+        </div>
+      )}
+
+      {/* Health state */}
+      {flowState === 'health' && selectedBrand && (
+        <div className="max-w-4xl mx-auto">
+          <BrandHealthOverview
             brand={selectedBrand}
             darkMode={darkMode}
             onBack={handleBackToModeSelect}
