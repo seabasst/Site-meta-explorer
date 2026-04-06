@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Help brands and agencies see what competitors are running — browse, save, analyze, compare.
-**Current focus:** Phase 71 complete — ready for Phase 72
+**Current focus:** Phase 72 — Brand Intelligence & Polish
 
 ## Current Position
 
-Phase: 71 of 72 (Manus Integration & Deep Research) — COMPLETE ✓
-Plan: 2/2 complete
-Status: Verified, ready for Phase 72
-Last activity: 2026-04-06 — Phase 71 executed and verified (Manus backend + Deep Research UI + website enrichment)
+Phase: 72 of 72 (Brand Intelligence & Polish)
+Plan: 1/2 complete
+Status: In progress
+Last activity: 2026-04-06 — Completed 72-01-PLAN.md (Brand Health Overview)
 
-Progress: ████████░░ 80%
+Progress: █████████░ 85%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 140
+- Total plans completed: 141
 - Average duration: —
 - Total execution time: —
 
@@ -55,6 +55,9 @@ Recent decisions affecting current work:
 - (71-01): No userId on ManusTask — open-access, follows BrandProfile pattern
 - (71-01): Poll endpoint caches completed results, avoids redundant Manus API calls
 - (71-01): Manus API errors during polling don't corrupt DB state
+- (72-01): pageId from navigation context to identify user brand (no schema migration)
+- (72-01): Comparison null when no analyzed competitors (cleaner UI conditionals)
+- (72-01): Active BrandProfile first, any-with-competitors fallback for open-access
 
 ### Blockers/Concerns
 
@@ -64,5 +67,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-04-06
-Stopped at: Phase 71 complete — ready to plan Phase 72
+Stopped at: Completed 72-01-PLAN.md (Brand Health Overview)
 Resume file: None
