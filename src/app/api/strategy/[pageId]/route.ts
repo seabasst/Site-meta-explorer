@@ -51,8 +51,8 @@ export async function GET(
       );
     }
 
-    // 2. Parallel queries: cache, classifications, total active ads
-    const [cache, classifications, totalActiveAds] = await Promise.all([
+    // 2. Parallel queries: cache, classifications, total active ads, brand profile
+    const [cache, classifications, totalActiveAds, userBrandProfile] = await Promise.all([
       prisma.brandAnalysisCache.findUnique({
         where: { brandId: brand.id },
       }),
@@ -62,6 +62,17 @@ export async function GET(
       }),
       prisma.adLibraryAd.count({
         where: { brandId: brand.id, isActive: true },
+      }),
+      prisma.brandProfile.findFirst({
+        where: { isActive: true },
+        include: {
+          competitors: {
+            include: {
+              adLibraryBrand: { select: { id: true, pageId: true, pageName: true } },
+            },
+          },
+        },
+        orderBy: { updatedAt: 'desc' },
       }),
     ]);
 
@@ -179,6 +190,15 @@ export async function GET(
       diversityScores,
       gapMatrix,
       maxCellCount,
+      // Optional brand profile context for personalized recommendations
+      brandContext: userBrandProfile ? {
+        name: userBrandProfile.name,
+        positioning: userBrandProfile.positioning,
+        brandVoice: userBrandProfile.brandVoice,
+        demographics: userBrandProfile.demographics,
+        painPoints: userBrandProfile.painPoints,
+        interests: userBrandProfile.interests,
+      } : null,
     });
   } catch (error) {
     console.error("Strategy data error:", error);
