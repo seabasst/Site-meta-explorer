@@ -73,7 +73,7 @@ Phases 62-67 — Motion classification, strategy matrix, gap analysis, concepts,
 - [x] **Phase 68: Brand Profile Schema & CRUD** - Data model, management UI, brand selector
 - [x] **Phase 69: Context Injection & Onboarding** - Brand-aware AI responses + guided wizard
 - [x] **Phase 70: Auto-Enrichment from Ad Data** - Auto-populate profiles from existing intelligence
-- [ ] **Phase 71: Manus Integration & Deep Research** - Async research backend + website enrichment
+- [x] **Phase 71: Manus Integration & Deep Research** - Async research backend + website enrichment
 - [ ] **Phase 72: Brand Intelligence & Polish** - Health overview + personalized strategy
 
 ## Phase Details
@@ -152,11 +152,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User sees auto-generated brand health overview comparing their ads to linked competitors
   2. Creative Lab strategy view uses full brand profile for personalized gap analysis and recommendations
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 72-01: Brand health overview (competitor comparison + health scores)
-- [ ] 72-02: Personalized strategy integration (profile-aware gap analysis + recommendations)
+- [ ] 72-01-PLAN.md — Brand health API + competitor comparison UI in Creative Lab
+- [ ] 72-02-PLAN.md — Profile-aware strategy recommendations + AI-powered personalized insights
 
 ## Progress
 
@@ -172,4 +172,4 @@ Phases execute in numeric order: 68 → 69 → 70 → 71 → 72
 | 72. Brand Intelligence & Polish | 0/2 | Not started | — |
 
 ---
-*Last updated: 2026-04-06 — Phase 71 complete (verified)*
+*Last updated: 2026-04-06 — Phase 72 planned (2 plans, 1 wave)*
