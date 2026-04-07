@@ -1,5 +1,52 @@
 # Project Milestones: Ad Library Intelligence Platform
 
+## v9.0 Brand Profile & AI Context System (Shipped: 2026-04-07)
+
+**Delivered:** Made Hikaru Chat brand-aware — users onboard their brand via wizard or AI interview, and every AI response is contextualized with their brand voice, audience, competitors, and strategy. Includes auto-enrichment from ad data and websites, Manus deep research integration, and brand health competitor comparison.
+
+**Phases completed:** 68-72 (11 plans total)
+
+**Key accomplishments:**
+
+- BrandProfile multi-table data model with full CRUD, tab-based settings, and brand selector in Hikaru chat
+- Brand context injection into all AI routes via shared compileBrandContext() utility (~2K token budget)
+- Onboarding wizard (5-step form + AI conversational interview) with soft prompts that never block access
+- Auto-enrichment pipeline from ad classifications using Haiku 4.5 with hash-based change detection
+- Manus API integration for async deep research with dual-response routing (instant Claude + async Manus)
+- Brand health competitor comparison and profile-aware personalized strategy recommendations
+
+**Stats:**
+
+- 70 files changed, +14,131 / -491 lines
+- 5 phases, 11 plans, 52 commits
+- 4 days (2026-04-03 → 2026-04-06)
+
+**Git range:** `df25dc7` → `2dac7f7`
+
+**What's next:** TBD — discuss next milestone
+
+---
+
+## v8.0 Creative Strategy Engine (Shipped: 2026-03-27)
+
+**Delivered:** Motion-based ad classification with Claude Vision, strategy matrix with gap analysis, hook generation, creative concepts with AI images, and category benchmarking.
+
+**Phases completed:** 62-67 (12 plans total)
+
+**Git range:** Phase 62 → Phase 67
+
+---
+
+## v7.0 Creative Lab (Shipped: 2026-03-26)
+
+**Delivered:** Creative Lab with analysis view, AI image generation (Flux Schnell), UGC Creator Briefs, brand guidelines, and brand search.
+
+**Phases completed:** 55-61 (14 plans total)
+
+**Git range:** Phase 55 → Phase 61
+
+---
+
 ## v6.1 Brand Monitoring & Cleanup (Shipped: 2026-03-21)
 
 **Delivered:** Fixed brand monitoring persistence, added per-brand dashboard with demographics charts and top ads by reach, cleaned up orphaned code from v6.0, and verified Facebook token infrastructure.

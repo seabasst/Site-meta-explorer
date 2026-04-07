@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A competitive ad intelligence tool for brands and agencies. Users browse a database of Facebook ads, save ads for reference, track brands, and analyze creative strategies. Features an AI assistant (Hikaru) with embedded charts, creative analysis lab, configurable analytics dashboard, and a landing page with 3-tier pricing. V1 at `/analyser` serves as freemium entry point; V2 dashboard is the core product.
+A competitive ad intelligence tool for brands and agencies. Users browse a database of Facebook ads, save ads for reference, track brands, and analyze creative strategies. Features a brand-aware AI assistant (Hikaru) with embedded charts, creative analysis lab with strategy engine, configurable analytics dashboard, and a landing page with 3-tier pricing. Users onboard their brand via wizard or AI interview, and every AI response is contextualized with their brand voice, audience, competitors, and strategy. V1 at `/analyser` serves as freemium entry point; V2 dashboard is the core product.
 
 ## Core Value
 
@@ -66,16 +66,18 @@ Help brands and agencies see what competitors are running and how they're reachi
 - ✓ Brand search with category in Creative Lab — v7.0
 - ✓ Dead code cleanup and gap closure — v7.0+
 
-### Active (v9.0 Brand Profile & AI Context System)
+### Validated (v9.0 Brand Profile & AI Context System)
 
-- [ ] BrandProfile Prisma model — structured brand data (voice, audience, visual identity, competitors, pain points, positioning)
-- [ ] Onboarding wizard UI — guided multi-step flow to capture brand context on first use
-- [ ] Manus API integration — async deep-research agent for brand extraction from existing ads/metadata
-- [ ] Context injection — brand profile injected into Claude and Manus system prompts for brand-aware responses
-- [ ] Message router — Claude for fast streaming responses, Manus for deep async analysis with polling UI
-- [ ] Auto-enrichment background jobs — re-analyze brand profile as new ads come in
-- [ ] Brand management page — view, edit, delete brand profiles
-- [ ] Brand selector in chat — switch active brand context in Hikaru
+- ✓ BrandProfile multi-table data model with full CRUD, tab-based settings, and brand selector — v9.0
+- ✓ Onboarding wizard (5-step form + AI conversational interview) with soft prompts — v9.0
+- ✓ Manus API integration for async deep research with dual-response routing — v9.0
+- ✓ Brand context injection into all AI routes via compileBrandContext() — v9.0
+- ✓ Keyword-based message routing (Claude streaming + Manus async with polling UI) — v9.0
+- ✓ Auto-enrichment from ad data (Haiku 4.5, hash-based change detection) and website URLs — v9.0
+- ✓ Brand management page (view, edit, delete brand profiles) — v9.0
+- ✓ Brand selector in Hikaru chat header with URL param persistence — v9.0
+- ✓ Brand health competitor comparison with pillar-by-pillar indexing — v9.0
+- ✓ Profile-aware personalized strategy recommendations with AI insights — v9.0
 
 ### Validated (v8.0 Creative Strategy Engine)
 
@@ -93,10 +95,13 @@ Help brands and agencies see what competitors are running and how they're reachi
 - [ ] Admin UI — industry list, brand management, benchmark display
 - [ ] Comparison view — brand vs industry average with indexing
 
+### Active
+
+(No active milestone — planning next)
+
 ### Out of Scope
 
 - Five Pillars diversity scoring — replaced by Motion-dimension classification in v8.0
-- Website/review scraping for brand context — DB-only data sources
 - Full canvas editor — template-based only, keep complexity manageable
 - Competitors monitoring page — hidden, may delete later
 - Benchmarking pages — hidden, may delete later
@@ -127,7 +132,7 @@ Help brands and agencies see what competitors are running and how they're reachi
 - **Tech stack:** Next.js 16, maintain existing architecture
 - **DB:** Shared Neon PostgreSQL (same DB for local + production)
 - **Vision API Cost:** Claude Vision classification adds per-ad cost — needs batching/caching strategy
-- **Data Source:** Brand strategy intake uses DB ads/metadata only — no external scraping
+- **Data Source:** Brand strategy intake uses DB ads/metadata + Manus website crawl for enrichment
 - **Motion Framework:** Reference/inspiration only — own implementation, not their npm package
 
 ## Key Decisions
@@ -149,39 +154,35 @@ Help brands and agencies see what competitors are running and how they're reachi
 | :::chart fenced block protocol for AI | Self-contained chart emission in chat | ✓ Good |
 | localStorage config persistence | No backend needed for dashboard presets | ✓ Good |
 | URL param hydration for drill-downs | Deep-linkable filtered views across pages | ✓ Good |
-
-## Current Milestone: v9.0 Brand Profile & AI Context System
-
-**Goal:** Make Hikaru Chat brand-aware — users onboard their brand, and every AI response is contextualized with their brand voice, audience, competitors, and strategy.
-
-**Target features:**
-- BrandProfile data model with structured brand intelligence
-- Onboarding wizard for guided brand context capture
-- Manus API as async deep-research backend (brand extraction, competitive analysis)
-- Context injection into all AI calls (Claude streaming + Manus async)
-- Dual-model message routing (fast Claude responses + deep Manus analysis)
-- Auto-enrichment as new ad data arrives
-- Brand management CRUD
-- Brand selector in Hikaru chat
+| BrandProfile as multi-table Prisma model | Structured fields vs JSON blob — better querying, migration path | ✓ Good |
+| compileBrandContext() shared utility | Single source for XML-tagged brand context injection across all AI routes | ✓ Good |
+| Manus API for async deep research | Complex brand analysis offloaded to async agent; Claude stays fast for chat | ✓ Good |
+| Keyword-based message routing | Simpler than LLM classification; UI toggle for user control | ✓ Good |
+| Soft onboarding (never blocking) | All features work without brand profile; gentle nudge to create one | ✓ Good |
+| Haiku 4.5 for enrichment/strategy | Cost-efficient for structured extraction and non-critical AI tasks | ✓ Good |
+| Hash-based change detection (SHA-256) | More reliable than timestamps for skip-redundant enrichment runs | ✓ Good |
+| Fill-empty + append-deduplicate merge | User edits preserved during auto-enrichment | ✓ Good |
 
 ## Context
 
 **Current State:**
-- Shipped v8.0 Creative Strategy Engine (Motion classification, strategy matrix, gap analysis, concepts, benchmarking)
+- Shipped v9.0 Brand Profile & AI Context System
 - Tech stack: Next.js 16, React 19, Recharts, Tailwind CSS v4, Auth.js, Stripe, Prisma + Neon PostgreSQL
 - Deployed to Vercel at facebookadexplorer.kirimedia.co
 - Cloudflare R2 for ad asset storage
 - 514+ brands in database, ingestion pipeline with 3 token rotation
-- Hikaru AI chat at `/dashboard/v2/hikaru` with embedded charts via :::chart protocol
-- Creative Lab with analysis view, strategy view, concept generation
+- Hikaru AI chat at `/dashboard/v2/hikaru` — brand-aware with context injection
+- Creative Lab with analysis view, strategy view, concept generation — all brand-context-aware
 - Classification infrastructure: AdClassification model, batch/single classify, cron polling
-- Manus API (https://open.manus.ai) identified as async agent backend
+- Manus API integrated for async deep research and website enrichment
+- BrandProfile system with onboarding wizard, AI interview, auto-enrichment
+- Brand health competitor comparison and personalized strategy recommendations
 
 **Known Issues:**
 - TOKEN2 expires 2026-04-24, TOKEN3 expires 2026-04-25 — schedule refresh mid-April
-- Hikaru currently has no brand context — responses are generic
-- No structured brand profile storage yet
-- Manus API integration not yet built
+- Creative Lab generate routes use inline brand context instead of shared compileBrandContext() (minor tech debt)
+- Manus API endpoints lack auth() checks (low risk)
+- BrandGuidelines model kept as dead code (superseded by BrandProfile)
 
 ---
-*Last updated: 2026-04-02 after v9.0 Brand Profile & AI Context System milestone started*
+*Last updated: 2026-04-07 after v9.0 Brand Profile & AI Context System milestone completed*
