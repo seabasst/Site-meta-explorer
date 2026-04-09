@@ -14,7 +14,7 @@
     },
     {
       "path": "/api/ad-library/cron/classify-poll",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 4 * * *"
     }
   ]
 }
