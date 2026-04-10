@@ -3,6 +3,9 @@
  * Run with: npx tsx scripts/download-top-ads.ts
  */
 
+import { config } from 'dotenv';
+config({ path: '.env.local' });
+
 import { prisma } from '../src/lib/prisma';
 import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import puppeteer from 'puppeteer';
@@ -12,6 +15,7 @@ const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID;
 const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID;
 const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY;
 const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || 'ad-assets';
+const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || 'https://pub-25ef069908854da9871d20aea605675a.r2.dev';
 
 const s3Client = new S3Client({
   region: 'auto',
@@ -120,12 +124,13 @@ async function downloadAd(
   const uploaded = await uploadToR2(screenshot, r2Key, 'image/png');
   if (uploaded) {
     // Update database with R2 URL
+    const storedUrl = `${R2_PUBLIC_URL}/${r2Key}`;
     await prisma.adAsset.upsert({
       where: { id: `${ad.id}-0` },
       update: {
-        r2Key,
+        storedKey: r2Key,
+        storedUrl,
         downloadStatus: 'completed',
-        downloadedAt: new Date(),
       },
       create: {
         id: `${ad.id}-0`,
@@ -133,9 +138,9 @@ async function downloadAd(
         assetType: 'image',
         position: 0,
         originalUrl: ad.snapshotUrl,
-        r2Key,
+        storedKey: r2Key,
+        storedUrl,
         downloadStatus: 'completed',
-        downloadedAt: new Date(),
       },
     });
     console.log(`  ✓ Downloaded: ${ad.adId}`);

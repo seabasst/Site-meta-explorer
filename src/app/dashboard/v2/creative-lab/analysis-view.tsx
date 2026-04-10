@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Sparkles,
-  FileText,
   BarChart3,
   Loader2,
   AlertTriangle,
@@ -41,8 +39,6 @@ interface DiversityResult {
 interface AnalysisViewProps {
   brand: { pageId: string; pageName: string; iconUrl?: string; category?: string | null; source: string };
   darkMode: boolean;
-  onGenerateCreatives: () => void;
-  onGenerateBrief: () => void;
   onBack: () => void;
 }
 
@@ -69,8 +65,6 @@ const CATEGORY_PILLS: { key: keyof DiversityScores; label: string; color: string
 export function AnalysisView({
   brand,
   darkMode,
-  onGenerateCreatives,
-  onGenerateBrief,
   onBack,
 }: AnalysisViewProps) {
   const [diversity, setDiversity] = useState<DiversityResult | null>(null);
@@ -336,47 +330,6 @@ export function AnalysisView({
         darkMode={darkMode}
       />
 
-      {/* Action CTAs */}
-      <div>
-        <h3 className="text-lg font-bold mb-4">Take Action</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Generate Ad Creatives */}
-          <button
-            onClick={onGenerateCreatives}
-            className={`text-left rounded-xl border-2 p-6 transition-all group ${
-              darkMode
-                ? 'border-[#1235e2]/10 bg-[#101322] hover:border-[#1235e2]/40 hover:bg-[#1235e2]/5'
-                : 'border-slate-200 bg-white hover:border-[#1235e2] hover:bg-blue-50/30'
-            }`}
-          >
-            <div className="w-12 h-12 rounded-xl bg-[#1235e2]/10 flex items-center justify-center mb-4 group-hover:bg-[#1235e2]/20 transition-colors">
-              <Sparkles className="w-6 h-6 text-[#1235e2]" />
-            </div>
-            <h4 className="text-base font-bold mb-1">Generate Ad Creatives</h4>
-            <p className={`text-sm ${muted}`}>
-              AI will create images targeting your diversity gaps.
-            </p>
-          </button>
-
-          {/* Generate UGC Brief */}
-          <button
-            onClick={onGenerateBrief}
-            className={`text-left rounded-xl border-2 p-6 transition-all group ${
-              darkMode
-                ? 'border-[#1235e2]/10 bg-[#101322] hover:border-[#1235e2]/40 hover:bg-[#1235e2]/5'
-                : 'border-slate-200 bg-white hover:border-[#1235e2] hover:bg-blue-50/30'
-            }`}
-          >
-            <div className="w-12 h-12 rounded-xl bg-[#1235e2]/10 flex items-center justify-center mb-4 group-hover:bg-[#1235e2]/20 transition-colors">
-              <FileText className="w-6 h-6 text-[#1235e2]" />
-            </div>
-            <h4 className="text-base font-bold mb-1">Generate UGC Brief</h4>
-            <p className={`text-sm ${muted}`}>
-              Get a structured creator brief based on this brand&apos;s data.
-            </p>
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

@@ -489,7 +489,7 @@ async function fetchAdsPage(
     access_token: token,
     ad_reached_countries: JSON.stringify(countries),
     ad_type: 'ALL',
-    ad_active_status: 'ALL',
+    ad_active_status: 'ACTIVE',
     ad_delivery_date_min: getOneYearAgoDate(), // Only ads from last year
     fields: fields,
     limit: String(effectiveLimit),
@@ -607,7 +607,7 @@ async function fetchAdsBySearchTerms(
     search_terms: searchTerm,
     ad_reached_countries: JSON.stringify(TARGET_COUNTRIES),
     ad_type: 'ALL',
-    ad_active_status: 'ALL',
+    ad_active_status: 'ACTIVE',
     ad_delivery_date_min: getOneYearAgoDate(), // Only ads from last year
     fields: AD_FIELDS,
     limit: String(limit),

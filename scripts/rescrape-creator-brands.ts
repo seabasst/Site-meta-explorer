@@ -30,6 +30,8 @@ const args = process.argv.slice(2);
 const BRAND_LIMIT = parseInt(args.find(a => a.startsWith('--limit='))?.split('=')[1] || '0');
 const CONCURRENCY = 3;
 const SAMPLE_SIZE = parseInt(args.find(a => a.startsWith('--sample='))?.split('=')[1] || '50');
+const FRESH = args.includes('--fresh'); // Clear existing data before scraping
+const NEW_ONLY = args.includes('--new'); // Only scan brands without existing partnerships
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -303,36 +305,45 @@ async function fetchAndScrape(brandPageId: string, maxAds: number): Promise<Hit[
 async function main() {
   console.log(`Re-scraping creator brands with media download (sample=${SAMPLE_SIZE}, limit=${BRAND_LIMIT || 'all'})...\n`);
 
-  // Try brands with existing partnerships first, fall back to all active brands
-  const brandIds = await prisma.creatorPartnership.findMany({
-    select: { brandId: true },
-    distinct: ['brandId'],
-  });
+  // Get brands that already have partnerships
+  const existingBrandIds = new Set(
+    (await prisma.creatorPartnership.findMany({ select: { brandId: true }, distinct: ['brandId'] }))
+      .map(b => b.brandId)
+  );
 
   let brands;
-  if (brandIds.length > 0) {
+  if (NEW_ONLY) {
+    // Only brands we haven't scraped yet
     brands = await prisma.adLibraryBrand.findMany({
-      where: { id: { in: brandIds.map(b => b.brandId) } },
+      where: { ingestionStatus: 'active', id: { notIn: [...existingBrandIds] } },
+      select: { id: true, pageId: true, pageName: true },
+      orderBy: { activeAdCount: 'desc' },
+    });
+    if (BRAND_LIMIT > 0) brands = brands.slice(0, BRAND_LIMIT);
+    console.log(`New brands to scan (not yet scraped): ${brands.length}\n`);
+  } else if (existingBrandIds.size > 0 && !FRESH) {
+    brands = await prisma.adLibraryBrand.findMany({
+      where: { id: { in: [...existingBrandIds] } },
       select: { id: true, pageId: true, pageName: true },
       orderBy: { pageName: 'asc' },
     });
     if (BRAND_LIMIT > 0) brands = brands.slice(0, BRAND_LIMIT);
     console.log(`Brands to re-scrape (from existing partnerships): ${brands.length}\n`);
   } else {
-    // No existing partnerships — scan all active brands
     brands = await prisma.adLibraryBrand.findMany({
       where: { ingestionStatus: 'active' },
       select: { id: true, pageId: true, pageName: true },
       orderBy: { activeAdCount: 'desc' },
     });
     if (BRAND_LIMIT > 0) brands = brands.slice(0, BRAND_LIMIT);
-    console.log(`No existing partnerships. Scanning top ${brands.length} active brands.\n`);
+    console.log(`Scanning all active brands: ${brands.length}\n`);
   }
 
-  // Clear existing data
-  await prisma.creatorPartnership.deleteMany({});
-  await prisma.adCreator.deleteMany({});
-  console.log('Cleared old creator data.\n');
+  if (FRESH) {
+    await prisma.creatorPartnership.deleteMany({});
+    await prisma.adCreator.deleteMany({});
+    console.log('Cleared old creator data.\n');
+  }
 
   const allHits: Hit[] = [];
 

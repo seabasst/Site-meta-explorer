@@ -13,7 +13,7 @@ export interface GenerationSuggestion {
   visualStyle: string;
   journeyPhase: string;
   copyAngle: string;
-  imagePrompt: string; // For Flux Schnell -- no text in images
+  imagePrompt: string; // Visual Bible prefix + scene direction for Gemini
   priority: 'high' | 'medium' | 'low';
   selected: boolean; // Defaults to true; user can deselect before generation
 }
@@ -27,6 +27,7 @@ export interface GenerationConfig {
     audience: string[];
   };
   gapSummary: string; // 2-3 sentence overview of gaps found
+  visualBible?: string; // Visual Bible prompt prefix from Step 1
 }
 
 export interface GenerationResult {
