@@ -136,30 +136,154 @@ export function AdDetailLightbox({ ad, darkMode, isSaved, onToggleSave, onClose 
     }
   };
 
-  const renderTargeting = () => {
-    if (ad.targetingJson == null) return null;
-    try {
-      if (typeof ad.targetingJson === 'string') {
-        return <p className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>{ad.targetingJson}</p>;
-      }
-      if (typeof ad.targetingJson === 'object' && ad.targetingJson !== null) {
-        const entries = Object.entries(ad.targetingJson as Record<string, unknown>);
-        if (entries.length === 0) return null;
-        return (
-          <div className="space-y-1">
-            {entries.map(([key, value]) => (
-              <div key={key} className="flex gap-2 text-sm">
-                <span className={`font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{key}:</span>
-                <span className={darkMode ? 'text-slate-300' : 'text-slate-600'}>{String(value)}</span>
-              </div>
+  // Parse targeting data
+  const targeting = (() => {
+    if (!ad.targetingJson || typeof ad.targetingJson !== 'object') return null;
+    const t = ad.targetingJson as Record<string, unknown>;
+    return {
+      gender: t.targetGender as string | null,
+      ages: t.targetAges as string[] | null,
+      locations: t.targetLocations as { name: string; type: string }[] | null,
+      deliveryByRegion: t.deliveryByRegion as { region: string; percentage: string }[] | null,
+    };
+  })();
+
+  const renderGeoSection = () => {
+    if (!targeting) return null;
+    const regions = targeting.deliveryByRegion?.filter(r => parseFloat(r.percentage) > 0.005) || [];
+    const locations = targeting.locations || [];
+    if (regions.length === 0 && locations.length === 0) return null;
+
+    return (
+      <div className={`pt-4 border-t ${sectionBorder}`}>
+        <div className="flex items-center gap-1.5 mb-3">
+          <Globe className={`w-3.5 h-3.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />
+          <span className={labelClass}>Geographic Reach</span>
+        </div>
+        {regions.length > 0 ? (
+          <div className="space-y-1.5">
+            {regions
+              .sort((a, b) => parseFloat(b.percentage) - parseFloat(a.percentage))
+              .slice(0, 8)
+              .map(r => {
+                const pct = parseFloat(r.percentage) * 100;
+                return (
+                  <div key={r.region} className="flex items-center gap-2">
+                    <span className={`text-xs w-24 truncate shrink-0 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                      {r.region}
+                    </span>
+                    <div className={`flex-1 h-2 rounded-full overflow-hidden ${darkMode ? 'bg-slate-700' : 'bg-slate-100'}`}>
+                      <div
+                        className="h-full rounded-full bg-[#1235e2]"
+                        style={{ width: `${Math.max(pct, 2)}%` }}
+                      />
+                    </div>
+                    <span className={`text-xs w-10 text-right font-medium ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+                      {pct.toFixed(1)}%
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {locations.map((loc, i) => (
+              <span
+                key={i}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${
+                  darkMode ? 'bg-[#1235e2]/10 text-[#1235e2]' : 'bg-slate-100 text-slate-600'
+                }`}
+              >
+                {loc.name}
+              </span>
             ))}
           </div>
-        );
-      }
-      return <p className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>Targeting data available</p>;
-    } catch {
-      return <p className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>Targeting data available</p>;
-    }
+        )}
+      </div>
+    );
+  };
+
+  const renderDemographicsSection = () => {
+    if (!targeting) return null;
+    const gender = targeting.gender;
+    const ages = targeting.ages;
+    if (!gender && !ages) return null;
+
+    return (
+      <div className={`pt-4 border-t ${sectionBorder}`}>
+        <div className="flex items-center gap-1.5 mb-3">
+          <Users className={`w-3.5 h-3.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />
+          <span className={labelClass}>Audience Demographics</span>
+        </div>
+        <div className="flex gap-6">
+          {/* Gender */}
+          {gender && (
+            <div>
+              <span className={`text-[10px] uppercase tracking-wide ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                Gender
+              </span>
+              <div className="flex items-center gap-2 mt-1">
+                {gender === 'All' ? (
+                  <>
+                    <div className="flex gap-0.5">
+                      <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
+                        <span className="text-[10px] text-blue-400">M</span>
+                      </div>
+                      <div className="w-5 h-5 rounded-full bg-pink-500/20 flex items-center justify-center">
+                        <span className="text-[10px] text-pink-400">F</span>
+                      </div>
+                    </div>
+                    <span className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>All</span>
+                  </>
+                ) : gender === 'Men' ? (
+                  <>
+                    <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
+                      <span className="text-[10px] text-blue-400">M</span>
+                    </div>
+                    <span className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>Men only</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-5 h-5 rounded-full bg-pink-500/20 flex items-center justify-center">
+                      <span className="text-[10px] text-pink-400">F</span>
+                    </div>
+                    <span className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>Women only</span>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Age range */}
+          {ages && ages.length >= 2 && (
+            <div>
+              <span className={`text-[10px] uppercase tracking-wide ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                Age Range
+              </span>
+              <div className="mt-1">
+                <span className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                  {ages[0]}{ages[1] === '65' ? '+' : ` - ${ages[1]}`}
+                </span>
+                {/* Visual age bar */}
+                <div className={`mt-1.5 h-1.5 w-32 rounded-full ${darkMode ? 'bg-slate-700' : 'bg-slate-100'} relative`}>
+                  <div
+                    className="absolute h-full rounded-full bg-[#1235e2]"
+                    style={{
+                      left: `${((parseInt(ages[0]) - 13) / 52) * 100}%`,
+                      right: `${((65 - parseInt(ages[1])) / 52) * 100}%`,
+                    }}
+                  />
+                </div>
+                <div className="flex justify-between mt-0.5 w-32">
+                  <span className={`text-[9px] ${darkMode ? 'text-slate-600' : 'text-slate-300'}`}>13</span>
+                  <span className={`text-[9px] ${darkMode ? 'text-slate-600' : 'text-slate-300'}`}>65+</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   const labelClass = `text-[11px] uppercase font-bold tracking-wide ${darkMode ? 'text-slate-500' : 'text-slate-400'}`;
@@ -402,16 +526,11 @@ export function AdDetailLightbox({ ad, darkMode, isSaved, onToggleSave, onClose 
               </div>
             )}
 
-            {/* Targeting */}
-            {renderTargeting() && (
-              <div className={`pt-4 border-t ${sectionBorder}`}>
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Eye className={`w-3.5 h-3.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`} />
-                  <span className={labelClass}>Targeting</span>
-                </div>
-                {renderTargeting()}
-              </div>
-            )}
+            {/* Demographics (Gender + Age) */}
+            {renderDemographicsSection()}
+
+            {/* Geographic Reach */}
+            {renderGeoSection()}
 
             {/* Action buttons */}
             <div className={`flex gap-3 pt-4 border-t ${sectionBorder}`}>
