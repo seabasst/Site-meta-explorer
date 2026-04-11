@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import {
   Send,
   Loader2,
@@ -609,6 +609,14 @@ function ChatSidebar({
 // ---------------------------------------------------------------------------
 
 export default function HikaruPage() {
+  return (
+    <Suspense>
+      <HikaruPageInner />
+    </Suspense>
+  );
+}
+
+function HikaruPageInner() {
   const { darkMode } = useV2();
   const searchParams = useSearchParams();
   const [messages, setMessages] = useState<Message[]>([]);
