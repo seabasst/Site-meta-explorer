@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useSession, signIn } from 'next-auth/react';
 import {
   BookOpen,
-  X,
   Heart,
   LogIn,
   Sparkles,
@@ -23,6 +22,7 @@ import { StatsStrip } from './components/stats-strip';
 import { LoadMoreButton } from './components/load-more-button';
 import { AdDetailLightbox } from './components/ad-detail-lightbox';
 import { DemographicPeek } from './components/demographic-peek';
+import { V2Modal } from '../components/v2-modal';
 import { normalizeDemographicsJson, NormalizedDemographics } from '@/lib/demographics-normalizer';
 
 // ---------------------------------------------------------------------------
@@ -31,7 +31,7 @@ import { normalizeDemographicsJson, NormalizedDemographics } from '@/lib/demogra
 
 export default function AdLibraryPage() {
   return (
-    <Suspense fallback={<V2Shell title="Ad Library"><V2Skeleton rows={4} /></V2Shell>}>
+    <Suspense fallback={<V2Shell title="Ads"><V2Skeleton rows={4} /></V2Shell>}>
       <AdLibraryContent />
     </Suspense>
   );
@@ -91,12 +91,17 @@ function AdLibraryContent() {
 
   // Demographic peek state
   const [brandDemographics, setBrandDemographics] = useState<NormalizedDemographics | null>(null);
-  const [demoCollapsed, setDemoCollapsed] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('demographicPeekCollapsed') === 'true';
+  // Always start collapsed=false on SSR and first client render to avoid a
+  // hydration mismatch (server can't read localStorage). We read the stored
+  // preference in a useEffect after mount. A one-frame flicker from false→true
+  // on reload is the intended trade-off for a clean hydration.
+  const [demoCollapsed, setDemoCollapsed] = useState<boolean>(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (localStorage.getItem('demographicPeekCollapsed') === 'true') {
+      setDemoCollapsed(true);
     }
-    return false;
-  });
+  }, []);
 
   // Debounce search
   useEffect(() => {
@@ -354,7 +359,7 @@ function AdLibraryContent() {
 
   if (loading) {
     return (
-      <V2Shell title="Ad Library">
+      <V2Shell title="Ads">
         <V2Skeleton rows={4} />
       </V2Shell>
     );
@@ -362,7 +367,7 @@ function AdLibraryContent() {
 
   if (error && !filteredStats) {
     return (
-      <V2Shell title="Ad Library">
+      <V2Shell title="Ads">
         <div className={`rounded-xl p-12 text-center border ${darkMode ? 'bg-[#1235e2]/5 border-[#1235e2]/10' : 'bg-white border-slate-200'}`}>
           <BookOpen className={`w-12 h-12 mx-auto mb-4 ${darkMode ? 'text-slate-600' : 'text-slate-300'}`} />
           <p className={`text-lg font-medium mb-2 ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
@@ -385,7 +390,7 @@ function AdLibraryContent() {
     : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6';
 
   return (
-    <V2Shell title="Ad Library">
+    <V2Shell title="Ads">
       {/* Stats Strip */}
       <StatsStrip stats={filteredStats} loading={adsLoading} darkMode={darkMode} />
 
@@ -405,6 +410,7 @@ function AdLibraryContent() {
         categories={categories}
         selectedFormats={selectedFormats}
         onToggleFormat={toggleFormat}
+        onClearFormats={() => setSelectedFormats(new Set())}
         formatOptions={formatOptions}
         daysActiveFilter={daysActiveFilter}
         onDaysActiveChange={setDaysActiveFilter}
@@ -434,7 +440,7 @@ function AdLibraryContent() {
             </div>
             <div className="min-w-0">
               <Link
-                href={`/dashboard/v2/ad-library/${brandInfo.pageId}`}
+                href={`/dashboard/v2/ads/${brandInfo.pageId}`}
                 className="text-sm font-bold hover:text-[#1235e2] transition-colors"
               >
                 {brandInfo.pageName}
@@ -446,7 +452,7 @@ function AdLibraryContent() {
           </div>
           <div className="flex items-center gap-2">
             <Link
-              href={`/dashboard/v2/ad-library/${brandInfo.pageId}`}
+              href={`/dashboard/v2/ads/${brandInfo.pageId}`}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                 darkMode
                   ? 'border border-slate-600 text-slate-300 hover:border-[#1235e2] hover:text-[#1235e2]'
@@ -531,86 +537,79 @@ function AdLibraryContent() {
         )}
       </section>
 
-      {/* Login Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowLoginModal(false)}>
-          <div
-            className={`relative w-full max-w-sm mx-4 rounded-2xl p-6 shadow-2xl ${
-              darkMode ? 'bg-[#161b2e] border border-[#1235e2]/20' : 'bg-white border border-slate-200'
-            }`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowLoginModal(false)}
-              className={`absolute top-3 right-3 p-1 rounded-lg transition-colors ${
-                darkMode ? 'text-slate-400 hover:text-white hover:bg-white/10' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex flex-col items-center text-center">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${
-                darkMode ? 'bg-[#1235e2]/20' : 'bg-[#1235e2]/10'
-              }`}>
-                <Heart className="w-6 h-6 text-[#1235e2]" />
-              </div>
-              <h3 className={`text-lg font-bold mb-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-                Sign in to save ads
-              </h3>
-              <p className={`text-sm mb-6 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                Create a free account to save ads and build your collection.
-              </p>
-
-              <form
-                className="w-full space-y-3"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const form = e.currentTarget;
-                  const email = (form.elements.namedItem('email') as HTMLInputElement).value;
-                  const password = (form.elements.namedItem('password') as HTMLInputElement).value;
-                  const res = await signIn('credentials', { email, password, redirect: false });
-                  if (res?.ok) setShowLoginModal(false);
-                }}
-              >
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="Email"
-                  defaultValue="demo@example.com"
-                  className={`w-full px-3 py-2.5 rounded-lg text-sm border outline-none transition-colors ${
-                    darkMode
-                      ? 'bg-[#101322] border-[#1235e2]/20 text-white placeholder-slate-500 focus:border-[#1235e2]'
-                      : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-[#1235e2]'
-                  }`}
-                />
-                <input
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  defaultValue="demo123"
-                  className={`w-full px-3 py-2.5 rounded-lg text-sm border outline-none transition-colors ${
-                    darkMode
-                      ? 'bg-[#101322] border-[#1235e2]/20 text-white placeholder-slate-500 focus:border-[#1235e2]'
-                      : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-[#1235e2]'
-                  }`}
-                />
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-lg bg-[#1235e2] text-white text-sm font-semibold hover:bg-[#0f2bc4] transition-colors flex items-center justify-center gap-2"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Sign In
-                </button>
-              </form>
-
-              <p className={`text-xs mt-4 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                Demo: demo@example.com / demo123
-              </p>
-            </div>
+      {/* Login Modal (accessible: role=dialog + focus trap + Esc/backdrop) */}
+      <V2Modal
+        open={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        darkMode={darkMode}
+        size="sm"
+        title="Sign in to save ads"
+        description="Create a free account to save ads and build your collection."
+      >
+        <div className="px-6 py-6 flex flex-col items-center text-center">
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${
+            darkMode ? 'bg-[#1235e2]/20' : 'bg-[#1235e2]/10'
+          }`}>
+            <Heart className="w-6 h-6 text-[#1235e2]" aria-hidden />
           </div>
+
+          <form
+            className="w-full space-y-3"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+              const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+              const res = await signIn('credentials', { email, password, redirect: false });
+              if (res?.ok) setShowLoginModal(false);
+            }}
+          >
+            <label className="block text-left">
+              <span className="sr-only">Email</span>
+              <input
+                name="email"
+                type="email"
+                placeholder="Email"
+                autoComplete="email"
+                required
+                className={`w-full px-3 py-2.5 rounded-lg text-sm border outline-none transition-colors ${
+                  darkMode
+                    ? 'bg-[#101322] border-[#1235e2]/20 text-white placeholder-slate-500 focus:border-[#1235e2]'
+                    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-[#1235e2]'
+                }`}
+              />
+            </label>
+            <label className="block text-left">
+              <span className="sr-only">Password</span>
+              <input
+                name="password"
+                type="password"
+                placeholder="Password"
+                autoComplete="current-password"
+                required
+                className={`w-full px-3 py-2.5 rounded-lg text-sm border outline-none transition-colors ${
+                  darkMode
+                    ? 'bg-[#101322] border-[#1235e2]/20 text-white placeholder-slate-500 focus:border-[#1235e2]'
+                    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-[#1235e2]'
+                }`}
+              />
+            </label>
+            <button
+              type="submit"
+              className="w-full py-2.5 rounded-lg bg-[#1235e2] text-white text-sm font-semibold hover:bg-[#0f2bc4] transition-colors flex items-center justify-center gap-2"
+            >
+              <LogIn className="w-4 h-4" aria-hidden />
+              Sign In
+            </button>
+          </form>
+
+          {process.env.NEXT_PUBLIC_ENABLE_DEMO_LOGIN === "1" && (
+            <p className={`text-xs mt-4 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+              Demo: demo@example.com / demo123
+            </p>
+          )}
         </div>
-      )}
+      </V2Modal>
       {/* Ad Detail Lightbox */}
       {selectedAd && (
         <AdDetailLightbox

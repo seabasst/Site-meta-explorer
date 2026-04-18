@@ -7,12 +7,11 @@ import { useSession, signIn, signOut } from 'next-auth/react';
 import type { LucideIcon } from 'lucide-react';
 import {
   BarChart3,
-  BookOpen,
+  Megaphone,
   Palette,
   Settings,
   Moon,
   Sun,
-  Bell,
   LayoutDashboard,
   Globe,
   Download,
@@ -71,7 +70,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: 'Inspiration',
     items: [
-      { id: '/dashboard/v2/ad-library', icon: BookOpen, label: 'Ad Library' },
+      { id: '/dashboard/v2/ads', icon: Megaphone, label: 'Ads' },
       { id: '/dashboard/v2/saved', icon: Heart, label: 'Saved Ads' },
       { id: '/dashboard/v2/brands', icon: Globe, label: 'Brands' },
       { id: '/dashboard/v2/creators', icon: Users, label: 'Creators' },
@@ -304,11 +303,10 @@ export function V2Shell({
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-            <button className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              darkMode ? 'bg-[#1235e2]/10 text-slate-400' : 'bg-slate-100 text-slate-600'
-            }`}>
-              <Bell className="w-5 h-5" />
-            </button>
+            {/* Notification bell removed — it was a non-functional placeholder
+                with no onClick, no aria-label, and no tooltip (scope 2 P1).
+                When we actually build notifications, bring back as a real
+                <button> with aria-label="Notifications" + onClick. */}
             <UserMenu darkMode={darkMode} />
           </div>
         </header>

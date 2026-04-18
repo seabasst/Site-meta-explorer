@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
+import { memo } from 'react';
 import {
   Play,
   Image as ImageIcon,
@@ -12,7 +14,10 @@ import {
 import { formatNumber } from '../../v2-shell';
 import { Ad, formatFormatLabel } from '../types';
 
-export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact, onSelect }: { ad: Ad; darkMode: boolean; isSaved?: boolean; onToggleSave?: (adId: string) => void; compact?: boolean; onSelect?: () => void }) {
+// Memoized — the parent grid can re-render on every filter keystroke; cards
+// shouldn't re-render unless their ad data / saved state actually changes.
+// Keyed by ad.id for stable memo compares.
+export const AdCard = memo(function AdCard({ ad, darkMode, isSaved, onToggleSave, compact, onSelect }: { ad: Ad; darkMode: boolean; isSaved?: boolean; onToggleSave?: (adId: string) => void; compact?: boolean; onSelect?: () => void }) {
   // Find the best available asset (prefer completed R2 downloads)
   const primaryAsset = ad.assets?.find(a => a.downloadStatus === 'completed' && a.storedUrl);
 
@@ -42,10 +47,12 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact, onSelect 
         );
       }
       return (
-        <img
+        <Image
           src={primaryAsset.storedUrl}
           alt={ad.title || 'Ad creative'}
-          className="w-full h-full object-cover"
+          fill
+          sizes="(min-width: 1536px) 22vw, (min-width: 1280px) 28vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+          className="object-cover"
           loading="lazy"
         />
       );
@@ -62,11 +69,30 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact, onSelect 
     );
   };
 
+  // Keyboard activation: Enter / Space should open the lightbox like a click.
+  // Previously the card was a clickable <div> with no role/tabIndex/onKeyDown,
+  // making it unreachable by keyboard users. (Scope 2 P0.)
+  const selectable = Boolean(onSelect);
+  const openLabel = ad.title || ad.body?.slice(0, 80) || 'this ad';
+
   return (
     <div
       onClick={onSelect}
-      className={`group rounded-xl overflow-hidden border transition-all hover:shadow-lg ${
-        onSelect ? 'cursor-pointer' : ''
+      onKeyDown={
+        selectable
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelect?.();
+              }
+            }
+          : undefined
+      }
+      role={selectable ? 'button' : undefined}
+      tabIndex={selectable ? 0 : undefined}
+      aria-label={selectable ? `Open details for ${openLabel}` : undefined}
+      className={`group rounded-xl overflow-hidden border transition-all hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1235e2] ${
+        selectable ? 'cursor-pointer' : ''
       } ${
         darkMode
           ? 'bg-[#1235e2]/5 border-[#1235e2]/10 hover:border-[#1235e2]/40'
@@ -107,7 +133,13 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact, onSelect 
         {/* Brand */}
         <div className="flex items-center gap-2 mb-3 min-w-0">
           {ad.brand.profilePicUrl ? (
-            <img src={ad.brand.profilePicUrl} alt="" className="w-6 h-6 rounded object-cover shrink-0" />
+            <Image
+              src={ad.brand.profilePicUrl}
+              alt=""
+              width={24}
+              height={24}
+              className="w-6 h-6 rounded object-cover shrink-0"
+            />
           ) : (
             <div className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold shrink-0 ${
               darkMode ? 'bg-[#1235e2]/20 text-[#1235e2]' : 'bg-slate-100 text-slate-600'
@@ -116,7 +148,7 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact, onSelect 
             </div>
           )}
           <Link
-            href={`/dashboard/v2/ad-library/${ad.brand.pageId}`}
+            href={`/dashboard/v2/ads/${ad.brand.pageId}`}
             className="text-sm font-bold truncate text-[#1235e2] hover:underline transition-colors"
             onClick={e => e.stopPropagation()}
           >
@@ -168,4 +200,4 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact, onSelect 
       </div>
     </div>
   );
-}
+});

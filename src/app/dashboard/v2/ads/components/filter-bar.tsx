@@ -42,6 +42,8 @@ interface FilterBarProps {
   categories: FilterOption[];
   selectedFormats: Set<string>;
   onToggleFormat: (fmt: string) => void;
+  /** Clear every selected format. Used by the multi-format chip remove button. */
+  onClearFormats: () => void;
   formatOptions: FilterOption[];
   daysActiveFilter: DaysRange | null;
   onDaysActiveChange: (range: DaysRange | null) => void;
@@ -75,7 +77,7 @@ export function FilterBar(props: FilterBarProps) {
     statusFilter, onStatusChange,
     sortBy, sortOrder, onSortByChange, onSortOrderToggle,
     categoryFilter, onCategoryChange, categories,
-    selectedFormats, onToggleFormat, formatOptions,
+    selectedFormats, onToggleFormat, onClearFormats, formatOptions,
     daysActiveFilter, onDaysActiveChange, daysRanges,
     brandFilter, onBrandChange, topBrands,
     hideCarousel, onHideCarouselToggle,
@@ -95,9 +97,13 @@ export function FilterBar(props: FilterBarProps) {
       <div className="flex flex-wrap gap-3 items-center mb-3">
         {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${darkMode ? 'text-slate-400' : 'text-slate-400'}`} />
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${darkMode ? 'text-slate-400' : 'text-slate-400'}`} aria-hidden />
+          <label htmlFor="ads-search" className="sr-only">
+            Search ads
+          </label>
           <input
-            type="text"
+            id="ads-search"
+            type="search"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className={`w-full border-none rounded-lg pl-10 pr-4 h-10 text-sm focus:outline-none focus:ring-1 focus:ring-[#1235e2] ${
@@ -153,8 +159,9 @@ export function FilterBar(props: FilterBarProps) {
               darkMode ? 'bg-[#1235e2]/10 text-slate-300 hover:bg-[#1235e2]/20' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
             title={sortOrder === 'desc' ? 'Descending' : 'Ascending'}
+            aria-label={`Sort order: ${sortOrder === 'desc' ? 'descending' : 'ascending'} (click to toggle)`}
           >
-            {sortOrder === 'desc' ? <ArrowDown className="w-3.5 h-3.5" /> : <ArrowUp className="w-3.5 h-3.5" />}
+            {sortOrder === 'desc' ? <ArrowDown className="w-3.5 h-3.5" aria-hidden /> : <ArrowUp className="w-3.5 h-3.5" aria-hidden />}
           </button>
         </div>
 
@@ -373,7 +380,10 @@ export function FilterBar(props: FilterBarProps) {
             <FilterChip label={`Industry: ${categoryFilter}`} onRemove={() => onCategoryChange('')} darkMode={darkMode} />
           )}
           {selectedFormats.size > 0 && (
-            <FilterChip label={`Format: ${Array.from(selectedFormats).join(', ')}`} onRemove={() => onToggleFormat('')} darkMode={darkMode} />
+            // Remove clears all selected formats. Previously called
+            // onToggleFormat('') which toggled an empty-string key into the Set
+            // instead of clearing — chip couldn't be dismissed.
+            <FilterChip label={`Format: ${Array.from(selectedFormats).join(', ')}`} onRemove={onClearFormats} darkMode={darkMode} />
           )}
           {daysActiveFilter && (
             <FilterChip label={daysActiveFilter.label} onRemove={() => onDaysActiveChange(null)} darkMode={darkMode} />

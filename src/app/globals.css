@@ -84,6 +84,23 @@
   --color-foreground: var(--text-primary);
   --font-sans: 'DM Sans', system-ui, sans-serif;
   --font-serif: 'Instrument Serif', Georgia, serif;
+
+  /* V2 dashboard brand tokens — Phase 6.1.
+   *
+   * Before adding these, #1235e2 and friends were hardcoded as hex literals
+   * in 130+ places across src/app/dashboard/v2/**. Every component also had
+   * its own darkMode:boolean branch selecting surface colors. Use these
+   * tokens via Tailwind utilities: bg-brand, text-brand, border-brand,
+   * bg-brand/10, bg-surface-dark, etc. The mass codemod is deferred — new
+   * code should use the tokens, and each touched file should migrate
+   * opportunistically. */
+  --color-brand: #1235e2;
+  --color-brand-hover: #0f2bc4;
+  --color-brand-light: #3a5ce8;
+  --color-surface-dark: #101322;
+  --color-surface-dark-raised: #181b2e;
+  --color-surface-dark-elevated: #161b2e;
+  --color-surface-light: #f6f6f8;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
