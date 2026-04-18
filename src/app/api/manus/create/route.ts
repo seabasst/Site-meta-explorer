@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { createManusTask } from '@/lib/manus/client';
+import { llmGuard } from '@/lib/llm/guard';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
@@ -13,6 +14,14 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Manus is expensive but we don't get per-call usage. Guard only.
+    const guard = await llmGuard({
+      userId: session.user.id,
+      userEmail: session.user.email,
+      operation: 'manus-create',
+    });
+    if (!guard.ok) return guard.response;
 
     const body = await request.json();
     const {

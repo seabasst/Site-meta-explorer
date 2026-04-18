@@ -61,10 +61,20 @@ export async function classifySingleAd(
     text: buildAdContext(ad),
   });
 
+  // Prompt caching on the system prompt. The taxonomy + 5 few-shot examples
+  // total ~4-6k input tokens; classify-batch re-sends them per ad, so cache
+  // hits reduce input cost ~10x after the first call within a 5-min window.
   const response = await client.messages.parse({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 500,
-    system: systemPrompt,
+    temperature: 0,
+    system: [
+      {
+        type: "text",
+        text: systemPrompt,
+        cache_control: { type: "ephemeral" },
+      },
+    ],
     messages: [{ role: "user", content: userContent }],
     output_config: { format: zodOutputFormat(ClassificationOutputSchema) },
   });

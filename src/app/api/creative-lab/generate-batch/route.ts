@@ -4,6 +4,7 @@ import { GoogleGenAI } from '@google/genai';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import type { BrandProfile } from '@prisma/client';
+import { llmGuard } from '@/lib/llm/guard';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -57,6 +58,14 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const guard = await llmGuard({
+      userId: session.user.id,
+      userEmail: session.user.email,
+      operation: 'creative-lab-batch',
+    });
+    if (!guard.ok) return guard.response;
+
     const body = await request.json();
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {

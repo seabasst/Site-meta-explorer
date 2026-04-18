@@ -5,6 +5,8 @@ import { auth } from '@/auth';
 import { generateVisualBible } from '@/lib/creative-lab/visual-bible';
 import { generateCreativeBriefs } from '@/lib/creative-lab/creative-director';
 import type { GenerationSuggestion, GenerationConfig } from '@/lib/creative-lab-types';
+import { llmGuard, recordLlmSpend } from '@/lib/llm/guard';
+import { estimateCost } from '@/lib/llm/models';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -29,6 +31,14 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const guard = await llmGuard({
+      userId: session.user.id,
+      userEmail: session.user.email,
+      operation: 'creative-lab-config',
+    });
+    if (!guard.ok) return guard.response;
+
     const body = await request.json();
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
@@ -145,7 +155,7 @@ export async function POST(request: NextRequest) {
       Record<string, number>
     > | null;
 
-    const briefs = await generateCreativeBriefs({
+    const briefsResult = await generateCreativeBriefs({
       brandName: brand.pageName,
       category: brand.category,
       visualBible,
@@ -164,6 +174,14 @@ export async function POST(request: NextRequest) {
       brandAudience,
       totalAdsAnalyzed: cache.totalAdsAnalyzed,
     });
+
+    const briefs = briefsResult.briefs;
+
+    // Record spend (Sonnet creative-director call)
+    void recordLlmSpend(
+      session.user.id,
+      estimateCost(briefsResult.model, briefsResult.usage),
+    );
 
     // ------------------------------------------------------------------
     // 6. Map briefs to frontend suggestions

@@ -44,6 +44,12 @@ export interface AdCreativeBrief {
   priority: 'high' | 'medium' | 'low';
 }
 
+export interface CreativeBriefsResult {
+  briefs: AdCreativeBrief[];
+  usage: Anthropic.Usage;
+  model: string;
+}
+
 const SYSTEM_PROMPT = `You are an elite Creative Director at a top-tier performance marketing agency. You specialize in Meta Ads creative strategy and have deep expertise in Andromeda (Meta's ad delivery algorithm).
 
 Your job: Take a brand's Visual Bible (their established visual identity) and their creative diversity gaps, then produce specific ad creative briefs that:
@@ -61,7 +67,7 @@ CRITICAL RULES:
 
 export async function generateCreativeBriefs(
   input: CreativeDirectorInput
-): Promise<AdCreativeBrief[]> {
+): Promise<CreativeBriefsResult> {
   // Identify gaps: categories scoring below 60
   const gapCategories = Object.entries(input.diversityScores)
     .filter(([key, score]) => key !== 'overall' && score < 60)
@@ -125,8 +131,9 @@ For each brief, return:
 
 Return ONLY a valid JSON array. No markdown.`;
 
+  const model = 'claude-sonnet-4-20250514';
   const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model,
     max_tokens: 5000,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userPrompt }],
@@ -138,5 +145,13 @@ Return ONLY a valid JSON array. No markdown.`;
     .join('');
 
   const clean = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  return JSON.parse(clean) as AdCreativeBrief[];
+  let briefs: AdCreativeBrief[];
+  try {
+    briefs = JSON.parse(clean) as AdCreativeBrief[];
+  } catch (err) {
+    throw new Error(
+      `LLM returned malformed JSON in creative-director: ${(err as Error).message}`,
+    );
+  }
+  return { briefs, usage: response.usage, model };
 }

@@ -176,7 +176,14 @@ Return ONLY valid JSON. No markdown.`;
     .replace(/```json\n?/g, "")
     .replace(/```\n?/g, "")
     .trim();
-  const parsed = JSON.parse(cleaned) as EnrichmentFields;
+  let parsed: EnrichmentFields;
+  try {
+    parsed = JSON.parse(cleaned) as EnrichmentFields;
+  } catch (err) {
+    throw new Error(
+      `LLM returned malformed JSON in enrich-from-ads: ${(err as Error).message}`,
+    );
+  }
 
   // Normalize: ensure arrays are arrays, strings are strings or null
   const fields: EnrichmentFields = {

@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import Anthropic from '@anthropic-ai/sdk';
+import { llmGuard, recordLlmSpend } from '@/lib/llm/guard';
+import { estimateCost } from '@/lib/llm/models';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -28,11 +30,13 @@ interface AnalysisResult {
 // Analyze a single ad with vision
 async function analyzeAdImage(
   imageUrl: string,
-  adContext: { body?: string | null; title?: string | null; brand: string; format?: string | null }
+  adContext: { body?: string | null; title?: string | null; brand: string; format?: string | null },
+  userId: string,
 ): Promise<AnalysisResult> {
   const response = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 1024,
+    temperature: 0,
     messages: [
       {
         role: 'user',
@@ -71,6 +75,9 @@ Return ONLY valid JSON, no markdown.`,
     ],
   });
 
+  // Record spend
+  void recordLlmSpend(userId, estimateCost('claude-haiku-4-5-20251001', response.usage));
+
   const text = response.content
     .filter((b): b is Anthropic.TextBlock => b.type === 'text')
     .map((b) => b.text)
@@ -78,19 +85,28 @@ Return ONLY valid JSON, no markdown.`,
 
   // Parse JSON, handling potential markdown wrapping
   const jsonStr = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  return JSON.parse(jsonStr);
+  try {
+    return JSON.parse(jsonStr);
+  } catch (err) {
+    console.error('[analyze-templates] LLM returned malformed JSON (image):', err, jsonStr.slice(0, 500));
+    throw new Error('AI returned invalid JSON for image analysis');
+  }
 }
 
 // Analyze a video ad using copy/metadata only (no vision)
-async function analyzeAdCopy(adContext: {
-  body?: string | null;
-  title?: string | null;
-  brand: string;
-  format?: string | null;
-}): Promise<AnalysisResult> {
+async function analyzeAdCopy(
+  adContext: {
+    body?: string | null;
+    title?: string | null;
+    brand: string;
+    format?: string | null;
+  },
+  userId: string,
+): Promise<AnalysisResult> {
   const response = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 1024,
+    temperature: 0,
     messages: [
       {
         role: 'user',
@@ -120,19 +136,28 @@ Return ONLY valid JSON, no markdown.`,
     ],
   });
 
+  // Record spend
+  void recordLlmSpend(userId, estimateCost('claude-haiku-4-5-20251001', response.usage));
+
   const text = response.content
     .filter((b): b is Anthropic.TextBlock => b.type === 'text')
     .map((b) => b.text)
     .join('');
 
   const jsonStr = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  return JSON.parse(jsonStr);
+  try {
+    return JSON.parse(jsonStr);
+  } catch (err) {
+    console.error('[analyze-templates] LLM returned malformed JSON (copy):', err, jsonStr.slice(0, 500));
+    throw new Error('AI returned invalid JSON for copy analysis');
+  }
 }
 
 // Generate templates from a batch of analyses
 async function generateTemplates(
   analyses: Array<{ analysis: AnalysisResult; adBody?: string | null; adTitle?: string | null; brand: string }>,
-  category: string
+  category: string,
+  userId: string,
 ): Promise<Array<{
   name: string;
   description: string;
@@ -219,13 +244,21 @@ Return ONLY valid JSON array, no markdown.`,
     ],
   });
 
+  // Record spend for the Sonnet templates call
+  void recordLlmSpend(userId, estimateCost('claude-sonnet-4-20250514', response.usage));
+
   const text = response.content
     .filter((b): b is Anthropic.TextBlock => b.type === 'text')
     .map((b) => b.text)
     .join('');
 
   const jsonStr = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  return JSON.parse(jsonStr);
+  try {
+    return JSON.parse(jsonStr);
+  } catch (err) {
+    console.error('[analyze-templates] LLM returned malformed JSON (templates):', err, jsonStr.slice(0, 500));
+    throw new Error('AI returned invalid JSON for templates');
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -234,6 +267,14 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const guard = await llmGuard({
+      userId: session.user.id,
+      userEmail: session.user.email,
+      operation: 'analyze-templates',
+    });
+    if (!guard.ok) return guard.response;
+
     const { category, brandId, pageId, limit = 10 } = await request.json();
 
     // Resolve pageId to brandId if provided
@@ -338,18 +379,25 @@ export async function POST(request: NextRequest) {
           const isVideo = asset.assetType === 'video';
 
           const analysis = isVideo
-            ? await analyzeAdCopy({
-                body: ad.body,
-                title: ad.title,
-                brand: ad.brand.pageName,
-                format: ad.displayFormat,
-              })
-            : await analyzeAdImage(assetUrl, {
-                body: ad.body,
-                title: ad.title,
-                brand: ad.brand.pageName,
-                format: ad.displayFormat,
-              });
+            ? await analyzeAdCopy(
+                {
+                  body: ad.body,
+                  title: ad.title,
+                  brand: ad.brand.pageName,
+                  format: ad.displayFormat,
+                },
+                session.user.id!,
+              )
+            : await analyzeAdImage(
+                assetUrl,
+                {
+                  body: ad.body,
+                  title: ad.title,
+                  brand: ad.brand.pageName,
+                  format: ad.displayFormat,
+                },
+                session.user.id!,
+              );
 
           // Cache in DB
           const data = {
@@ -406,7 +454,7 @@ export async function POST(request: NextRequest) {
 
     // Generate templates from analyses
     const categoryName = category || ads[0]?.brand.category || 'general';
-    const templates = await generateTemplates(analysisResults, categoryName);
+    const templates = await generateTemplates(analysisResults, categoryName, session.user.id!);
 
     // Store templates
     const storedTemplates = await Promise.all(
