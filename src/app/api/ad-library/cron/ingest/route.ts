@@ -1032,8 +1032,17 @@ async function upsertAd(ad: MetaAd, brandId: string): Promise<{ action: 'created
     action = 'created';
   }
 
-  // Create/update AdAsset with fresh snapshot URL for later processing
-  if (ad.ad_snapshot_url) {
+  // Create/update AdAsset with fresh snapshot URL for later processing.
+  //
+  // ACTIVE-ADS-ONLY: only queue pending asset rows for ads that are currently
+  // running. Inactive ads get metadata (handled above) but no asset row —
+  // previously the queue filled up with dead ads and the cron re-retried them
+  // forever. See: .planning/review-2026-04-18/03-ingestion-pipeline.md.
+  //
+  // The queue filler also preserves existing COMPLETED rows (so we keep the
+  // stored R2 URL for already-downloaded inactive ads), which means users
+  // can still browse historical ad creatives we already downloaded.
+  if (ad.ad_snapshot_url && data.isActive) {
     // Check if asset already exists and is completed
     const existingAsset = await prisma.adAsset.findUnique({
       where: { id: `${adDbId}-0` },
