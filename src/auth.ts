@@ -25,6 +25,12 @@ const DEMO_USER = {
 // Check if Google OAuth is configured
 const isGoogleConfigured = !!(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET)
 
+// Demo credentials provider is ONLY enabled when explicitly opted in via env var.
+// NEVER enable in production unless you know what you are doing — the demo user
+// may be in admin allow-lists and the password is hardcoded.
+const isDemoLoginEnabled =
+  process.env.ENABLE_DEMO_LOGIN === "1" && process.env.NODE_ENV !== "production"
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   providers: [
@@ -35,29 +41,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         clientSecret: process.env.AUTH_GOOGLE_SECRET!,
       }),
     ] : []),
-    Credentials({
-      name: "Email",
-      credentials: {
-        email: { label: "Email", type: "email", placeholder: "demo@example.com" },
-        password: { label: "Password", type: "password", placeholder: "demo123" },
-      },
-      async authorize(credentials) {
-        // Demo authentication - validates against hardcoded user
-        // In production, validate against database with hashed passwords
-        if (
-          credentials?.email === DEMO_USER.email &&
-          credentials?.password === DEMO_USER.password
-        ) {
-          return {
-            id: DEMO_USER.id,
-            email: DEMO_USER.email,
-            name: DEMO_USER.name,
-            image: DEMO_USER.image,
+    // Credentials provider is gated behind ENABLE_DEMO_LOGIN=1 + non-prod.
+    // This prevents the hardcoded demo@example.com / demo123 pair from being
+    // a real login in production.
+    ...(isDemoLoginEnabled ? [
+      Credentials({
+        name: "Email",
+        credentials: {
+          email: { label: "Email", type: "email", placeholder: "demo@example.com" },
+          password: { label: "Password", type: "password", placeholder: "demo123" },
+        },
+        async authorize(credentials) {
+          // Demo authentication - validates against hardcoded user
+          // In production, validate against database with hashed passwords
+          if (
+            credentials?.email === DEMO_USER.email &&
+            credentials?.password === DEMO_USER.password
+          ) {
+            return {
+              id: DEMO_USER.id,
+              email: DEMO_USER.email,
+              name: DEMO_USER.name,
+              image: DEMO_USER.image,
+            }
           }
-        }
-        return null
-      },
-    }),
+          return null
+        },
+      }),
+    ] : []),
   ],
   session: { strategy: "jwt" },
   pages: {

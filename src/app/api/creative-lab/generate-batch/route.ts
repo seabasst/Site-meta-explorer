@@ -53,6 +53,10 @@ function buildBrandContext(profile: BrandProfile | null): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const body = await request.json();
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {

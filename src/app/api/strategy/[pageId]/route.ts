@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import {
   TAXONOMY,
@@ -25,6 +26,10 @@ export async function GET(
   { params }: { params: Promise<{ pageId: string }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const { pageId } = await params;
 
     if (!pageId) {

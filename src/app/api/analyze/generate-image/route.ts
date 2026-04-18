@@ -38,6 +38,10 @@ function buildBrandContext(guidelines: BrandGuidelines | null): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const { prompt, aspectRatio, brandGuidelines: useBrandGuidelines } = await request.json();
 
     if (!prompt) {

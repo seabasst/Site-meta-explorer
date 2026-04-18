@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -24,6 +25,10 @@ interface AnalysisItem {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const { brandName, brandPageId, competitorNames, myAnalyses, compAnalyses } =
       (await request.json()) as {
         brandName: string;

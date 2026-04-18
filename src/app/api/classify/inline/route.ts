@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { classifySingleAd } from '@/lib/classification/classify-single';
 import { logApiCost } from '@/lib/classification/cost-tracker';
@@ -16,6 +17,10 @@ export const maxDuration = 120;
  */
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const { brandId, limit = 30 } = await req.json();
 
     if (!brandId) {

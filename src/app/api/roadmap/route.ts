@@ -2,6 +2,18 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
+// Admin email allow-list. Must match src/app/api/roadmap/[id]/route.ts.
+// TODO: replace with DB-backed User.role enum + centralize.
+const ADMIN_EMAILS: string[] = (process.env.ADMIN_EMAILS ?? 'sebastian@kirimedia.co')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+function isAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
 /**
  * GET /api/roadmap - List roadmap requests
  * Query params: type (brand|feature), status, sort (upvotes|newest)
@@ -33,9 +45,10 @@ export async function GET(req: Request) {
       },
     });
 
-    // Get current user to check which requests they've upvoted
+    // Get current user to check which requests they've upvoted + admin status.
     const session = await auth();
     const userId = session?.user?.id;
+    const viewerIsAdmin = isAdmin(session?.user?.email);
 
     const serialized = requests.map((r) => ({
       id: r.id,
@@ -45,7 +58,9 @@ export async function GET(req: Request) {
       pageUrl: r.pageUrl,
       status: r.status,
       upvoteCount: r.upvoteCount,
-      userEmail: r.userEmail,
+      // Only expose submitter email to admins or to the submitter themselves.
+      // Previously this was returned unconditionally to every caller (PII leak).
+      userEmail: viewerIsAdmin || userId === r.userId ? r.userEmail : null,
       createdAt: r.createdAt.toISOString(),
       hasUpvoted: userId ? r.upvotes.some((u) => u.userId === userId) : false,
       isOwner: userId === r.userId,

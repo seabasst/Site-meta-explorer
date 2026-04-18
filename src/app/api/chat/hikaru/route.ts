@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 import Anthropic from '@anthropic-ai/sdk';
 import { compileBrandContext } from '@/lib/brand-context';
 import type { BrandProfileFull } from '@/lib/brand-profile-types';
@@ -942,10 +943,30 @@ function toolThinkingLabel(name: string, input: Record<string, unknown>): string
 // ---------------------------------------------------------------------------
 export async function POST(request: NextRequest) {
   try {
+    // Auth gate. This route runs up to 15 Sonnet iterations × 4096 tokens per
+    // call plus may spawn a Manus agent. Anon access = uncapped $ exposure.
+    const session = await auth();
+    if (!session?.user?.id) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+    }
+
     const { messages, brandProfileId, deepResearch } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(JSON.stringify({ error: 'messages array required' }), { status: 400 });
+    }
+
+    // If brandProfileId is provided, verify ownership up front (IDOR guard).
+    // The downstream lookups use findUnique without owner scope; without this
+    // check they would leak any user's brand profile context into the prompt.
+    if (brandProfileId && typeof brandProfileId === 'string') {
+      const owned = await prisma.brandProfile.findUnique({
+        where: { id: brandProfileId },
+        select: { userId: true },
+      });
+      if (!owned || owned.userId !== session.user.id) {
+        return new Response(JSON.stringify({ error: 'Brand profile not found' }), { status: 404 });
+      }
     }
 
     // Extract last user message for routing

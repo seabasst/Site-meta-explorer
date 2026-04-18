@@ -1175,9 +1175,9 @@ async function processBrand(brandId: string, pageId: string, pageName: string) {
 }
 
 export async function GET(req: NextRequest) {
-  // Verify cron secret (Vercel sends this header)
+  // Verify cron secret — fail-closed. Missing CRON_SECRET = 401, never bypass.
   const authHeader = req.headers.get('authorization');
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -1244,6 +1244,14 @@ export async function GET(req: NextRequest) {
  * - {} - Process next pending brands (same as cron)
  */
 export async function POST(req: NextRequest) {
+  // Require the same cron secret as the GET handler. This endpoint accepts
+  // resetTokens / brandIds / limit from the body, so leaving it unauthenticated
+  // let anyone on the internet reset the FB token pool or trigger paid ingestion.
+  const authHeader = req.headers.get('authorization');
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   if (!tokenManager.hasTokens()) {
     return NextResponse.json(
       { error: 'No Facebook access tokens configured' },

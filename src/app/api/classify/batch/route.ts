@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { submitBatchClassification } from "@/lib/classification/classify-batch";
 
@@ -11,6 +12,10 @@ import { submitBatchClassification } from "@/lib/classification/classify-batch";
  */
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const body = await req.json();
     const { brandId } = body;
 

@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 import { getManusTask, getManusMessages, extractAssistantResponse } from '@/lib/manus/client';
 
 export const dynamic = 'force-dynamic';
@@ -9,13 +10,28 @@ export async function GET(
   context: { params: Promise<{ taskId: string }> }
 ) {
   try {
+    // Auth gate. Tasks contain "deep research" output that may be sensitive.
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { taskId } = await context.params;
 
     const task = await prisma.manusTask.findUnique({
       where: { id: taskId },
+      include: { brandProfile: { select: { userId: true } } },
     });
 
     if (!task) {
+      return Response.json({ error: 'Task not found' }, { status: 404 });
+    }
+
+    // Ownership check via brandProfile.userId. Tasks without a brandProfile
+    // can't be owner-scoped yet (ManusTask.userId migration is pending — see
+    // scope 4 P0). Refuse access to those until the schema ships.
+    // TODO(phase-2.4): filter on task.userId === session.user.id directly.
+    if (!task.brandProfile || task.brandProfile.userId !== session.user.id) {
       return Response.json({ error: 'Task not found' }, { status: 404 });
     }
 

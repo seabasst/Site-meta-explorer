@@ -218,15 +218,20 @@ export async function processPendingAssets(
     throw new Error('R2 is not configured. Set R2_* environment variables.');
   }
 
-  // Find pending assets
+  // Find pending assets.
+  // ACTIVE-ADS-ONLY RULE: only download assets for ads that are still running.
+  // The project invariant is that metadata is fine for all ads, but assets
+  // (images/videos) must only be downloaded for active ads. Without this filter
+  // the daily cron re-downloaded stale ads forever, scaling R2 + fbcdn costs
+  // with historical volume instead of live volume.
+  // See: .planning/review-2026-04-18/03-ingestion-pipeline.md (P0 active-ads audit)
   const pendingAssets = await prisma.adAsset.findMany({
     where: {
       downloadStatus: 'pending',
-      ...(brandId && {
-        ad: {
-          brandId,
-        },
-      }),
+      ad: {
+        isActive: true,
+        ...(brandId ? { brandId } : {}),
+      },
     },
     select: { id: true },
     take: limit,

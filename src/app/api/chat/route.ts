@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -362,6 +363,10 @@ async function executeTool(
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+    }
     const { messages } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {
