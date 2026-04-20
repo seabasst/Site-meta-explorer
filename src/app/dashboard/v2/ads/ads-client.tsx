@@ -215,11 +215,14 @@ export default function AdsClient(props: AdsClientProps) {
     return params;
   }, [statusFilter, selectedFormats, hideCarousel, categoryFilter, brandFilter, daysActiveFilter, searchDebounce, sortBy, sortOrder, partnershipFilter]);
 
-  // Fetch ads on initial load / filter change (replaces entire grid)
+  // Fetch ads only (NO stats) — called on filter change + pagination.
+  // Phase 6.8-extended: stats moved to a separate endpoint/effect so
+  // pagination requests run only 2 Prisma queries instead of 7.
   const fetchAds = useCallback(async () => {
     setAdsLoading(true);
     try {
       const params = buildFilterParams({ page: 1, limit: 48 });
+      params.set('includeStats', 'false');
       const res = await fetch(`/api/ad-library/ads?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
@@ -228,9 +231,7 @@ export default function AdsClient(props: AdsClientProps) {
         setPagination(data.pagination || null);
         setHasMore(data.pagination?.hasNext ?? false);
         setNextPage(2);
-        setFilteredStats(data.filteredStats || null);
 
-        // Check which ads are saved
         if (fetchedAds.length > 0) {
           try {
             const checkRes = await fetch('/api/ad-library/saved/check', {
@@ -254,20 +255,43 @@ export default function AdsClient(props: AdsClientProps) {
     }
   }, [buildFilterParams]);
 
-  // Skip fetchAds on first mount — the server already provided the initial
-  // batch via props. This is the whole point of Phase 6.8: no skeleton→fetch
-  // waterfall, first paint shows real ads.
+  // Fetch stats (the 5 heavy aggregation queries). Fires on filter change
+  // ONLY — not on pagination. The build deps on buildFilterParams include
+  // only filter/sort state; page changes are handled by loadMore which
+  // doesn't go through this path.
+  const fetchStats = useCallback(async () => {
+    try {
+      const params = buildFilterParams({ page: 1, limit: 1 }); // page/limit ignored by stats
+      params.delete('page');
+      params.delete('limit');
+      params.delete('sortBy');
+      params.delete('sortOrder');
+      const res = await fetch(`/api/ad-library/ads/stats?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setFilteredStats(data.filteredStats || null);
+      }
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+      // Non-fatal — the grid can still render without the stats strip.
+    }
+  }, [buildFilterParams]);
+
+  // Skip fetchAds + fetchStats on first mount — the server already provided
+  // both initial payloads via props. This is Phase 6.8: no skeleton→fetch
+  // waterfall.
   //
-  // Subsequent filter changes still refetch because buildFilterParams's deps
-  // change (sortBy, statusFilter, etc.), triggering this effect.
+  // Subsequent filter changes trigger both in parallel (fetchAds + fetchStats
+  // have the same deps, so React batches them into the same effect pass).
   const isFirstRender = useRef(true);
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-    fetchAds();
-  }, [fetchAds]);
+    void fetchAds();
+    void fetchStats();
+  }, [fetchAds, fetchStats]);
 
   // Fetch saved-ad state for the server-provided initial ads (needs session,
   // which isn't available on the server yet). This is a single cheap call.
@@ -294,11 +318,14 @@ export default function AdsClient(props: AdsClientProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.user?.id]);
 
-  // Load more: append next batch to existing ads
+  // Load more: append next batch to existing ads.
+  // Explicitly opts out of stats — pagination within the same filter never
+  // changes the stats panel, so we save 5 Prisma queries per scroll page.
   const loadMore = useCallback(async () => {
     setIsLoadingMore(true);
     try {
       const params = buildFilterParams({ page: nextPage, limit: 24 });
+      params.set('includeStats', 'false');
       const res = await fetch(`/api/ad-library/ads?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
