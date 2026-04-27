@@ -11,9 +11,9 @@ const ASSETS_PER_RUN = 100; // Process 100 assets per cron run
  * Called by Vercel Cron on schedule.
  */
 export async function GET(req: NextRequest) {
-  // Verify cron secret
+  // Verify cron secret — fail-closed. Missing CRON_SECRET = 401, never bypass.
   const authHeader = req.headers.get('authorization');
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

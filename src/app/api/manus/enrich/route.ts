@@ -1,11 +1,27 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 import { createManusTask } from '@/lib/manus/client';
+import { llmGuard } from '@/lib/llm/guard';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    // Auth gate — paid Manus agent run against attacker-controlled URL. Never anon.
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Manus is expensive but we don't get per-call usage. Guard only.
+    const guard = await llmGuard({
+      userId: session.user.id,
+      userEmail: session.user.email,
+      operation: 'manus-enrich',
+    });
+    if (!guard.ok) return guard.response;
+
     const { brandProfileId, websiteUrl } = await request.json();
 
     // Validate inputs
@@ -33,13 +49,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch brand profile
+    // Fetch brand profile — and verify ownership. IDOR guard.
     const profile = await prisma.brandProfile.findUnique({
       where: { id: brandProfileId },
-      select: { id: true, name: true },
+      select: { id: true, name: true, userId: true },
     });
 
-    if (!profile) {
+    if (!profile || profile.userId !== session.user.id) {
       return Response.json(
         { error: 'Brand profile not found' },
         { status: 404 }

@@ -383,14 +383,17 @@ async function main() {
     brandsProcessed++;
     console.log(`\n[${brandsProcessed}/${brands.length}] ${brand.pageName}`);
 
-    // Get top 10 ads by reach
+    // Get top N ads by reach — ACTIVE ONLY.
+    // Comment previously said "active brands first" but the orderBy still
+    // included inactive ads when active ads ran out. Fix: hard filter.
+    // See scope 3 of the audit.
     const topAds = await prisma.adLibraryAd.findMany({
       where: {
         brandId: brand.id,
+        isActive: true,
         snapshotUrl: { not: null },
       },
       orderBy: [
-        { isActive: 'desc' },
         { reachEstimate: 'desc' },
       ],
       take: TOP_ADS_PER_BRAND,

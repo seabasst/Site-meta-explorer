@@ -203,11 +203,18 @@ async function main() {
     console.log();
   }
 
-  // Get pending assets
+  // Get pending assets — ACTIVE-ADS-ONLY.
+  // This script runs locally against shared prod. Previously it downloaded
+  // any pending asset regardless of the ad's live status, silently re-burning
+  // R2 + fbcdn on dead ads. See: .planning/review-2026-04-18/03-ingestion-pipeline.md
+  // (P0 active-ads audit).
   const pendingAssets = await prisma.adAsset.findMany({
     where: {
       downloadStatus: 'pending',
-      ...(brandIds ? { ad: { brandId: { in: brandIds } } } : {}),
+      ad: {
+        isActive: true,
+        ...(brandIds ? { brandId: { in: brandIds } } : {}),
+      },
     },
     include: {
       ad: { select: { id: true, adId: true, brandId: true } },

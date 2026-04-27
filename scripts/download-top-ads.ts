@@ -1,6 +1,27 @@
 /**
  * Download top 20 ads (by reach) for each brand to R2 storage
  * Run with: npx tsx scripts/download-top-ads.ts
+ *
+ * ⚠ DEPRECATED — PREFER `scripts/process-assets.ts` OR THE DAILY CRON.
+ *
+ * This script takes a Puppeteer screenshot (.png) of every snapshot URL
+ * and stores it under `ads/{brandId}/{adId}.png`. Two problems the
+ * 2026-04-18 audit flagged (scope 3):
+ *
+ *   1. It stores a PNG SCREENSHOT for VIDEO ads too, labeling the resulting
+ *      AdAsset row as `assetType: 'image'`. The UI then shows a static frame
+ *      instead of the actual video. If you want real video creatives, use
+ *      the canonical asset pipeline (process-assets.ts / the cron) which
+ *      calls extractMediaFromSnapshot and downloads the real media file.
+ *
+ *   2. Its key pattern `ads/{brandId}/{adId}.png` collides with the canonical
+ *      `generateAssetKey()` pattern `ads/{brandId}/{adId}/{type}-{pos}{ext}`.
+ *      Running both leaves orphaned R2 objects under whichever prefix ran
+ *      second. See prisma/ops/ROADMAP-r2-key-unification.md (Phase 3.4).
+ *
+ * This script is kept for ad-hoc "I want quick thumbnails of the top 20
+ * ads per brand" use cases, but it should NOT be part of a regular data
+ * pipeline. If you wired it into an automation, stop.
  */
 
 import { config } from 'dotenv';
@@ -199,14 +220,16 @@ async function main() {
     for (const brand of brands) {
       console.log(`\n📦 ${brand.pageName}`);
 
-      // Get top 20 ads by reach (active ads first)
+      // Get top N ads by reach — ACTIVE ONLY. See deprecation banner at
+      // top of this file. Previously the orderBy admitted inactive ads when
+      // active ones ran out, bloating R2 with screenshots of dead ads.
       const topAds = await prisma.adLibraryAd.findMany({
         where: {
           brandId: brand.id,
+          isActive: true,
           snapshotUrl: { not: null },
         },
         orderBy: [
-          { isActive: 'desc' },
           { reachEstimate: 'desc' },
         ],
         take: TOP_ADS_PER_BRAND,

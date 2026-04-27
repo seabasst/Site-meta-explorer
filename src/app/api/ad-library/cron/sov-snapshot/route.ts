@@ -15,9 +15,9 @@ function getWeekStart(date: Date): Date {
 }
 
 export async function GET(request: NextRequest) {
-  // Verify cron secret
+  // Verify cron secret — fail-closed. Missing CRON_SECRET = 401, never bypass.
   const authHeader = request.headers.get('authorization');
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

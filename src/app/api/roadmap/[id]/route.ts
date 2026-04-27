@@ -2,12 +2,18 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
-// Admin email(s) - in production, use a proper admin system
-const ADMIN_EMAILS = ['demo@example.com', 'sebastian@kirimediagroup.com'];
+// Admin email allow-list. Prefer the ADMIN_EMAILS env var (comma-separated).
+// TODO: replace with DB-backed User.role enum.
+// NOTE: demo@example.com was intentionally removed — it was both a public login
+// (see src/auth.ts) and listed here, which meant anyone on the internet was admin.
+const ADMIN_EMAILS: string[] = (process.env.ADMIN_EMAILS ?? 'sebastian@kirimedia.co')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
 
 function isAdmin(email: string | null | undefined): boolean {
   if (!email) return false;
-  return ADMIN_EMAILS.includes(email);
+  return ADMIN_EMAILS.includes(email.toLowerCase());
 }
 
 interface RouteParams {

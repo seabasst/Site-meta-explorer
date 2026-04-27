@@ -133,7 +133,13 @@ Analyze these ${parts.length} brand images and create the Visual Bible JSON.`,
   }
 
   const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  return JSON.parse(clean) as VisualBible;
+  try {
+    return JSON.parse(clean) as VisualBible;
+  } catch (err) {
+    throw new Error(
+      `LLM returned malformed JSON in visual-bible: ${(err as Error).message}`,
+    );
+  }
 }
 
 function buildFallbackBible(input: VisualBibleInput): VisualBible {

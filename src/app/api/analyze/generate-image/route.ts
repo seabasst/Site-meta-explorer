@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import type { BrandGuidelines } from '@prisma/client';
+import { llmGuard } from '@/lib/llm/guard';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -38,6 +39,18 @@ function buildBrandContext(guidelines: BrandGuidelines | null): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const guard = await llmGuard({
+      userId: session.user.id,
+      userEmail: session.user.email,
+      operation: 'analyze-generate-image',
+    });
+    if (!guard.ok) return guard.response;
+
     const { prompt, aspectRatio, brandGuidelines: useBrandGuidelines } = await request.json();
 
     if (!prompt) {

@@ -52,3 +52,24 @@ prisma/dev.db-journal
 # Generated data
 data/brand-ingestion-results.json
 .gstack/
+
+# Persistent Meta-authed Puppeteer profile
+.puppeteer-meta-profile/
+data/gruns-assets/
+data/gruns-ads.json
+data/gruns-analysis.md
+
+# Ad-hoc research dumps at repo root — prevent accidental git-add.
+# These files are inputs to one-off import/backfill scripts and shouldn't
+# ship with the source tree. (Phase 5 of the 2026-04-18 audit.)
+/creator-partnerships*.json
+/new-brands-expansion.json
+/european-d2c-brands*.json
+/european-universities.json
+/swedish-brands-expansion.json
+/swedish-realestate-agencies.json
+/*.pptx
+
+# Scratch scripts — one-offs, debug tools, personal experiments.
+# See scripts/README.md.
+/scripts/_scratch/

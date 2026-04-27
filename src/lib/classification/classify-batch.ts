@@ -100,7 +100,17 @@ export async function submitBatchClassification(
       params: {
         model: MODEL,
         max_tokens: MAX_TOKENS,
-        system: systemPrompt,
+        temperature: 0,
+        // Prompt caching on system prompt — batches of 100+ ads reuse the
+        // same system prompt (taxonomy + few-shot examples, ~5k input tokens),
+        // so cache hits dominate after the first request in the batch window.
+        system: [
+          {
+            type: "text" as const,
+            text: systemPrompt,
+            cache_control: { type: "ephemeral" as const },
+          },
+        ],
         messages: [{ role: "user" as const, content }],
         output_config: {
           format: outputFormat as {

@@ -1,37 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import {
+  parseAdsQueryParams,
+  buildAdsWhereClause,
+  buildAdsOrderBy,
+  computeAdsStats,
+  serializeAd,
+  type FilteredStats,
+} from '@/lib/ads-query';
 
 // =============================================================================
 // Types
 // =============================================================================
-
-interface AdLibraryAdFilters {
-  brandId?: string;
-  brandPageId?: string;
-  displayFormat?: string;
-  displayFormats?: string[];
-  excludeFormats?: string[];
-  publisherPlatforms?: string[];
-  isActive?: boolean;
-  startDateFrom?: string;
-  startDateTo?: string;
-  search?: string;
-  category?: string;
-  minDaysActive?: number;
-  maxDaysActive?: number;
-  hasBylines?: boolean;
-}
-
-interface AdLibraryAdSortOptions {
-  sortBy?: 'startDate' | 'reachEstimate' | 'createdAt' | 'spendLower' | 'adDurationDays';
-  sortOrder?: 'asc' | 'desc';
-}
-
-interface AdLibraryAdPagination {
-  page?: number;
-  limit?: number;
-}
 
 interface AdLibraryAdResponse {
   id: string;
@@ -90,13 +71,6 @@ interface AdLibraryAdResponse {
   } | null;
 }
 
-interface FilteredStatsResponse {
-  totalReach: number;
-  activeCount: number;
-  formatBreakdown: { format: string; count: number }[];
-  topCategories: { category: string; count: number }[];
-}
-
 interface PaginatedResponse {
   ads: AdLibraryAdResponse[];
   pagination: {
@@ -107,258 +81,52 @@ interface PaginatedResponse {
     hasNext: boolean;
     hasPrev: boolean;
   };
-  filteredStats: FilteredStatsResponse;
+  /**
+   * Only present when the caller did NOT set `includeStats=false`.
+   * Prefer calling /api/ad-library/ads/stats separately and passing
+   * `includeStats=false` on pagination requests for faster pagination.
+   */
+  filteredStats?: FilteredStats;
 }
 
 // =============================================================================
-// Helper Functions
-// =============================================================================
-
-/**
- * Parse and validate query parameters
- */
-function parseQueryParams(searchParams: URLSearchParams): {
-  filters: AdLibraryAdFilters;
-  sort: AdLibraryAdSortOptions;
-  pagination: AdLibraryAdPagination;
-} {
-  // Filters
-  const brandId = searchParams.get('brandId') || undefined;
-  const brandPageId = searchParams.get('brandPageId') || undefined;
-  const displayFormat = searchParams.get('displayFormat') || undefined;
-  const publisherPlatformsRaw = searchParams.get('publisherPlatforms');
-  const publisherPlatforms = publisherPlatformsRaw
-    ? publisherPlatformsRaw.split(',').map((p) => p.trim())
-    : undefined;
-  const isActiveRaw = searchParams.get('isActive');
-  const isActive = isActiveRaw !== null ? isActiveRaw === 'true' : undefined;
-  const startDateFrom = searchParams.get('startDateFrom') || undefined;
-  const startDateTo = searchParams.get('startDateTo') || undefined;
-  const search = searchParams.get('search') || searchParams.get('q') || undefined;
-  const category = searchParams.get('category') || undefined;
-  const displayFormatsRaw = searchParams.get('displayFormats');
-  const displayFormats = displayFormatsRaw
-    ? displayFormatsRaw.split(',').map((f) => f.trim())
-    : undefined;
-  const excludeFormatsRaw = searchParams.get('excludeFormats');
-  const excludeFormats = excludeFormatsRaw
-    ? excludeFormatsRaw.split(',').map((f) => f.trim())
-    : undefined;
-  const minDaysActiveRaw = searchParams.get('minDaysActive');
-  const minDaysActive = minDaysActiveRaw ? parseInt(minDaysActiveRaw, 10) : undefined;
-  const maxDaysActiveRaw = searchParams.get('maxDaysActive');
-  const maxDaysActive = maxDaysActiveRaw ? parseInt(maxDaysActiveRaw, 10) : undefined;
-  const hasBylinesRaw = searchParams.get('hasBylines');
-  const hasBylines = hasBylinesRaw !== null ? hasBylinesRaw === 'true' : undefined;
-
-  // Sorting
-  const sortByRaw = searchParams.get('sortBy');
-  const validSortFields = ['startDate', 'reachEstimate', 'createdAt', 'spendLower', 'adDurationDays'];
-  const sortBy = sortByRaw && validSortFields.includes(sortByRaw)
-    ? (sortByRaw as 'startDate' | 'reachEstimate' | 'createdAt' | 'spendLower' | 'adDurationDays')
-    : 'createdAt';
-  const sortOrderRaw = searchParams.get('sortOrder');
-  const sortOrder = sortOrderRaw === 'asc' ? 'asc' : 'desc';
-
-  // Pagination
-  const pageRaw = parseInt(searchParams.get('page') || '1', 10);
-  const page = isNaN(pageRaw) || pageRaw < 1 ? 1 : pageRaw;
-  const limitRaw = parseInt(searchParams.get('limit') || '20', 10);
-  const limit = isNaN(limitRaw) || limitRaw < 1 ? 20 : Math.min(limitRaw, 100);
-
-  return {
-    filters: {
-      brandId,
-      brandPageId,
-      displayFormat,
-      publisherPlatforms,
-      isActive,
-      startDateFrom,
-      startDateTo,
-      search,
-      category,
-      displayFormats,
-      excludeFormats,
-      minDaysActive: minDaysActive !== undefined && !isNaN(minDaysActive) ? minDaysActive : undefined,
-      maxDaysActive: maxDaysActive !== undefined && !isNaN(maxDaysActive) ? maxDaysActive : undefined,
-      hasBylines,
-    },
-    sort: { sortBy, sortOrder },
-    pagination: { page, limit },
-  };
-}
-
-/**
- * Build Prisma where clause from filters
- */
-function buildWhereClause(filters: AdLibraryAdFilters): Prisma.AdLibraryAdWhereInput {
-  const where: Prisma.AdLibraryAdWhereInput = {
-    // Only show ads that have at least one downloaded asset
-    assets: { some: { downloadStatus: 'completed' } },
-  };
-
-  // Brand filter
-  if (filters.brandId) {
-    where.brandId = filters.brandId;
-  } else if (filters.brandPageId) {
-    where.brand = { pageId: filters.brandPageId };
-  }
-
-  // Display format filter (single or multi)
-  if (filters.displayFormats && filters.displayFormats.length > 0) {
-    where.displayFormat = { in: filters.displayFormats };
-  } else if (filters.displayFormat) {
-    where.displayFormat = filters.displayFormat;
-  } else if (filters.excludeFormats && filters.excludeFormats.length > 0) {
-    where.displayFormat = { notIn: filters.excludeFormats };
-  }
-
-  // Publisher platforms filter (hasSome - at least one platform matches)
-  if (filters.publisherPlatforms && filters.publisherPlatforms.length > 0) {
-    where.publisherPlatforms = {
-      hasSome: filters.publisherPlatforms,
-    };
-  }
-
-  // Active status filter
-  if (filters.isActive !== undefined) {
-    where.isActive = filters.isActive;
-  }
-
-  // Date range filter
-  if (filters.startDateFrom || filters.startDateTo) {
-    where.startDate = {};
-    if (filters.startDateFrom) {
-      where.startDate.gte = new Date(filters.startDateFrom);
-    }
-    if (filters.startDateTo) {
-      where.startDate.lte = new Date(filters.startDateTo);
-    }
-  }
-
-  // Category (industry) filter — matches on the brand's category
-  if (filters.category) {
-    where.brand = {
-      ...(where.brand as Prisma.AdLibraryBrandWhereInput || {}),
-      category: { equals: filters.category, mode: 'insensitive' },
-    };
-  }
-
-  // Days active filter — calculated from startDate
-  if (filters.minDaysActive !== undefined || filters.maxDaysActive !== undefined) {
-    const now = new Date();
-    if (filters.maxDaysActive !== undefined) {
-      // Ad must have started at most maxDaysActive days ago → startDate >= now - maxDays
-      const from = new Date(now.getTime() - filters.maxDaysActive * 86400000);
-      where.startDate = { ...(where.startDate as object || {}), gte: from };
-    }
-    if (filters.minDaysActive !== undefined) {
-      // Ad must have started at least minDaysActive days ago → startDate <= now - minDays
-      const to = new Date(now.getTime() - filters.minDaysActive * 86400000);
-      where.startDate = { ...(where.startDate as object || {}), lte: to };
-    }
-  }
-
-  // Bylines (partnership) filter
-  if (filters.hasBylines === true) {
-    where.bylines = { not: null };
-    // Partnership ads may not have downloaded assets yet — relax the asset requirement
-    delete where.assets;
-  } else if (filters.hasBylines === false) {
-    where.bylines = null;
-  }
-
-  // Full-text search on body, title, caption
-  if (filters.search) {
-    const searchTerm = filters.search.trim();
-    where.OR = [
-      { body: { contains: searchTerm, mode: 'insensitive' } },
-      { title: { contains: searchTerm, mode: 'insensitive' } },
-      { caption: { contains: searchTerm, mode: 'insensitive' } },
-    ];
-  }
-
-  return where;
-}
-
-/**
- * Build Prisma orderBy clause from sort options
- *
- * Non-nullable fields (createdAt) use plain SortOrder.
- * Nullable fields use { sort, nulls: 'last' } to push nulls to the end.
- */
-function buildOrderByClause(
-  sort: AdLibraryAdSortOptions
-): Prisma.AdLibraryAdOrderByWithRelationInput {
-  const { sortBy = 'createdAt', sortOrder = 'desc' } = sort;
-  // createdAt is non-nullable — Prisma requires plain SortOrder for it
-  const nonNullableFields = ['createdAt'];
-  if (nonNullableFields.includes(sortBy)) {
-    return { [sortBy]: sortOrder };
-  }
-  return { [sortBy]: { sort: sortOrder, nulls: 'last' } };
-}
-
-/**
- * Serialize ad record for JSON response (handle BigInt and Date)
- */
-function serializeAd(ad: Record<string, unknown>): AdLibraryAdResponse {
-  return JSON.parse(
-    JSON.stringify(ad, (_key, value) => {
-      if (typeof value === 'bigint') {
-        return Number(value);
-      }
-      return value;
-    })
-  );
-}
-
-// =============================================================================
-// GET /api/ad-library/ads - Search and list ads
+// GET /api/ad-library/ads
 // =============================================================================
 
 /**
  * GET /api/ad-library/ads
  *
- * Query parameters:
- * - brandId: Filter by brand ID
- * - displayFormat: Filter by format (image, video, carousel, dpa)
- * - publisherPlatforms: Filter by platforms (comma-separated: facebook,instagram,messenger,audience_network)
- * - isActive: Filter by active status (true/false)
- * - startDateFrom: Filter ads starting after this date (ISO string)
- * - startDateTo: Filter ads starting before this date (ISO string)
- * - search / q: Full-text search on body, title, caption
- * - sortBy: Sort field (startDate, reachEstimate, createdAt)
- * - sortOrder: Sort direction (asc, desc)
- * - page: Page number (1-indexed)
- * - limit: Items per page (max 100)
+ * Query parameters (filters + sort + pagination are all parsed by
+ * `parseAdsQueryParams` in src/lib/ads-query.ts — see that file for the
+ * full list).
  *
- * Response:
- * {
- *   ads: AdLibraryAdResponse[],
- *   pagination: {
- *     page: number,
- *     limit: number,
- *     total: number,
- *     totalPages: number,
- *     hasNext: boolean,
- *     hasPrev: boolean
- *   }
- * }
+ * Response-shape control:
+ * - `includeStats=false` (default: true for backward compat) — skips the 5
+ *   expensive stats queries (totalReach, activeCount, formatBreakdown,
+ *   topCategories). Use this on pagination requests. Initial load + filter
+ *   changes should hit /api/ad-library/ads/stats separately in parallel.
+ *
+ * Total Prisma queries per call:
+ *   - With stats (legacy):   7  (2 ads + 5 stats)
+ *   - Without stats (fast):  2  (ads findMany + count)
+ *
+ * Phase 6.8-extended of the 2026-04-18 audit.
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const { filters, sort, pagination } = parseQueryParams(searchParams);
+    const { filters, sort, pagination } = parseAdsQueryParams(searchParams);
+    const includeStatsRaw = searchParams.get('includeStats');
+    // Default TRUE for backward compatibility with existing v1 + external callers.
+    const includeStats = includeStatsRaw !== 'false';
 
-    // Build query
-    const where = buildWhereClause(filters);
-    const orderBy = buildOrderByClause(sort);
+    const where = buildAdsWhereClause(filters);
+    const orderBy = buildAdsOrderBy(sort);
     const skip = ((pagination.page || 1) - 1) * (pagination.limit || 20);
     const take = pagination.limit || 20;
 
-    // Execute queries in parallel (ads + count + filtered stats)
-    const [ads, total, reachAgg, activeInFiltered, formatGrouped, brandIdsResult] = await Promise.all([
+    // Core 2 queries — always run.
+    const [ads, total] = await Promise.all([
       prisma.adLibraryAd.findMany({
         where,
         orderBy,
@@ -402,46 +170,20 @@ export async function GET(request: NextRequest) {
         },
       }),
       prisma.adLibraryAd.count({ where }),
-      prisma.adLibraryAd.aggregate({
-        where,
-        _sum: { reachEstimate: true },
-      }),
-      // If already filtering to active-only, skip the extra count query
-      filters.isActive === true
-        ? Promise.resolve(null)
-        : prisma.adLibraryAd.count({ where: { ...where, isActive: true } }),
-      prisma.adLibraryAd.groupBy({
-        by: ['displayFormat'],
-        where,
-        _count: { id: true },
-        orderBy: { _count: { id: 'desc' } },
-      }),
-      prisma.adLibraryAd.findMany({
-        where,
-        select: { brandId: true },
-        distinct: ['brandId'],
-      }),
     ]);
 
-    // Get top categories from distinct brands in the filtered set
-    const brandIds = brandIdsResult.map(r => r.brandId);
-    const topCats = brandIds.length > 0
-      ? await prisma.adLibraryBrand.groupBy({
-          by: ['category'],
-          where: { id: { in: brandIds }, category: { not: null } },
-          _count: { id: true },
-          orderBy: { _count: { id: 'desc' } },
-          take: 5,
-        })
-      : [];
+    // Stats — opt-out. Kept for backward compat; new callers should prefer
+    // the dedicated /api/ad-library/ads/stats endpoint.
+    const filteredStats = includeStats
+      ? await computeAdsStats(filters)
+      : undefined;
 
-    // Calculate pagination metadata
     const page = pagination.page || 1;
     const limit = pagination.limit || 20;
     const totalPages = Math.ceil(total / limit);
 
     const response: PaginatedResponse = {
-      ads: ads.map(serializeAd),
+      ads: ads.map((ad) => serializeAd(ad) as unknown as AdLibraryAdResponse),
       pagination: {
         page,
         limit,
@@ -450,42 +192,29 @@ export async function GET(request: NextRequest) {
         hasNext: page < totalPages,
         hasPrev: page > 1,
       },
-      filteredStats: {
-        totalReach: Number(reachAgg._sum.reachEstimate || 0),
-        activeCount: filters.isActive === true ? total : (activeInFiltered ?? 0),
-        formatBreakdown: formatGrouped.map(r => ({
-          format: r.displayFormat || 'unknown',
-          count: r._count.id,
-        })),
-        topCategories: topCats.map(r => ({
-          category: r.category!,
-          count: r._count.id,
-        })),
-      },
+      ...(filteredStats !== undefined ? { filteredStats } : {}),
     };
 
     return NextResponse.json(response);
   } catch (error) {
     console.error('[AdLibrary/Ads] GET error:', error);
 
-    // Handle specific Prisma errors
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2025') {
         return NextResponse.json(
           { error: 'Record not found' },
-          { status: 404 }
+          { status: 404 },
         );
       }
       return NextResponse.json(
         { error: 'Database error', code: error.code },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
-    const message = error instanceof Error ? error.message : 'Failed to fetch ads';
     return NextResponse.json(
-      { error: message },
-      { status: 500 }
+      { error: 'Failed to fetch ads' },
+      { status: 500 },
     );
   }
 }

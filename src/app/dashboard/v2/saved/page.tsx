@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Heart,
   LogIn,
@@ -148,7 +149,7 @@ export default function SavedAdsPage() {
             Browse the ad library and click the heart icon to save ads you like.
           </p>
           <Link
-            href="/dashboard/v2/ad-library"
+            href="/dashboard/v2/ads"
             className="inline-flex items-center gap-2 px-4 py-2 bg-[#1235e2] text-white rounded-lg text-sm font-medium hover:bg-[#0f2bc4] transition-colors"
           >
             Browse Ad Library
@@ -213,7 +214,14 @@ function SavedAdCard({ ad, darkMode, onUnsave }: { ad: Ad; darkMode: boolean; on
         );
       }
       return (
-        <img src={primaryAsset.storedUrl} alt={ad.title || 'Ad creative'} className="w-full h-full object-cover" loading="lazy" />
+        <Image
+          src={primaryAsset.storedUrl}
+          alt={ad.title || 'Ad creative'}
+          fill
+          sizes="(min-width: 1280px) 28vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+          className="object-cover"
+          loading="lazy"
+        />
       );
     }
     return (
@@ -274,7 +282,7 @@ function SavedAdCard({ ad, darkMode, onUnsave }: { ad: Ad; darkMode: boolean; on
             </div>
           )}
           <Link
-            href={`/dashboard/v2/ad-library/${ad.brand.pageId}`}
+            href={`/dashboard/v2/ads/${ad.brand.pageId}`}
             className="text-sm font-bold truncate hover:text-[#1235e2] transition-colors"
           >
             {ad.brand.pageName}

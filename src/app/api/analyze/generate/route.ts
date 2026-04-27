@@ -1,6 +1,9 @@
 import { NextRequest } from 'next/server';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import Anthropic from '@anthropic-ai/sdk';
+import { llmGuard, recordLlmSpend } from '@/lib/llm/guard';
+import { estimateCost } from '@/lib/llm/models';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,6 +11,18 @@ const client = new Anthropic();
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const guard = await llmGuard({
+      userId: session.user.id,
+      userEmail: session.user.email,
+      operation: 'analyze-generate',
+    });
+    if (!guard.ok) return guard.response;
+
     const { templateId, variables } = await request.json();
 
     if (!templateId || !variables) {
@@ -26,6 +41,7 @@ export async function POST(request: NextRequest) {
     const response = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
+      temperature: 0,
       messages: [
         {
           role: 'user',
@@ -70,13 +86,28 @@ Return ONLY valid JSON, no markdown.`,
       ],
     });
 
+    // Record spend
+    void recordLlmSpend(
+      session.user.id,
+      estimateCost('claude-haiku-4-5-20251001', response.usage),
+    );
+
     const text = response.content
       .filter((b): b is Anthropic.TextBlock => b.type === 'text')
       .map((b) => b.text)
       .join('');
 
     const jsonStr = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const result = JSON.parse(jsonStr);
+    let result;
+    try {
+      result = JSON.parse(jsonStr);
+    } catch (err) {
+      console.error('[analyze-generate] LLM returned malformed JSON:', err, jsonStr.slice(0, 500));
+      return Response.json(
+        { error: 'AI returned invalid output. Please try again.' },
+        { status: 502 },
+      );
+    }
 
     return Response.json({
       template: {

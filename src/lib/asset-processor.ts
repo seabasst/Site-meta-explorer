@@ -173,9 +173,15 @@ export async function processAdsToR2(limit = 10): Promise<{
     throw new Error('FACEBOOK_ACCESS_TOKEN not configured');
   }
 
-  // Find ads without completed assets
+  // Find ads without completed assets.
+  // ACTIVE-ADS-ONLY rule: only download for still-running ads. This matches
+  // the canonical helper in asset-pipeline.ts (getDownloadableAssets) but
+  // scopes at the Ad level because this processor creates the AdAsset row
+  // inside processAdAsset rather than reading existing pending rows.
+  // See: .planning/review-2026-04-18/03-ingestion-pipeline.md
   const ads = await prisma.adLibraryAd.findMany({
     where: {
+      isActive: true,
       snapshotUrl: { not: null },
       assets: {
         none: { downloadStatus: 'completed' },

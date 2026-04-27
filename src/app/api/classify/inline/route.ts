@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { classifySingleAd } from '@/lib/classification/classify-single';
 import { logApiCost } from '@/lib/classification/cost-tracker';
+import { llmGuard, recordLlmSpend } from '@/lib/llm/guard';
+import { estimateCost } from '@/lib/llm/models';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -16,6 +19,18 @@ export const maxDuration = 120;
  */
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const guard = await llmGuard({
+      userId: session.user.id,
+      userEmail: session.user.email,
+      operation: 'classify-inline',
+    });
+    if (!guard.ok) return guard.response;
+
     const { brandId, limit = 30 } = await req.json();
 
     if (!brandId) {
@@ -107,6 +122,11 @@ export async function POST(req: NextRequest) {
           classified++;
           totalInput += r.value.input_tokens;
           totalOutput += r.value.output_tokens;
+          // Record per-user spend for this individual call
+          void recordLlmSpend(
+            session.user.id!,
+            estimateCost('claude-haiku-4-5-20251001', r.value),
+          );
         } else {
           failed++;
           console.error('Inline classification failed:', r.reason);

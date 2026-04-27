@@ -1,12 +1,28 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 import { createManusTask } from '@/lib/manus/client';
+import { llmGuard } from '@/lib/llm/guard';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
   try {
+    // Auth gate — Manus tasks are paid agent runs (minutes, $$$). Never anon.
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Manus is expensive but we don't get per-call usage. Guard only.
+    const guard = await llmGuard({
+      userId: session.user.id,
+      userEmail: session.user.email,
+      operation: 'manus-create',
+    });
+    if (!guard.ok) return guard.response;
+
     const body = await request.json();
     const {
       prompt,
@@ -25,10 +41,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // If caller passed a brandProfileId, verify ownership. IDOR guard.
+    if (brandProfileId) {
+      const profile = await prisma.brandProfile.findUnique({
+        where: { id: brandProfileId },
+        select: { userId: true },
+      });
+      if (!profile || profile.userId !== session.user.id) {
+        return Response.json({ error: 'Brand profile not found' }, { status: 404 });
+      }
+    }
+
     // Create task via Manus API
     const result = await createManusTask(prompt.trim());
 
     // Persist to database
+    // NOTE: ManusTask has no userId column yet (see scope 4 P0). Until that
+    // migration ships, ownership can only be reconstructed via brandProfileId.
+    // TODO(phase-2.4): add userId FK + filter on the detail/list routes.
     const task = await prisma.manusTask.create({
       data: {
         manusTaskId: result.task_id,

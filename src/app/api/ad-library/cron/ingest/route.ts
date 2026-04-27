@@ -1032,8 +1032,17 @@ async function upsertAd(ad: MetaAd, brandId: string): Promise<{ action: 'created
     action = 'created';
   }
 
-  // Create/update AdAsset with fresh snapshot URL for later processing
-  if (ad.ad_snapshot_url) {
+  // Create/update AdAsset with fresh snapshot URL for later processing.
+  //
+  // ACTIVE-ADS-ONLY: only queue pending asset rows for ads that are currently
+  // running. Inactive ads get metadata (handled above) but no asset row —
+  // previously the queue filled up with dead ads and the cron re-retried them
+  // forever. See: .planning/review-2026-04-18/03-ingestion-pipeline.md.
+  //
+  // The queue filler also preserves existing COMPLETED rows (so we keep the
+  // stored R2 URL for already-downloaded inactive ads), which means users
+  // can still browse historical ad creatives we already downloaded.
+  if (ad.ad_snapshot_url && data.isActive) {
     // Check if asset already exists and is completed
     const existingAsset = await prisma.adAsset.findUnique({
       where: { id: `${adDbId}-0` },
@@ -1175,9 +1184,9 @@ async function processBrand(brandId: string, pageId: string, pageName: string) {
 }
 
 export async function GET(req: NextRequest) {
-  // Verify cron secret (Vercel sends this header)
+  // Verify cron secret — fail-closed. Missing CRON_SECRET = 401, never bypass.
   const authHeader = req.headers.get('authorization');
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -1244,6 +1253,14 @@ export async function GET(req: NextRequest) {
  * - {} - Process next pending brands (same as cron)
  */
 export async function POST(req: NextRequest) {
+  // Require the same cron secret as the GET handler. This endpoint accepts
+  // resetTokens / brandIds / limit from the body, so leaving it unauthenticated
+  // let anyone on the internet reset the FB token pool or trigger paid ingestion.
+  const authHeader = req.headers.get('authorization');
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   if (!tokenManager.hasTokens()) {
     return NextResponse.json(
       { error: 'No Facebook access tokens configured' },

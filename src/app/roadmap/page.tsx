@@ -24,8 +24,10 @@ interface RoadmapRequest {
 type TypeFilter = 'all' | 'brand' | 'feature';
 type StatusFilter = 'all' | 'pending' | 'planned' | 'in_progress' | 'completed';
 
-// Admin emails - should match the API
-const ADMIN_EMAILS = ['demo@example.com', 'sebastian@kirimediagroup.com'];
+// Admin emails — client-side UI check only. Real enforcement is in /api/roadmap/[id].
+// Keep this in sync with the server allow-list (currently: kirimedia.co owner).
+// TODO: expose isAdmin from the session instead of duplicating the list here.
+const ADMIN_EMAILS = ['sebastian@kirimedia.co'];
 
 export default function RoadmapPage() {
   const { data: session } = useSession();

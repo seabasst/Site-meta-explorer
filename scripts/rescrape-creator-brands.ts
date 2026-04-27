@@ -32,6 +32,12 @@ const CONCURRENCY = 3;
 const SAMPLE_SIZE = parseInt(args.find(a => a.startsWith('--sample='))?.split('=')[1] || '50');
 const FRESH = args.includes('--fresh'); // Clear existing data before scraping
 const NEW_ONLY = args.includes('--new'); // Only scan brands without existing partnerships
+// Require explicit opt-in for the destructive --fresh branch.
+// Previously `--fresh` alone did `prisma.creatorPartnership.deleteMany({})` +
+// `prisma.adCreator.deleteMany({})` against shared prod with no confirmation.
+// Now the caller must ALSO pass `--yes-i-really-want-to-wipe-creators`.
+// See: .planning/review-2026-04-18/03-ingestion-pipeline.md (P0 destructive --fresh)
+const FRESH_CONFIRMED = args.includes('--yes-i-really-want-to-wipe-creators');
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -340,6 +346,23 @@ async function main() {
   }
 
   if (FRESH) {
+    if (!FRESH_CONFIRMED) {
+      console.error(
+        '\n❌ Refusing to run --fresh without explicit confirmation.\n' +
+        '   This would DELETE ALL rows from CreatorPartnership + AdCreator\n' +
+        '   in the shared Neon production database.\n\n' +
+        '   If you truly want to do this, re-run with:\n' +
+        '     --fresh --yes-i-really-want-to-wipe-creators\n\n' +
+        '   Recommended instead: run without --fresh to incrementally re-scrape.\n'
+      );
+      process.exit(1);
+    }
+    const dbUrl = process.env.DATABASE_URL || '';
+    const dbHost = dbUrl.match(/@([^/]+)/)?.[1] ?? 'unknown';
+    console.log(
+      `\n⚠️  WIPING creator data in DB host: ${dbHost}\n` +
+      `   --fresh + --yes-i-really-want-to-wipe-creators both passed. Proceeding.\n`
+    );
     await prisma.creatorPartnership.deleteMany({});
     await prisma.adCreator.deleteMany({});
     console.log('Cleared old creator data.\n');

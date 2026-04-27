@@ -72,6 +72,20 @@ const hooksResponseSchema = z.object({
 // ---------------------------------------------------------------------------
 
 export async function POST(request: NextRequest) {
+  // DISABLED — this route references `prisma.brandStrategy` which does not
+  // exist in prisma/schema.prisma. Step 2 burns ~$0.20 of Sonnet spend before
+  // the DB update throws. Re-enable by either shipping the BrandStrategy model
+  // + migration, or deleting this route.
+  // See: .planning/review-2026-04-18/05-ai-llm-features.md (P0 #1)
+  //      .planning/review-2026-04-18/00-SYNTHESIS.md (Phase 0.9)
+  // Set ENABLE_GENERATE_STRATEGY=1 to re-enable temporarily for local debugging.
+  if (process.env.ENABLE_GENERATE_STRATEGY !== '1') {
+    return Response.json(
+      { error: 'This endpoint is temporarily disabled (schema incomplete)' },
+      { status: 503 }
+    );
+  }
+
   try {
     const body = await request.json();
     const parsed = requestSchema.safeParse(body);

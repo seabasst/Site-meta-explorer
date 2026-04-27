@@ -52,7 +52,7 @@ function SignInForm() {
   const getErrorMessage = (errorCode: string) => {
     switch (errorCode) {
       case "CredentialsSignin":
-        return "Invalid email or password. Try demo@example.com / demo123"
+        return "Invalid email or password."
       case "OAuthAccountNotLinked":
         return "This email is already linked to another account."
       case "OAuthSignin":
@@ -153,7 +153,7 @@ function SignInForm() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="demo@example.com"
+            placeholder="you@example.com"
             required
             className="input-field w-full"
           />
@@ -168,7 +168,7 @@ function SignInForm() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="demo123"
+            placeholder="Password"
             required
             className="input-field w-full"
           />
@@ -190,13 +190,16 @@ function SignInForm() {
         </button>
       </form>
 
-      {/* Demo credentials hint */}
-      <div className="mt-6 p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
-        <p className="text-xs text-[var(--text-muted)] text-center">
-          <span className="font-medium text-[var(--accent-green-light)]">Demo credentials:</span>{" "}
-          demo@example.com / demo123
-        </p>
-      </div>
+      {/* Demo credentials hint — only shown when demo login is actually enabled
+          (controlled by ENABLE_DEMO_LOGIN env var in src/auth.ts). */}
+      {process.env.NEXT_PUBLIC_ENABLE_DEMO_LOGIN === "1" && (
+        <div className="mt-6 p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
+          <p className="text-xs text-[var(--text-muted)] text-center">
+            <span className="font-medium text-[var(--accent-green-light)]">Demo credentials:</span>{" "}
+            demo@example.com / demo123
+          </p>
+        </div>
+      )}
 
       {/* Back link */}
       <div className="mt-6 text-center">

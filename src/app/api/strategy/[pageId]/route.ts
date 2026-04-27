@@ -1,10 +1,12 @@
 import { NextRequest } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import {
   TAXONOMY,
   CATEGORY_KEYS,
   type CategoryKey,
 } from "@/lib/classification/taxonomy";
+import { llmGuard } from "@/lib/llm/guard";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +27,18 @@ export async function GET(
   { params }: { params: Promise<{ pageId: string }> }
 ) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const guard = await llmGuard({
+      userId: session.user.id,
+      userEmail: session.user.email,
+      operation: "strategy-cached",
+    });
+    if (!guard.ok) return guard.response;
+
     const { pageId } = await params;
 
     if (!pageId) {

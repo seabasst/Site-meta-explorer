@@ -10,9 +10,9 @@ const CRON_SECRET = process.env.CRON_SECRET;
  * Runs every 5 minutes via Vercel Cron.
  */
 export async function GET(req: NextRequest) {
-  // Verify cron secret (same pattern as assets cron -- allow if not set for local dev)
+  // Verify cron secret — fail-closed. Missing CRON_SECRET = 401, never bypass.
   const authHeader = req.headers.get("authorization");
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
