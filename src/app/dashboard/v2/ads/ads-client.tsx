@@ -8,7 +8,6 @@ import {
   BookOpen,
   Heart,
   LogIn,
-  Sparkles,
   ArrowRight,
 } from 'lucide-react';
 import { V2Shell, V2Card, V2SectionTitle, V2Skeleton } from '../v2-shell';
@@ -523,6 +522,9 @@ export default function AdsClient(props: AdsClientProps) {
               View Brand Page
               <ArrowRight className="w-3 h-3" />
             </Link>
+            {/* Creative Lab "Analyze Brand" button — hidden while the
+                Creative Lab route is disabled. Restore alongside
+                src/app/dashboard/v2/creative-lab/page.tsx when re-enabling.
             <Link
               href={`/dashboard/v2/creative-lab?pageId=${brandInfo.pageId}&pageName=${encodeURIComponent(brandInfo.pageName)}&mode=analysis${brandInfo.category ? `&category=${encodeURIComponent(brandInfo.category)}` : ''}`}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors bg-[#1235e2] text-white hover:bg-[#0f2dc5]"
@@ -530,6 +532,7 @@ export default function AdsClient(props: AdsClientProps) {
               <Sparkles className="w-3 h-3" />
               Analyze Brand
             </Link>
+            */}
           </div>
         </V2Card>
       )}

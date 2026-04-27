@@ -17,13 +17,13 @@ import {
   Download,
   Heart,
   Layers,
-  Wand2,
   MessageSquare,
   Users,
   LogIn,
   LogOut,
   ChevronDown,
   Inbox,
+  Database,
 } from 'lucide-react';
 import { useV2 } from './v2-context';
 
@@ -64,7 +64,10 @@ const NAV_SECTIONS: NavSection[] = [
     // Top-level items (no section header)
     items: [
       { id: '/dashboard/v2', icon: LayoutDashboard, label: 'Dashboard' },
-      { id: '/dashboard/v2/creative-lab', icon: Wand2, label: 'Creative Lab' },
+      // v1 ad library — older but more complete in places (jobs, raw search,
+      // brand-detail tables). Lives outside the v2 shell; clicking this
+      // navigates the user to /dashboard/ad-library and uses v1's own layout.
+      { id: '/dashboard/ad-library', icon: Database, label: 'Ad Library (v1)' },
     ],
   },
   {
@@ -94,6 +97,7 @@ const NAV_SECTIONS: NavSection[] = [
 ];
 
 /* HIDDEN: Features removed from sidebar, preserved for future use
+  { id: '/dashboard/v2/creative-lab', icon: Wand2, label: 'Creative Lab' },
   { id: '/dashboard/v2/share-of-voice', icon: PieChart, label: 'Share of Voice' },
   { id: '/dashboard/v2/benchmarks', icon: Scale, label: 'Benchmarking' },
   { id: '/dashboard/v2/competitors', icon: Users, label: 'Competitors' },

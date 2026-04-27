@@ -25,6 +25,7 @@ import { formatFormatLabel } from '../types';
 import { normalizeDemographicsJson } from '@/lib/demographics-normalizer';
 import { DemographicPeek } from '../components/demographic-peek';
 import { TAXONOMY, CATEGORY_KEYS, type CategoryKey } from '@/lib/classification/taxonomy';
+import { CopyAnalysis } from '../components/copy-analysis';
 
 // ---------------------------------------------------------------------------
 // Types (match API response from /api/ad-library/brands/[pageId])
@@ -206,7 +207,7 @@ export default function BrandDetailPage() {
     return (
       <V2Shell title="Brand Detail">
         <Link
-          href="/dashboard/v2/ad-library"
+          href="/dashboard/v2/ads"
           className={`inline-flex items-center gap-1.5 text-sm mb-6 transition-colors ${
             darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
           }`}
@@ -224,7 +225,7 @@ export default function BrandDetailPage() {
     return (
       <V2Shell title="Brand Detail">
         <Link
-          href="/dashboard/v2/ad-library"
+          href="/dashboard/v2/ads"
           className={`inline-flex items-center gap-1.5 text-sm mb-6 transition-colors ${
             darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
           }`}
@@ -239,7 +240,7 @@ export default function BrandDetailPage() {
           </p>
           <p className={`mb-4 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{error}</p>
           <Link
-            href="/dashboard/v2/ad-library"
+            href="/dashboard/v2/ads"
             className="inline-block px-4 py-2 bg-[#1235e2] text-white rounded-lg text-sm font-medium hover:bg-[#0f2dc5] transition-colors"
           >
             Back to Ad Library
@@ -255,7 +256,7 @@ export default function BrandDetailPage() {
     <V2Shell title={brand.pageName}>
       {/* Back link */}
       <Link
-        href="/dashboard/v2/ad-library"
+        href="/dashboard/v2/ads"
         className={`inline-flex items-center gap-1.5 text-sm mb-6 transition-colors ${
           darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
         }`}
@@ -304,6 +305,9 @@ export default function BrandDetailPage() {
 
             {/* Action buttons */}
             <div className="flex items-center gap-2 mb-3">
+              {/* Creative Lab "Analyze Brand" button — hidden while the
+                  Creative Lab route is disabled. Restore alongside
+                  src/app/dashboard/v2/creative-lab/page.tsx when re-enabling.
               <Link
                 href={`/dashboard/v2/creative-lab?pageId=${brand.pageId}&pageName=${encodeURIComponent(brand.pageName)}&mode=analysis${brand.category ? `&category=${encodeURIComponent(brand.category)}` : ''}`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors bg-[#1235e2] text-white hover:bg-[#0f2dc5]"
@@ -311,6 +315,7 @@ export default function BrandDetailPage() {
                 <Sparkles className="w-3.5 h-3.5" />
                 Analyze Brand
               </Link>
+              */}
               <button
                 onClick={toggleMonitor}
                 disabled={monitorLoading}
@@ -393,6 +398,11 @@ export default function BrandDetailPage() {
         distribution={classificationDistribution}
         darkMode={darkMode}
       />
+
+      {/* Copy & Content Analysis */}
+      <section className="mb-8">
+        <CopyAnalysis pageId={pageId} pageName={brand.pageName} darkMode={darkMode} />
+      </section>
 
       {/* Ad Grid */}
       <section>
