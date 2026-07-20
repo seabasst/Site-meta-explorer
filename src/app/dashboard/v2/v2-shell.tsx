@@ -25,6 +25,7 @@ import {
   LogOut,
   ChevronDown,
   Inbox,
+  Search,
 } from 'lucide-react';
 import { useV2 } from './v2-context';
 
@@ -65,6 +66,7 @@ const NAV_SECTIONS: NavSection[] = [
     // Top-level items (no section header)
     items: [
       { id: '/dashboard/v2', icon: LayoutDashboard, label: 'Dashboard' },
+      { id: '/analyze', icon: Search, label: 'Analyze' },
       { id: '/dashboard/v2/creative-lab', icon: Wand2, label: 'Creative Lab' },
     ],
   },
