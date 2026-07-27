@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Give each cron run enough wall-clock to process a batch of brands (each brand
+// paginates the Meta API with pauses). Capped to the Vercel plan's max. The
+// queue is overdue-first and idempotent, so a run cut short simply resumes.
+export const maxDuration = 300;
+export const dynamic = 'force-dynamic';
+
 // Vercel Cron secret for security
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -1186,19 +1192,34 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Get pending/failed brands to process (skip brands that failed 3+ times)
+    // Brands to process each run:
+    //   (a) never fully ingested yet  → ingestionStatus in ('pending','failed')
+    //   (b) active brands whose WEEKLY re-check is due → catches newly-launched
+    //       ads on brands we already track. Without this, 'active' brands are
+    //       never revisited and the pipeline goes dormant after the backfill.
+    // Overdue accounts (oldest / never-checked lastCheckedAt) are queued first.
+    const REFRESH_AFTER_DAYS = 7;
+    const staleBefore = new Date(Date.now() - REFRESH_AFTER_DAYS * 24 * 60 * 60 * 1000);
+
     const brands = await prisma.adLibraryBrand.findMany({
       where: {
-        ingestionStatus: { in: ['pending', 'failed'] },
         failCount: { lt: 3 }, // Skip brands that failed too many times
+        OR: [
+          { ingestionStatus: { in: ['pending', 'failed'] } },
+          { ingestionStatus: 'active', lastCheckedAt: null },
+          { ingestionStatus: 'active', lastCheckedAt: { lt: staleBefore } },
+        ],
       },
-      orderBy: { priority: 'desc' },
+      orderBy: [
+        { lastCheckedAt: { sort: 'asc', nulls: 'first' } },
+        { priority: 'desc' },
+      ],
       take: BRANDS_PER_RUN,
     });
 
     if (brands.length === 0) {
       return NextResponse.json({
-        message: 'No pending brands to process',
+        message: 'No brands due for ingestion or weekly refresh',
         processed: 0,
         tokenStatus: tokenManager.getStatusSummary(),
       });
