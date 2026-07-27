@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// Give each cron run enough wall-clock to process a batch of brands (each brand
-// paginates the Meta API with pauses). Capped to the Vercel plan's max. The
-// queue is overdue-first and idempotent, so a run cut short simply resumes.
-export const maxDuration = 300;
+// The queue is overdue-first and idempotent, so a run cut short by the function
+// time limit simply resumes on the next run. (maxDuration is left at the plan
+// default — Hobby caps at 60s; raise it on Pro to process more brands per run.)
 export const dynamic = 'force-dynamic';
 
 // Vercel Cron secret for security
