@@ -25,6 +25,8 @@ import {
   LogOut,
   ChevronDown,
   Inbox,
+  Sparkles,
+  FileText,
 } from 'lucide-react';
 import { useV2 } from './v2-context';
 
@@ -65,6 +67,8 @@ const NAV_SECTIONS: NavSection[] = [
     // Top-level items (no section header)
     items: [
       { id: '/dashboard/v2', icon: LayoutDashboard, label: 'Dashboard' },
+      { id: '/dashboard/v3', icon: Sparkles, label: 'Genome v3' },
+      { id: '/dashboard/v3/brief', icon: FileText, label: 'Brief Generator' },
       { id: '/dashboard/v2/creative-lab', icon: Wand2, label: 'Creative Lab' },
     ],
   },
