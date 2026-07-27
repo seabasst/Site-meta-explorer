@@ -79,6 +79,7 @@ export default function V3Page() {
           <div className="v3-brand"><span className="v3-dot">🧬</span>Genome <small>v3</small></div>
           <span style={{ flex: 1 }} />
           <Link href="/dashboard/v3/brief" className="v3-ghost" style={{ marginRight: 8, borderColor: 'var(--v3-pink)', color: 'var(--v3-pink-press)' }}>✨ Brief generator</Link>
+          <Link href="/dashboard/v3/connect" className="v3-ghost" style={{ marginRight: 8, background: 'var(--v3-pink)', color: '#fff', borderColor: 'var(--v3-pink)' }}>Decode my account</Link>
           <Link href="/dashboard/v2" className="v3-ghost">← Back to v2</Link>
         </div>
       </header>
