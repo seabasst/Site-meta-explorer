@@ -171,12 +171,82 @@ function DecodeView({ d }: { d: Decode }) {
           )}
         </div>
       </div>
+
+      <IndustryBrief accountName={d.account.name} />
     </section>
   );
 }
 
 function Tile({ n, l, tone = '' }: { n: string; l: string; tone?: string }) {
   return <div className={`v3-tile ${tone}`}><div className="v3-tile-n">{n}</div><div className="v3-tile-l">{l}</div></div>;
+}
+
+// --- Industry brief: turns the gap into an action (reuses /api/genome/brief) ---
+type BriefGene = string | null;
+type Brief = { id: string; name: string; tagline: string; genes: Record<string, BriefGene> };
+type BriefResp = {
+  scope: { industry: string; classifiedAds: number; confidence: 'high' | 'medium' | 'low' };
+  industries: { label: string; classifiedAds: number }[];
+  briefs: Brief[];
+};
+const BRIEF_DIMS = ['hookTactic', 'messagingAngle', 'creativeMechanic', 'visualFormat', 'offerType'];
+const dimShort: Record<string, string> = { hookTactic: 'Hook', messagingAngle: 'Angle', creativeMechanic: 'Mechanic', visualFormat: 'Format', offerType: 'Offer' };
+
+function IndustryBrief({ accountName }: { accountName: string }) {
+  const [industry, setIndustry] = useState('All industries');
+  const [data, setData] = useState<BriefResp | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback((ind: string) => {
+    setLoading(true);
+    const q = ind && ind !== 'All industries' ? `?industry=${encodeURIComponent(ind)}` : '';
+    fetch(`/api/genome/brief${q}`).then((r) => r.json()).then((d) => setData(d)).catch(() => setData(null)).finally(() => setLoading(false));
+  }, []);
+  useEffect(() => { load('All industries'); }, [load]);
+
+  const industries = ['All industries', ...(data?.industries.map((i) => i.label) ?? [])];
+
+  return (
+    <div className="v3-briefsec">
+      <div className="v3-briefsec-head">
+        <div>
+          <div className="v3-kicker">Your next ad</div>
+          <h3 className="v3-h3" style={{ fontSize: 19, marginTop: 6 }}>An industry brief for {accountName}</h3>
+          <div className="v3-desc">The winning hook, angle, mechanic, format and offer to test next — drawn from the best-performing ads in your category.</div>
+        </div>
+        {data && <span className={`v3-conf v3-conf-${data.scope.confidence}`}><b>{data.scope.confidence}</b> · {data.scope.classifiedAds.toLocaleString('en-US')} ads</span>}
+      </div>
+
+      <div className="v3-pills" style={{ margin: '14px 0 18px' }}>
+        {industries.map((ind) => (
+          <button key={ind} className={`v3-pill ${ind === industry ? 'on' : ''}`} onClick={() => { setIndustry(ind); load(ind); }}>
+            {ind === 'All industries' ? ind : pretty(ind)}
+          </button>
+        ))}
+      </div>
+
+      {loading && <div className="v3-desc">Reading the industry genome…</div>}
+      {!loading && data && (
+        <div className="v3-briefcards">
+          {data.briefs.map((b) => (
+            <div className={`v3-briefcard ${b.id === 'edge' ? 'edge' : ''}`} key={b.id}>
+              <div className="v3-briefcard-name">{b.name}{b.id === 'edge' && <span className="v3-briefcard-badge">differentiator</span>}</div>
+              <div className="v3-briefcard-tag">{b.tagline}</div>
+              <div className="v3-briefcard-genes">
+                {BRIEF_DIMS.map((dim) => b.genes[dim] && (
+                  <div className="v3-briefcard-gene" key={dim}>
+                    <span className="v3-bg-dim">{dimShort[dim]}</span>
+                    <span className={`v3-bchip ${b.id === 'edge' ? 'edge' : ''}`}>{pretty(b.genes[dim]!)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="v3-desc" style={{ marginTop: 14 }}>Want the full brief with proof ads and one-click copy? <Link href="/dashboard/v3/brief" style={{ color: 'var(--v3-pink-press)', fontWeight: 700 }}>Open the Brief Generator →</Link></div>
+    </div>
+  );
 }
 
 const CSS = `
@@ -257,4 +327,27 @@ font-family:"SF Pro Display",system-ui,-apple-system,"Segoe UI",Roboto,sans-seri
 .v3-gap-best{font-weight:700;color:var(--v3-pink-press);text-transform:capitalize;}
 .v3-gap-best.match{color:var(--v3-green);}
 .v3-gap-legend{font-size:11.5px;color:var(--v3-ink-3);margin-top:8px;line-height:1.4;}
+
+.v3-briefsec{margin-top:18px;background:var(--v3-card);border:1px solid var(--v3-line);border-radius:var(--v3-r);box-shadow:var(--v3-shadow);padding:24px;}
+.v3-briefsec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.v3-conf{display:inline-block;font-size:12px;padding:6px 12px;border-radius:var(--v3-pill);font-weight:600;white-space:nowrap;}
+.v3-conf b{text-transform:capitalize;}
+.v3-conf-high{background:var(--v3-teal-soft);color:var(--v3-teal);}
+.v3-conf-medium{background:#FBF0DF;color:var(--v3-amber);}
+.v3-conf-low{background:var(--v3-pink-tint);color:var(--v3-pink-press);}
+.v3-pills{display:flex;gap:8px;flex-wrap:wrap;}
+.v3-pill{border:1.5px solid var(--v3-line-2);background:var(--v3-card);color:var(--v3-ink-2);padding:8px 15px;border-radius:var(--v3-pill);font-weight:650;font-size:13px;cursor:pointer;font-family:inherit;}
+.v3-pill.on{background:var(--v3-ink);border-color:var(--v3-ink);color:var(--v3-paper);}
+.v3-briefcards{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media (max-width:760px){.v3-briefcards{grid-template-columns:1fr;}}
+.v3-briefcard{border:1px solid var(--v3-line);border-radius:var(--v3-r-sm);padding:18px;display:flex;flex-direction:column;gap:12px;background:var(--v3-paper);}
+.v3-briefcard.edge{border-color:var(--v3-pink-soft);background:linear-gradient(180deg,var(--v3-pink-tint),var(--v3-card) 65%);}
+.v3-briefcard-name{font-size:16px;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;}
+.v3-briefcard-badge{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--v3-pink-press);background:var(--v3-card);border:1px solid var(--v3-pink-soft);padding:3px 8px;border-radius:var(--v3-pill);}
+.v3-briefcard-tag{font-size:12.5px;color:var(--v3-ink-2);line-height:1.45;margin-top:-4px;}
+.v3-briefcard-genes{display:flex;flex-direction:column;gap:7px;}
+.v3-briefcard-gene{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:10px;}
+.v3-bg-dim{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--v3-ink-3);}
+.v3-bchip{display:inline-block;justify-self:start;background:var(--v3-sand);color:var(--v3-ink);font-size:12.5px;font-weight:750;padding:4px 12px;border-radius:99px;text-transform:capitalize;}
+.v3-bchip.edge{background:var(--v3-pink);color:#fff;}
 `;
