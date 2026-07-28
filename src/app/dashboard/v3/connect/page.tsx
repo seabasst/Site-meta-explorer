@@ -16,6 +16,7 @@ const compact = (n: number | null) => (n == null ? '—' : n >= 1e6 ? `${(n / 1e
 type Account = { id: string; name: string; status: string; active: boolean; currency: string; lifetimeSpend: number; business: string | null };
 type Decode = {
   account: { id: string; name: string };
+  suggestedIndustry: string | null;
   performance: { windowDays: number; currency: string; spend: number | null; impressions: number | null; reach: number | null; clicks: number | null; ctr: number | null; cpc: number | null; frequency: number | null; roas: number | null; purchases: number | null; topAds: { name: string; spend: number | null; roas: number | null; ctr: number | null; reach: number | null }[] };
   creativeGenome: { classifiedAds: number; top: Record<string, string>; mix: Record<string, { gene: string; count: number }[]> } | null;
   creativeNote: string | null;
@@ -172,7 +173,7 @@ function DecodeView({ d }: { d: Decode }) {
         </div>
       </div>
 
-      <IndustryBrief accountName={d.account.name} />
+      <IndustryBrief accountName={d.account.name} suggested={d.suggestedIndustry} />
     </section>
   );
 }
@@ -192,8 +193,8 @@ type BriefResp = {
 const BRIEF_DIMS = ['hookTactic', 'messagingAngle', 'creativeMechanic', 'visualFormat', 'offerType'];
 const dimShort: Record<string, string> = { hookTactic: 'Hook', messagingAngle: 'Angle', creativeMechanic: 'Mechanic', visualFormat: 'Format', offerType: 'Offer' };
 
-function IndustryBrief({ accountName }: { accountName: string }) {
-  const [industry, setIndustry] = useState('All industries');
+function IndustryBrief({ accountName, suggested }: { accountName: string; suggested: string | null }) {
+  const [industry, setIndustry] = useState(suggested || 'All industries');
   const [data, setData] = useState<BriefResp | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -202,9 +203,9 @@ function IndustryBrief({ accountName }: { accountName: string }) {
     const q = ind && ind !== 'All industries' ? `?industry=${encodeURIComponent(ind)}` : '';
     fetch(`/api/genome/brief${q}`).then((r) => r.json()).then((d) => setData(d)).catch(() => setData(null)).finally(() => setLoading(false));
   }, []);
-  useEffect(() => { load('All industries'); }, [load]);
+  useEffect(() => { load(suggested || 'All industries'); }, [load, suggested]);
 
-  const industries = ['All industries', ...(data?.industries.map((i) => i.label) ?? [])];
+  const industries = Array.from(new Set([...(suggested ? [suggested] : []), 'All industries', ...(data?.industries.map((i) => i.label) ?? [])]));
 
   return (
     <div className="v3-briefsec">
@@ -224,6 +225,9 @@ function IndustryBrief({ accountName }: { accountName: string }) {
           </button>
         ))}
       </div>
+      {suggested && industry === suggested && (
+        <div className="v3-desc" style={{ marginTop: -6, marginBottom: 16 }}>✨ Industry auto-detected from {accountName}&apos;s creatives — switch above if it&apos;s off.</div>
+      )}
 
       {loading && <div className="v3-desc">Reading the industry genome…</div>}
       {!loading && data && (

@@ -70,9 +70,19 @@ export async function GET(request: NextRequest) {
       topAds,
     };
 
-    // --- creative genome: classify a sample of their ads (best-effort) ---
+    // Industries the ad-library has brief-depth for — used to constrain the
+    // per-account industry inference so the decode's brief lands on real data.
+    const indRows = await prisma.$queryRawUnsafe<Array<{ category: string }>>(
+      `SELECT b.category FROM "AdClassification" c JOIN "AdLibraryAd" a ON a.id = c."adId" JOIN "AdLibraryBrand" b ON b.id = a."brandId"
+       WHERE b.category IS NOT NULL AND a."startDate" IS NOT NULL
+       GROUP BY b.category HAVING COUNT(*) >= 40 ORDER BY COUNT(*) DESC`
+    );
+    const availableIndustries = indRows.map((r) => r.category);
+
+    // --- creative genome + industry inference: classify a sample (best-effort) ---
     let creativeGenome: null | { classifiedAds: number; top: Record<string, string>; mix: Record<string, { gene: string; count: number }[]> } = null;
     let creativeNote: string | null = null;
+    let suggestedIndustry: string | null = null; // null → "All industries"
     try {
       const adsWrap = await metaGet<{ data: Array<{ name: string; creative?: { title?: string; body?: string } }> }>(
         `${accountId}/ads?fields=name,creative{title,body}&effective_status=["ACTIVE"]&limit=15`,
@@ -86,15 +96,20 @@ export async function GET(request: NextRequest) {
       if (samples.length === 0) creativeNote = 'No active ads with creative text to classify.';
       else if (!process.env.ANTHROPIC_API_KEY) creativeNote = 'Creative genome runs on deploy (needs the AI key).';
       else {
+        const options = [...availableIndustries.map((i) => `"${i}"`), '"All industries"'].join(', ');
         const claude = new Anthropic();
         const r = await claude.messages.create({
-          model: 'claude-sonnet-4-20250514', max_tokens: 1200,
-          system: 'You classify Meta ads into a creative taxonomy. Return ONLY a JSON array; one object per ad with keys: hookTactic, messagingAngle, creativeMechanic, visualFormat. Use short kebab-case values (e.g. social-proof, bold-claim, price-value, testimonial, lifestyle, before-after).',
-          messages: [{ role: 'user', content: `Classify these ${samples.length} ads:\n${samples.map((s, i) => `${i + 1}. ${s.title} — ${s.body}`.slice(0, 300)).join('\n')}` }],
+          model: 'claude-sonnet-4-20250514', max_tokens: 1400,
+          system: `You classify Meta ads and identify the advertiser's industry. Return ONLY JSON: {"industry": one of [${options}] (pick the single closest fit, else "All industries"), "ads": [one object per ad with keys hookTactic, messagingAngle, creativeMechanic, visualFormat using short kebab-case values like social-proof, bold-claim, price-value, testimonial, lifestyle, before-after]}.`,
+          messages: [{ role: 'user', content: `Advertiser: ${acct.name}. Classify these ${samples.length} ads and pick the best-fit industry:\n${samples.map((s, i) => `${i + 1}. ${s.title} — ${s.body}`.slice(0, 300)).join('\n')}` }],
         });
         const text = r.content.map((c) => ('text' in c ? c.text : '')).join('');
-        const m = text.match(/\[[\s\S]*\]/);
-        const classified: Record<string, string>[] = m ? JSON.parse(m[0]) : [];
+        const m = text.match(/\{[\s\S]*\}/);
+        const parsed: { industry?: string; ads?: Record<string, string>[] } = m ? JSON.parse(m[0]) : {};
+        const classified = Array.isArray(parsed.ads) ? parsed.ads : [];
+        if (parsed.industry && parsed.industry !== 'All industries' && availableIndustries.includes(parsed.industry)) {
+          suggestedIndustry = parsed.industry;
+        }
         const dims = ['hookTactic', 'messagingAngle', 'creativeMechanic', 'visualFormat'];
         const mix: Record<string, { gene: string; count: number }[]> = {};
         const top: Record<string, string> = {};
@@ -135,6 +150,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       account: { id: accountId, name: acct.name },
+      suggestedIndustry,
       performance,
       creativeGenome,
       creativeNote,
