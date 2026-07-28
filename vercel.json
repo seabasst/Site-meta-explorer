@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/ad-library/cron/discover",
+      "schedule": "0 1 * * *"
+    },
+    {
       "path": "/api/ad-library/cron/ingest",
       "schedule": "0 3 * * *"
     },
