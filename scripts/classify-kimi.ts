@@ -6,8 +6,8 @@
  * cron then keeps NEW ads classified incrementally.
  *
  * Run (Node 22.6+ strips TS types):
- *   node --env-file=.env.local scripts/classify-kimi.ts --limit=5000 --concurrency=12
- *   node --env-file=.env.local scripts/classify-kimi.ts            # whole backlog
+ *   npx tsx --env-file=.env.local scripts/classify-kimi.ts --limit=5000 --concurrency=12
+ *   npx tsx --env-file=.env.local scripts/classify-kimi.ts            # whole backlog
  *
  * Flags: --limit=<n> (default: all), --concurrency=<n> (default 12),
  *        --brand=<brandId> (only that brand)
