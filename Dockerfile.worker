@@ -1,0 +1,25 @@
+# Ingest worker for Fly.io — runs scripts/ingest-worker.ts continuously.
+# No HTTP server / no Next.js build; just the ingestion engine on a loop.
+FROM node:22-slim
+
+# Prisma needs openssl. Skip Puppeteer's Chromium download (worker never uses it).
+ENV PUPPETEER_SKIP_DOWNLOAD=1
+RUN apt-get update -y \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install deps first (postinstall runs `prisma generate`, so the schema must be present).
+COPY package*.json ./
+COPY prisma ./prisma
+RUN npm install
+# tsx runs the TypeScript worker directly (kept out of package.json so Vercel's
+# `npm ci` stays in lockstep with the lockfile).
+RUN npm install --no-save tsx@4.23.11
+
+# App source (worker script + src/lib/ingestion engine + tsconfig for tsx path resolution).
+COPY . .
+
+# Long-running background worker (overridden by fly.toml [processes]).
+CMD ["npm", "run", "worker"]

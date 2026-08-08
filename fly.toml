@@ -1,0 +1,26 @@
+# Fly.io config for the continuous ingest worker.
+# It has NO public services / ports — it's a background worker that loops over
+# "due" brands (pending/failed + active brands overdue for weekly refresh) and
+# fills in ads. Secrets (DATABASE_URL, FACEBOOK_ACCESS_TOKEN*) are set with
+# `fly secrets set`, never committed here.
+app = "greatearth-ingest-worker"
+primary_region = "arn"  # Stockholm — close to the Nordic focus / EU Neon region
+
+[build]
+  dockerfile = "Dockerfile.worker"
+
+# Single background process. This command overrides the Dockerfile CMD.
+[processes]
+  worker = "npm run worker"
+
+# Worker tuning (safe defaults for a single token; raise once more tokens exist).
+[env]
+  CONCURRENCY = "2"
+  PACE_MS = "2000"
+  BATCH = "24"
+  POLL_MS = "60000"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  processes = ["worker"]

@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
+    "worker": "tsx scripts/ingest-worker.ts",
     "lint": "eslint",
     "postinstall": "prisma generate"
   },
