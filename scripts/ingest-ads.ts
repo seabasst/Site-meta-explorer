@@ -14,6 +14,7 @@
 import { PrismaClient, AdLibraryBrand, IngestionJob } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { config } from 'dotenv';
+import { TokenManager } from '../src/lib/token-manager';
 
 // Load .env.local (takes precedence) then .env
 config({ path: '.env.local' });
@@ -22,7 +23,9 @@ config({ path: '.env' });
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
-const FACEBOOK_ACCESS_TOKEN = process.env.FACEBOOK_ACCESS_TOKEN;
+// Shared rotation + rate-limit manager. Reads FACEBOOK_ACCESS_TOKEN1..N,
+// FACEBOOK_ACCESS_TOKENS (csv), or single FACEBOOK_ACCESS_TOKEN. Works with one token.
+const tokenManager = new TokenManager();
 const API_VERSION = 'v19.0';
 const BASE_URL = 'https://graph.facebook.com';
 
@@ -164,16 +167,17 @@ function calculateAdDuration(startDate?: string, endDate?: string): number | nul
 async function fetchAdsPage(
   pageId: string,
   cursor?: string,
-  retryCount = 0
+  retryCount = 0,
+  limit = 100
 ): Promise<{ ads: MetaAd[]; nextCursor?: string }> {
   const params = new URLSearchParams({
-    access_token: FACEBOOK_ACCESS_TOKEN!,
+    access_token: tokenManager.getBestToken(),
     search_page_ids: pageId,
     ad_reached_countries: JSON.stringify(TARGET_COUNTRIES),
     ad_type: 'ALL',
-    ad_active_status: 'ACTIVE',
+    ad_active_status: ((globalThis as any).__INGEST_STATUS__ as string) || 'ACTIVE',
     fields: AD_FIELDS,
-    limit: '100',
+    limit: String(limit),
   });
 
   if (cursor) {
@@ -182,25 +186,51 @@ async function fetchAdsPage(
 
   try {
     const response = await fetch(`${BASE_URL}/${API_VERSION}/ads_archive?${params}`);
+    // Track per-token usage from headers and rotate proactively before hitting the cap.
+    tokenManager.updateUsageFromHeaders(response.headers);
     const data = await response.json();
 
     if (data.error) {
-      // Rate limit hit - wait and retry with exponential backoff
-      const rateLimitCodes = [4, 17, 613, 80004];
-      if (rateLimitCodes.includes(data.error.code)) {
-        if (retryCount < MAX_RETRIES) {
-          // Exponential backoff: 1min, 2min, 4min, 8min, 16min
-          const waitTime = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
-          console.log(`    ⏳ Rate limited (code ${data.error.code}), waiting ${waitTime / 60000} minutes...`);
-          await sleep(waitTime);
-          return fetchAdsPage(pageId, cursor, retryCount + 1);
+      const errorCode = data.error.code;
+      const errorMessage = data.error.message || 'Unknown error';
+
+      // Token expired/invalid (190) or session issues — mark and switch tokens.
+      if ([190, 102, 463, 467].includes(errorCode)) {
+        tokenManager.markExpired(errorMessage);
+        if (tokenManager.hasUsableTokens()) {
+          console.log(`    🔑 Token dead (code ${errorCode}), switching to token ${tokenManager.getCurrentTokenIndex()}/${tokenManager.getTotalTokens()}...`);
+          return fetchAdsPage(pageId, cursor, retryCount, limit);
         }
-        // If all retries exhausted, throw with a flag to pause processing
-        const error = new Error(`API Error: ${data.error.message} (code: ${data.error.code})`);
+        throw new Error(`All tokens dead (code ${errorCode}): ${errorMessage}`);
+      }
+
+      // "Data too large" (code 1) — halve the page size and retry.
+      if (errorCode === 1 && limit > 5) {
+        const reduced = Math.max(5, Math.floor(limit / 2));
+        console.log(`    📉 Data too large, reducing limit ${limit} → ${reduced}...`);
+        return fetchAdsPage(pageId, cursor, retryCount, reduced);
+      }
+
+      // Rate limit — mark current token, rotate, and retry (immediately if another token is free).
+      const rateLimitCodes = [2, 4, 17, 613, 80004];
+      if (rateLimitCodes.includes(errorCode) && retryCount < MAX_RETRIES) {
+        const waitTime = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+        tokenManager.markRateLimited(waitTime);
+        if (tokenManager.getTotalTokens() > 1 && !tokenManager.allTokensRateLimited()) {
+          console.log(`    🔁 Rate limited (code ${errorCode}), switching to token ${tokenManager.getCurrentTokenIndex()}/${tokenManager.getTotalTokens()}...`);
+          return fetchAdsPage(pageId, cursor, retryCount + 1, limit);
+        }
+        console.log(`    ⏳ All tokens rate limited, waiting ${waitTime / 60000} min...`);
+        await sleep(waitTime);
+        return fetchAdsPage(pageId, cursor, retryCount + 1, limit);
+      }
+
+      if (rateLimitCodes.includes(errorCode)) {
+        const error = new Error(`API Error: ${errorMessage} (code: ${errorCode})`);
         (error as any).isRateLimit = true;
         throw error;
       }
-      throw new Error(`API Error: ${data.error.message} (code: ${data.error.code})`);
+      throw new Error(`API Error: ${errorMessage} (code: ${errorCode})`);
     }
 
     return {
@@ -211,7 +241,7 @@ async function fetchAdsPage(
     if (retryCount < MAX_RETRIES) {
       console.log(`    ⚠️ Fetch error, retrying (${retryCount + 1}/${MAX_RETRIES})...`);
       await sleep(INITIAL_RETRY_DELAY);
-      return fetchAdsPage(pageId, cursor, retryCount + 1);
+      return fetchAdsPage(pageId, cursor, retryCount + 1, limit);
     }
     throw error;
   }
@@ -477,8 +507,8 @@ async function ingestBrand(
 // ============================================================================
 
 async function main() {
-  if (!FACEBOOK_ACCESS_TOKEN) {
-    console.error('Error: FACEBOOK_ACCESS_TOKEN environment variable not set');
+  if (!tokenManager.hasTokens()) {
+    console.error('Error: no Facebook token set (FACEBOOK_ACCESS_TOKEN1..N, FACEBOOK_ACCESS_TOKENS, or FACEBOOK_ACCESS_TOKEN)');
     process.exit(1);
   }
 
@@ -488,6 +518,12 @@ async function main() {
   const brandArg = args.find(a => a.startsWith('--brand='))?.split('=')[1];
   const limitArg = args.find(a => a.startsWith('--limit='))?.split('=')[1];
   const limit = limitArg ? parseInt(limitArg) : undefined;
+  const statusArg = args.find(a => a.startsWith('--status='))?.split('=')[1]?.toUpperCase();
+  if (statusArg && !['ACTIVE', 'INACTIVE', 'ALL'].includes(statusArg)) {
+    console.error(`Invalid --status: ${statusArg}. Use ACTIVE, INACTIVE, or ALL.`);
+    process.exit(1);
+  }
+  if (statusArg) (globalThis as any).__INGEST_STATUS__ = statusArg;
 
   console.log('═'.repeat(60));
   console.log('Ad Ingestion Pipeline');
