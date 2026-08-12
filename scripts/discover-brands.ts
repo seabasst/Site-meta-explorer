@@ -20,6 +20,7 @@
  */
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { SEARCH_TERMS } from '../src/lib/discovery-terms';
 
 const API_VERSION = 'v22.0';
 const BASE_URL = 'https://graph.facebook.com';
@@ -92,18 +93,20 @@ const priorityFor = (reach: number) => (reach > 5e6 ? 50 : reach > 1e6 ? 40 : re
 
 async function main() {
   const argv = process.argv.slice(2);
-  const terms = argv.filter((a) => !a.startsWith('--'));
   const flags = Object.fromEntries(
     argv.filter((a) => a.startsWith('--')).map((a) => { const [k, v] = a.replace(/^--/, '').split('='); return [k, v ?? 'true']; })
   );
+  // --all sweeps the full shared term list (the daily cron drips a few/day; this drains it now).
+  const terms = flags.all === 'true' ? SEARCH_TERMS : argv.filter((a) => !a.startsWith('--'));
   if (terms.length === 0) {
     console.error('Usage: node --env-file=.env.local scripts/discover-brands.ts "<term>" ["<term2>"] [--category=slug] [--pages=5] [--dry]');
+    console.error('   or: node --env-file=.env.local scripts/discover-brands.ts --all [--pages=5]   (sweep full shared list)');
     process.exit(1);
   }
   const tokens = loadTokens();
   if (tokens.length === 0) { console.error('No FACEBOOK_ACCESS_TOKEN(S) configured.'); process.exit(1); }
 
-  const category = flags.category ?? terms[0].toLowerCase().replace(/\s+/g, '-');
+  const category = flags.category ?? (flags.all === 'true' ? 'auto-sweep' : terms[0].toLowerCase().replace(/\s+/g, '-'));
   const maxPages = Number(flags.pages ?? 5);
   const countries = flags.countries ? String(flags.countries).split(',') : DEFAULT_COUNTRIES;
   const dry = flags.dry === 'true';
@@ -148,7 +151,7 @@ async function main() {
         priority: priorityFor(a.maxReach),
         totalReach: BigInt(Math.round(a.maxReach)),
         requestedAt: new Date(),
-        requestNote: `Discovered via search: ${terms.join(', ')}`,
+        requestNote: flags.all === 'true' ? 'Discovered via full-list sweep' : `Discovered via search: ${terms.join(', ')}`,
       })),
       skipDuplicates: true,
     });
