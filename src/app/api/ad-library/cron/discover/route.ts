@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getMetaToken } from '@/lib/meta-token';
 import { searchAdvertisers, priorityForReach, type Advertiser } from '@/lib/discovery';
+import { SEARCH_TERMS } from '@/lib/discovery-terms';
 
 // =============================================================================
 // GET /api/ad-library/cron/discover
@@ -16,23 +17,6 @@ export const dynamic = 'force-dynamic';
 
 const CRON_SECRET = process.env.CRON_SECRET;
 const TERMS_PER_RUN = Math.min(8, Math.max(1, Number(process.env.DISCOVER_TERMS_PER_RUN ?? 4)));
-
-// Broad DTC / e-commerce categories (EU + Nordic focus). Extend freely.
-const SEARCH_TERMS = [
-  'activewear', 'gym leggings', 'running shoes', 'sportswear', 'yoga wear',
-  'skincare', 'serum', 'makeup', 'haircare', 'perfume', 'natural cosmetics',
-  'supplements', 'protein powder', 'vitamins', 'collagen', 'greens powder',
-  'coffee subscription', 'specialty tea', 'craft snacks', 'meal kit', 'organic food',
-  'sustainable fashion', 'linen clothing', 'sneakers', 'denim', 'swimwear', 'lingerie',
-  'jewelry', 'watches', 'sunglasses', 'leather bags', 'backpacks',
-  'home decor', 'wall art', 'furniture', 'bedding', 'candles', 'kitchenware', 'rugs',
-  'pet food', 'dog accessories', 'baby products', 'kids clothing', 'toys',
-  'headphones', 'smart home', 'phone accessories', 'gaming gear',
-  'outdoor gear', 'cycling', 'hiking equipment', 'camping',
-  'mattress', 'skincare devices', 'electric toothbrush', 'eyewear',
-  // Nordic-language terms
-  'träningskläder', 'hudvård', 'kosttillskott', 'barnkläder', 'möbler', 'smycken',
-];
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
