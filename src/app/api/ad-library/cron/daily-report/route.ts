@@ -84,11 +84,10 @@ export async function GET(req: NextRequest) {
   }
 
   if (topVelocity) {
-    const reach = reachOf.get(topVelocity.brandId) ?? 0n;
-    const reachM = Number(reach) / 1e6;
+    const reachM = Number(reachOf.get(topVelocity.brandId) ?? 0) / 1e6;
     lines.push('');
     lines.push(`*🏎️ Highest ad velocity in Europe (7d launches):*`);
-    lines.push(`${nameOf.get(topVelocity.brandId) ?? topVelocity.brandId} — *${topVelocity._count._all}* new ads/week${reach ? ` (reach ≈ ${reachM.toFixed(1)}M)` : ''}`);
+    lines.push(`${nameOf.get(topVelocity.brandId) ?? topVelocity.brandId} — *${topVelocity._count._all}* new ads/week${reachM ? ` (reach ≈ ${reachM.toFixed(1)}M)` : ''}`);
   }
 
   const text = lines.join('\n');
