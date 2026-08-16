@@ -637,7 +637,9 @@ async function fetchAdsBySearchTerms(
   };
 }
 
-const MAX_ADS_PER_BRAND = 2000; // Limit to prevent runaway queries
+// Per-brand ad cap. Env-tunable so throughput can be adjusted without a rebuild;
+// default 10000 (was a hardcoded 2000, which truncated mega-advertisers like Temu).
+const MAX_ADS_PER_BRAND = Math.max(100, Number(process.env.MAX_ADS_PER_BRAND ?? 10000));
 const MAX_PAGES_FOR_SEARCH = 10; // Max API pages when using search_terms
 
 async function fetchAllAdsForBrand(pageId: string, pageName: string): Promise<MetaAd[]> {
