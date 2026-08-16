@@ -13,12 +13,15 @@ primary_region = "arn"  # Stockholm — close to the Nordic focus / EU Neon regi
 [processes]
   worker = "npm run worker"
 
-# Worker tuning (safe defaults for a single token; raise once more tokens exist).
+# Worker tuning. CONCURRENCY matched to token count (3) so each token drives one
+# parallel stream; raise both together as more tokens are added. MAX_ADS_PER_BRAND
+# lifts the old 2000 truncation so mega-advertisers are fully captured.
 [env]
-  CONCURRENCY = "2"
+  CONCURRENCY = "3"
   PACE_MS = "2000"
   BATCH = "24"
   POLL_MS = "60000"
+  MAX_ADS_PER_BRAND = "10000"
 
 [[vm]]
   size = "shared-cpu-1x"
