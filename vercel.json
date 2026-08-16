@@ -19,10 +19,6 @@
     {
       "path": "/api/ad-library/cron/classify-poll",
       "schedule": "0 4 * * *"
-    },
-    {
-      "path": "/api/ad-library/cron/daily-report",
-      "schedule": "0 7 * * *"
     }
   ]
 }

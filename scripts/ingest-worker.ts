@@ -28,12 +28,33 @@
  */
 import { prisma } from '../src/lib/prisma';
 import { selectDueBrands, processBrand, tokenManager, sleep } from '../src/lib/ingestion/ingest-core';
+import { sendDailyReport } from '../src/lib/daily-report';
 
 const CONCURRENCY = Math.max(1, Number(process.env.CONCURRENCY ?? 2));
 const PACE_MS = Math.max(0, Number(process.env.PACE_MS ?? 4000));
 const BATCH = Math.max(1, Number(process.env.BATCH ?? 24));
 const POLL_MS = Math.max(5000, Number(process.env.POLL_MS ?? 60_000));
+const REPORT_HOUR = Math.min(23, Math.max(0, Number(process.env.REPORT_HOUR ?? 7))); // UTC hour to post the daily Slack report
 const ONCE = process.argv.includes('--once');
+
+// Post the daily Slack report once per UTC day, the first loop tick at/after REPORT_HOUR.
+// ponytail: in-memory dedupe — a worker restart after REPORT_HOUR can double-post that
+// day. Restarts are rare (deploy/crash) and a dup Slack post is harmless; upgrade to a
+// DB marker only if it becomes annoying. Prefer catch-up over a strict window so a
+// worker down during the exact hour still posts once it's back.
+let lastReportYmd = '';
+async function maybeSendDailyReport() {
+  const now = new Date();
+  const ymd = now.toISOString().slice(0, 10);
+  if (lastReportYmd === ymd || now.getUTCHours() < REPORT_HOUR) return;
+  lastReportYmd = ymd;
+  try {
+    const r = await sendDailyReport();
+    console.log(r.posted ? `📊 Daily report posted to Slack` : `📊 Daily report skipped: ${r.reason}`);
+  } catch (e) {
+    console.log(`📊 Daily report error: ${e instanceof Error ? e.message : 'unknown'}`);
+  }
+}
 
 let running = true;
 let processed = 0, ok = 0, failed = 0;
@@ -67,6 +88,7 @@ async function main() {
   console.log(`Ingest worker started — concurrency ${CONCURRENCY}, pace ${PACE_MS}ms, batch ${BATCH}${ONCE ? ', --once' : ''}`);
 
   while (running) {
+    await maybeSendDailyReport();
     const brands = await selectDueBrands(BATCH);
     if (brands.length === 0) {
       if (ONCE) { console.log('Backlog drained.'); break; }

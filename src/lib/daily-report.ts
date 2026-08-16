@@ -1,0 +1,83 @@
+// Shared daily ingestion report — used by both the always-on Fly worker
+// (scripts/ingest-worker.ts) and the Vercel route (kept as a manual trigger).
+// Builds the Slack mrkdwn summary and posts it to SLACK_WEBHOOK_URL.
+
+import { prisma } from './prisma';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+export interface DailyReport {
+  text: string;
+  totalAds: number;
+  activeAds: number;
+  new24hTotal: number;
+  brandsWithNewAds: number;
+  topVelocity: { brand: string; newAds7d: number } | null;
+}
+
+// Query the DB and format the Slack message (mrkdwn: *single-asterisk* bold, which
+// is what Slack incoming webhooks render — not GitHub-style **double**).
+export async function buildDailyReport(): Promise<DailyReport> {
+  const since24h = new Date(Date.now() - DAY_MS);
+  const since7d = new Date(Date.now() - 7 * DAY_MS);
+
+  const [totalAds, activeAds, totalBrands, new24hByBrand, launched7dByBrand] = await Promise.all([
+    prisma.adLibraryAd.count(),
+    prisma.adLibraryAd.count({ where: { isActive: true } }),
+    prisma.adLibraryBrand.count({ where: { ingestionStatus: 'active' } }),
+    prisma.adLibraryAd.groupBy({ by: ['brandId'], where: { createdAt: { gte: since24h } }, _count: { _all: true } }),
+    prisma.adLibraryAd.groupBy({ by: ['brandId'], where: { startDate: { gte: since7d } }, _count: { _all: true } }),
+  ]);
+
+  const new24hTotal = new24hByBrand.reduce((s, g) => s + g._count._all, 0);
+
+  const ids = [...new Set([...new24hByBrand, ...launched7dByBrand].map((g) => g.brandId))];
+  const brands = await prisma.adLibraryBrand.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, pageName: true, totalReach: true },
+  });
+  const nameOf = new Map(brands.map((b) => [b.id, b.pageName] as const));
+  const reachOf = new Map(brands.map((b) => [b.id, b.totalReach] as const));
+
+  const topNew = [...new24hByBrand].sort((a, b) => b._count._all - a._count._all).slice(0, 8);
+  const topVelocity = [...launched7dByBrand].sort((a, b) => b._count._all - a._count._all)[0];
+
+  const today = new Date().toISOString().slice(0, 10);
+  const lines: string[] = [];
+  lines.push(`*📊 Ad Ingestion — ${today}*`);
+  lines.push(`Total: *${totalAds.toLocaleString()}* ads (${activeAds.toLocaleString()} active) across ${totalBrands.toLocaleString()} active brands`);
+  lines.push(`Last 24h: *+${new24hTotal.toLocaleString()}* ads from *${new24hByBrand.length}* brands`);
+  if (topNew.length) {
+    lines.push('');
+    lines.push('*Top brands by new ads (24h):*');
+    topNew.forEach((g, i) => lines.push(`${i + 1}. ${nameOf.get(g.brandId) ?? g.brandId} — +${g._count._all.toLocaleString()}`));
+  }
+  if (topVelocity) {
+    const reachM = Number(reachOf.get(topVelocity.brandId) ?? 0) / 1e6;
+    lines.push('');
+    lines.push('*🏎️ Highest ad velocity in Europe (7d launches):*');
+    lines.push(`${nameOf.get(topVelocity.brandId) ?? topVelocity.brandId} — *${topVelocity._count._all.toLocaleString()}* new ads/week${reachM ? ` (reach ≈ ${reachM.toFixed(1)}M)` : ''}`);
+  }
+
+  return {
+    text: lines.join('\n'),
+    totalAds, activeAds, new24hTotal,
+    brandsWithNewAds: new24hByBrand.length,
+    topVelocity: topVelocity ? { brand: nameOf.get(topVelocity.brandId) ?? topVelocity.brandId, newAds7d: topVelocity._count._all } : null,
+  };
+}
+
+// Build + POST to Slack. No-op (posted:false) when SLACK_WEBHOOK_URL is unset,
+// so the worker runs harmlessly until the webhook secret is added.
+export async function sendDailyReport(): Promise<{ posted: boolean; reason?: string; report?: DailyReport }> {
+  const url = process.env.SLACK_WEBHOOK_URL;
+  if (!url) return { posted: false, reason: 'SLACK_WEBHOOK_URL not set' };
+  const report = await buildDailyReport();
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: report.text }),
+  });
+  if (!res.ok) return { posted: false, reason: `Slack ${res.status} ${await res.text()}`, report };
+  return { posted: true, report };
+}
