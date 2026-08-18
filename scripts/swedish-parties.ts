@@ -616,6 +616,12 @@ async function report() {
 
   rows.sort((a, b) => (b.spendUpper as number) - (a.spendUpper as number));
 
+  // Absences are findings, not gaps to leave for the reader to spot. A party with
+  // no pages ran no ads in SE in the window whose copy names it; a party with
+  // branches but no national page advertised locally only, as far as this can see.
+  const missing = parties.filter((p) => !rows.some((r) => r.abbr === p.abbr)).map((p) => `${p.abbr} ${p.name}`);
+  const noNational = rows.filter((r) => (r.pagesNational as number) === 0).map((r) => `${r.abbr} ${r.party}`);
+
   const fmt = (n: number) => n.toLocaleString('sv-SE');
   console.log(`\nSwedish party ads · Meta Ad Library · ${COUNTRY} · ads starting ${dateMin} → today`);
   console.log('Spend/impressions are Meta\'s disclosed RANGES, summed as lower and upper bounds — not point values.\n');
@@ -642,8 +648,12 @@ async function report() {
       'Ads without a spend range were not declared political/issue by the advertiser.',
       'Levels: national/youth/branch = the page name is a party org. affiliate = a "paid for by" byline names a party org (politicians, abbreviation-named branches), which is the strongest attribution signal available. unverified = runs declared political ads naming a party but no byline ties it to one; that bucket mixes self-paying politicians with non-party advertisers, so exclude it for a strict party-only view. candidate pages are never ingested.',
     ],
+    partiesWithNoPagesFound: missing,
+    partiesWithNoNationalPageFound: noNational,
     parties: rows,
   }, null, 2));
+  if (noNational.length) console.log(`\nNo national page found (branches/affiliates only): ${noNational.join(', ')}`);
+  if (missing.length) console.log(`No pages found at all: ${missing.join(', ')}`);
   console.log(`\n→ ${path.relative(process.cwd(), REPORT_FILE)}`);
 }
 
