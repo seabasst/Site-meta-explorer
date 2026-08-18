@@ -582,10 +582,15 @@ async function report() {
     });
 
     const levels = new Map(pages.map((p) => [p.pageId, p.level]));
-    const spendLower = ads.reduce((s, a) => s + (a.spendLower ?? 0), 0);
-    const spendUpper = ads.reduce((s, a) => s + (a.spendUpper ?? 0), 0);
-    const imprLower = ads.reduce((s, a) => s + (a.impressionsLower ?? 0), 0);
-    const imprUpper = ads.reduce((s, a) => s + (a.impressionsUpper ?? 0), 0);
+    // Money is only summed within one currency. A handful of ads on Swedish party
+    // pages are priced in DKK/USD; adding them to a SEK total would be wrong, so
+    // they are excluded and counted instead.
+    const sek = ads.filter((a) => a.currency === 'SEK');
+    const nonSek = ads.filter((a) => a.currency && a.currency !== 'SEK');
+    const spendLower = sek.reduce((s, a) => s + (a.spendLower ?? 0), 0);
+    const spendUpper = sek.reduce((s, a) => s + (a.spendUpper ?? 0), 0);
+    const imprLower = sek.reduce((s, a) => s + (a.impressionsLower ?? 0), 0);
+    const imprUpper = sek.reduce((s, a) => s + (a.impressionsUpper ?? 0), 0);
     const dates = ads.map((a) => a.startDate).filter((d): d is Date => !!d).sort((a, b) => +a - +b);
     const currencies = [...new Set(ads.map((a) => a.currency).filter(Boolean))];
 
@@ -602,9 +607,15 @@ async function report() {
       pagesWithAds: new Set(ads.map((a) => a.brandId)).size,
       ads: ads.length,
       adsActive: ads.filter((a) => a.isActive).length,
-      adsWithSpendRange: ads.filter((a) => a.spendUpper !== null).length,
+      // Party pages also run ads with no political disclosure at all (events,
+      // recruitment). Those carry no spend range and are counted separately
+      // rather than folded into the political totals.
+      adsDeclaredPolitical: ads.filter((a) => a.spendUpper !== null).length,
+      adsNoDisclosure: ads.filter((a) => a.spendUpper === null).length,
+      spendCurrency: 'SEK',
       spendLower,
       spendUpper,
+      adsExcludedNonSek: nonSek.length,
       currencies,
       impressionsLower: imprLower,
       impressionsUpper: imprUpper,
@@ -645,6 +656,7 @@ async function report() {
     caveats: [
       'ad_type=POLITICAL_AND_ISSUE_ADS is unavailable for EU countries; ad_type=ALL is used instead.',
       'spend and impressions are EU DSA disclosure ranges per ad; lower/upper bounds are summed separately. No midpoint is implied.',
+      'Spend and impression totals cover SEK-priced ads only; ads priced in another currency are counted in adsExcludedNonSek and left out of the totals.',
       'Ads without a spend range were not declared political/issue by the advertiser.',
       'Levels: national/youth/branch = the page name is a party org. affiliate = a "paid for by" byline names a party org (politicians, abbreviation-named branches), which is the strongest attribution signal available. unverified = runs declared political ads naming a party but no byline ties it to one; that bucket mixes self-paying politicians with non-party advertisers, so exclude it for a strict party-only view. candidate pages are never ingested.',
     ],

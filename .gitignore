@@ -54,3 +54,5 @@ data/brand-ingestion-results.json
 data/swedish-party-pages.json
 data/swedish-party-ads-report.json
 .gstack/
+data/swedish-party-dashboard.html
+public/_party-dash-preview.html
