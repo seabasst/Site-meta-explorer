@@ -308,7 +308,10 @@ async function discover(partyFilter?: string, termFilter?: string) {
 
         rows += data.length;
         for (const ad of data) {
-          if (!ad.page_id || !ad.page_name) continue;
+          // page_id "0" shows up for Instagram-only advertisers with no linked
+          // Facebook page; search_page_ids on it always fails with code 33
+          // ("does not exist"), so it can never be ingested — drop it at discovery.
+          if (!ad.page_id || ad.page_id === '0' || !ad.page_name) continue;
           if (excluded.test(ad.page_name)) continue;
 
           const hit = matchAny(allParties, party, ad.page_name);
