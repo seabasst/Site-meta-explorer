@@ -51,4 +51,6 @@ prisma/dev.db-journal
 
 # Generated data
 data/brand-ingestion-results.json
+data/swedish-party-pages.json
+data/swedish-party-ads-report.json
 .gstack/
