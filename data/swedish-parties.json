@@ -24,196 +24,304 @@
       "abbr": "S",
       "name": "Socialdemokraterna",
       "riksdag": true,
-      "search": ["Socialdemokraterna", "SSU"],
+      "search": [
+        "Socialdemokraterna",
+        "SSU"
+      ],
       "match": "socialdemokrat|arbetarekommun",
       "youthMatch": "\\bssu\\b|socialdemokratiska ungdomsförbundet|s-studenter",
-      "national": ["Socialdemokraterna"]
+      "national": [
+        "Socialdemokraterna"
+      ]
     },
     {
       "abbr": "M",
       "name": "Moderaterna",
       "riksdag": true,
-      "search": ["Moderaterna", "Moderata Ungdomsförbundet"],
+      "search": [
+        "Moderaterna",
+        "Moderata Ungdomsförbundet",
+        "MUF"
+      ],
       "match": "moderat",
       "youthMatch": "moderata ungdomsförbundet|\\bmuf\\b|moderata studenter",
-      "national": ["Moderaterna", "Nya Moderaterna"]
+      "national": [
+        "Moderaterna",
+        "Nya Moderaterna"
+      ]
     },
     {
       "abbr": "SD",
       "name": "Sverigedemokraterna",
       "riksdag": true,
-      "search": ["Sverigedemokraterna", "Ungsvenskarna"],
+      "search": [
+        "Sverigedemokraterna",
+        "Ungsvenskarna",
+        "SDU",
+        "Ungsvenskarna SDU"
+      ],
       "match": "sverigedemokrat",
       "youthMatch": "ungsvenskarna|\\bsdu\\b",
-      "national": ["Sverigedemokraterna"]
+      "national": [
+        "Sverigedemokraterna"
+      ]
     },
     {
       "abbr": "V",
       "name": "Vänsterpartiet",
       "riksdag": true,
-      "search": ["Vänsterpartiet", "Ung Vänster"],
+      "search": [
+        "Vänsterpartiet",
+        "Ung Vänster"
+      ],
       "match": "vänsterpartiet",
       "youthMatch": "ung vänster|vänsterns studentförbund",
-      "national": ["Vänsterpartiet"]
+      "national": [
+        "Vänsterpartiet"
+      ]
     },
     {
       "abbr": "C",
       "name": "Centerpartiet",
       "riksdag": true,
-      "search": ["Centerpartiet", "Centerns Ungdomsförbund"],
+      "search": [
+        "Centerpartiet",
+        "Centerns Ungdomsförbund",
+        "CUF",
+        "Centerns ungdomsförbund CUF"
+      ],
       "match": "centerpartiet|centerkvinnorna",
       "youthMatch": "centerns ungdomsförbund|\\bcuf\\b|centerstudenter",
-      "national": ["Centerpartiet"]
+      "national": [
+        "Centerpartiet"
+      ]
     },
     {
       "abbr": "KD",
       "name": "Kristdemokraterna",
       "riksdag": true,
-      "search": ["Kristdemokraterna", "Kristdemokratiska Ungdomsförbundet"],
+      "search": [
+        "Kristdemokraterna",
+        "Kristdemokratiska Ungdomsförbundet",
+        "KDU"
+      ],
       "match": "kristdemokrat",
       "youthMatch": "kristdemokratiska ungdomsförbundet|\\bkdu\\b",
-      "national": ["Kristdemokraterna"]
+      "national": [
+        "Kristdemokraterna"
+      ]
     },
     {
       "abbr": "MP",
       "name": "Miljöpartiet de gröna",
       "riksdag": true,
-      "search": ["Miljöpartiet", "Grön Ungdom"],
+      "search": [
+        "Miljöpartiet",
+        "Grön Ungdom"
+      ],
       "match": "miljöpartiet",
       "youthMatch": "grön ungdom|gröna studenter",
-      "national": ["Miljöpartiet", "Miljöpartiet de gröna"]
+      "national": [
+        "Miljöpartiet",
+        "Miljöpartiet de gröna"
+      ]
     },
     {
       "abbr": "L",
       "name": "Liberalerna",
       "riksdag": true,
-      "search": ["Liberalerna", "Liberala Ungdomsförbundet"],
+      "search": [
+        "Liberalerna",
+        "Liberala Ungdomsförbundet",
+        "LUF"
+      ],
       "match": "liberalerna|liberala kvinnor",
       "youthMatch": "liberala ungdomsförbundet|liberala studenter",
-      "national": ["Liberalerna"]
+      "national": [
+        "Liberalerna"
+      ]
     },
     {
       "abbr": "NYANS",
       "name": "Partiet Nyans",
       "riksdag": false,
-      "search": ["Partiet Nyans"],
+      "search": [
+        "Partiet Nyans"
+      ],
       "match": "partiet nyans|^nyans$",
       "youthMatch": null,
-      "national": ["Partiet Nyans", "Nyans"]
+      "national": [
+        "Partiet Nyans",
+        "Nyans"
+      ]
     },
     {
       "abbr": "AFS",
       "name": "Alternativ för Sverige",
       "riksdag": false,
-      "search": ["Alternativ för Sverige"],
+      "search": [
+        "Alternativ för Sverige"
+      ],
       "match": "alternativ för sverige",
       "youthMatch": "ungsvenskar afs",
-      "national": ["Alternativ för Sverige"]
+      "national": [
+        "Alternativ för Sverige"
+      ]
     },
     {
       "abbr": "FI",
       "name": "Feministiskt initiativ",
       "riksdag": false,
-      "search": ["Feministiskt initiativ"],
+      "search": [
+        "Feministiskt initiativ"
+      ],
       "match": "feministiskt initiativ",
       "youthMatch": "unga feminister",
-      "national": ["Feministiskt initiativ"]
+      "national": [
+        "Feministiskt initiativ"
+      ]
     },
     {
       "abbr": "PP",
       "name": "Piratpartiet",
       "riksdag": false,
-      "search": ["Piratpartiet"],
+      "search": [
+        "Piratpartiet",
+        "Ung Pirat"
+      ],
       "match": "piratpartiet",
       "youthMatch": "ung pirat",
-      "national": ["Piratpartiet"]
+      "national": [
+        "Piratpartiet"
+      ]
     },
     {
       "abbr": "MED",
       "name": "Medborgerlig Samling",
       "riksdag": false,
-      "search": ["Medborgerlig Samling"],
+      "search": [
+        "Medborgerlig Samling"
+      ],
       "match": "medborgerlig samling",
       "youthMatch": null,
-      "national": ["Medborgerlig Samling"]
+      "national": [
+        "Medborgerlig Samling"
+      ]
     },
     {
       "abbr": "KRVP",
       "name": "Kristna Värdepartiet",
       "riksdag": false,
-      "search": ["Kristna Värdepartiet"],
+      "search": [
+        "Kristna Värdepartiet"
+      ],
       "match": "kristna värdepartiet",
       "youthMatch": null,
-      "national": ["Kristna Värdepartiet"]
+      "national": [
+        "Kristna Värdepartiet"
+      ]
     },
     {
       "abbr": "FOLK",
       "name": "Folklistan",
       "riksdag": false,
-      "search": ["Folklistan"],
+      "search": [
+        "Folklistan"
+      ],
       "match": "folklistan",
       "youthMatch": null,
-      "national": ["Folklistan"]
+      "national": [
+        "Folklistan"
+      ]
     },
     {
       "abbr": "DJUR",
       "name": "Djurens parti",
       "riksdag": false,
-      "search": ["Djurens parti"],
+      "search": [
+        "Djurens parti"
+      ],
       "match": "djurens parti",
       "youthMatch": null,
-      "national": ["Djurens parti"]
+      "national": [
+        "Djurens parti"
+      ]
     },
     {
       "abbr": "ENHET",
       "name": "Enhet",
       "riksdag": false,
-      "search": ["Partiet Enhet"],
+      "search": [
+        "Partiet Enhet"
+      ],
       "match": "^enhet$|partiet enhet",
       "youthMatch": null,
-      "national": ["Enhet", "Partiet Enhet"]
+      "national": [
+        "Enhet",
+        "Partiet Enhet"
+      ]
     },
     {
       "abbr": "SKP",
       "name": "Kommunistiska partier",
       "riksdag": false,
-      "search": ["Kommunistiska Partiet", "Sveriges Kommunistiska Parti"],
+      "search": [
+        "Kommunistiska Partiet",
+        "Sveriges Kommunistiska Parti"
+      ],
       "match": "kommunistiska parti",
       "youthMatch": "revolutionär kommunistisk ungdom|\\brku\\b",
-      "national": ["Kommunistiska Partiet", "Sveriges Kommunistiska Parti"]
+      "national": [
+        "Kommunistiska Partiet",
+        "Sveriges Kommunistiska Parti"
+      ]
     },
     {
       "abbr": "LPO",
       "name": "Landsbygdspartiet oberoende",
       "riksdag": false,
-      "search": ["Landsbygdspartiet oberoende"],
+      "search": [
+        "Landsbygdspartiet oberoende"
+      ],
       "match": "landsbygdspartiet",
       "youthMatch": null,
-      "national": ["Landsbygdspartiet oberoende"]
+      "national": [
+        "Landsbygdspartiet oberoende"
+      ]
     },
     {
       "abbr": "DD",
       "name": "Direktdemokraterna",
       "riksdag": false,
-      "search": ["Direktdemokraterna"],
+      "search": [
+        "Direktdemokraterna"
+      ],
       "match": "direktdemokraterna",
       "youthMatch": null,
-      "national": ["Direktdemokraterna"]
+      "national": [
+        "Direktdemokraterna"
+      ]
     },
     {
       "abbr": "KLIMAT",
       "name": "Klimatalliansen",
       "riksdag": false,
-      "search": ["Klimatalliansen"],
+      "search": [
+        "Klimatalliansen"
+      ],
       "match": "klimatalliansen",
       "youthMatch": null,
-      "national": ["Klimatalliansen"]
+      "national": [
+        "Klimatalliansen"
+      ]
     },
     {
       "abbr": "SJUKV",
       "name": "Sjukvårdspartier (regionala)",
       "riksdag": false,
-      "search": ["Sjukvårdspartiet"],
+      "search": [
+        "Sjukvårdspartiet"
+      ],
       "match": "sjukvårdsparti",
       "youthMatch": null,
       "national": []

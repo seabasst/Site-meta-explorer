@@ -239,16 +239,32 @@ function settle(p: DiscoveredPage): DiscoveredPage {
   return p;
 }
 
-async function discover(partyFilter?: string) {
+async function discover(partyFilter?: string, termFilter?: string) {
   const allParties = loadParties();
   const parties = allParties.filter((p) => !partyFilter || p.abbr === partyFilter.toUpperCase());
   const known = new Map(readPages().map((p) => [p.pageId, p]));
   const excluded = new RegExp(loadExcludePattern(), 'i');
   const dateMin = windowStart();
 
-  for (const party of parties) {
-    console.log(`\n▸ ${party.name} (${party.abbr})`);
-    for (const term of party.search) {
+  // --terms runs just those search terms (still matched against every party), so
+  // a recall gap can be patched without re-scanning terms that already ran.
+  const jobs: Array<{ term: string; party: Party }> = [];
+  if (termFilter) {
+    for (const term of termFilter.split(',').map((t) => t.trim()).filter(Boolean)) {
+      const owner = allParties.find((p) => p.search.some((s) => s.toLowerCase() === term.toLowerCase()));
+      jobs.push({ term, party: owner ?? parties[0] });
+    }
+  } else {
+    for (const party of parties) for (const term of party.search) jobs.push({ term, party });
+  }
+
+  let lastParty = '';
+  for (const { term, party } of jobs) {
+    if (party.abbr !== lastParty) {
+      console.log(`\n▸ ${party.name} (${party.abbr})`);
+      lastParty = party.abbr;
+    }
+    {
       let after: string | undefined;
       let pageNum = 0;
       let rows = 0;
@@ -601,11 +617,11 @@ async function main() {
   }
 
   switch (cmd) {
-    case 'discover': await discover(arg('--party')); break;
+    case 'discover': await discover(arg('--party'), arg('--terms')); break;
     case 'ingest': await ingest(arg('--party'), rest.includes('--force'), arg('--limit') ? Number(arg('--limit')) : undefined); break;
     case 'report': await report(); break;
     default:
-      console.log('Usage: swedish-parties.ts <discover|ingest|report> [--party ABBR] [--limit N] [--force]');
+      console.log('Usage: swedish-parties.ts <discover|ingest|report> [--party ABBR] [--terms "a,b"] [--limit N] [--force]');
       process.exit(1);
   }
   await prisma.$disconnect();
