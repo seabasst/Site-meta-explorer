@@ -29,7 +29,7 @@
         "SSU"
       ],
       "match": "socialdemokrat|arbetarekommun",
-      "youthMatch": "\\bssu\\b|socialdemokratiska ungdomsförbundet|s-studenter",
+      "youthMatch": "^ssu\\b|^ssu\\.|socialdemokratiska ungdomsförbundet|s-studenter",
       "national": [
         "Socialdemokraterna"
       ]

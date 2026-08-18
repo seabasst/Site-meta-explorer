@@ -63,7 +63,14 @@ interface Party {
   national: string[];
 }
 
-type Level = 'national' | 'youth' | 'branch' | 'affiliate' | 'candidate';
+// national/youth/branch: the page NAME is a party org.
+// affiliate:  page name is not, but a "paid for by" byline names a party org, so
+//             the party is funding it (politicians, abbreviation-named branches).
+// unverified: runs declared political ads that name a party, but no byline ties it
+//             to one. Mixed bucket: self-paying politicians AND non-party
+//             advertisers whose copy happens to name a party. Ingested, flagged.
+// candidate:  too few declared political ads to judge. Never ingested.
+type Level = 'national' | 'youth' | 'branch' | 'affiliate' | 'unverified' | 'candidate';
 
 interface DiscoveredPage {
   pageId: string;
@@ -71,6 +78,7 @@ interface DiscoveredPage {
   party: string;                          // best-guess abbr
   level: Level;
   orgLevel: 'national' | 'youth' | 'branch' | null; // set when the page NAME is a party org
+  payerParty: string | null;              // party whose org name appears in a byline
   adsSeenInSearch: number;
   declaredPoliticalAds: number;           // ads carrying an EU DSA spend range
   partyMentions: Record<string, number>;  // party term → ads by this page that surfaced under it
@@ -228,14 +236,28 @@ function matchAny(all: Party[], preferred: Party, pageName: string): { party: Pa
 
 /** Level + party affiliation are recomputed from the accumulated counts on every
  *  write, so a killed run resumes without losing borderline pages. */
-function settle(p: DiscoveredPage): DiscoveredPage {
+function settle(p: DiscoveredPage, parties: Party[]): DiscoveredPage {
   if (p.orgLevel) {
     p.level = p.orgLevel;
+    p.payerParty = parties.find((pt) => p.bylinesSeen.some((b) => new RegExp(pt.match, 'i').test(b)))?.abbr ?? null;
     return p;
   }
+
+  // The "paid for by" byline beats both page name and search term. It is what
+  // makes "KD Jönköpings län" (byline "Kristdemokraterna Jönköpings län") a KD
+  // page, and what keeps a comedian's tour ads (byline "All Things Live Sweden")
+  // out of M's numbers however often the copy names the party.
+  const payer = parties.find((pt) => p.bylinesSeen.some((b) => new RegExp(pt.match, 'i').test(b)));
+  p.payerParty = payer?.abbr ?? null;
+  if (payer) {
+    p.party = payer.abbr;
+    p.level = 'affiliate';
+    return p;
+  }
+
   const ranked = Object.entries(p.partyMentions).sort((a, b) => b[1] - a[1]);
   p.party = ranked[0]?.[0] ?? p.party;
-  p.level = p.declaredPoliticalAds >= MIN_AFFILIATE_ADS ? 'affiliate' : 'candidate';
+  p.level = p.declaredPoliticalAds >= MIN_AFFILIATE_ADS ? 'unverified' : 'candidate';
   return p;
 }
 
@@ -305,6 +327,7 @@ async function discover(partyFilter?: string, termFilter?: string) {
               party: (hit?.party ?? party).abbr,
               level: 'candidate',
               orgLevel: hit?.level ?? null,
+              payerParty: null,
               adsSeenInSearch: 0,
               declaredPoliticalAds: 0,
               partyMentions: {},
@@ -321,7 +344,7 @@ async function discover(partyFilter?: string, termFilter?: string) {
           if (ad.bylines && !page.bylinesSeen.includes(ad.bylines) && page.bylinesSeen.length < 10) {
             page.bylinesSeen.push(ad.bylines);
           }
-          settle(page);
+          settle(page, allParties);
         }
         after = next;
         if (pageNum >= DISCOVER_PAGE_CAP && after) {
@@ -363,8 +386,29 @@ async function discover(partyFilter?: string, termFilter?: string) {
     if (!before) created++;
   }
 
-  const all = [...known.values()];
+  // Re-level every known page, not just the ones this pass touched, so tightened
+  // name regexes and byline rules apply to the whole file rather than only to
+  // fresh rows.
+  const all = [...known.values()].map((p) => {
+    const hit = allParties.map((pt) => ({ pt, lvl: classify(pt, p.pageName) })).find((x) => x.lvl);
+    p.orgLevel = hit?.lvl ?? null;
+    if (hit) p.party = hit.pt.abbr;
+    return settle(p, allParties);
+  });
   writePages(all);
+
+  // A page that a looser earlier rule promoted may now be a 'candidate'. Drop its
+  // party category so it leaves the dataset instead of lingering as party spend.
+  const demoted = all.filter((p) => p.level === 'candidate');
+  let cleared = 0;
+  for (const p of demoted) {
+    const r = await prisma.adLibraryBrand.updateMany({
+      where: { pageId: p.pageId, category: { startsWith: 'party-' } },
+      data: { category: null },
+    });
+    cleared += r.count;
+  }
+  if (cleared) console.log(`  cleared party category on ${cleared} demoted page(s)`);
   const byLevel = all.reduce<Record<string, number>>((acc, p) => ({ ...acc, [p.level]: (acc[p.level] ?? 0) + 1 }), {});
   console.log(`\n✓ ${all.length} pages seen — ${JSON.stringify(byLevel)} (${created} new brands) → ${path.relative(process.cwd(), PAGES_FILE)}`);
   console.log('  Review the `affiliate` entries in that file before analysing: they are attributed by which party term surfaced them, and bylinesSeen shows the actual payer.');
@@ -554,6 +598,7 @@ async function report() {
       pagesYouth: brands.filter((b) => levels.get(b.pageId) === 'youth').length,
       pagesBranch: brands.filter((b) => levels.get(b.pageId) === 'branch').length,
       pagesAffiliate: brands.filter((b) => levels.get(b.pageId) === 'affiliate').length,
+      pagesUnverified: brands.filter((b) => levels.get(b.pageId) === 'unverified').length,
       pagesWithAds: new Set(ads.map((a) => a.brandId)).size,
       ads: ads.length,
       adsActive: ads.filter((a) => a.isActive).length,
@@ -595,7 +640,7 @@ async function report() {
       'ad_type=POLITICAL_AND_ISSUE_ADS is unavailable for EU countries; ad_type=ALL is used instead.',
       'spend and impressions are EU DSA disclosure ranges per ad; lower/upper bounds are summed separately. No midpoint is implied.',
       'Ads without a spend range were not declared political/issue by the advertiser.',
-      'Party org pages (national/youth/branch) are matched by page-name regex. `affiliate` pages (politicians, party leaders, campaign pages) are attributed by which party search term surfaced their declared political ads — check bylinesSeen in swedish-party-pages.json before treating them as party spend.',
+      'Levels: national/youth/branch = the page name is a party org. affiliate = a "paid for by" byline names a party org (politicians, abbreviation-named branches), which is the strongest attribution signal available. unverified = runs declared political ads naming a party but no byline ties it to one; that bucket mixes self-paying politicians with non-party advertisers, so exclude it for a strict party-only view. candidate pages are never ingested.',
     ],
     parties: rows,
   }, null, 2));
