@@ -694,8 +694,14 @@ async function main() {
   await prisma.$disconnect();
 }
 
-main().catch(async (e) => {
-  console.error(e);
-  await prisma.$disconnect();
-  process.exit(1);
-});
+main()
+  // ponytail: prisma.$disconnect() can leave a half-closed Postgres socket in
+  // FIN_WAIT_2 (seen live: a completed 563-page ingest sat idle for 7+ hours
+  // instead of exiting), which stalls anything chained after this process.
+  // process.exit forces the issue once our own work is done.
+  .then(() => process.exit(0))
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
