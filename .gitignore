@@ -53,6 +53,8 @@ prisma/dev.db-journal
 data/brand-ingestion-results.json
 data/swedish-party-pages.json
 data/swedish-party-ads-report.json
+data/swedish-party-organic-posts.json
+data/swedish-parties-tiktok.json
 .gstack/
 data/swedish-party-dashboard.html
 public/_party-dash-preview.html
