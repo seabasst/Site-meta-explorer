@@ -29,6 +29,7 @@
 import { prisma } from '../src/lib/prisma';
 import { selectDueBrands, processBrand, tokenManager, sleep } from '../src/lib/ingestion/ingest-core';
 import { sendDailyReport, sendWeeklyReport } from '../src/lib/daily-report';
+import { syncToBigQuery } from '../src/lib/bq-sync';
 
 const CONCURRENCY = Math.max(1, Number(process.env.CONCURRENCY ?? 2));
 const PACE_MS = Math.max(0, Number(process.env.PACE_MS ?? 4000));
@@ -66,6 +67,14 @@ async function maybeSendReports() {
       console.log(r.posted ? `📊 Daily report posted to Slack` : `📊 Daily report skipped: ${r.reason}`);
     } catch (e) {
       console.log(`📊 Daily report error: ${e instanceof Error ? e.message : 'unknown'}`);
+    }
+    // Nightly BigQuery sync, right after the daily report. Fully isolated in try/catch
+    // and a no-op without BQ_DATASET, so it can never disrupt ingestion.
+    try {
+      const s = await syncToBigQuery();
+      console.log(s.synced ? `🗄️ BigQuery sync: ${(s.results ?? []).map((t) => `${t.table}=${t.rows}`).join(', ')}` : `🗄️ BigQuery sync skipped: ${s.reason}`);
+    } catch (e) {
+      console.log(`🗄️ BigQuery sync error: ${e instanceof Error ? e.message : 'unknown'}`);
     }
   }
 }

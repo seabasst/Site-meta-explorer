@@ -13,6 +13,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@aws-sdk/client-s3": "^3.992.0",
+    "@google-cloud/bigquery": "^7.9.0",
     "@google/genai": "^1.47.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/adapter-pg": "^7.4.2",
