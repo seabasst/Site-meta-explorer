@@ -24,6 +24,7 @@ import { prisma } from '../src/lib/prisma';
 const DATA_DIR = path.join(__dirname, '../data');
 const PARTIES_FILE = path.join(DATA_DIR, 'swedish-parties.json');
 const PAGES_FILE = path.join(DATA_DIR, 'swedish-party-pages.json');
+const ORGANIC_FILE = path.join(DATA_DIR, 'swedish-party-organic-posts.json');
 
 // Party identity hues, contrast-tuned. Four parties are blue, so every mark is
 // labelled with the abbreviation too and colour never carries meaning alone.
@@ -132,8 +133,81 @@ const PARTY_MESSAGING: Record<string, string[]> = {
 };
 const MIN_ADS_FOR_MESSAGING = 15;
 
+// Curated from reading the top-reacted organic posts per party (see chat,
+// 2026-08-19) — organic themes read very differently from the paid-ad themes
+// above, which is itself the finding: several parties' highest-reach organic
+// content comes from a leader's personal page or a single branch, not the
+// national page. Coverage is uneven (see ORGANIC_MIN_PAGES gate below); read
+// the coverage note on each card before comparing parties.
+const PARTY_ORGANIC_THEMES: Record<string, string[]> = {
+  SD: [
+    'Invandrings- och islamkritiskt innehåll ger klart högst organisk räckvidd av alla partier (böneutropsförbud, förbud mot hijab/burka/niqab, utvisning av fångar till Estland)',
+    'Jimmie Åkesson som person driver enorma reaktionstal, ofta med korta citat eller enkla ja/nej-frågor',
+    'Riktar attacker mot Socialdemokraterna direkt i egna inlägg',
+  ],
+  S: [
+    'Partiledaren Magdalena Anderssons personliga sida driver mer organisk räckvidd än partiets officiella sida',
+    'Blandar privata/avslappnade inlägg (fika, garageprojekt) med skarpa attacker mot Tidöregeringen',
+    'Brottsofferfrågan (mängdrabatt vid sexualbrott) är den mest engagerande sakfrågan',
+  ],
+  M: [
+    'Brottsoffer och straffskärpning dominerar helt (mängdrabatt-debatten), med upprepade direkta angrepp på Magdalena Andersson',
+    'Konfrontativ opposition-attack-ton snarare än egna positiva förslag',
+    'Jämförande format som "Vem vill du ha som finansminister?"',
+  ],
+  C: [
+    'Opinionssiffror ("vi ökar!") är återkommande, självförtroende-byggande innehåll',
+    '"Invandring är bra för Sverige" blev partiets mest engagerande inlägg — men mest genom en stor negativ kommentarsvåg',
+    'Enstaka internationellt sidospår (Grönland/USA) från en enskild riksdagsledamot',
+  ],
+  KD: [
+    'Ebba Busch och lokalavdelningen i Borås driver oproportionerligt mycket räckvidd',
+    'Brottsoffer, islamkritik och sjukvårdscentralisering är återkommande teman',
+    'Flyttskattens avskaffande och opinionsframgångar firas ofta',
+  ],
+  V: [
+    'Drivs organiskt mest av "Vänsterpartiet i EU" — inte huvudsidan',
+    'Förmögenhetsskatt, "angiverilagen" (barnmorskor/migration) och klimatkris är kärntemana',
+    'Raka attacker riktade mot Ebba Busch och Ulf Kristersson',
+  ],
+  MP: [
+    '"Sverige vinner på grön politik" som återkommande kampanjslogan',
+    'Försvarar religionsfrihet uttryckligen — en tydlig kontrast mot SD/AFS/KD:s islamkritik',
+    'Fyradagarsvecka och nedräkning till valet som återkommande inslag',
+  ],
+  L: [
+    'Willhelm Sundmans betygssättning av andra partiledares Almedalstal ("X av 5 rosor/flaggor") är ett eget viralt format',
+    'Explicit hantering av SD-samarbetskontroversen ("Jag är kvar i Liberalerna")',
+    'Lokala kandidater kör småskaliga vardagsfrågor (mat till äldre, mobilfri skola)',
+  ],
+  AFS: [
+    'Offerberättelse om mediecensur (tidningar vägrar ta emot deras annonser) är ett återkommande tema',
+    'Explicit hårdare straffretorik än SD — kommentarsfält innehåller krav på dödsstraff',
+    'Kärnfamiljen och partiledaren Kasselstrand står i centrum',
+  ],
+  MED: [
+    'Kulturkrigsinnehåll: regnbågsflaggan, historisk flaggnostalgi, kritik av identitetspolitik',
+    'Lokalt Uppsala-fokus (spårväg, luftkvalitet) i en granskande, faktabetonad ton',
+  ],
+  NYANS: [
+    'Nästan uteslutande partiledaren Mikail Yüksels direkta konfrontationer med SD ("hyckleri")',
+    'Positiv till moskébyggande, ofta i kommentarsfält med öppen fientlighet',
+    'Vissa inlägg har begränsad kommentering ("Följ sidan om du vill kommentera")',
+  ],
+  SJUKV: [
+    'Helt annat register: varmt, lokalt, gemenskapsfokuserat (löpartävling, medlemsmöten, en bortgången partikamrat)',
+    'Ingen partipolitisk attack-ton alls — enfrågeinriktat och personligt',
+  ],
+};
+const ORGANIC_MIN_POSTS = 30; // below this, a party's card is skipped as too thin a sample
+
 interface Party { abbr: string; name: string; riksdag: boolean }
 interface PageMeta { pageId: string; pageName: string; level: Level; payerParty: string | null; bylinesSeen: string[] }
+interface OrganicPost {
+  pageId: string | null; pageName: string | null; postId: string | null; text: string | null;
+  createdAt: string | null; reactions: number | null; comments: number | null; shares: number | null;
+  topComment?: string | null;
+}
 
 interface Targeting {
   ages?: string[] | string | null;
@@ -369,6 +443,73 @@ function messagingCards(strict: PartyAgg[], strictAds: AdRow[]): { cards: string
   return { cards, tooSmall };
 }
 
+interface OrganicPartyAgg {
+  abbr: string; name: string; hue: string;
+  posts: number; pagesCovered: number; pagesTotal: number;
+  avgReactions: number; maxReactions: number;
+}
+
+/** Coverage is uneven by design (see the scraping conversation) — L and MP in
+ *  particular are badly undersampled, so this is surfaced per party rather
+ *  than averaged away. */
+function organicAggregate(posts: OrganicPost[], parties: Party[], pages: Array<PageMeta & { party: string }>): OrganicPartyAgg[] {
+  const strictPageIds = new Set(pages.filter((p) => STRICT_LEVELS.includes(p.level)).map((p) => p.pageId));
+  const partyOfPage = new Map(pages.map((p) => [p.pageId, partyOf(p)]));
+  const out: OrganicPartyAgg[] = [];
+  for (const party of parties) {
+    const totalPages = pages.filter((p) => STRICT_LEVELS.includes(p.level) && partyOfPage.get(p.pageId) === party.abbr).length;
+    if (totalPages === 0) continue;
+    const rows = posts.filter((p) => p.pageId && strictPageIds.has(p.pageId) && partyOfPage.get(p.pageId) === party.abbr);
+    const covered = new Set(rows.map((p) => p.pageId)).size;
+    const reactions = rows.map((r) => r.reactions ?? 0);
+    out.push({
+      abbr: party.abbr, name: party.name, hue: PARTY_HUE[party.abbr] ?? FALLBACK_HUE,
+      posts: rows.length, pagesCovered: covered, pagesTotal: totalPages,
+      avgReactions: reactions.length ? reactions.reduce((s, r) => s + r, 0) / reactions.length : 0,
+      maxReactions: reactions.length ? Math.max(...reactions) : 0,
+    });
+  }
+  return out.sort((a, b) => b.posts - a.posts);
+}
+
+function organicCards(agg: OrganicPartyAgg[]): { cards: string; tooSmall: string[] } {
+  const tooSmall: string[] = [];
+  const cards = agg.map((r) => {
+    const themes = PARTY_ORGANIC_THEMES[r.abbr];
+    if (r.posts < ORGANIC_MIN_POSTS || !themes) { tooSmall.push(`${r.abbr} ${r.name}`); return ''; }
+    const coveragePct = Math.round((r.pagesCovered / r.pagesTotal) * 100);
+    const coverageNote = coveragePct < 60
+      ? `⚠️ endast ${coveragePct}% av sidorna skrapade — jämför inte med bättre täckta partier`
+      : `${coveragePct}% av sidorna skrapade`;
+    return `<article class="msg-card">
+      <h3><span class="chip" style="--hue:${r.hue}">${esc(r.abbr)}</span>${esc(r.name)}</h3>
+      <ul>${themes.map((th) => `<li>${esc(th)}</li>`).join('')}</ul>
+      <p class="targeting">📊 ${fmt(r.posts)} inlägg · snitt ${fmt(Math.round(r.avgReactions))} reaktioner · max ${fmt(r.maxReactions)} · ${coverageNote}</p>
+    </article>`;
+  }).join('');
+  return { cards, tooSmall };
+}
+
+/** Top organic posts overall, with the top comment where the actor bundled one. */
+function topOrganicPosts(posts: OrganicPost[], pages: Array<PageMeta & { party: string }>, limit: number): string {
+  const partyOfPage = new Map(pages.map((p) => [p.pageId, partyOf(p)]));
+  const top = [...posts]
+    .filter((p) => p.text)
+    .sort((a, b) => (b.reactions ?? 0) - (a.reactions ?? 0))
+    .slice(0, limit);
+  return top.map((p) => {
+    const party = p.pageId ? partyOfPage.get(p.pageId) ?? '' : '';
+    const hue = PARTY_HUE[party] ?? FALLBACK_HUE;
+    return `<tr>
+      <th scope="row"><span class="chip" style="--hue:${hue}">${esc(party)}</span>${esc(p.pageName ?? '')}</th>
+      <td class="post-text">${esc((p.text ?? '').slice(0, 220))}${(p.text ?? '').length > 220 ? '…' : ''}</td>
+      <td class="num">${fmt(p.reactions ?? 0)}</td>
+      <td class="num">${fmt(p.comments ?? 0)}</td>
+      <td class="comment-text">${p.topComment ? esc(p.topComment.slice(0, 140)) + (p.topComment.length > 140 ? '…' : '') : '<span class="dim">—</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
 // ---------------------------------------------------------------------------
 
 async function main() {
@@ -480,6 +621,17 @@ async function main() {
 
   const { cards: messagingHtml, tooSmall } = messagingCards(strict, strictAds);
 
+  // Organic posts are optional — the file only exists once scrape-organic-posts.ts
+  // has run. Missing file means the section is omitted, not a crash.
+  const hasOrganic = fs.existsSync(ORGANIC_FILE);
+  const organicRaw: { posts: OrganicPost[] } = hasOrganic ? JSON.parse(fs.readFileSync(ORGANIC_FILE, 'utf-8')) : { posts: [] };
+  const organicPosts = organicRaw.posts ?? [];
+  const organicAgg = organicAggregate(organicPosts, parties, pages);
+  const { cards: organicHtml, tooSmall: organicTooSmall } = organicCards(organicAgg);
+  const organicTopHtml = topOrganicPosts(organicPosts, pages, 20);
+  const organicTotalPages = new Set(organicPosts.map((p) => p.pageId).filter(Boolean)).size;
+  const organicStrictTotal = pages.filter((p) => STRICT_LEVELS.includes(p.level)).length;
+
   const generated = new Date().toISOString().slice(0, 16).replace('T', ' ');
   const windowEnd = new Date().toISOString().slice(0, 10);
 
@@ -570,6 +722,8 @@ async function main() {
   td.num, th.num, thead th.num { text-align: right; }
   .dim { color: var(--muted); }
   .pname { color: var(--ink-2); }
+  .post-text, .comment-text { white-space: normal; max-width: 320px; }
+  .comment-text { color: var(--ink-2); font-style: italic; }
 
   .chip {
     display: inline-block; min-width: 34px; text-align: center; margin-right: 9px;
@@ -742,6 +896,29 @@ async function main() {
     ${tooSmall.length ? `<p class="too-small"><span class="lab">För litet urval för mönster</span>: ${tooSmall.map((a) => esc(a)).join(' · ')}</p>` : ''}
   </section>
 
+  ${hasOrganic ? `
+  <section>
+    <h2>Organisk aktivitet — vad postar partierna nu?</h2>
+    <p class="note">Betald politisk annonsering på Meta har i praktiken upphört (se ovan), men sidorna själva är långt ifrån tysta. ${fmt(organicPosts.length)} organiska inlägg skrapade från ${fmt(organicTotalPages)} av ${fmt(organicStrictTotal)} bekräftade partisidor (via Apify, inget inloggat konto — se metodnot nedan).</p>
+    <div class="callout">
+      <span class="mark">i</span>
+      <p><strong>Täckningen är ojämn mellan partier</strong> — S, M, SD, C och KD är 88–100 % skrapade och jämförbara sinsemellan. <strong>L (21 %) och MP (18 %) är kraftigt underskrapade</strong>: deras lägre inläggs- och reaktionssiffror här är ett urvalsartefakt, inte ett fynd om hur mycket de faktiskt postar. V (50 %) ligger mitt emellan. Varje kort nedan visar sin egen täckningsgrad.</p>
+    </div>
+    <div class="msg-grid" style="margin-top:14px">${organicHtml}</div>
+    ${organicTooSmall.length ? `<p class="too-small"><span class="lab">För litet urval</span>: ${organicTooSmall.map((a) => esc(a)).join(' · ')}</p>` : ''}
+  </section>
+
+  <section>
+    <h2>Topp 20 organiska inlägg efter reaktioner</h2>
+    <p class="note">Rankat på reaktioner, med den mest relevanta kommentaren Meta bifogar per inlägg där en sådan finns. Flera partiers mest delade innehåll kommer från en enskild politikers eller lokalavdelnings sida, inte partiets huvudsida.</p>
+    <div class="panel scroll">
+      <table>
+        <thead><tr><th>Sida</th><th>Inlägg</th><th class="num">Reaktioner</th><th class="num">Kommentarer</th><th>Mest relevanta kommentar</th></tr></thead>
+        <tbody>${organicTopHtml}</tbody>
+      </table>
+    </div>
+  </section>` : ''}
+
   <section>
     <h2>Topp 20 sidor efter kostnad</h2>
     <p class="note">Enskilda sidor rankade på kostnadens övre gräns, med den avsändare Meta registrerar för dem. En lokalavdelning eller en enskild politiker spenderar ofta mer än partiets egen riksorganisation.</p>
@@ -770,6 +947,7 @@ async function main() {
       <li><strong>Partitillhörighet.</strong> Sidor vars namn är en partiorganisation knyts till partiet via namnet. Övriga sidor knyts via sin "betalad av"-avsändare. Reglaget ovan lägger till sidor som kör deklarerade politiska annonser som nämner ett parti men saknar avsändare som knyter dem till ett — en grupp som blandar självfinansierade politiker med icke-partianknutna annonsörer.</li>
       <li><strong>Odeklarerade annonser.</strong> Partisidor kör även annonser helt utan politisk redovisning, som saknar kostnadsdata. De räknas men kan inte prissättas.</li>
       <li><strong>Täckning.</strong> Sidor hittas genom att söka efter partinamn i annonstext, så en sida vars annonser aldrig nämner sitt parti är osynlig för det här datat. Partier utan hittade sidor, och partier med avdelningar men utan riksorganisation, listas i rapport-JSON:en.</li>
+      ${hasOrganic ? `<li><strong>Organiska inlägg.</strong> Skrapade via Apify (offentliga sidor, inget inloggat Meta-konto använt) för att undvika risken att ett eget konto flaggas. Endast en delmängd av sidorna (${fmt(organicTotalPages)}/${fmt(organicStrictTotal)}) hann skrapas innan Apify-kontots användningstak nåddes — se coverage-noten i avsnittet ovan innan du jämför partier. "Mest relevanta kommentar" är en enda kommentar Meta bifogar per inlägg, inte alla kommentarer.</li>` : ''}
     </ul>
     <h2>Fotnoter</h2>
     <ol class="footnotes">
