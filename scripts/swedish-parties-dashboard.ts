@@ -447,6 +447,21 @@ async function main() {
   const totalDeclaredSek = strictAds.filter((a) => a.currency === 'SEK' && a.spendUpper !== null).length;
   const churchPct = totalDeclaredSek ? Math.round((churchWindow / totalDeclaredSek) * 100) : 0;
 
+  // Whether verified party pages actually stopped advertising, or just stopped
+  // disclosing — checked on ALL ads (any currency, any disclosure state), not
+  // just declared/SEK ones, so a reader can't mistake "no disclosure" for
+  // "kept running ads quietly". Compared against the unverified bucket (pages
+  // keyword-matched to a party with no confirmed payer), since that bucket is
+  // where the apparent continued activity actually sits — see [[project-swedish-party-ads]].
+  const OCT_CUTOFF = new Date('2025-10-01');
+  const spikeAllAds = strictAds.filter((a) => a.startDate && a.startDate >= new Date('2025-08-01') && a.startDate < OCT_CUTOFF).length;
+  const afterCutoffAllAds = strictAds.filter((a) => a.startDate && a.startDate >= OCT_CUTOFF).length;
+  const monthsAfterCutoff = Math.max(1, months.filter((m) => m >= '2025-11').length);
+  const strictPerMonthAfter = Math.round(afterCutoffAllAds / monthsAfterCutoff);
+  const spikePerMonth = Math.round(spikeAllAds / 2);
+  const unverifiedAds = ads.filter((a) => a.level === 'unverified' && a.startDate && a.startDate >= OCT_CUTOFF);
+  const unverifiedPerMonthAfter = Math.round(unverifiedAds.length / monthsAfterCutoff);
+
   // Top spending pages, strict set only.
   const bySpend = new Map<string, { pageId: string; name: string; party: string; level: Level; lower: number; upper: number; ads: number; byline: string | null }>();
   for (const a of raw) {
@@ -630,8 +645,14 @@ async function main() {
   [hidden] { display: none !important; }
 
   footer { border-top: 1px solid var(--rule); padding-top: 20px; color: var(--muted); font-size: 12.5px; }
-  footer h2 { font-family: var(--ui); font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  footer h2 { font-family: var(--ui); font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 24px 0 8px; }
+  footer h2:first-child { margin-top: 0; }
   footer li { margin-bottom: 7px; max-width: 88ch; }
+  footer a { color: var(--accent); }
+  .footnotes { padding-left: 18px; }
+  .footnotes li { max-width: 92ch; }
+  .callout sup a, .callout sup { color: #c2410c; }
+  sup a { text-decoration: none; font-weight: 700; }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
@@ -707,7 +728,10 @@ async function main() {
     <div class="panel">${timeline(strictAds, months)}</div>
     <div class="callout" style="margin-top:14px">
       <span class="mark">!</span>
-      <p><strong>Kyrkovalet 2025 dominerar datat, sedan tystnar det.</strong> Cirka ${churchPct}% av alla deklarerade politiska annonser i det strikta partiurvalet (${fmt(churchWindow)} av ${fmt(totalDeclaredSek)}) startade i augusti–september 2025, under Svenska kyrkans kyrkoval. Från oktober 2025 stoppade Meta nya betalda politiska/valrelaterade annonser i EU inför unionens nya transparensregler för politisk annonsering (TTPA) — bara ${fmt(afterCutoff)} deklarerade annonser startade därefter. Sidorna fortsätter publicera innehåll, men utan redovisad kostnad kan det inte prissättas här. Praktiskt betyder det: partierna kunde inte köpa deklarerade politiska Meta-annonser inför riksdagsvalet 2026 under större delen av detta tidsfönster.</p>
+      <div>
+        <p><strong>Kyrkovalet 2025 dominerar datat, sedan tystnar det nästan helt.</strong> Cirka ${churchPct}% av alla deklarerade politiska annonser i det strikta partiurvalet (${fmt(churchWindow)} av ${fmt(totalDeclaredSek)}) startade i augusti–september 2025, under Svenska kyrkans kyrkoval. Den 6 oktober 2025 slutade Meta sälja politiska, val- och samhällsfrågerelaterade annonser i hela EU<sup><a href="#fn1">1</a></sup> — bara ${fmt(afterCutoff)} deklarerade annonser startade därefter.</p>
+        <p><strong>Det är inte bara redovisningen som försvann.</strong> Den totala annonsvolymen på dessa bekräftade partisidor — oavsett redovisning — rasade från ett snitt på ${fmt(spikePerMonth)} annonser/månad under kyrkovalsspiken till bara ${fmt(strictPerMonthAfter)} annonser/månad från oktober 2025 och framåt. Sidorna slutade i praktiken annonsera, de slutade inte bara redovisa. Den aktivitet som ändå syns i den bredare datamängden (reglaget ovan) sitter nästan helt i sidor utan bekräftad partiavsändare — ${fmt(unverifiedPerMonthAfter)} annonser/månad i samma period, som mest troligt inte är partiannonsering alls.</p>
+      </div>
     </div>
   </section>
 
@@ -747,6 +771,10 @@ async function main() {
       <li><strong>Odeklarerade annonser.</strong> Partisidor kör även annonser helt utan politisk redovisning, som saknar kostnadsdata. De räknas men kan inte prissättas.</li>
       <li><strong>Täckning.</strong> Sidor hittas genom att söka efter partinamn i annonstext, så en sida vars annonser aldrig nämner sitt parti är osynlig för det här datat. Partier utan hittade sidor, och partier med avdelningar men utan riksorganisation, listas i rapport-JSON:en.</li>
     </ul>
+    <h2>Fotnoter</h2>
+    <ol class="footnotes">
+      <li id="fn1">EU:s förordning om transparens och riktning av politisk annonsering (TTPA) förbjuder inte politiska annonser i sig — den kräver tydlig märkning, redovisning av avsändare och separat, uttryckligt samtycke för politisk riktning av annonser. Meta meddelade den 25 juli 2025 att man, istället för att bygga om sina system för det samtyckeskravet i sin skala, helt skulle sluta sälja politiska, val- och samhällsfrågerelaterade annonser i EU. Det är alltså Metas eget affärsbeslut som svar på lagen, inte EU som förbjuder annonserna direkt. Källor: <a href="https://about.fb.com/news/2025/07/ending-political-electoral-and-social-issue-advertising-in-the-eu/" target="_blank" rel="noopener">Meta Newsroom, juli 2025</a>, <a href="https://techcrunch.com/2025/07/25/meta-to-stop-selling-political-ads-in-the-eu-from-october" target="_blank" rel="noopener">TechCrunch, juli 2025</a>.</li>
+    </ol>
   </footer>
 </div>
 
@@ -770,6 +798,7 @@ async function main() {
   console.log(`  strict set: ${strict.length} parties, ${fmt(tS.declared)} declared ads, ${kr(tS.spendLower)}–${kr(tS.spendUpper)} SEK`);
   console.log(`  with unverified: ${loose.length} parties, ${fmt(tL.declared)} declared ads, ${kr(tL.spendLower)}–${kr(tL.spendUpper)} SEK`);
   console.log(`  church-election window: ${churchPct}% of declared ads (${fmt(churchWindow)}/${fmt(totalDeclaredSek)}), ${fmt(afterCutoff)} after the Oct 2025 cutoff`);
+  console.log(`  verified pages: ${fmt(spikePerMonth)} ads/mo during spike -> ${fmt(strictPerMonthAfter)} ads/mo after; unverified bucket: ${fmt(unverifiedPerMonthAfter)} ads/mo after`);
 }
 
 main()
