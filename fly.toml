@@ -25,5 +25,5 @@ primary_region = "arn"  # Stockholm — close to the Nordic focus / EU Neon regi
 
 [[vm]]
   size = "shared-cpu-1x"
-  memory = "512mb"
+  memory = "1024mb"  # headroom for the nightly BigQuery sync alongside ingestion
   processes = ["worker"]

@@ -6,9 +6,12 @@
 // the big tables (ads, assets) to updatedAt-watermark + MERGE only once the reload
 // gets slow; the small dims can stay full-refresh forever.
 //
+// Schemas are EXPLICIT (autodetect off): autodetect infers types from a sample and
+// mis-types columns whose early rows look integer (e.g. estSpend 0 → INTEGER, then
+// 2037.5 fails). Explicit schemas make every nightly load deterministic.
+//
 // Auth: GOOGLE_APPLICATION_CREDENTIALS_JSON (inline SA key) or
-// GOOGLE_APPLICATION_CREDENTIALS (file path). No-op unless BQ_DATASET is set, so
-// it's safe to ship dark and light up later — same pattern as SLACK_WEBHOOK_URL.
+// GOOGLE_APPLICATION_CREDENTIALS (file path). No-op unless BQ_DATASET is set.
 
 import { promises as fs } from 'fs';
 import os from 'os';
@@ -17,43 +20,57 @@ import { prisma } from './prisma';
 
 const PAGE = 5000; // rows per DB page (memory-safe streaming to disk)
 
+type Field = { name: string; type: 'STRING' | 'INTEGER' | 'FLOAT' | 'BOOLEAN' | 'TIMESTAMP'; mode?: 'REPEATED' };
+const S = (name: string): Field => ({ name, type: 'STRING' });
+const I = (name: string): Field => ({ name, type: 'INTEGER' });
+const F = (name: string): Field => ({ name, type: 'FLOAT' });
+const B = (name: string): Field => ({ name, type: 'BOOLEAN' });
+const T = (name: string): Field => ({ name, type: 'TIMESTAMP' });
+const REP = (name: string): Field => ({ name, type: 'STRING', mode: 'REPEATED' });
+
+// Cursor pagination (id > afterId) instead of skip/take — offset scans get O(n)
+// slow at the tail; a keyset walk on the PK index stays flat as the corpus grows.
 type TableSpec = {
-  raw: string;                                   // BigQuery table name
-  fetch: (skip: number, take: number) => Promise<Record<string, unknown>[]>;
+  raw: string;
+  schema: Field[];
+  fetch: (afterId: string | undefined, take: number) => Promise<Record<string, unknown>[]>;
   transform?: (row: Record<string, unknown>) => Record<string, unknown>;
 };
 
-// Explicit columns → an intentional warehouse schema. Includes the actual content
-// (ad copy, title, CTA, link), reach/spend, and market/targeting; plus R2 creative
-// URLs on the assets table. targetingJson (market/geo/languages) is carried as a
-// JSON string in the raw layer; the modelled layer (P2) parses it into columns.
+const after = (afterId: string | undefined) => (afterId ? { id: { gt: afterId } } : undefined);
+
 const TABLES: TableSpec[] = [
   {
     raw: 'raw_ads',
-    fetch: (skip, take) => prisma.adLibraryAd.findMany({
-      skip, take, orderBy: { id: 'asc' },
+    schema: [
+      S('id'), S('adId'), S('brandId'), S('displayFormat'), REP('publisherPlatforms'),
+      S('body'), S('title'), S('caption'), S('linkDescription'), S('linkUrl'), S('ctaText'), S('ctaType'), S('bylines'),
+      T('startDate'), T('endDate'), I('adDurationDays'), B('isActive'),
+      I('reachEstimate'), I('impressionsLower'), I('impressionsUpper'), F('spendLower'), F('spendUpper'), S('currency'),
+      S('targetingJson'), T('createdAt'), T('updatedAt'),
+    ],
+    fetch: (afterId, take) => prisma.adLibraryAd.findMany({
+      take, orderBy: { id: "asc" }, where: after(afterId),
       select: {
         id: true, adId: true, brandId: true, displayFormat: true, publisherPlatforms: true,
-        // content
         body: true, title: true, caption: true, linkDescription: true, linkUrl: true,
         ctaText: true, ctaType: true, bylines: true,
-        // timing
         startDate: true, endDate: true, adDurationDays: true, isActive: true,
-        // reach / spend
         reachEstimate: true, impressionsLower: true, impressionsUpper: true,
         spendLower: true, spendUpper: true, currency: true,
-        // market / targeting (parsed into columns in P2)
-        targetingJson: true,
-        createdAt: true, updatedAt: true,
+        targetingJson: true, createdAt: true, updatedAt: true,
       },
     }),
-    // Store targeting as a JSON string so BigQuery types it as STRING, not a fragile RECORD.
     transform: (row) => ({ ...row, targetingJson: row.targetingJson != null ? JSON.stringify(row.targetingJson) : null }),
   },
   {
     raw: 'raw_brands',
-    fetch: (skip, take) => prisma.adLibraryBrand.findMany({
-      skip, take, orderBy: { id: 'asc' },
+    schema: [
+      S('id'), S('pageId'), S('pageName'), S('category'), S('country'), S('website'),
+      I('totalReach'), S('ingestionStatus'), I('priority'), T('lastCheckedAt'), I('failCount'), T('createdAt'),
+    ],
+    fetch: (afterId, take) => prisma.adLibraryBrand.findMany({
+      take, orderBy: { id: "asc" }, where: after(afterId),
       select: {
         id: true, pageId: true, pageName: true, category: true, country: true, website: true,
         totalReach: true, ingestionStatus: true, priority: true, lastCheckedAt: true,
@@ -63,9 +80,12 @@ const TABLES: TableSpec[] = [
   },
   {
     raw: 'raw_assets',
-    fetch: (skip, take) => prisma.adAsset.findMany({
-      skip, take, orderBy: { id: 'asc' },
-      // storedUrl/storedKey = the creative file on R2; thumbnail + dimensions too.
+    schema: [
+      S('id'), S('adId'), S('originalUrl'), S('storedUrl'), S('storedKey'), S('thumbnailUrl'),
+      I('width'), I('height'), S('downloadStatus'), T('createdAt'),
+    ],
+    fetch: (afterId, take) => prisma.adAsset.findMany({
+      take, orderBy: { id: "asc" }, where: after(afterId),
       select: {
         id: true, adId: true, originalUrl: true, storedUrl: true, storedKey: true,
         thumbnailUrl: true, width: true, height: true, downloadStatus: true, createdAt: true,
@@ -74,8 +94,12 @@ const TABLES: TableSpec[] = [
   },
   {
     raw: 'raw_sov_weekly',
-    fetch: (skip, take) => prisma.sovSnapshot.findMany({
-      skip, take, orderBy: { id: 'asc' },
+    schema: [
+      S('id'), S('brandId'), T('weekStart'), I('activeAds'), I('totalReach'), F('estSpend'),
+      I('videoCount'), I('imageCount'), I('carouselCount'), I('newAdsCount'), T('createdAt'),
+    ],
+    fetch: (afterId, take) => prisma.sovSnapshot.findMany({
+      take, orderBy: { id: "asc" }, where: after(afterId),
       select: {
         id: true, brandId: true, weekStart: true, activeAds: true, totalReach: true,
         estSpend: true, videoCount: true, imageCount: true, carouselCount: true,
@@ -85,24 +109,25 @@ const TABLES: TableSpec[] = [
   },
   {
     raw: 'raw_classifications',
-    fetch: (skip, take) => prisma.adClassification.findMany({
-      skip, take, orderBy: { id: 'asc' },
-    }),
+    schema: [
+      S('id'), S('adId'), S('assetType'), S('visualFormat'), S('hookTactic'), S('messagingAngle'),
+      S('awarenessStage'), S('creativeMechanic'), S('offerType'), S('intendedAudience'), I('hookScore'),
+      S('conceptCluster'), F('confidence'), S('classifiedBy'), S('classificationSource'),
+      I('schemaVersion'), T('classifiedAt'),
+    ],
+    fetch: (afterId, take) => prisma.adClassification.findMany({ take, orderBy: { id: 'asc' }, where: after(afterId) }),
   },
 ];
 
 // BigInt (totalReach etc.) and Date need JSON coercion for NDJSON.
 function ndjsonLine(row: Record<string, unknown>): string {
-  return JSON.stringify(row, (_k, v) => {
-    if (typeof v === 'bigint') return Number(v);
-    return v;
-  });
+  return JSON.stringify(row, (_k, v) => (typeof v === 'bigint' ? Number(v) : v));
 }
 
 function credentials(): Record<string, unknown> | undefined {
   const inline = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
   if (inline) return JSON.parse(inline);
-  return undefined; // else falls back to GOOGLE_APPLICATION_CREDENTIALS file via ADC
+  return undefined; // else ADC via GOOGLE_APPLICATION_CREDENTIALS file
 }
 
 export interface SyncResult { table: string; rows: number }
@@ -111,7 +136,6 @@ export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: stri
   const dataset = process.env.BQ_DATASET;
   if (!dataset) return { synced: false, reason: 'BQ_DATASET not set' };
 
-  // Lazy import so the worker doesn't need @google-cloud/bigquery unless BQ is configured.
   const { BigQuery } = await import('@google-cloud/bigquery');
   const bq = new BigQuery({
     projectId: process.env.BQ_PROJECT,
@@ -126,12 +150,14 @@ export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: stri
     const fh = await fs.open(tmp, 'w');
     let total = 0;
     try {
-      for (let skip = 0; ; skip += PAGE) {
-        const rows = await spec.fetch(skip, PAGE);
+      let afterId: string | undefined;
+      for (;;) {
+        const rows = await spec.fetch(afterId, PAGE);
         if (rows.length === 0) break;
         const out = spec.transform ? rows.map(spec.transform) : rows;
         await fh.write(out.map(ndjsonLine).join('\n') + '\n');
         total += rows.length;
+        afterId = rows[rows.length - 1].id as string;
         if (rows.length < PAGE) break;
       }
     } finally {
@@ -142,7 +168,8 @@ export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: stri
       await ds.table(spec.raw).load(tmp, {
         sourceFormat: 'NEWLINE_DELIMITED_JSON',
         writeDisposition: 'WRITE_TRUNCATE',
-        autodetect: true,
+        schema: { fields: spec.schema },
+        autodetect: false,
       });
     }
     await fs.unlink(tmp).catch(() => {});
