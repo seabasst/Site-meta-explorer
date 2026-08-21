@@ -20,10 +20,13 @@ const PAGE = 5000; // rows per DB page (memory-safe streaming to disk)
 type TableSpec = {
   raw: string;                                   // BigQuery table name
   fetch: (skip: number, take: number) => Promise<Record<string, unknown>[]>;
+  transform?: (row: Record<string, unknown>) => Record<string, unknown>;
 };
 
-// Explicit scalar columns → an intentional warehouse schema, not a blob dump.
-// Heavy JSON (targetingJson) is deliberately excluded from v1.
+// Explicit columns → an intentional warehouse schema. Includes the actual content
+// (ad copy, title, CTA, link), reach/spend, and market/targeting; plus R2 creative
+// URLs on the assets table. targetingJson (market/geo/languages) is carried as a
+// JSON string in the raw layer; the modelled layer (P2) parses it into columns.
 const TABLES: TableSpec[] = [
   {
     raw: 'raw_ads',
@@ -31,21 +34,30 @@ const TABLES: TableSpec[] = [
       skip, take, orderBy: { id: 'asc' },
       select: {
         id: true, adId: true, brandId: true, displayFormat: true, publisherPlatforms: true,
-        title: true, ctaType: true, linkUrl: true, startDate: true, endDate: true,
-        adDurationDays: true, isActive: true, reachEstimate: true, spendLower: true,
-        spendUpper: true, impressionsLower: true, impressionsUpper: true, currency: true,
-        bylines: true, createdAt: true, updatedAt: true,
+        // content
+        body: true, title: true, caption: true, linkDescription: true, linkUrl: true,
+        ctaText: true, ctaType: true, bylines: true,
+        // timing
+        startDate: true, endDate: true, adDurationDays: true, isActive: true,
+        // reach / spend
+        reachEstimate: true, impressionsLower: true, impressionsUpper: true,
+        spendLower: true, spendUpper: true, currency: true,
+        // market / targeting (parsed into columns in P2)
+        targetingJson: true,
+        createdAt: true, updatedAt: true,
       },
     }),
+    // Store targeting as a JSON string so BigQuery types it as STRING, not a fragile RECORD.
+    transform: (row) => ({ ...row, targetingJson: row.targetingJson != null ? JSON.stringify(row.targetingJson) : null }),
   },
   {
     raw: 'raw_brands',
     fetch: (skip, take) => prisma.adLibraryBrand.findMany({
       skip, take, orderBy: { id: 'asc' },
       select: {
-        id: true, pageId: true, pageName: true, category: true, totalReach: true,
-        ingestionStatus: true, priority: true, lastCheckedAt: true, failCount: true,
-        createdAt: true,
+        id: true, pageId: true, pageName: true, category: true, country: true, website: true,
+        totalReach: true, ingestionStatus: true, priority: true, lastCheckedAt: true,
+        failCount: true, createdAt: true,
       },
     }),
   },
@@ -53,7 +65,11 @@ const TABLES: TableSpec[] = [
     raw: 'raw_assets',
     fetch: (skip, take) => prisma.adAsset.findMany({
       skip, take, orderBy: { id: 'asc' },
-      select: { id: true, adId: true, downloadStatus: true, createdAt: true },
+      // storedUrl/storedKey = the creative file on R2; thumbnail + dimensions too.
+      select: {
+        id: true, adId: true, originalUrl: true, storedUrl: true, storedKey: true,
+        thumbnailUrl: true, width: true, height: true, downloadStatus: true, createdAt: true,
+      },
     }),
   },
   {
@@ -113,7 +129,8 @@ export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: stri
       for (let skip = 0; ; skip += PAGE) {
         const rows = await spec.fetch(skip, PAGE);
         if (rows.length === 0) break;
-        await fh.write(rows.map(ndjsonLine).join('\n') + '\n');
+        const out = spec.transform ? rows.map(spec.transform) : rows;
+        await fh.write(out.map(ndjsonLine).join('\n') + '\n');
         total += rows.length;
         if (rows.length < PAGE) break;
       }
