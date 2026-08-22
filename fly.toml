@@ -22,6 +22,10 @@ primary_region = "arn"  # Stockholm — close to the Nordic focus / EU Neon regi
   BATCH = "24"
   POLL_MS = "60000"
   MAX_ADS_PER_BRAND = "10000"
+  # EXPERIMENT: pause ingestion during the peak-contention UTC trough to preserve
+  # quota for productive hours. Remove both to disable.
+  BACKOFF_START_UTC = "13"
+  BACKOFF_END_UTC = "17"
 
 [[vm]]
   size = "shared-cpu-1x"
