@@ -39,6 +39,21 @@ const REPORT_HOUR = Math.min(23, Math.max(0, Number(process.env.REPORT_HOUR ?? 7
 const REPORT_WEEKDAY = Math.min(6, Math.max(0, Number(process.env.REPORT_WEEKDAY ?? 1))); // UTC weekday for the weekly summary (0=Sun, 1=Mon)
 const ONCE = process.argv.includes('--once');
 
+// EXPERIMENT: daytime backoff. During the peak-contention UTC window Meta throttles the
+// shared app quota hard (13:00–17:00 UTC measured ~5x slower than the overnight peak),
+// and burning calls on 429s there can deepen the rolling throttle. Pausing that window
+// may preserve quota for the productive hours. Disabled unless both bounds are set.
+// Handles a wrap-around window (start > end) too. Set BACKOFF_START_UTC/BACKOFF_END_UTC.
+const BACKOFF_START = Number(process.env.BACKOFF_START_UTC ?? -1);
+const BACKOFF_END = Number(process.env.BACKOFF_END_UTC ?? -1);
+function inBackoffWindow(): boolean {
+  if (BACKOFF_START < 0 || BACKOFF_END < 0) return false;
+  const h = new Date().getUTCHours();
+  return BACKOFF_START <= BACKOFF_END
+    ? (h >= BACKOFF_START && h < BACKOFF_END)
+    : (h >= BACKOFF_START || h < BACKOFF_END);
+}
+
 // Post the daily Slack report once per UTC day, the first loop tick at/after REPORT_HOUR.
 // ponytail: in-memory dedupe — a worker restart after REPORT_HOUR can double-post that
 // day. Restarts are rare (deploy/crash) and a dup Slack post is harmless; upgrade to a
@@ -112,6 +127,11 @@ async function main() {
 
   while (running) {
     await maybeSendReports();
+    if (inBackoffWindow()) {
+      console.log(`⏸️  Daytime backoff (${BACKOFF_START}:00–${BACKOFF_END}:00 UTC) — pausing ingestion to preserve quota. Next check in ${POLL_MS / 1000}s…`);
+      await sleep(POLL_MS);
+      continue;
+    }
     const brands = await selectDueBrands(BATCH);
     if (brands.length === 0) {
       if (ONCE) { console.log('Backlog drained.'); break; }
