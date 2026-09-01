@@ -126,6 +126,7 @@ async function main() {
   console.log(`Ingest worker started — concurrency ${CONCURRENCY}, pace ${PACE_MS}ms, batch ${BATCH}${ONCE ? ', --once' : ''}`);
 
   while (running) {
+   try {
     await maybeSendReports();
     if (inBackoffWindow()) {
       console.log(`⏸️  Daytime backoff (${BACKOFF_START}:00–${BACKOFF_END}:00 UTC) — pausing ingestion to preserve quota. Next check in ${POLL_MS / 1000}s…`);
@@ -143,6 +144,12 @@ async function main() {
     console.log(`Batch of ${brands.length} due brands (tokens: ${tokenManager.getTotalTokens()})`);
     await processWithConcurrency(brands.map((b) => ({ id: b.id, pageId: b.pageId, pageName: b.pageName })));
     console.log(`  → running total: ${processed} processed (${ok} ok, ${failed} failed)`);
+   } catch (e) {
+    // Resilience: a transient DB error (e.g. Neon data-transfer quota) must not
+    // crash-loop the worker. Back off and retry the loop instead of exiting.
+    console.log(`⚠️  Loop error — backing off ${POLL_MS / 1000}s: ${e instanceof Error ? e.message : 'error'}`);
+    await sleep(POLL_MS);
+   }
   }
 
   console.log(`\nWorker stopped. Processed ${processed} (ok ${ok}, failed ${failed}).`);

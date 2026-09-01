@@ -30,18 +30,35 @@ const REP = (name: string): Field => ({ name, type: 'STRING', mode: 'REPEATED' }
 
 // Cursor pagination (id > afterId) instead of skip/take — offset scans get O(n)
 // slow at the tail; a keyset walk on the PK index stays flat as the corpus grows.
+// mode 'incremental' (needs watermark + key): pull only rows changed since the max
+// watermark already in BigQuery, load to a staging table, MERGE into the target.
+// Slashes Neon egress (the full-refresh of raw_ads was ~1GB/night). mode 'full'
+// (default) re-reads the whole table — fine for the small ones without an updatedAt.
 type TableSpec = {
   raw: string;
   schema: Field[];
-  fetch: (afterId: string | undefined, take: number) => Promise<Record<string, unknown>[]>;
+  fetch: (afterId: string | undefined, take: number, since?: Date) => Promise<Record<string, unknown>[]>;
   transform?: (row: Record<string, unknown>) => Record<string, unknown>;
+  mode?: 'full' | 'incremental';
+  watermarkCol?: string; // BQ column holding the change timestamp (e.g. updatedAt)
+  key?: string;          // MERGE key (e.g. id)
 };
 
 const after = (afterId: string | undefined) => (afterId ? { id: { gt: afterId } } : undefined);
+// Combine the keyset cursor with an optional "changed since" watermark filter.
+const whereFor = (afterId: string | undefined, since: Date | undefined, col: string) => {
+  const clauses: Record<string, unknown>[] = [];
+  const a = after(afterId); if (a) clauses.push(a);
+  if (since) clauses.push({ [col]: { gt: since } });
+  return clauses.length ? { AND: clauses } : undefined;
+};
 
 const TABLES: TableSpec[] = [
   {
     raw: 'raw_ads',
+    mode: 'incremental',
+    watermarkCol: 'updatedAt',
+    key: 'id',
     schema: [
       S('id'), S('adId'), S('brandId'), S('displayFormat'), REP('publisherPlatforms'),
       S('body'), S('title'), S('caption'), S('linkDescription'), S('linkUrl'), S('ctaText'), S('ctaType'), S('bylines'),
@@ -49,8 +66,8 @@ const TABLES: TableSpec[] = [
       I('reachEstimate'), I('impressionsLower'), I('impressionsUpper'), F('spendLower'), F('spendUpper'), S('currency'),
       S('targetingJson'), T('createdAt'), T('updatedAt'),
     ],
-    fetch: (afterId, take) => prisma.adLibraryAd.findMany({
-      take, orderBy: { id: "asc" }, where: after(afterId),
+    fetch: (afterId, take, since) => prisma.adLibraryAd.findMany({
+      take, orderBy: { id: "asc" }, where: whereFor(afterId, since, 'updatedAt'),
       select: {
         id: true, adId: true, brandId: true, displayFormat: true, publisherPlatforms: true,
         body: true, title: true, caption: true, linkDescription: true, linkUrl: true,
@@ -143,16 +160,30 @@ export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: stri
     credentials: credentials(),
   });
   const ds = bq.dataset(dataset);
+  const project = process.env.BQ_PROJECT;
+  const q = (query: string) => bq.query({ query, location: process.env.BQ_LOCATION || 'EU' });
+  const ref = (t: string) => `\`${project}.${dataset}.${t}\``;
   const results: SyncResult[] = [];
 
   for (const spec of TABLES) {
+    const incremental = spec.mode === 'incremental' && spec.watermarkCol && spec.key;
+
+    // For incremental, only pull rows changed since the newest watermark already in BQ.
+    let since: Date | undefined;
+    if (incremental) {
+      const [rows] = await q(`SELECT MAX(${spec.watermarkCol}) AS m FROM ${ref(spec.raw)}`);
+      const m = (rows?.[0] as { m?: { value?: string } | string } | undefined)?.m;
+      const v = typeof m === 'object' && m ? m.value : (m as string | undefined);
+      if (v) since = new Date(v);
+    }
+
     const tmp = path.join(os.tmpdir(), `${spec.raw}.ndjson`);
     const fh = await fs.open(tmp, 'w');
     let total = 0;
     try {
       let afterId: string | undefined;
       for (;;) {
-        const rows = await spec.fetch(afterId, PAGE);
+        const rows = await spec.fetch(afterId, PAGE, since);
         if (rows.length === 0) break;
         const out = spec.transform ? rows.map(spec.transform) : rows;
         await fh.write(out.map(ndjsonLine).join('\n') + '\n');
@@ -164,7 +195,26 @@ export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: stri
       await fh.close();
     }
 
-    if (total > 0) {
+    if (incremental) {
+      // Load changed rows into a staging table, then MERGE into the target on key.
+      if (total > 0) {
+        const stg = `_stg_${spec.raw}`;
+        await ds.table(stg).load(tmp, {
+          sourceFormat: 'NEWLINE_DELIMITED_JSON',
+          writeDisposition: 'WRITE_TRUNCATE',
+          schema: { fields: spec.schema },
+          autodetect: false,
+        });
+        const cols = spec.schema.map((f) => f.name);
+        const setClause = cols.filter((c) => c !== spec.key).map((c) => `T.${c}=S.${c}`).join(', ');
+        await q(
+          `MERGE ${ref(spec.raw)} T USING ${ref(stg)} S ON T.${spec.key}=S.${spec.key}\n` +
+          `WHEN MATCHED THEN UPDATE SET ${setClause}\n` +
+          `WHEN NOT MATCHED THEN INSERT (${cols.join(', ')}) VALUES (${cols.map((c) => `S.${c}`).join(', ')})`
+        );
+      }
+    } else if (total > 0) {
+      // Full refresh — replace the whole table.
       await ds.table(spec.raw).load(tmp, {
         sourceFormat: 'NEWLINE_DELIMITED_JSON',
         writeDisposition: 'WRITE_TRUNCATE',
