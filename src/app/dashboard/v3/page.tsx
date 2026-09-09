@@ -39,6 +39,12 @@ const QUAD_COLOR: Record<Gene['quadrant'], string> = {
 };
 const pretty = (s: string) => s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 const fmt = (n: number) => n.toLocaleString('en-US');
+// Compact form for the per-day bar labels, where the full number never fits.
+const fmtK = (n: number) =>
+  n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M`
+  : n >= 1e4 ? `${Math.round(n / 1e3)}k`
+  : n >= 1e3 ? `${(n / 1e3).toFixed(1)}k`
+  : String(n);
 
 // ---- count-up hook (respects reduced motion) -------------------------------
 function useCountUp(target: number, ms = 1400) {
@@ -120,6 +126,7 @@ function LivePipeline({ pulse, error }: { pulse: Pulse | null; error: string | n
 
   const daily = pulse?.ingestion.daily ?? [];
   const maxN = Math.max(1, ...daily.map((d) => d.n));
+  const spark14d = daily.reduce((a, d) => a + d.n, 0);
   const cov = pulse?.refresh.coveragePct ?? 0;
   const ring = 2 * Math.PI * 34;
 
@@ -155,11 +162,18 @@ function LivePipeline({ pulse, error }: { pulse: Pulse | null; error: string | n
         </div>
 
         <div className="v3-spark">
-          <div className="v3-spark-l">Ingestion · last 14 days</div>
+          <div className="v3-spark-head">
+            <span className="v3-spark-l">Ingestion · last 14 days</span>
+            {daily.length > 0 && <span className="v3-spark-total">+{fmt(spark14d)} new ads</span>}
+          </div>
           <div className="v3-spark-bars">
             {daily.length === 0 && <span className="v3-spark-empty">No ingestion recorded in the last 14 days</span>}
             {daily.map((d) => (
-              <span key={d.day} className="v3-spark-bar" style={{ height: `${Math.max(4, (d.n / maxN) * 100)}%` }} title={`${d.day}: ${fmt(d.n)}`} />
+              <span key={d.day} className="v3-spark-col" title={`${d.day}: ${fmt(d.n)} new ads`}>
+                <span className="v3-spark-n">{fmtK(d.n)}</span>
+                <span className="v3-spark-bar" style={{ height: `${Math.max(3, (d.n / maxN) * 100)}%` }} />
+                <span className="v3-spark-d">{d.day.slice(8)}</span>
+              </span>
             ))}
           </div>
         </div>
@@ -499,9 +513,17 @@ font-family:"SF Pro Display",system-ui,-apple-system,"Segoe UI",Roboto,sans-seri
 .v3-chip-n{font-size:22px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
 .v3-chip-l{font-size:12px;color:var(--v3-ink-3);font-weight:600;margin-top:2px;}
 .v3-spark{margin-top:22px;}
-.v3-spark-l{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--v3-ink-3);margin-bottom:8px;}
-.v3-spark-bars{display:flex;align-items:flex-end;gap:4px;height:56px;background:var(--v3-sand);border-radius:12px;padding:8px 10px;}
-.v3-spark-bar{flex:1;min-width:5px;border-radius:4px 4px 2px 2px;background:linear-gradient(180deg,var(--v3-pink),var(--v3-pink-press));}
+.v3-spark-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px;}
+.v3-spark-l{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--v3-ink-3);}
+.v3-spark-total{font-size:12.5px;font-weight:750;color:var(--v3-pink-press);font-variant-numeric:tabular-nums;}
+.v3-spark-bars{display:flex;align-items:flex-end;gap:4px;height:96px;background:var(--v3-sand);border-radius:12px;padding:8px 10px;}
+.v3-spark-col{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;overflow:hidden;}
+.v3-spark-n{font-size:9.5px;font-weight:750;color:var(--v3-ink-2);font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap;}
+/* 14 columns of "119k" collide below ~560px — fall back to the 14-day total
+   in the header plus the per-bar tooltip. */
+@media (max-width:560px){.v3-spark-n{display:none;}.v3-spark-bars{height:74px;}}
+.v3-spark-bar{width:100%;min-width:5px;border-radius:4px 4px 2px 2px;background:linear-gradient(180deg,var(--v3-pink),var(--v3-pink-press));}
+.v3-spark-d{font-size:9px;font-weight:650;color:var(--v3-ink-3);font-variant-numeric:tabular-nums;line-height:1;}
 .v3-spark-empty{font-size:12.5px;color:var(--v3-ink-3);font-weight:600;align-self:center;margin:0 auto;}
 .v3-ring-l{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--v3-ink-3);}
 .v3-ring{width:150px;height:150px;margin:14px 0 6px;}
