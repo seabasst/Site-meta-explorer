@@ -260,6 +260,7 @@ model AdLibraryBrand {
 
   @@index([ingestionStatus, priority])
   @@index([category])
+  @@index([lastCheckedAt])
 }
 
 model AdLibraryAd {
@@ -317,6 +318,10 @@ model AdLibraryAd {
   @@index([brandId, isActive])
   @@index([brandId, startDate])
   @@index([displayFormat])
+  // Needed by /api/genome/pulse — without these its COUNT/MAX queries do full
+  // seq scans of a 2.4 GB table and time out.
+  @@index([createdAt])
+  @@index([isActive])
 }
 
 model AdAsset {

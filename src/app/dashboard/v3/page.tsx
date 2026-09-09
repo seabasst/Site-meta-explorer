@@ -39,6 +39,12 @@ const QUAD_COLOR: Record<Gene['quadrant'], string> = {
 };
 const pretty = (s: string) => s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 const fmt = (n: number) => n.toLocaleString('en-US');
+// Compact form for the per-day bar labels, where the full number never fits.
+const fmtK = (n: number) =>
+  n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M`
+  : n >= 1e4 ? `${Math.round(n / 1e3)}k`
+  : n >= 1e3 ? `${(n / 1e3).toFixed(1)}k`
+  : String(n);
 
 // ---- count-up hook (respects reduced motion) -------------------------------
 function useCountUp(target: number, ms = 1400) {
@@ -62,11 +68,15 @@ function useCountUp(target: number, ms = 1400) {
 
 export default function V3Page() {
   const [pulse, setPulse] = useState<Pulse | null>(null);
+  const [pulseError, setPulseError] = useState<string | null>(null);
   const [genome, setGenome] = useState<GenomeResp | null>(null);
   const [dim, setDim] = useState<string>('hookTactic');
 
   useEffect(() => {
-    fetch('/api/genome/pulse').then((r) => r.json()).then(setPulse).catch(() => {});
+    fetch('/api/genome/pulse')
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((d) => { setPulse(d); setPulseError(null); })
+      .catch((e) => setPulseError(e instanceof Error ? e.message : 'request failed'));
     fetch('/api/genome').then((r) => r.json()).then(setGenome).catch(() => {});
   }, []);
 
@@ -85,7 +95,7 @@ export default function V3Page() {
       </header>
 
       <main className="v3-wrap">
-        <LivePipeline pulse={pulse} />
+        <LivePipeline pulse={pulse} error={pulseError} />
         <FastGrowing />
         <GenomeSection genome={genome} dim={dim} setDim={setDim} />
         <StealWinner />
@@ -102,14 +112,21 @@ export default function V3Page() {
 // ---------------------------------------------------------------------------
 // 1) Live ingestion pipeline
 // ---------------------------------------------------------------------------
-function LivePipeline({ pulse }: { pulse: Pulse | null }) {
+function LivePipeline({ pulse, error }: { pulse: Pulse | null; error: string | null }) {
   const ads = useCountUp(pulse?.totals.ads ?? 0);
-  const status = pulse?.ingestion.status ?? 'stalled';
-  const statusLabel = status === 'live' ? 'Live · ingesting' : status === 'idle' ? 'Idle' : 'Stalled';
+  // Only report pipeline health once we actually have data — an unanswered or
+  // failed /api/genome/pulse call used to render as "Stalled · 0 ads".
+  const status = pulse ? pulse.ingestion.status : error ? 'unknown' : 'loading';
+  const statusLabel = status === 'live' ? 'Live · ingesting'
+    : status === 'idle' ? 'Idle'
+    : status === 'stalled' ? 'Stalled'
+    : status === 'unknown' ? 'Status unavailable'
+    : 'Reading pipeline…';
   const hrs = pulse?.ingestion.hoursSinceLastAd ?? null;
 
   const daily = pulse?.ingestion.daily ?? [];
   const maxN = Math.max(1, ...daily.map((d) => d.n));
+  const spark14d = daily.reduce((a, d) => a + d.n, 0);
   const cov = pulse?.refresh.coveragePct ?? 0;
   const ring = 2 * Math.PI * 34;
 
@@ -119,13 +136,22 @@ function LivePipeline({ pulse }: { pulse: Pulse | null }) {
         <span className={`v3-status v3-status-${status}`}>
           <span className="v3-pulsedot" /> {statusLabel}
         </span>
-        <div className="v3-bignum" aria-live="polite">{fmt(ads)}</div>
-        <div className="v3-bignum-l">ads sequenced across {pulse ? fmt(pulse.totals.brands) : '—'} brands</div>
+        <div className="v3-bignum" aria-live="polite">{pulse ? fmt(ads) : '—'}</div>
+        <div className="v3-bignum-l">
+          ads in the database, across {pulse ? fmt(pulse.totals.brands) : '—'} brands
+        </div>
 
-        {status !== 'live' && pulse && (
+        {pulse && status !== 'live' && (
           <div className="v3-alert">
             <b>Pipeline {status}.</b> Last ad ingested {hrs != null ? `${Math.round(hrs / 24)} days ago` : 'unknown'}.
             {' '}{fmt(pulse.refresh.brandsDue)} of {fmt(pulse.totals.brands)} accounts are overdue for a weekly re-check.
+          </div>
+        )}
+
+        {error && (
+          <div className="v3-alert">
+            <b>Couldn&apos;t read the pipeline ({error}).</b> The counts below are unavailable —
+            this is a dashboard problem, not necessarily an ingestion one.
           </div>
         )}
 
@@ -136,11 +162,18 @@ function LivePipeline({ pulse }: { pulse: Pulse | null }) {
         </div>
 
         <div className="v3-spark">
-          <div className="v3-spark-l">Ingestion · last 14 days</div>
+          <div className="v3-spark-head">
+            <span className="v3-spark-l">Ingestion · last 14 days</span>
+            {daily.length > 0 && <span className="v3-spark-total">+{fmt(spark14d)} new ads</span>}
+          </div>
           <div className="v3-spark-bars">
             {daily.length === 0 && <span className="v3-spark-empty">No ingestion recorded in the last 14 days</span>}
             {daily.map((d) => (
-              <span key={d.day} className="v3-spark-bar" style={{ height: `${Math.max(4, (d.n / maxN) * 100)}%` }} title={`${d.day}: ${fmt(d.n)}`} />
+              <span key={d.day} className="v3-spark-col" title={`${d.day}: ${fmt(d.n)} new ads`}>
+                <span className="v3-spark-n">{fmtK(d.n)}</span>
+                <span className="v3-spark-bar" style={{ height: `${Math.max(3, (d.n / maxN) * 100)}%` }} />
+                <span className="v3-spark-d">{d.day.slice(8)}</span>
+              </span>
             ))}
           </div>
         </div>
@@ -468,6 +501,7 @@ font-family:"SF Pro Display",system-ui,-apple-system,"Segoe UI",Roboto,sans-seri
 .v3-status-live{color:var(--v3-green);background:#E5F5EC;}
 .v3-status-idle{color:var(--v3-amber);background:#FBF0DF;}
 .v3-status-stalled{color:var(--v3-pink-press);background:var(--v3-pink-tint);}
+.v3-status-loading,.v3-status-unknown{color:var(--v3-ink-3);background:var(--v3-sand);}
 .v3-pulsedot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:v3pulse 1.8s infinite;}
 @keyframes v3pulse{0%{box-shadow:0 0 0 0 currentColor;opacity:1;}70%{box-shadow:0 0 0 7px transparent;opacity:.7;}100%{box-shadow:0 0 0 0 transparent;opacity:1;}}
 .v3-bignum{font-size:clamp(46px,7vw,74px);font-weight:800;letter-spacing:-.04em;line-height:1;margin-top:16px;font-variant-numeric:tabular-nums;}
@@ -479,9 +513,17 @@ font-family:"SF Pro Display",system-ui,-apple-system,"Segoe UI",Roboto,sans-seri
 .v3-chip-n{font-size:22px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
 .v3-chip-l{font-size:12px;color:var(--v3-ink-3);font-weight:600;margin-top:2px;}
 .v3-spark{margin-top:22px;}
-.v3-spark-l{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--v3-ink-3);margin-bottom:8px;}
-.v3-spark-bars{display:flex;align-items:flex-end;gap:4px;height:56px;background:var(--v3-sand);border-radius:12px;padding:8px 10px;}
-.v3-spark-bar{flex:1;min-width:5px;border-radius:4px 4px 2px 2px;background:linear-gradient(180deg,var(--v3-pink),var(--v3-pink-press));}
+.v3-spark-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px;}
+.v3-spark-l{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--v3-ink-3);}
+.v3-spark-total{font-size:12.5px;font-weight:750;color:var(--v3-pink-press);font-variant-numeric:tabular-nums;}
+.v3-spark-bars{display:flex;align-items:flex-end;gap:4px;height:96px;background:var(--v3-sand);border-radius:12px;padding:8px 10px;}
+.v3-spark-col{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;overflow:hidden;}
+.v3-spark-n{font-size:9.5px;font-weight:750;color:var(--v3-ink-2);font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap;}
+/* 14 columns of "119k" collide below ~560px — fall back to the 14-day total
+   in the header plus the per-bar tooltip. */
+@media (max-width:560px){.v3-spark-n{display:none;}.v3-spark-bars{height:74px;}}
+.v3-spark-bar{width:100%;min-width:5px;border-radius:4px 4px 2px 2px;background:linear-gradient(180deg,var(--v3-pink),var(--v3-pink-press));}
+.v3-spark-d{font-size:9px;font-weight:650;color:var(--v3-ink-3);font-variant-numeric:tabular-nums;line-height:1;}
 .v3-spark-empty{font-size:12.5px;color:var(--v3-ink-3);font-weight:600;align-self:center;margin:0 auto;}
 .v3-ring-l{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--v3-ink-3);}
 .v3-ring{width:150px;height:150px;margin:14px 0 6px;}
