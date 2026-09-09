@@ -62,11 +62,15 @@ function useCountUp(target: number, ms = 1400) {
 
 export default function V3Page() {
   const [pulse, setPulse] = useState<Pulse | null>(null);
+  const [pulseError, setPulseError] = useState<string | null>(null);
   const [genome, setGenome] = useState<GenomeResp | null>(null);
   const [dim, setDim] = useState<string>('hookTactic');
 
   useEffect(() => {
-    fetch('/api/genome/pulse').then((r) => r.json()).then(setPulse).catch(() => {});
+    fetch('/api/genome/pulse')
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((d) => { setPulse(d); setPulseError(null); })
+      .catch((e) => setPulseError(e instanceof Error ? e.message : 'request failed'));
     fetch('/api/genome').then((r) => r.json()).then(setGenome).catch(() => {});
   }, []);
 
@@ -85,7 +89,7 @@ export default function V3Page() {
       </header>
 
       <main className="v3-wrap">
-        <LivePipeline pulse={pulse} />
+        <LivePipeline pulse={pulse} error={pulseError} />
         <FastGrowing />
         <GenomeSection genome={genome} dim={dim} setDim={setDim} />
         <StealWinner />
@@ -102,10 +106,16 @@ export default function V3Page() {
 // ---------------------------------------------------------------------------
 // 1) Live ingestion pipeline
 // ---------------------------------------------------------------------------
-function LivePipeline({ pulse }: { pulse: Pulse | null }) {
+function LivePipeline({ pulse, error }: { pulse: Pulse | null; error: string | null }) {
   const ads = useCountUp(pulse?.totals.ads ?? 0);
-  const status = pulse?.ingestion.status ?? 'stalled';
-  const statusLabel = status === 'live' ? 'Live · ingesting' : status === 'idle' ? 'Idle' : 'Stalled';
+  // Only report pipeline health once we actually have data — an unanswered or
+  // failed /api/genome/pulse call used to render as "Stalled · 0 ads".
+  const status = pulse ? pulse.ingestion.status : error ? 'unknown' : 'loading';
+  const statusLabel = status === 'live' ? 'Live · ingesting'
+    : status === 'idle' ? 'Idle'
+    : status === 'stalled' ? 'Stalled'
+    : status === 'unknown' ? 'Status unavailable'
+    : 'Reading pipeline…';
   const hrs = pulse?.ingestion.hoursSinceLastAd ?? null;
 
   const daily = pulse?.ingestion.daily ?? [];
@@ -119,13 +129,22 @@ function LivePipeline({ pulse }: { pulse: Pulse | null }) {
         <span className={`v3-status v3-status-${status}`}>
           <span className="v3-pulsedot" /> {statusLabel}
         </span>
-        <div className="v3-bignum" aria-live="polite">{fmt(ads)}</div>
-        <div className="v3-bignum-l">ads sequenced across {pulse ? fmt(pulse.totals.brands) : '—'} brands</div>
+        <div className="v3-bignum" aria-live="polite">{pulse ? fmt(ads) : '—'}</div>
+        <div className="v3-bignum-l">
+          ads in the database, across {pulse ? fmt(pulse.totals.brands) : '—'} brands
+        </div>
 
-        {status !== 'live' && pulse && (
+        {pulse && status !== 'live' && (
           <div className="v3-alert">
             <b>Pipeline {status}.</b> Last ad ingested {hrs != null ? `${Math.round(hrs / 24)} days ago` : 'unknown'}.
             {' '}{fmt(pulse.refresh.brandsDue)} of {fmt(pulse.totals.brands)} accounts are overdue for a weekly re-check.
+          </div>
+        )}
+
+        {error && (
+          <div className="v3-alert">
+            <b>Couldn&apos;t read the pipeline ({error}).</b> The counts below are unavailable —
+            this is a dashboard problem, not necessarily an ingestion one.
           </div>
         )}
 
@@ -468,6 +487,7 @@ font-family:"SF Pro Display",system-ui,-apple-system,"Segoe UI",Roboto,sans-seri
 .v3-status-live{color:var(--v3-green);background:#E5F5EC;}
 .v3-status-idle{color:var(--v3-amber);background:#FBF0DF;}
 .v3-status-stalled{color:var(--v3-pink-press);background:var(--v3-pink-tint);}
+.v3-status-loading,.v3-status-unknown{color:var(--v3-ink-3);background:var(--v3-sand);}
 .v3-pulsedot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:v3pulse 1.8s infinite;}
 @keyframes v3pulse{0%{box-shadow:0 0 0 0 currentColor;opacity:1;}70%{box-shadow:0 0 0 7px transparent;opacity:.7;}100%{box-shadow:0 0 0 0 transparent;opacity:1;}}
 .v3-bignum{font-size:clamp(46px,7vw,74px);font-weight:800;letter-spacing:-.04em;line-height:1;margin-top:16px;font-variant-numeric:tabular-nums;}

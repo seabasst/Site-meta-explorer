@@ -10,6 +10,12 @@ import { prisma } from '@/lib/prisma';
 // =============================================================================
 
 export const dynamic = 'force-dynamic';
+// COUNT(*) over 1.5M+ ads is ~15s even with indexes, which blew the default
+// Vercel function timeout and left the dashboard with no data at all.
+// ponytail: CDN-cached for 5 min so only one request per window pays for it;
+// swap the totals for a maintained counter table if 5-min staleness stops being ok.
+export const maxDuration = 60;
+const CACHE_HEADER = 'public, s-maxage=300, stale-while-revalidate=3600';
 
 interface PulseRow {
   totalAds: number;
@@ -70,5 +76,5 @@ export async function GET() {
       coveragePct: row.totalBrands ? Math.round((row.brandsFresh / row.totalBrands) * 100) : 0,
     },
     generatedAt: new Date().toISOString(),
-  });
+  }, { headers: { 'Cache-Control': CACHE_HEADER } });
 }
