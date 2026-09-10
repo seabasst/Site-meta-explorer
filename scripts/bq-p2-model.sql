@@ -103,3 +103,64 @@ FROM ad_intel.fact_ad
 WHERE ingested_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
 GROUP BY day
 ORDER BY day DESC;
+
+-- ---------------------------------------------------------------------------
+-- Delivery velocity, off the AdObservation log (raw_observations).
+-- Cumulative reach says nothing about rate; the delta between two observations
+-- is the closest public proxy we have for how fast Meta chose to serve an ad.
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE VIEW ad_intel.fact_ad_observation AS
+SELECT
+  o.id            AS observation_id,
+  o.adId          AS ad_pk,
+  o.observedAt    AS observed_at,
+  o.reach,
+  o.isActive      AS is_active,
+  LAG(o.reach)      OVER w AS prev_reach,
+  LAG(o.observedAt) OVER w AS prev_observed_at,
+  TIMESTAMP_DIFF(o.observedAt, LAG(o.observedAt) OVER w, HOUR) AS hours_since_prev
+FROM ad_intel.raw_observations o
+WINDOW w AS (PARTITION BY o.adId ORDER BY o.observedAt);
+
+-- Per-ad delivery rate. Guards: needs a prior observation, a positive time gap,
+-- and a non-negative delta (Meta occasionally revises reach downward; those
+-- rows are dropped rather than modelled as negative delivery).
+CREATE OR REPLACE VIEW ad_intel.mart_ad_velocity AS
+SELECT
+  v.ad_pk,
+  a.ad_id,
+  a.brand_id,
+  b.brand_name,
+  b.category,
+  a.format,
+  a.target_countries,
+  MAX(v.observed_at)                                  AS last_observed_at,
+  MIN(v.observed_at)                                  AS first_observed_at,
+  MAX(v.reach)                                        AS reach_latest,
+  SUM(v.reach - v.prev_reach)                         AS reach_added,
+  SUM(v.hours_since_prev)                             AS hours_measured,
+  SAFE_DIVIDE(SUM(v.reach - v.prev_reach), SUM(v.hours_since_prev) / 24) AS reach_per_day,
+  COUNTIF(NOT v.is_active) > 0                        AS has_gone_inactive
+FROM ad_intel.fact_ad_observation v
+JOIN ad_intel.fact_ad a   ON a.ad_pk = v.ad_pk
+JOIN ad_intel.dim_brand b USING (brand_id)
+WHERE v.prev_reach IS NOT NULL
+  AND v.reach IS NOT NULL
+  AND v.hours_since_prev > 0
+  AND v.reach >= v.prev_reach
+GROUP BY v.ad_pk, a.ad_id, a.brand_id, b.brand_name, b.category, a.format, a.target_countries;
+
+-- H1: how concentrated is delivery inside a brand? Share of measured reach that
+-- the brand's single fastest creative absorbs. Needs a few weeks of log first.
+CREATE OR REPLACE VIEW ad_intel.mart_delivery_concentration AS
+SELECT
+  brand_name,
+  category,
+  COUNT(*)                                          AS ads_measured,
+  SUM(reach_added)                                  AS reach_added,
+  SAFE_DIVIDE(MAX(reach_added), SUM(reach_added))   AS top_ad_share,
+  APPROX_QUANTILES(reach_per_day, 100)[OFFSET(50)]  AS median_reach_per_day
+FROM ad_intel.mart_ad_velocity
+GROUP BY brand_name, category
+HAVING ads_measured >= 5
+ORDER BY reach_added DESC;

@@ -134,6 +134,26 @@ const TABLES: TableSpec[] = [
     ],
     fetch: (afterId, take) => prisma.adClassification.findMany({ take, orderBy: { id: 'asc' }, where: after(afterId) }),
   },
+  {
+    // Append-only delivery log. Incremental on observedAt so the nightly sync never
+    // re-reads the whole log out of Neon; the MERGE on the integer PK makes the
+    // lookback overlap idempotent. Rows are never updated after insert.
+    raw: 'raw_observations',
+    mode: 'incremental',
+    watermarkCol: 'observedAt',
+    key: 'id',
+    schema: [I('id'), S('adId'), T('observedAt'), I('reach'), B('isActive')],
+    // Own where-clause: the shared whereFor() cursor assumes a string PK, this one is Int.
+    fetch: (afterId, take, since) => prisma.adObservation.findMany({
+      take,
+      orderBy: { id: 'asc' },
+      where: {
+        ...(afterId ? { id: { gt: Number(afterId) } } : {}),
+        ...(since ? { observedAt: { gt: since } } : {}),
+      },
+      select: { id: true, adId: true, observedAt: true, reach: true, isActive: true },
+    }),
+  },
 ];
 
 // BigInt (totalReach etc.) and Date need JSON coercion for NDJSON.
@@ -174,7 +194,10 @@ export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: stri
       const [rows] = await q(`SELECT MAX(${spec.watermarkCol}) AS m FROM ${ref(spec.raw)}`);
       const m = (rows?.[0] as { m?: { value?: string } | string } | undefined)?.m;
       const v = typeof m === 'object' && m ? m.value : (m as string | undefined);
-      if (v) since = new Date(v);
+      // Rewind an hour: a row written while the previous sync was running can land
+      // just under the watermark it recorded, and would otherwise never be pulled.
+      // Re-reading the overlap is safe because incremental loads MERGE on the key.
+      if (v) since = new Date(new Date(v).getTime() - 60 * 60 * 1000);
     }
 
     const tmp = path.join(os.tmpdir(), `${spec.raw}.ndjson`);

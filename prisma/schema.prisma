@@ -314,6 +314,7 @@ model AdLibraryAd {
   savedBy        SavedAd[]
   analysis       AdAnalysis?
   classification AdClassification?
+  observations   AdObservation[]
 
   @@index([brandId, isActive])
   @@index([brandId, startDate])
@@ -322,6 +323,24 @@ model AdLibraryAd {
   // seq scans of a 2.4 GB table and time out.
   @@index([createdAt])
   @@index([isActive])
+}
+
+// Append-only delivery log: one row each time an ad's EU reach or active status
+// changes between polls. Cumulative reach alone says nothing about rate — the
+// delta between two observations is the only public proxy we have for how fast
+// Meta is choosing to serve an ad. Rows stop accruing once an ad stops moving,
+// so the table grows with live delivery, not with the ad archive.
+model AdObservation {
+  id         Int      @id @default(autoincrement())
+  adId       String
+  ad         AdLibraryAd @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  observedAt DateTime @default(now())
+  reach      Int?     // eu_total_reach, cumulative at observation time
+  isActive   Boolean
+
+  @@index([adId, observedAt])
+  @@index([observedAt])
 }
 
 model AdAsset {
