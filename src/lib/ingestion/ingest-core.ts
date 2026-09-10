@@ -988,10 +988,29 @@ async function fetchVideoAdIds(pageId: string): Promise<Set<string>> {
   return videoIds;
 }
 
-async function upsertAd(ad: MetaAd, brandId: string): Promise<{ action: 'created' | 'updated'; adDbId: string }> {
+type AdObs = { adId: string; reach: number | null; isActive: boolean };
+
+/**
+ * Should this poll be written to the delivery log? True on first sight (the t0
+ * anchor) and whenever cumulative reach or active status moved since the last
+ * poll. Unchanged ads are skipped, which is what keeps AdObservation
+ * proportional to live delivery instead of to the whole ad archive.
+ */
+export function deliveryMoved(
+  prev: { reachEstimate: number | null; isActive: boolean } | null,
+  next: { reachEstimate: number | null; isActive: boolean },
+): boolean {
+  if (!prev) return true;
+  return prev.reachEstimate !== next.reachEstimate || prev.isActive !== next.isActive;
+}
+
+async function upsertAd(
+  ad: MetaAd,
+  brandId: string,
+): Promise<{ action: 'created' | 'updated'; adDbId: string; obs: AdObs | null }> {
   const existing = await prisma.adLibraryAd.findUnique({
     where: { adId: ad.id },
-    select: { id: true },
+    select: { id: true, reachEstimate: true, isActive: true },
   });
 
   const data = {
@@ -1037,6 +1056,13 @@ async function upsertAd(ad: MetaAd, brandId: string): Promise<{ action: 'created
     action = 'created';
   }
 
+  // Log an observation on the t0 anchor (first sight) and whenever delivery moved.
+  // Skipping unchanged ads is what keeps this table proportional to live delivery
+  // rather than to the 1.5M-row archive.
+  const obs: AdObs | null = deliveryMoved(existing, data)
+    ? { adId: adDbId, reach: data.reachEstimate, isActive: data.isActive }
+    : null;
+
   // Create/update AdAsset with fresh snapshot URL for later processing
   if (ad.ad_snapshot_url) {
     // Check if asset already exists and is completed
@@ -1070,7 +1096,7 @@ async function upsertAd(ad: MetaAd, brandId: string): Promise<{ action: 'created
     }
   }
 
-  return { action, adDbId };
+  return { action, adDbId, obs };
 }
 
 async function processBrand(brandId: string, pageId: string, pageName: string) {
@@ -1109,13 +1135,26 @@ async function processBrand(brandId: string, pageId: string, pageName: string) {
     let created = 0;
     let updated = 0;
     let assetsQueued = 0;
+    const observations: AdObs[] = [];
     for (const ad of ads) {
       const result = await upsertAd(ad, brandId);
       if (result.action === 'created') created++;
       else updated++;
+      if (result.obs) observations.push(result.obs);
       if (ad.ad_snapshot_url) assetsQueued++;
     }
     console.log(`Queued ${assetsQueued} assets for processing`);
+
+    // One batched insert per brand. Isolated: the delivery log is analytics, and a
+    // failure here must never fail an ingestion run that already stored the ads.
+    if (observations.length) {
+      try {
+        await prisma.adObservation.createMany({ data: observations });
+        console.log(`Logged ${observations.length} delivery observations`);
+      } catch (e) {
+        console.log(`  Observation log skipped: ${e instanceof Error ? e.message : 'error'}`);
+      }
+    }
 
     // Fetch and store demographics (only for numeric page IDs)
     let demographicsStored = false;
