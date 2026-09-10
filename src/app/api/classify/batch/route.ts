@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { submitBatchClassification } from "@/lib/classification/classify-batch";
+import {
+  submitBatchClassification,
+  estimateBatchCostUsd,
+} from "@/lib/classification/classify-batch";
 
 /**
  * POST /api/classify/batch
@@ -53,15 +56,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Estimate cost using Haiku batch pricing (50% discount)
-    // Input: $0.50/M tokens, Output: $2.50/M tokens (batch pricing)
-    // Estimate ~200 input tokens and ~500 output tokens per ad
-    const estimatedCost = Number(
-      (
-        (unclassifiedCount * 200) / 1_000_000 * 0.50 +
-        (unclassifiedCount * 500) / 1_000_000 * 2.50
-      ).toFixed(4)
-    );
+    const estimatedCost = estimateBatchCostUsd(unclassifiedCount);
 
     // Create the classification job
     const job = await prisma.classificationJob.create({

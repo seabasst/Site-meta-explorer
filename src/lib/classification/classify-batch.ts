@@ -19,20 +19,47 @@ const MODEL = "claude-haiku-4-5-20251001";
 const MAX_TOKENS = 500;
 const MAX_BATCH_SIZE = 10_000;
 
+// Batch pricing for MODEL (50% of standard): $0.50/M input, $2.50/M output.
+// Assumes ~200 input and ~500 output tokens per ad — an estimate, not a quote.
+const EST_INPUT_TOKENS_PER_AD = 200;
+const EST_OUTPUT_TOKENS_PER_AD = 500;
+const BATCH_INPUT_USD_PER_MTOK = 0.5;
+const BATCH_OUTPUT_USD_PER_MTOK = 2.5;
+
+/** Exact estimated USD for one ad. Use this for arithmetic (converting a
+ *  budget into an ad count); estimateBatchCostUsd rounds for display and is
+ *  therefore not safe to divide by. */
+export const EST_USD_PER_AD =
+  (EST_INPUT_TOKENS_PER_AD / 1_000_000) * BATCH_INPUT_USD_PER_MTOK +
+  (EST_OUTPUT_TOKENS_PER_AD / 1_000_000) * BATCH_OUTPUT_USD_PER_MTOK;
+
+/** Estimated USD to classify `adCount` ads, rounded for display and storage.
+ *  Single source of truth so the manual route and the nightly cron cannot
+ *  drift apart. */
+export function estimateBatchCostUsd(adCount: number): number {
+  return Number((adCount * EST_USD_PER_AD).toFixed(4));
+}
+
 // ---------------------------------------------------------------------------
 // Submit a batch of unclassified ads to the Anthropic Batch API
 // ---------------------------------------------------------------------------
 export async function submitBatchClassification(
-  jobId: string
+  jobId: string,
+  limit?: number
 ): Promise<string> {
   const job = await prisma.classificationJob.findUniqueOrThrow({
     where: { id: jobId },
     include: { brand: true },
   });
 
-  // Find unclassified ads for this brand
+  // Find unclassified ads for this brand, widest reach first — that is the
+  // order Genome ranks by, so a partial run classifies the ads that matter.
+  // nulls: "last" is load-bearing: Postgres DESC defaults to NULLS FIRST,
+  // which would otherwise put ads with no reach data at the front.
   const ads = await prisma.adLibraryAd.findMany({
     where: { brandId: job.brandId, classification: null },
+    orderBy: { reachEstimate: { sort: "desc", nulls: "last" } },
+    take: Math.min(limit ?? MAX_BATCH_SIZE, MAX_BATCH_SIZE),
     include: {
       assets: {
         where: { assetType: "image", downloadStatus: "completed" },
@@ -56,13 +83,8 @@ export async function submitBatchClassification(
     return "";
   }
 
-  // Truncate to MAX_BATCH_SIZE if needed
-  const adsToProcess = ads.slice(0, MAX_BATCH_SIZE);
-  if (ads.length > MAX_BATCH_SIZE) {
-    console.warn(
-      `Brand ${job.brand.pageName} has ${ads.length} unclassified ads, truncating to ${MAX_BATCH_SIZE}`
-    );
-  }
+  // Already bounded by the query's `take`; whatever came back is the batch.
+  const adsToProcess = ads;
 
   // Build the system prompt and output format (shared across all requests)
   const systemPrompt = buildClassificationPrompt();
