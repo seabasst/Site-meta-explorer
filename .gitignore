@@ -51,4 +51,6 @@ prisma/dev.db-journal
 
 # Generated data
 data/brand-ingestion-results.json
+data/sas-destination-sov.json
+data/sas-sov-payload.json
 .gstack/
