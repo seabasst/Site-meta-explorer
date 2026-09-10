@@ -1,0 +1,24 @@
+# Secrets must never reach an image layer. Dockerfile.worker does `COPY . .`, and
+# Fly secrets supply DATABASE_URL / FACEBOOK_ACCESS_TOKEN* at runtime instead.
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# VCS and agent scratch
+.git
+.gitignore
+.claude
+.gstack
+
+# Rebuilt inside the image by `npm install`
+node_modules
+
+# Build output and caches the worker never reads
+.next
+.vercel
+.media-cache
+*.log
+
+# Frontend-only assets: the worker runs no HTTP server
+public
