@@ -19,6 +19,10 @@
     {
       "path": "/api/ad-library/cron/classify-poll",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/ad-library/cron/classify-submit",
+      "schedule": "0 2 * * *"
     }
   ]
 }

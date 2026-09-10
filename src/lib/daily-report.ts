@@ -13,6 +13,9 @@ export interface DailyReport {
   new24hTotal: number;
   brandsWithNewAds: number;
   topVelocity: { brand: string; newAds7d: number } | null;
+  classified24h: number;
+  classifiedTotal: number;
+  lastClassifiedAt: Date | null;
 }
 
 // Query the DB and format the Slack message (mrkdwn: *single-asterisk* bold, which
@@ -21,12 +24,16 @@ export async function buildDailyReport(): Promise<DailyReport> {
   const since24h = new Date(Date.now() - DAY_MS);
   const since7d = new Date(Date.now() - 7 * DAY_MS);
 
-  const [totalAds, activeAds, totalBrands, new24hByBrand, launched7dByBrand] = await Promise.all([
+  const [totalAds, activeAds, totalBrands, new24hByBrand, launched7dByBrand,
+         classified24h, classifiedTotal, lastClassified] = await Promise.all([
     prisma.adLibraryAd.count(),
     prisma.adLibraryAd.count({ where: { isActive: true } }),
     prisma.adLibraryBrand.count({ where: { ingestionStatus: 'active' } }),
     prisma.adLibraryAd.groupBy({ by: ['brandId'], where: { createdAt: { gte: since24h } }, _count: { _all: true } }),
     prisma.adLibraryAd.groupBy({ by: ['brandId'], where: { startDate: { gte: since7d } }, _count: { _all: true } }),
+    prisma.adClassification.count({ where: { classifiedAt: { gte: since24h } } }),
+    prisma.adClassification.count(),
+    prisma.adClassification.findFirst({ orderBy: { classifiedAt: 'desc' }, select: { classifiedAt: true } }),
   ]);
 
   const new24hTotal = new24hByBrand.reduce((s, g) => s + g._count._all, 0);
@@ -47,6 +54,19 @@ export async function buildDailyReport(): Promise<DailyReport> {
   lines.push(`*📊 Ad Ingestion — ${today}*`);
   lines.push(`Total: *${totalAds.toLocaleString()}* ads (${activeAds.toLocaleString()} active) across ${totalBrands.toLocaleString()} active brands`);
   lines.push(`Last 24h: *+${new24hTotal.toLocaleString()}* ads from *${new24hByBrand.length}* brands`);
+
+  // Analysis health. Ingestion ran for 121 days with classification silently
+  // stopped because nothing reported on it; a zero here is the alarm.
+  const coveragePct = totalAds > 0 ? (classifiedTotal / totalAds) * 100 : 0;
+  const lastClassifiedAt = lastClassified?.classifiedAt ?? null;
+  if (classified24h > 0) {
+    lines.push(`Analysed: *+${classified24h.toLocaleString()}* ads (${classifiedTotal.toLocaleString()} total, ${coveragePct.toFixed(2)}% coverage)`);
+  } else {
+    const stale = lastClassifiedAt
+      ? `last was ${Math.floor((Date.now() - lastClassifiedAt.getTime()) / DAY_MS)}d ago on ${lastClassifiedAt.toISOString().slice(0, 10)}`
+      : 'nothing has ever been classified';
+    lines.push(`:rotating_light: *Analysed: 0 ads in 24h* — ${stale}. Coverage stuck at ${coveragePct.toFixed(2)}%.`);
+  }
   if (topNew.length) {
     lines.push('');
     lines.push('*Top brands by new ads (24h):*');
@@ -64,6 +84,7 @@ export async function buildDailyReport(): Promise<DailyReport> {
     totalAds, activeAds, new24hTotal,
     brandsWithNewAds: new24hByBrand.length,
     topVelocity: topVelocity ? { brand: nameOf.get(topVelocity.brandId) ?? topVelocity.brandId, newAds7d: topVelocity._count._all } : null,
+    classified24h, classifiedTotal, lastClassifiedAt,
   };
 }
 
