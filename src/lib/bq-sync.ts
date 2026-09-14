@@ -1,12 +1,17 @@
 // P1 — Neon → BigQuery raw sync.
 //
 // Sync each configured table into BigQuery `raw_*` tables nightly.
-// The four growing tables (ads, observations, assets, classifications) are
-// incremental: watermark + MERGE, so Neon only ships the delta. Full reload
-// (WRITE_TRUNCATE) is kept for the small dims (brands, sov_weekly) where the
-// whole table is cheaper than the machinery. Egress is the binding constraint
-// here, not sync time: a full nightly re-read of the big tables is what
-// exhausted the Neon data transfer quota on 2026-09-11.
+// Every table is incremental: watermark + MERGE, so Neon only ever ships rows
+// that changed. Egress is the binding constraint here, not sync time: a full
+// nightly re-read is what exhausted the Neon data transfer quota on 2026-09-11.
+//
+// The tradeoff of MERGE-only loading is that DELETEs do not propagate. A row
+// deleted in Postgres (brands via DELETE /api/ad-library/brands/[pageId], and
+// the ads/assets that cascade from it) stays in BigQuery until something prunes
+// it. Model on raw_* accordingly: treat these as append/update logs, and join
+// through a table that reflects current state if you need "still exists".
+// ponytail: no tombstones, no periodic reconciliation. Add one only when a
+// stale-row bug actually shows up in a downstream model.
 //
 // Schemas are EXPLICIT (autodetect off): autodetect infers types from a sample and
 // mis-types columns whose early rows look integer (e.g. estSpend 0 → INTEGER, then
@@ -83,17 +88,25 @@ const TABLES: TableSpec[] = [
     transform: (row) => ({ ...row, targetingJson: row.targetingJson != null ? JSON.stringify(row.targetingJson) : null }),
   },
   {
+    // Small table, but every ingest poll touches a brand row (lastCheckedAt,
+    // activeAdCount, ingestionStatus), so a full re-read buys nothing a watermark
+    // does not. updatedAt moves on all of those because every write goes through
+    // Prisma; there is no raw SQL that mutates this table.
     raw: 'raw_brands',
+    mode: 'incremental',
+    watermarkCol: 'updatedAt',
+    key: 'id',
     schema: [
       S('id'), S('pageId'), S('pageName'), S('category'), S('country'), S('website'),
-      I('totalReach'), S('ingestionStatus'), I('priority'), T('lastCheckedAt'), I('failCount'), T('createdAt'),
+      I('totalReach'), S('ingestionStatus'), I('priority'), T('lastCheckedAt'), I('failCount'),
+      T('createdAt'), T('updatedAt'),
     ],
-    fetch: (afterId, take) => prisma.adLibraryBrand.findMany({
-      take, orderBy: { id: "asc" }, where: after(afterId),
+    fetch: (afterId, take, since) => prisma.adLibraryBrand.findMany({
+      take, orderBy: { id: "asc" }, where: whereFor(afterId, since, 'updatedAt'),
       select: {
         id: true, pageId: true, pageName: true, category: true, country: true, website: true,
         totalReach: true, ingestionStatus: true, priority: true, lastCheckedAt: true,
-        failCount: true, createdAt: true,
+        failCount: true, createdAt: true, updatedAt: true,
       },
     }),
   },
@@ -120,13 +133,19 @@ const TABLES: TableSpec[] = [
     }),
   },
   {
+    // Append-only: one row per brand per week, created and never updated (both
+    // writers use .create(), guarded by the [brandId, weekStart] unique), so
+    // createdAt is a sound watermark.
     raw: 'raw_sov_weekly',
+    mode: 'incremental',
+    watermarkCol: 'createdAt',
+    key: 'id',
     schema: [
       S('id'), S('brandId'), T('weekStart'), I('activeAds'), I('totalReach'), F('estSpend'),
       I('videoCount'), I('imageCount'), I('carouselCount'), I('newAdsCount'), T('createdAt'),
     ],
-    fetch: (afterId, take) => prisma.sovSnapshot.findMany({
-      take, orderBy: { id: "asc" }, where: after(afterId),
+    fetch: (afterId, take, since) => prisma.sovSnapshot.findMany({
+      take, orderBy: { id: "asc" }, where: whereFor(afterId, since, 'createdAt'),
       select: {
         id: true, brandId: true, weekStart: true, activeAds: true, totalReach: true,
         estSpend: true, videoCount: true, imageCount: true, carouselCount: true,
