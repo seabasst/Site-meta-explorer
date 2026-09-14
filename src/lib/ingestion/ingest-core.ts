@@ -805,23 +805,32 @@ function aggregateDemographicsFromAds(ads: DemographicsAd[]): AggregatedDemograp
   for (const ad of adsWithData) {
     const breakdown = ad.age_country_gender_reach_breakdown!;
     const weight = ad.eu_total_reach && ad.eu_total_reach > 0 ? ad.eu_total_reach : 1;
+
+    // Every bucket is divided by the ad's reach across ALL its countries, so one
+    // ad contributes exactly `weight` in total. Dividing by the per-country total
+    // instead made each country contribute a full `weight`, inflating every
+    // percentage by the ad's country count (a 3-country ad summed to ~300%).
+    const countryTotals = breakdown.map(c =>
+      c.age_gender_breakdowns.reduce(
+        (sum, a) => sum + (a.male || 0) + (a.female || 0) + (a.unknown || 0),
+        0
+      )
+    );
+    const adTotal = countryTotals.reduce((a, b) => a + b, 0);
+    if (adTotal === 0) continue;
+
     if (!ad.eu_total_reach || ad.eu_total_reach === 0) adsWithoutReach++;
     totalWeight += weight;
 
     // Process each country's breakdown
-    for (const countryData of breakdown) {
+    breakdown.forEach((countryData, countryIndex) => {
       const countryCode = countryData.country.toUpperCase();
+      const countryTotal = countryTotals[countryIndex];
 
-      // Calculate total for this country to get percentages
-      let countryTotal = 0;
-      for (const ageData of countryData.age_gender_breakdowns) {
-        countryTotal += (ageData.male || 0) + (ageData.female || 0) + (ageData.unknown || 0);
-      }
+      if (countryTotal === 0) return;
 
-      if (countryTotal === 0) continue;
-
-      // Add to region map
-      const countryWeight = weight * (countryTotal > 0 ? 1 : 0);
+      // Add to region map, weighted by this country's share of the ad's reach
+      const countryWeight = weight * (countryTotal / adTotal);
       regionMap.set(countryCode, (regionMap.get(countryCode) || 0) + countryWeight);
 
       // Process age-gender breakdown
@@ -834,10 +843,10 @@ function aggregateDemographicsFromAds(ads: DemographicsAd[]): AggregatedDemograp
 
         if (ageTotal === 0) continue;
 
-        // Weight by reach and country proportion
-        const maleWeighted = (maleCount / countryTotal) * weight;
-        const femaleWeighted = (femaleCount / countryTotal) * weight;
-        const unknownWeighted = (unknownCount / countryTotal) * weight;
+        // Weight by reach and share of the ad's cross-country total
+        const maleWeighted = (maleCount / adTotal) * weight;
+        const femaleWeighted = (femaleCount / adTotal) * weight;
+        const unknownWeighted = (unknownCount / adTotal) * weight;
 
         // Age totals
         ageMap.set(age, (ageMap.get(age) || 0) + maleWeighted + femaleWeighted + unknownWeighted);
@@ -859,7 +868,7 @@ function aggregateDemographicsFromAds(ads: DemographicsAd[]): AggregatedDemograp
           ageGenderMap.set(keyFemale, (ageGenderMap.get(keyFemale) || 0) + femaleWeighted);
         }
       }
-    }
+    });
   }
 
   if (totalWeight === 0) return null;
@@ -1238,4 +1247,4 @@ export async function selectDueBrands(limit: number) {
   });
 }
 
-export { tokenManager, processBrand, sleep, BRANDS_PER_RUN, CRON_SECRET, isNumericPageId, TokenManager };
+export { tokenManager, processBrand, sleep, BRANDS_PER_RUN, CRON_SECRET, isNumericPageId, TokenManager, aggregateDemographicsFromAds, fetchAndStoreDemographics };
