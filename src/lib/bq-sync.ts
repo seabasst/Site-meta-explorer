@@ -1,10 +1,17 @@
 // P1 — Neon → BigQuery raw sync.
 //
-// Full-refresh each configured table into BigQuery `raw_*` tables nightly.
-// ponytail: full reload (WRITE_TRUNCATE) is the simplest correct v1 — idempotent,
-// no watermark/MERGE bugs. At ~1M ads (a few hundred MB NDJSON) it's fine. Switch
-// the big tables (ads, assets) to updatedAt-watermark + MERGE only once the reload
-// gets slow; the small dims can stay full-refresh forever.
+// Sync each configured table into BigQuery `raw_*` tables nightly.
+// Every table is incremental: watermark + MERGE, so Neon only ever ships rows
+// that changed. Egress is the binding constraint here, not sync time: a full
+// nightly re-read is what exhausted the Neon data transfer quota on 2026-09-11.
+//
+// The tradeoff of MERGE-only loading is that DELETEs do not propagate. A row
+// deleted in Postgres (brands via DELETE /api/ad-library/brands/[pageId], and
+// the ads/assets that cascade from it) stays in BigQuery until something prunes
+// it. Model on raw_* accordingly: treat these as append/update logs, and join
+// through a table that reflects current state if you need "still exists".
+// ponytail: no tombstones, no periodic reconciliation. Add one only when a
+// stale-row bug actually shows up in a downstream model.
 //
 // Schemas are EXPLICIT (autodetect off): autodetect infers types from a sample and
 // mis-types columns whose early rows look integer (e.g. estSpend 0 → INTEGER, then
@@ -46,7 +53,7 @@ type TableSpec = {
 
 const after = (afterId: string | undefined) => (afterId ? { id: { gt: afterId } } : undefined);
 // Combine the keyset cursor with an optional "changed since" watermark filter.
-const whereFor = (afterId: string | undefined, since: Date | undefined, col: string) => {
+export const whereFor = (afterId: string | undefined, since: Date | undefined, col: string) => {
   const clauses: Record<string, unknown>[] = [];
   const a = after(afterId); if (a) clauses.push(a);
   if (since) clauses.push({ [col]: { gt: since } });
@@ -81,42 +88,64 @@ const TABLES: TableSpec[] = [
     transform: (row) => ({ ...row, targetingJson: row.targetingJson != null ? JSON.stringify(row.targetingJson) : null }),
   },
   {
+    // Small table, but every ingest poll touches a brand row (lastCheckedAt,
+    // activeAdCount, ingestionStatus), so a full re-read buys nothing a watermark
+    // does not. updatedAt moves on all of those because every write goes through
+    // Prisma; there is no raw SQL that mutates this table.
     raw: 'raw_brands',
+    mode: 'incremental',
+    watermarkCol: 'updatedAt',
+    key: 'id',
     schema: [
       S('id'), S('pageId'), S('pageName'), S('category'), S('country'), S('website'),
-      I('totalReach'), S('ingestionStatus'), I('priority'), T('lastCheckedAt'), I('failCount'), T('createdAt'),
+      I('totalReach'), S('ingestionStatus'), I('priority'), T('lastCheckedAt'), I('failCount'),
+      T('createdAt'), T('updatedAt'),
     ],
-    fetch: (afterId, take) => prisma.adLibraryBrand.findMany({
-      take, orderBy: { id: "asc" }, where: after(afterId),
+    fetch: (afterId, take, since) => prisma.adLibraryBrand.findMany({
+      take, orderBy: { id: "asc" }, where: whereFor(afterId, since, 'updatedAt'),
       select: {
         id: true, pageId: true, pageName: true, category: true, country: true, website: true,
         totalReach: true, ingestionStatus: true, priority: true, lastCheckedAt: true,
-        failCount: true, createdAt: true,
+        failCount: true, createdAt: true, updatedAt: true,
       },
     }),
   },
   {
+    // Rows are updated long after insert (downloadStatus pending -> completed, storedUrl
+    // filled in by the asset pipeline), so createdAt is not a usable watermark: it would
+    // ship the row once, as 'pending', and never correct it. AdAsset.updatedAt exists for
+    // this and the MERGE on id carries the later status changes through.
     raw: 'raw_assets',
+    mode: 'incremental',
+    watermarkCol: 'updatedAt',
+    key: 'id',
     schema: [
       S('id'), S('adId'), S('originalUrl'), S('storedUrl'), S('storedKey'), S('thumbnailUrl'),
-      I('width'), I('height'), S('downloadStatus'), T('createdAt'),
+      I('width'), I('height'), S('downloadStatus'), T('createdAt'), T('updatedAt'),
     ],
-    fetch: (afterId, take) => prisma.adAsset.findMany({
-      take, orderBy: { id: "asc" }, where: after(afterId),
+    fetch: (afterId, take, since) => prisma.adAsset.findMany({
+      take, orderBy: { id: "asc" }, where: whereFor(afterId, since, 'updatedAt'),
       select: {
         id: true, adId: true, originalUrl: true, storedUrl: true, storedKey: true,
-        thumbnailUrl: true, width: true, height: true, downloadStatus: true, createdAt: true,
+        thumbnailUrl: true, width: true, height: true, downloadStatus: true,
+        createdAt: true, updatedAt: true,
       },
     }),
   },
   {
+    // Append-only: one row per brand per week, created and never updated (both
+    // writers use .create(), guarded by the [brandId, weekStart] unique), so
+    // createdAt is a sound watermark.
     raw: 'raw_sov_weekly',
+    mode: 'incremental',
+    watermarkCol: 'createdAt',
+    key: 'id',
     schema: [
       S('id'), S('brandId'), T('weekStart'), I('activeAds'), I('totalReach'), F('estSpend'),
       I('videoCount'), I('imageCount'), I('carouselCount'), I('newAdsCount'), T('createdAt'),
     ],
-    fetch: (afterId, take) => prisma.sovSnapshot.findMany({
-      take, orderBy: { id: "asc" }, where: after(afterId),
+    fetch: (afterId, take, since) => prisma.sovSnapshot.findMany({
+      take, orderBy: { id: "asc" }, where: whereFor(afterId, since, 'createdAt'),
       select: {
         id: true, brandId: true, weekStart: true, activeAds: true, totalReach: true,
         estSpend: true, videoCount: true, imageCount: true, carouselCount: true,
@@ -125,14 +154,22 @@ const TABLES: TableSpec[] = [
     }),
   },
   {
+    // Written once per ad by the nightly classifier and effectively never updated, so
+    // the classifiedAt watermark is enough; the MERGE on id makes a re-classification
+    // (or the lookback overlap) overwrite in place rather than duplicate.
     raw: 'raw_classifications',
+    mode: 'incremental',
+    watermarkCol: 'classifiedAt',
+    key: 'id',
     schema: [
       S('id'), S('adId'), S('assetType'), S('visualFormat'), S('hookTactic'), S('messagingAngle'),
       S('awarenessStage'), S('creativeMechanic'), S('offerType'), S('intendedAudience'), I('hookScore'),
       S('conceptCluster'), F('confidence'), S('classifiedBy'), S('classificationSource'),
       I('schemaVersion'), T('classifiedAt'),
     ],
-    fetch: (afterId, take) => prisma.adClassification.findMany({ take, orderBy: { id: 'asc' }, where: after(afterId) }),
+    fetch: (afterId, take, since) => prisma.adClassification.findMany({
+      take, orderBy: { id: 'asc' }, where: whereFor(afterId, since, 'classifiedAt'),
+    }),
   },
   {
     // Append-only delivery log. Incremental on observedAt so the nightly sync never
@@ -169,35 +206,51 @@ function credentials(): Record<string, unknown> | undefined {
 
 export interface SyncResult { table: string; rows: number }
 
+async function bqContext(dataset: string) {
+  const { BigQuery } = await import('@google-cloud/bigquery');
+  const location = process.env.BQ_LOCATION || 'EU';
+  const bq = new BigQuery({ projectId: process.env.BQ_PROJECT, location, credentials: credentials() });
+  const project = process.env.BQ_PROJECT;
+  const q = (query: string) => bq.query({ query, location });
+  // DML needs the job, not the rows: numDmlAffectedRows is the only way to report
+  // how much a DELETE actually removed.
+  const dml = async (query: string): Promise<number> => {
+    const [job] = await bq.createQueryJob({ query, location });
+    await job.getQueryResults();
+    const [md] = await job.getMetadata();
+    return Number(md.statistics?.query?.numDmlAffectedRows ?? 0);
+  };
+  return { bq, ds: bq.dataset(dataset), q, dml, ref: (t: string) => `\`${project}.${dataset}.${t}\`` };
+}
+
 export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: string; results?: SyncResult[] }> {
   const dataset = process.env.BQ_DATASET;
   if (!dataset) return { synced: false, reason: 'BQ_DATASET not set' };
 
-  const { BigQuery } = await import('@google-cloud/bigquery');
-  const bq = new BigQuery({
-    projectId: process.env.BQ_PROJECT,
-    location: process.env.BQ_LOCATION || 'EU',
-    credentials: credentials(),
-  });
-  const ds = bq.dataset(dataset);
-  const project = process.env.BQ_PROJECT;
-  const q = (query: string) => bq.query({ query, location: process.env.BQ_LOCATION || 'EU' });
-  const ref = (t: string) => `\`${project}.${dataset}.${t}\``;
+  const { ds, q, ref } = await bqContext(dataset);
   const results: SyncResult[] = [];
 
   for (const spec of TABLES) {
-    const incremental = spec.mode === 'incremental' && spec.watermarkCol && spec.key;
+    let incremental = !!(spec.mode === 'incremental' && spec.watermarkCol && spec.key);
 
     // For incremental, only pull rows changed since the newest watermark already in BQ.
     let since: Date | undefined;
     if (incremental) {
-      const [rows] = await q(`SELECT MAX(${spec.watermarkCol}) AS m FROM ${ref(spec.raw)}`);
-      const m = (rows?.[0] as { m?: { value?: string } | string } | undefined)?.m;
-      const v = typeof m === 'object' && m ? m.value : (m as string | undefined);
-      // Rewind an hour: a row written while the previous sync was running can land
-      // just under the watermark it recorded, and would otherwise never be pulled.
-      // Re-reading the overlap is safe because incremental loads MERGE on the key.
-      if (v) since = new Date(new Date(v).getTime() - 60 * 60 * 1000);
+      try {
+        const [rows] = await q(`SELECT MAX(${spec.watermarkCol}) AS m FROM ${ref(spec.raw)}`);
+        const m = (rows?.[0] as { m?: { value?: string } | string } | undefined)?.m;
+        const v = typeof m === 'object' && m ? m.value : (m as string | undefined);
+        // Rewind an hour: a row written while the previous sync was running can land
+        // just under the watermark it recorded, and would otherwise never be pulled.
+        // Re-reading the overlap is safe because incremental loads MERGE on the key.
+        if (v) since = new Date(new Date(v).getTime() - 60 * 60 * 1000);
+      } catch {
+        // No target table yet, or one that predates its watermark column (a table
+        // switched from full to incremental: raw_assets has no updatedAt in BQ until
+        // this runs). One full refresh recreates it with the current schema and seeds
+        // the watermark; every later run reads only the delta.
+        incremental = false;
+      }
     }
 
     const tmp = path.join(os.tmpdir(), `${spec.raw}.ndjson`);
@@ -250,4 +303,107 @@ export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: stri
   }
 
   return { synced: true, results };
+}
+
+// ---------------------------------------------------------------------------
+// Weekly prune.
+//
+// MERGE-only loading never removes anything, so a row deleted in Postgres would
+// otherwise sit in BigQuery forever. The repo has exactly one delete path for
+// synced data (DELETE /api/ad-library/brands/[pageId] -> adLibraryBrand.delete)
+// and every other synced table cascades from a brand, so the entire
+// reconciliation reduces to "which brand ids still exist". Shipping that one id
+// list is a few thousand cuids, nothing like the full table re-read this whole
+// change exists to avoid.
+//
+// ponytail: brand-rooted only. If ads ever start being deleted independently of
+// their brand, this stops being sufficient and the live ad ids have to ship too.
+
+const PRUNE_CEILING = 0.1;
+
+/**
+ * Would this prune remove an implausible share of the warehouse? A DELETE driven
+ * by an anti-join is only ever as good as the list it joins to, so a short or
+ * truncated read must fail closed rather than empty the table. Pure, so the
+ * self-check can exercise it without BigQuery.
+ */
+export function exceedsPruneCeiling(stale: number, total: number): boolean {
+  if (total <= 0) return true; // nothing to compare against: treat as unsafe
+  return stale / total > PRUNE_CEILING;
+}
+
+export async function pruneDeletedFromBigQuery(): Promise<{
+  pruned: boolean;
+  reason?: string;
+  deleted?: Record<string, number>;
+}> {
+  const dataset = process.env.BQ_DATASET;
+  if (!dataset) return { pruned: false, reason: 'BQ_DATASET not set' };
+  const { ds, q, dml, ref } = await bqContext(dataset);
+
+  // 1. Ship the live brand ids into a staging table.
+  const tmp = path.join(os.tmpdir(), '_live_brands.ndjson');
+  const fh = await fs.open(tmp, 'w');
+  let live = 0;
+  try {
+    let afterId: string | undefined;
+    for (;;) {
+      const rows = await prisma.adLibraryBrand.findMany({
+        take: PAGE, orderBy: { id: 'asc' }, where: after(afterId), select: { id: true },
+      });
+      if (rows.length === 0) break;
+      await fh.write(rows.map(ndjsonLine).join('\n') + '\n');
+      live += rows.length;
+      afterId = rows[rows.length - 1].id;
+      if (rows.length < PAGE) break;
+    }
+  } finally {
+    await fh.close();
+  }
+
+  // An empty or failed read would anti-join the entire warehouse into the bin.
+  if (live === 0) {
+    await fs.unlink(tmp).catch(() => {});
+    return { pruned: false, reason: 'no live brands read from Postgres' };
+  }
+
+  const stg = '_live_brands';
+  await ds.table(stg).load(tmp, {
+    sourceFormat: 'NEWLINE_DELIMITED_JSON',
+    writeDisposition: 'WRITE_TRUNCATE',
+    schema: { fields: [S('id')] },
+    autodetect: false,
+  });
+  await fs.unlink(tmp).catch(() => {});
+
+  // 2. Sanity gate, before anything is deleted.
+  const [rows] = await q(
+    `SELECT
+       (SELECT COUNT(*) FROM ${ref('raw_brands')} T
+         WHERE NOT EXISTS (SELECT 1 FROM ${ref(stg)} S WHERE S.id = T.id)) AS stale,
+       (SELECT COUNT(*) FROM ${ref('raw_brands')}) AS total`
+  );
+  const stale = Number((rows?.[0] as { stale?: number } | undefined)?.stale ?? 0);
+  const total = Number((rows?.[0] as { total?: number } | undefined)?.total ?? 0);
+  if (stale === 0) return { pruned: true, deleted: {} };
+  if (exceedsPruneCeiling(stale, total) && !process.env.BQ_PRUNE_FORCE) {
+    return {
+      pruned: false,
+      reason: `refused: ${stale} of ${total} brands would be deleted (over ${PRUNE_CEILING * 100}%). ` +
+        `Check the brand table before trusting this, then set BQ_PRUNE_FORCE=1 for one run.`,
+    };
+  }
+
+  // 3. Brand-rooted tables first, then the ad-rooted children anti-joined to the
+  // now-pruned raw_ads, which mirrors the Postgres cascade.
+  const notLive = (col: string) => `NOT EXISTS (SELECT 1 FROM ${ref(stg)} S WHERE S.id = T.${col})`;
+  const notAnAd = `NOT EXISTS (SELECT 1 FROM ${ref('raw_ads')} A WHERE A.id = T.adId)`;
+  const deleted: Record<string, number> = {};
+  deleted.raw_ads = await dml(`DELETE FROM ${ref('raw_ads')} T WHERE ${notLive('brandId')}`);
+  deleted.raw_sov_weekly = await dml(`DELETE FROM ${ref('raw_sov_weekly')} T WHERE ${notLive('brandId')}`);
+  deleted.raw_brands = await dml(`DELETE FROM ${ref('raw_brands')} T WHERE ${notLive('id')}`);
+  for (const t of ['raw_assets', 'raw_classifications', 'raw_observations']) {
+    deleted[t] = await dml(`DELETE FROM ${ref(t)} T WHERE ${notAnAd}`);
+  }
+  return { pruned: true, deleted };
 }
