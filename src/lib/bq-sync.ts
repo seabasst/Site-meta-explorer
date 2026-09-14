@@ -1,10 +1,12 @@
 // P1 — Neon → BigQuery raw sync.
 //
-// Full-refresh each configured table into BigQuery `raw_*` tables nightly.
-// ponytail: full reload (WRITE_TRUNCATE) is the simplest correct v1 — idempotent,
-// no watermark/MERGE bugs. At ~1M ads (a few hundred MB NDJSON) it's fine. Switch
-// the big tables (ads, assets) to updatedAt-watermark + MERGE only once the reload
-// gets slow; the small dims can stay full-refresh forever.
+// Sync each configured table into BigQuery `raw_*` tables nightly.
+// The four growing tables (ads, observations, assets, classifications) are
+// incremental: watermark + MERGE, so Neon only ships the delta. Full reload
+// (WRITE_TRUNCATE) is kept for the small dims (brands, sov_weekly) where the
+// whole table is cheaper than the machinery. Egress is the binding constraint
+// here, not sync time: a full nightly re-read of the big tables is what
+// exhausted the Neon data transfer quota on 2026-09-11.
 //
 // Schemas are EXPLICIT (autodetect off): autodetect infers types from a sample and
 // mis-types columns whose early rows look integer (e.g. estSpend 0 → INTEGER, then
@@ -46,7 +48,7 @@ type TableSpec = {
 
 const after = (afterId: string | undefined) => (afterId ? { id: { gt: afterId } } : undefined);
 // Combine the keyset cursor with an optional "changed since" watermark filter.
-const whereFor = (afterId: string | undefined, since: Date | undefined, col: string) => {
+export const whereFor = (afterId: string | undefined, since: Date | undefined, col: string) => {
   const clauses: Record<string, unknown>[] = [];
   const a = after(afterId); if (a) clauses.push(a);
   if (since) clauses.push({ [col]: { gt: since } });
@@ -96,16 +98,24 @@ const TABLES: TableSpec[] = [
     }),
   },
   {
+    // Rows are updated long after insert (downloadStatus pending -> completed, storedUrl
+    // filled in by the asset pipeline), so createdAt is not a usable watermark: it would
+    // ship the row once, as 'pending', and never correct it. AdAsset.updatedAt exists for
+    // this and the MERGE on id carries the later status changes through.
     raw: 'raw_assets',
+    mode: 'incremental',
+    watermarkCol: 'updatedAt',
+    key: 'id',
     schema: [
       S('id'), S('adId'), S('originalUrl'), S('storedUrl'), S('storedKey'), S('thumbnailUrl'),
-      I('width'), I('height'), S('downloadStatus'), T('createdAt'),
+      I('width'), I('height'), S('downloadStatus'), T('createdAt'), T('updatedAt'),
     ],
-    fetch: (afterId, take) => prisma.adAsset.findMany({
-      take, orderBy: { id: "asc" }, where: after(afterId),
+    fetch: (afterId, take, since) => prisma.adAsset.findMany({
+      take, orderBy: { id: "asc" }, where: whereFor(afterId, since, 'updatedAt'),
       select: {
         id: true, adId: true, originalUrl: true, storedUrl: true, storedKey: true,
-        thumbnailUrl: true, width: true, height: true, downloadStatus: true, createdAt: true,
+        thumbnailUrl: true, width: true, height: true, downloadStatus: true,
+        createdAt: true, updatedAt: true,
       },
     }),
   },
@@ -125,14 +135,22 @@ const TABLES: TableSpec[] = [
     }),
   },
   {
+    // Written once per ad by the nightly classifier and effectively never updated, so
+    // the classifiedAt watermark is enough; the MERGE on id makes a re-classification
+    // (or the lookback overlap) overwrite in place rather than duplicate.
     raw: 'raw_classifications',
+    mode: 'incremental',
+    watermarkCol: 'classifiedAt',
+    key: 'id',
     schema: [
       S('id'), S('adId'), S('assetType'), S('visualFormat'), S('hookTactic'), S('messagingAngle'),
       S('awarenessStage'), S('creativeMechanic'), S('offerType'), S('intendedAudience'), I('hookScore'),
       S('conceptCluster'), F('confidence'), S('classifiedBy'), S('classificationSource'),
       I('schemaVersion'), T('classifiedAt'),
     ],
-    fetch: (afterId, take) => prisma.adClassification.findMany({ take, orderBy: { id: 'asc' }, where: after(afterId) }),
+    fetch: (afterId, take, since) => prisma.adClassification.findMany({
+      take, orderBy: { id: 'asc' }, where: whereFor(afterId, since, 'classifiedAt'),
+    }),
   },
   {
     // Append-only delivery log. Incremental on observedAt so the nightly sync never
@@ -186,18 +204,26 @@ export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: stri
   const results: SyncResult[] = [];
 
   for (const spec of TABLES) {
-    const incremental = spec.mode === 'incremental' && spec.watermarkCol && spec.key;
+    let incremental = !!(spec.mode === 'incremental' && spec.watermarkCol && spec.key);
 
     // For incremental, only pull rows changed since the newest watermark already in BQ.
     let since: Date | undefined;
     if (incremental) {
-      const [rows] = await q(`SELECT MAX(${spec.watermarkCol}) AS m FROM ${ref(spec.raw)}`);
-      const m = (rows?.[0] as { m?: { value?: string } | string } | undefined)?.m;
-      const v = typeof m === 'object' && m ? m.value : (m as string | undefined);
-      // Rewind an hour: a row written while the previous sync was running can land
-      // just under the watermark it recorded, and would otherwise never be pulled.
-      // Re-reading the overlap is safe because incremental loads MERGE on the key.
-      if (v) since = new Date(new Date(v).getTime() - 60 * 60 * 1000);
+      try {
+        const [rows] = await q(`SELECT MAX(${spec.watermarkCol}) AS m FROM ${ref(spec.raw)}`);
+        const m = (rows?.[0] as { m?: { value?: string } | string } | undefined)?.m;
+        const v = typeof m === 'object' && m ? m.value : (m as string | undefined);
+        // Rewind an hour: a row written while the previous sync was running can land
+        // just under the watermark it recorded, and would otherwise never be pulled.
+        // Re-reading the overlap is safe because incremental loads MERGE on the key.
+        if (v) since = new Date(new Date(v).getTime() - 60 * 60 * 1000);
+      } catch {
+        // No target table yet, or one that predates its watermark column (a table
+        // switched from full to incremental: raw_assets has no updatedAt in BQ until
+        // this runs). One full refresh recreates it with the current schema and seeds
+        // the watermark; every later run reads only the delta.
+        incremental = false;
+      }
     }
 
     const tmp = path.join(os.tmpdir(), `${spec.raw}.ndjson`);

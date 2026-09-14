@@ -375,9 +375,16 @@ model AdAsset {
   downloadError  String?
 
   createdAt DateTime @default(now())
+  // Watermark for the incremental BigQuery sync. Asset rows are written at ingest
+  // as 'pending' and finished by the asset pipeline minutes to days later, so
+  // createdAt alone would export a row once and never carry its final state.
+  updatedAt DateTime @updatedAt @default(now())
 
   @@index([adId])
   @@index([downloadStatus])
+  // The sync walks rows by updatedAt; without this it seq-scans the whole table
+  // every night, which is the egress the incremental mode exists to avoid.
+  @@index([updatedAt])
 }
 
 model IngestionJob {
