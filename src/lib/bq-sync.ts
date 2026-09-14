@@ -206,20 +206,28 @@ function credentials(): Record<string, unknown> | undefined {
 
 export interface SyncResult { table: string; rows: number }
 
+async function bqContext(dataset: string) {
+  const { BigQuery } = await import('@google-cloud/bigquery');
+  const location = process.env.BQ_LOCATION || 'EU';
+  const bq = new BigQuery({ projectId: process.env.BQ_PROJECT, location, credentials: credentials() });
+  const project = process.env.BQ_PROJECT;
+  const q = (query: string) => bq.query({ query, location });
+  // DML needs the job, not the rows: numDmlAffectedRows is the only way to report
+  // how much a DELETE actually removed.
+  const dml = async (query: string): Promise<number> => {
+    const [job] = await bq.createQueryJob({ query, location });
+    await job.getQueryResults();
+    const [md] = await job.getMetadata();
+    return Number(md.statistics?.query?.numDmlAffectedRows ?? 0);
+  };
+  return { bq, ds: bq.dataset(dataset), q, dml, ref: (t: string) => `\`${project}.${dataset}.${t}\`` };
+}
+
 export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: string; results?: SyncResult[] }> {
   const dataset = process.env.BQ_DATASET;
   if (!dataset) return { synced: false, reason: 'BQ_DATASET not set' };
 
-  const { BigQuery } = await import('@google-cloud/bigquery');
-  const bq = new BigQuery({
-    projectId: process.env.BQ_PROJECT,
-    location: process.env.BQ_LOCATION || 'EU',
-    credentials: credentials(),
-  });
-  const ds = bq.dataset(dataset);
-  const project = process.env.BQ_PROJECT;
-  const q = (query: string) => bq.query({ query, location: process.env.BQ_LOCATION || 'EU' });
-  const ref = (t: string) => `\`${project}.${dataset}.${t}\``;
+  const { ds, q, ref } = await bqContext(dataset);
   const results: SyncResult[] = [];
 
   for (const spec of TABLES) {
@@ -295,4 +303,107 @@ export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: stri
   }
 
   return { synced: true, results };
+}
+
+// ---------------------------------------------------------------------------
+// Weekly prune.
+//
+// MERGE-only loading never removes anything, so a row deleted in Postgres would
+// otherwise sit in BigQuery forever. The repo has exactly one delete path for
+// synced data (DELETE /api/ad-library/brands/[pageId] -> adLibraryBrand.delete)
+// and every other synced table cascades from a brand, so the entire
+// reconciliation reduces to "which brand ids still exist". Shipping that one id
+// list is a few thousand cuids, nothing like the full table re-read this whole
+// change exists to avoid.
+//
+// ponytail: brand-rooted only. If ads ever start being deleted independently of
+// their brand, this stops being sufficient and the live ad ids have to ship too.
+
+const PRUNE_CEILING = 0.1;
+
+/**
+ * Would this prune remove an implausible share of the warehouse? A DELETE driven
+ * by an anti-join is only ever as good as the list it joins to, so a short or
+ * truncated read must fail closed rather than empty the table. Pure, so the
+ * self-check can exercise it without BigQuery.
+ */
+export function exceedsPruneCeiling(stale: number, total: number): boolean {
+  if (total <= 0) return true; // nothing to compare against: treat as unsafe
+  return stale / total > PRUNE_CEILING;
+}
+
+export async function pruneDeletedFromBigQuery(): Promise<{
+  pruned: boolean;
+  reason?: string;
+  deleted?: Record<string, number>;
+}> {
+  const dataset = process.env.BQ_DATASET;
+  if (!dataset) return { pruned: false, reason: 'BQ_DATASET not set' };
+  const { ds, q, dml, ref } = await bqContext(dataset);
+
+  // 1. Ship the live brand ids into a staging table.
+  const tmp = path.join(os.tmpdir(), '_live_brands.ndjson');
+  const fh = await fs.open(tmp, 'w');
+  let live = 0;
+  try {
+    let afterId: string | undefined;
+    for (;;) {
+      const rows = await prisma.adLibraryBrand.findMany({
+        take: PAGE, orderBy: { id: 'asc' }, where: after(afterId), select: { id: true },
+      });
+      if (rows.length === 0) break;
+      await fh.write(rows.map(ndjsonLine).join('\n') + '\n');
+      live += rows.length;
+      afterId = rows[rows.length - 1].id;
+      if (rows.length < PAGE) break;
+    }
+  } finally {
+    await fh.close();
+  }
+
+  // An empty or failed read would anti-join the entire warehouse into the bin.
+  if (live === 0) {
+    await fs.unlink(tmp).catch(() => {});
+    return { pruned: false, reason: 'no live brands read from Postgres' };
+  }
+
+  const stg = '_live_brands';
+  await ds.table(stg).load(tmp, {
+    sourceFormat: 'NEWLINE_DELIMITED_JSON',
+    writeDisposition: 'WRITE_TRUNCATE',
+    schema: { fields: [S('id')] },
+    autodetect: false,
+  });
+  await fs.unlink(tmp).catch(() => {});
+
+  // 2. Sanity gate, before anything is deleted.
+  const [rows] = await q(
+    `SELECT
+       (SELECT COUNT(*) FROM ${ref('raw_brands')} T
+         WHERE NOT EXISTS (SELECT 1 FROM ${ref(stg)} S WHERE S.id = T.id)) AS stale,
+       (SELECT COUNT(*) FROM ${ref('raw_brands')}) AS total`
+  );
+  const stale = Number((rows?.[0] as { stale?: number } | undefined)?.stale ?? 0);
+  const total = Number((rows?.[0] as { total?: number } | undefined)?.total ?? 0);
+  if (stale === 0) return { pruned: true, deleted: {} };
+  if (exceedsPruneCeiling(stale, total) && !process.env.BQ_PRUNE_FORCE) {
+    return {
+      pruned: false,
+      reason: `refused: ${stale} of ${total} brands would be deleted (over ${PRUNE_CEILING * 100}%). ` +
+        `Check the brand table before trusting this, then set BQ_PRUNE_FORCE=1 for one run.`,
+    };
+  }
+
+  // 3. Brand-rooted tables first, then the ad-rooted children anti-joined to the
+  // now-pruned raw_ads, which mirrors the Postgres cascade.
+  const notLive = (col: string) => `NOT EXISTS (SELECT 1 FROM ${ref(stg)} S WHERE S.id = T.${col})`;
+  const notAnAd = `NOT EXISTS (SELECT 1 FROM ${ref('raw_ads')} A WHERE A.id = T.adId)`;
+  const deleted: Record<string, number> = {};
+  deleted.raw_ads = await dml(`DELETE FROM ${ref('raw_ads')} T WHERE ${notLive('brandId')}`);
+  deleted.raw_sov_weekly = await dml(`DELETE FROM ${ref('raw_sov_weekly')} T WHERE ${notLive('brandId')}`);
+  deleted.raw_brands = await dml(`DELETE FROM ${ref('raw_brands')} T WHERE ${notLive('id')}`);
+  for (const t of ['raw_assets', 'raw_classifications', 'raw_observations']) {
+    deleted[t] = await dml(`DELETE FROM ${ref(t)} T WHERE ${notAnAd}`);
+  }
+  return { pruned: true, deleted };
 }

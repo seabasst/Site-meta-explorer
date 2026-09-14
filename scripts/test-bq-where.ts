@@ -8,7 +8,7 @@
  * re-read, which is exactly what exhausted the transfer quota.
  */
 import assert from 'node:assert/strict';
-import { whereFor } from '../src/lib/bq-sync';
+import { whereFor, exceedsPruneCeiling } from '../src/lib/bq-sync';
 
 const since = new Date('2026-09-13T00:00:00Z');
 
@@ -32,4 +32,26 @@ assert.deepEqual(whereFor('cuid_1', since, 'updatedAt'), {
 // The column is per-table, not hardcoded: classifications watermark on classifiedAt.
 assert.deepEqual(whereFor(undefined, since, 'classifiedAt'), { AND: [{ classifiedAt: { gt: since } }] });
 
-console.log('whereFor: 5 assertions passed');
+// --- prune safety gate -----------------------------------------------------
+// The weekly prune deletes by anti-join against a list of live brand ids. A
+// short read of that list looks exactly like "everything was deleted", so the
+// gate must fail closed on anything implausible.
+
+// Nothing to compare against: a zero-row raw_brands means the read is not
+// trustworthy, so refuse rather than delete the warehouse.
+assert.equal(exceedsPruneCeiling(0, 0), true);
+assert.equal(exceedsPruneCeiling(10, 0), true);
+
+// Normal case: a handful of hand-deleted brands out of thousands.
+assert.equal(exceedsPruneCeiling(1, 5000), false);
+assert.equal(exceedsPruneCeiling(499, 5000), false);
+
+// At the 10% line: allowed exactly at, refused past it.
+assert.equal(exceedsPruneCeiling(500, 5000), false);
+assert.equal(exceedsPruneCeiling(501, 5000), true);
+
+// The failure this exists to stop: a truncated id list marks most of the table
+// stale, which would otherwise delete nearly everything.
+assert.equal(exceedsPruneCeiling(4900, 5000), true);
+
+console.log('whereFor + exceedsPruneCeiling: 13 assertions passed');
