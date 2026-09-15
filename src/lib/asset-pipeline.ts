@@ -236,8 +236,11 @@ export async function processPendingAssets(
   let succeeded = 0;
   let failed = 0;
 
-  // Process assets with concurrency limit
-  const CONCURRENCY = 5;
+  // Process assets with concurrency limit. Both knobs are env-tunable because Facebook
+  // starts refusing render_ad under sustained load, and the refusal is indistinguishable
+  // from a missing ad at the row level — so pacing is the only defence.
+  const CONCURRENCY = Math.max(1, Number(process.env.ASSET_CONCURRENCY ?? 5));
+  const PACE_MS = Math.max(0, Number(process.env.ASSET_PACE_MS ?? 0));
   for (let i = 0; i < pendingAssets.length; i += CONCURRENCY) {
     const batch = pendingAssets.slice(i, i + CONCURRENCY);
     const batchResults = await Promise.all(
@@ -251,6 +254,10 @@ export async function processPendingAssets(
       } else {
         failed++;
       }
+    }
+
+    if (PACE_MS && i + CONCURRENCY < pendingAssets.length) {
+      await new Promise((r) => setTimeout(r, PACE_MS));
     }
   }
 

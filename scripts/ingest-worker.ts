@@ -30,6 +30,8 @@ import { prisma } from '../src/lib/prisma';
 import { selectDueBrands, processBrand, tokenManager, sleep } from '../src/lib/ingestion/ingest-core';
 import { sendDailyReport, sendWeeklyReport } from '../src/lib/daily-report';
 import { syncToBigQuery } from '../src/lib/bq-sync';
+import { processPendingAssets } from '../src/lib/asset-pipeline';
+import { isR2Configured } from '../src/lib/r2';
 
 const CONCURRENCY = Math.max(1, Number(process.env.CONCURRENCY ?? 2));
 const PACE_MS = Math.max(0, Number(process.env.PACE_MS ?? 4000));
@@ -94,6 +96,44 @@ async function maybeSendReports() {
   }
 }
 
+// Ingestion only ever queued AdAsset rows as pending; nothing in production drained
+// them, so the queue grew to ~1.5M. Drain it on every loop tick, after a brand batch and
+// again while idle, so "ingested" always converges on "media stored in R2".
+// ponytail: fixed batch per tick, no adaptive sizing — raise ASSET_BATCH if the queue
+// outgrows the drain rate.
+const ASSET_BATCH = Math.max(0, Number(process.env.ASSET_BATCH ?? 50));
+// Facebook stops serving render_ad after roughly 10k requests in a session. Every asset
+// then "fails" for a reason that is not the asset's fault, so pause the drain and hand
+// the rows back instead of burning through the queue. Ingestion continues either way.
+const ASSET_DRY_LIMIT = Math.max(1, Number(process.env.ASSET_DRY_LIMIT ?? 5));
+const ASSET_COOLDOWN_MS = Math.max(0, Number(process.env.ASSET_COOLDOWN_MS ?? 3_600_000));
+let assetsOk = 0, assetsFailed = 0, assetDryBatches = 0, assetPausedUntil = 0;
+async function drainAssets(): Promise<void> {
+  if (ASSET_BATCH === 0 || !isR2Configured()) return;
+  if (Date.now() < assetPausedUntil) return;
+  try {
+    const r = await processPendingAssets(ASSET_BATCH);
+    if (r.processed === 0) return;
+    assetsOk += r.succeeded;
+    assetsFailed += r.failed;
+    console.log(`  📦 assets: ${r.succeeded} stored, ${r.failed} failed (total ${assetsOk}/${assetsOk + assetsFailed})`);
+
+    assetDryBatches = r.succeeded === 0 ? assetDryBatches + 1 : 0;
+    if (assetDryBatches >= ASSET_DRY_LIMIT) {
+      const reset = await prisma.adAsset.updateMany({
+        where: { downloadStatus: 'failed' },
+        data: { downloadStatus: 'pending', downloadError: null },
+      });
+      assetDryBatches = 0;
+      assetPausedUntil = Date.now() + ASSET_COOLDOWN_MS;
+      console.log(`  ⛔ asset drain looks blocked — reset ${reset.count} rows, pausing ${ASSET_COOLDOWN_MS / 60000}min.`);
+    }
+  } catch (e) {
+    // Never let R2 or Puppeteer trouble stop ingestion.
+    console.log(`  📦 asset drain error: ${e instanceof Error ? e.message : 'error'}`);
+  }
+}
+
 let running = true;
 let processed = 0, ok = 0, failed = 0;
 process.on('SIGINT', () => { console.log('\nStopping after current brands…'); running = false; });
@@ -129,20 +169,29 @@ async function main() {
    try {
     await maybeSendReports();
     if (inBackoffWindow()) {
-      console.log(`⏸️  Daytime backoff (${BACKOFF_START}:00–${BACKOFF_END}:00 UTC) — pausing ingestion to preserve quota. Next check in ${POLL_MS / 1000}s…`);
+      // Ingestion is paused because the Graph API quota is spent, but the asset drain
+      // goes to render_ad on a separate limit — so spend the quiet hours on the 1.5M
+      // asset backlog rather than sleeping through them.
+      console.log(`⏸️  Quota backoff (${BACKOFF_START}:00–${BACKOFF_END}:00 UTC) — ingestion paused, draining assets instead.`);
+      await drainAssets();
       await sleep(POLL_MS);
       continue;
     }
     const brands = await selectDueBrands(BATCH);
     if (brands.length === 0) {
       if (ONCE) { console.log('Backlog drained.'); break; }
+      // No API work to do, so spend the idle tick on the asset queue instead of sleeping.
+      await drainAssets();
       const remaining = await prisma.adLibraryBrand.count({ where: { ingestionStatus: { in: ['pending', 'failed'] } } });
-      console.log(`No brands due. processed=${processed} (ok ${ok}, failed ${failed}) · pending=${remaining}. Polling in ${POLL_MS / 1000}s…`);
+      // Deliberately no asset-queue count here: it is a COUNT over ~1.5M rows and this
+      // branch runs every POLL_MS. The running totals above already show drain progress.
+      console.log(`No brands due. processed=${processed} (ok ${ok}, failed ${failed}) · pending=${remaining} · assets ${assetsOk} stored this run. Polling in ${POLL_MS / 1000}s…`);
       await sleep(POLL_MS);
       continue;
     }
     console.log(`Batch of ${brands.length} due brands (tokens: ${tokenManager.getTotalTokens()})`);
     await processWithConcurrency(brands.map((b) => ({ id: b.id, pageId: b.pageId, pageName: b.pageName })));
+    await drainAssets();
     console.log(`  → running total: ${processed} processed (${ok} ok, ${failed} failed)`);
    } catch (e) {
     // Resilience: a transient DB error (e.g. Neon data-transfer quota) must not
