@@ -218,7 +218,25 @@ export async function processPendingAssets(
     throw new Error('R2 is not configured. Set R2_* environment variables.');
   }
 
-  // Find pending assets
+  // Find pending assets, NEWEST FIRST.
+  //
+  // Meta serves render_ad only while an ad is still in the archive. An ad ingested
+  // months ago returns "Error: invalid ID" and can never be fetched again, no matter
+  // how many times it is retried. findMany with no orderBy returns rows in physical
+  // order, which on an append-only table is oldest-first, so every batch was spent on
+  // the dead head of a 1.75M-row queue and stored nothing. The drain then looked
+  // blocked, the circuit breaker reset those same dead rows to pending, and the next
+  // cycle served them straight back: an infinite loop on rows that can never succeed.
+  //
+  // Measured 2026-09-20: 0 of 100 stored draining the queue as-is, from both Fly and a
+  // residential IP, against 14 of 15 stored when the same code was pointed at assets
+  // from ads ingested in the last 7 days.
+  //
+  // Newest-first is the fix and also the right policy: an asset's fetchable window is
+  // short, so fresh ads are the only ones worth spending the render_ad budget on.
+  // ponytail: this sorts ~1.75M rows in ~2.9s per batch, against a batch that takes
+  // ~2.5min to process, so ~2% overhead. Add @@index([downloadStatus, createdAt]) if
+  // that ratio ever stops being acceptable.
   const pendingAssets = await prisma.adAsset.findMany({
     where: {
       downloadStatus: 'pending',
@@ -229,6 +247,7 @@ export async function processPendingAssets(
       }),
     },
     select: { id: true },
+    orderBy: { createdAt: 'desc' },
     take: limit,
   });
 
