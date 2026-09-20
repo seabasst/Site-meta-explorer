@@ -33,7 +33,20 @@ primary_region = "arn"  # Stockholm — close to the Nordic focus / EU Neon regi
   # Asset drain. Meta refuses render_ad under sustained load and the refusal looks
   # identical to a missing ad, so pace it: concurrency 2 with 3s between batches held
   # 99% success in testing, while unpaced concurrency 5 collapsed to 0% after ~10k.
-  ASSET_BATCH = "50"
+  # TEMPORARILY OFF (2026-09-20). ASSET_BATCH=0 makes drainAssets() a no-op.
+  #
+  # The ordering bug in processPendingAssets meant this worker spent four days
+  # retrying ads Meta had already expired, ~15,750 render_ad requests that could never
+  # succeed. That looks to have earned this IP a throttle: after the ordering fix the
+  # same code stores 84 of 900 here (9%) against 14 of 15 (93%) from a residential
+  # connection on the same kind of fresh rows. Nine percent at one batch per ~20min is
+  # about nine assets an hour, which is not worth the render_ad budget.
+  #
+  # So: let the throttle decay with the drain off, work the fresh backlog from
+  # scripts/drain-assets.ts elsewhere, and turn this back on with harder pacing than 50
+  # per batch. Re-measure before restoring — if the first batch back is not near 90%,
+  # the IP is still hot.
+  ASSET_BATCH = "0"
   ASSET_CONCURRENCY = "2"
   ASSET_PACE_MS = "3000"
 
