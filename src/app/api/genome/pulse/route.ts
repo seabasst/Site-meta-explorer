@@ -10,17 +10,22 @@ import { prisma } from '@/lib/prisma';
 // =============================================================================
 
 export const dynamic = 'force-dynamic';
-// COUNT(*) over 1.5M+ ads is ~15s even with indexes, which blew the default
-// Vercel function timeout and left the dashboard with no data at all.
-// ponytail: CDN-cached for 5 min so only one request per window pays for it;
-// swap the totals for a maintained counter table if 5-min staleness stops being ok.
+// This route is three scans of a table that is now 1.9M rows and growing ~45k/day.
+// Run sequentially they summed to ~64s and the function hit Vercel's 60s cap, so the
+// dashboard got a 504 and rendered "Reading pipeline…" forever. Two changes keep it
+// under: the statements run concurrently (wall clock = the slowest, not the sum), and
+// activeAds is derived from the cheap side of the index — COUNT(isActive = false) is
+// 0.6s against 14.7s for the true side, because only 206k of 1.9M ads are inactive.
+// Measured 2026-09-20: 18.7s / 25.6s / 2s concurrent, so ~26s.
+// ponytail: totalAds is the one that still scales with the table and will reach the cap
+// again around 3M rows. A daily rollup written by the worker is the upgrade; a
+// pg_class.reltuples estimate is NOT, it was 6% low on the day this was measured.
 export const maxDuration = 60;
 const CACHE_HEADER = 'public, s-maxage=300, stale-while-revalidate=3600';
 
 interface PulseRow {
-  totalAds: number;
   totalBrands: number;
-  activeAds: number;
+  inactiveAds: number;
   ads7d: number;
   ads24h: number;
   lastAdAt: Date | null;
@@ -29,26 +34,28 @@ interface PulseRow {
 }
 
 export async function GET() {
-  const [row] = await prisma.$queryRawUnsafe<PulseRow[]>(`
-    SELECT
-      (SELECT COUNT(*)::int FROM "AdLibraryAd")                                              AS "totalAds",
-      (SELECT COUNT(*)::int FROM "AdLibraryBrand")                                           AS "totalBrands",
-      (SELECT COUNT(*)::int FROM "AdLibraryAd" WHERE "isActive" = true)                      AS "activeAds",
-      (SELECT COUNT(*)::int FROM "AdLibraryAd" WHERE "createdAt" > NOW() - INTERVAL '7 days') AS "ads7d",
-      (SELECT COUNT(*)::int FROM "AdLibraryAd" WHERE "createdAt" > NOW() - INTERVAL '24 hours') AS "ads24h",
-      (SELECT MAX("createdAt") FROM "AdLibraryAd")                                           AS "lastAdAt",
-      (SELECT COUNT(*)::int FROM "AdLibraryBrand"
-         WHERE "lastCheckedAt" IS NULL OR "lastCheckedAt" < NOW() - INTERVAL '7 days')       AS "brandsDue",
-      (SELECT COUNT(*)::int FROM "AdLibraryBrand" WHERE "lastCheckedAt" > NOW() - INTERVAL '7 days') AS "brandsFresh"
-  `);
-
-  // 14-day ingestion series for the sparkline.
-  const daily = await prisma.$queryRawUnsafe<Array<{ day: string; n: number }>>(`
-    SELECT to_char(date_trunc('day', "createdAt"), 'YYYY-MM-DD') AS day, COUNT(*)::int AS n
-    FROM "AdLibraryAd"
-    WHERE "createdAt" > NOW() - INTERVAL '14 days'
-    GROUP BY 1 ORDER BY 1
-  `);
+  const [[row], [{ totalAds }], daily] = await Promise.all([
+    prisma.$queryRawUnsafe<PulseRow[]>(`
+      SELECT
+        (SELECT COUNT(*)::int FROM "AdLibraryBrand")                                           AS "totalBrands",
+        (SELECT COUNT(*)::int FROM "AdLibraryAd" WHERE "isActive" = false)                     AS "inactiveAds",
+        (SELECT COUNT(*)::int FROM "AdLibraryAd" WHERE "createdAt" > NOW() - INTERVAL '7 days') AS "ads7d",
+        (SELECT COUNT(*)::int FROM "AdLibraryAd" WHERE "createdAt" > NOW() - INTERVAL '24 hours') AS "ads24h",
+        (SELECT MAX("createdAt") FROM "AdLibraryAd")                                           AS "lastAdAt",
+        (SELECT COUNT(*)::int FROM "AdLibraryBrand"
+           WHERE "lastCheckedAt" IS NULL OR "lastCheckedAt" < NOW() - INTERVAL '7 days')       AS "brandsDue",
+        (SELECT COUNT(*)::int FROM "AdLibraryBrand" WHERE "lastCheckedAt" > NOW() - INTERVAL '7 days') AS "brandsFresh"
+    `),
+    prisma.$queryRawUnsafe<Array<{ totalAds: number }>>(`
+      SELECT COUNT(*)::int AS "totalAds" FROM "AdLibraryAd"
+    `),
+    prisma.$queryRawUnsafe<Array<{ day: string; n: number }>>(`
+      SELECT to_char(date_trunc('day', "createdAt"), 'YYYY-MM-DD') AS day, COUNT(*)::int AS n
+      FROM "AdLibraryAd"
+      WHERE "createdAt" > NOW() - INTERVAL '14 days'
+      GROUP BY 1 ORDER BY 1
+    `),
+  ]);
 
   const lastAdAt = row.lastAdAt ? new Date(row.lastAdAt) : null;
   const hoursSince = lastAdAt ? (Date.now() - lastAdAt.getTime()) / 3.6e6 : null;
@@ -58,9 +65,9 @@ export async function GET() {
 
   return NextResponse.json({
     totals: {
-      ads: row.totalAds,
+      ads: totalAds,
       brands: row.totalBrands,
-      activeAds: row.activeAds,
+      activeAds: totalAds - row.inactiveAds,
     },
     ingestion: {
       last7d: row.ads7d,
