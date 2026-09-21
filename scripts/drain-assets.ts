@@ -27,9 +27,25 @@ async function main() {
   console.log(`Draining asset queue: ${queued.toLocaleString()} pending, batch ${BATCH}`);
 
   const t0 = Date.now();
-  let done = 0, ok = 0, failed = 0, dryBatches = 0;
+  let done = 0, ok = 0, failed = 0, dryBatches = 0, dbErrors = 0;
   while (running && done < MAX) {
-    const r = await processPendingAssets(Math.min(BATCH, MAX - done));
+    // Neon drops the connection regularly on a long run: a 10h drain on 2026-09-21
+    // died 20 times on P1001 ("can't reach database server"). Exiting on that cost more
+    // than the drops did — 32/min sustained inside a run, but only 11.7/min effective
+    // once every restart's Puppeteer relaunch and lost in-flight work is counted, so
+    // roughly 60% of capacity went to process churn. A transient DB error is not a
+    // reason to stop; back off and carry on, the same way ingest-worker.ts does.
+    let r;
+    try {
+      r = await processPendingAssets(Math.min(BATCH, MAX - done));
+      dbErrors = 0;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'error';
+      if (++dbErrors >= 10) { console.log(`\n⛔ ${dbErrors} consecutive errors, giving up: ${msg}`); break; }
+      console.log(`  ⚠️  batch error (${dbErrors}/10), retrying in 15s: ${msg.split('\n')[0].slice(0, 100)}`);
+      await new Promise((res) => setTimeout(res, 15000));
+      continue;
+    }
     if (r.processed === 0) { console.log('Queue empty.'); break; }
     done += r.processed; ok += r.succeeded; failed += r.failed;
 
