@@ -279,6 +279,7 @@ model AdLibraryAd {
   title              String?  // Link title
   linkDescription    String?  // Link description
   linkUrl            String?  // Destination URL
+  linkCheckedAt      DateTime? // When the Ad Library modal was read for linkUrl (null = never; set even when no link/ad gone)
   ctaText            String?  // Call-to-action text
   ctaType            String?  // Call-to-action type (SHOP_NOW, LEARN_MORE, etc.)
   snapshotUrl        String?  // Meta's ad_snapshot_url

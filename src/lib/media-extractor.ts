@@ -43,7 +43,7 @@ const CTA_RE = /^(shop now|learn more|order now|buy now|sign up|get offer|subscr
 let browserInstance: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
 
-async function getBrowser(): Promise<Browser> {
+export async function getBrowser(): Promise<Browser> {
   if (browserInstance?.connected) return browserInstance;
 
   // Deduplicate concurrent launch attempts

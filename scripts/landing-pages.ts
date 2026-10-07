@@ -4,11 +4,8 @@
  *
  *   npx tsx --env-file=.env.local scripts/landing-pages.ts <pageId> [limit=50]
  *
- * 1. Destination. The ads_archive API has no link-URL field (AdLibraryAd.linkUrl
- *    is set on 665 of 2.4M rows, 2026-10-07). The public Ad Library page
- *    (facebook.com/ads/library/?id=) renders the CTA as an l.facebook.com
- *    redirect carrying the real URL, with no login or token. Written back to
- *    AdLibraryAd.linkUrl so the rest of the app sees it.
+ * 1. Destination. Read from the ad's own Ad Library modal (src/lib/ad-destination.ts)
+ *    unless the worker already did; written back to linkUrl/linkCheckedAt.
  * 2. Landing page. Each unique URL (query stripped) is rendered once in the
  *    same browser, so SPAs and redirects resolve like a real visit.
  * 3. Connection. Claude scores ad -> page continuity per unique (copy, page).
@@ -23,44 +20,16 @@ import Anthropic from '@anthropic-ai/sdk';
 import puppeteer, { type Browser } from 'puppeteer';
 import fs from 'node:fs';
 import assert from 'node:assert';
+import { resolveDestination, destinationFromHref } from '../src/lib/ad-destination';
 
 const PACE_MS = Number(process.env.PACE_MS ?? 3000);
 const MODEL = process.env.LP_MODEL ?? 'claude-sonnet-5';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** l.facebook.com/l.php?u=<dest> -> <dest>; anything else unchanged. */
-export function unwrapFbRedirect(href: string): string {
-  try {
-    const u = new URL(href);
-    if (u.hostname.endsWith('facebook.com') && u.pathname === '/l.php') return u.searchParams.get('u') ?? href;
-  } catch { /* not a URL */ }
-  return href;
-}
-
 /** Cache key for a landing page: host + path, no query/hash, no trailing slash. */
 export function pageKey(url: string): string {
   const u = new URL(url);
   return (u.hostname.replace(/^www\./, '') + u.pathname).replace(/\/$/, '').toLowerCase();
-}
-
-async function resolveDestination(browser: Browser, adId: string): Promise<string | null> {
-  const page = await browser.newPage();
-  try {
-    await page.goto(`https://www.facebook.com/ads/library/?id=${adId}`, { waitUntil: 'networkidle2', timeout: 45000 });
-    const hrefs = await page.evaluate(() => [...document.querySelectorAll('a[href]')].map((a) => (a as HTMLAnchorElement).href));
-    const dest = hrefs
-      .map((h) => (h.includes('l.facebook.com') ? h : ''))
-      .filter(Boolean)
-      .map((h) => {
-        try { return new URL(h).searchParams.get('u'); } catch { return null; }
-      })
-      .find((u): u is string => !!u && !/metastatus\.com|facebook\.com|instagram\.com/.test(u));
-    return dest ?? null;
-  } catch {
-    return null;
-  } finally {
-    await page.close().catch(() => {});
-  }
 }
 
 interface LandingPage {
@@ -162,11 +131,17 @@ async function main() {
   const rows = [];
   try {
     for (const [i, ad] of ads.entries()) {
-      let url = ad.linkUrl ? unwrapFbRedirect(ad.linkUrl) : null;
-      if (!url) {
-        url = await resolveDestination(browser, ad.adId);
+      // Always read the modal here: the analysis needs to know whether the URL is one
+      // sampled version of a multi-version ad, which the stored linkUrl can't say.
+      let url: string | null = ad.linkUrl;
+      let multipleVersions: boolean | null = null;
+      {
+        const r = await resolveDestination(ad.adId, browser);
         await sleep(PACE_MS);
-        if (url) await prisma.adLibraryAd.update({ where: { id: ad.id }, data: { linkUrl: url } });
+        if (r.status === 'ok') { url = r.url; multipleVersions = r.multipleVersions; }
+        if (r.status !== 'error') {
+          await prisma.adLibraryAd.update({ where: { id: ad.id }, data: { linkCheckedAt: new Date(), linkUrl: url } });
+        }
       }
       if (!url) {
         console.log(`[${i + 1}/${ads.length}] ${ad.adId} no destination found`);
@@ -180,7 +155,7 @@ async function main() {
       if (!scores.has(scoreKey)) scores.set(scoreKey, await scoreConnection(ad, lp));
       const score = scores.get(scoreKey);
       console.log(`[${i + 1}/${ads.length}] ${ad.adId} -> ${key} ${JSON.stringify((score as { message_match?: number }).message_match)}`);
-      rows.push({ adId: ad.adId, reach: ad.reachEstimate, caption: ad.caption, linkUrl: url, pageKey: key, ...(score as object) });
+      rows.push({ adId: ad.adId, reach: ad.reachEstimate, caption: ad.caption, linkUrl: url, multipleVersions, pageKey: key, ...(score as object) });
     }
   } finally {
     await browser.close();
@@ -194,8 +169,11 @@ async function main() {
 }
 
 if (process.argv[1]?.endsWith('landing-pages.ts') && process.argv[2] === '--self-check') {
-  assert.equal(unwrapFbRedirect('https://l.facebook.com/l.php?u=https%3A%2F%2Fshop.se%2Fp%3Futm%3Dx&h=1'), 'https://shop.se/p?utm=x');
-  assert.equal(unwrapFbRedirect('https://shop.se/a'), 'https://shop.se/a');
+  assert.equal(destinationFromHref('https://l.facebook.com/l.php?u=https%3A%2F%2Fshop.se%2Fp%3Futm%3Dx&h=1'), 'https://shop.se/p?utm=x');
+  assert.equal(destinationFromHref('https://shop.se/a'), null);
+  assert.equal(destinationFromHref('https://l.facebook.com/l.php?u=https%3A%2F%2Fmetastatus.com%2Fads'), null);
+  assert.equal(destinationFromHref('https://l.facebook.com/l.php?u=https%3A%2F%2Fwww.instagram.com%2F_u%2Fx'), null);
+  assert.equal(destinationFromHref('https://l.facebook.com/l.php?u=https%3A%2F%2Ffb.com%2Fcanvas_doc%2F123'), 'https://fb.com/canvas_doc/123');
   assert.equal(pageKey('https://www.Shop.se/p/Sko/?utm_source=fb#x'), 'shop.se/p/sko');
   console.log('self-check ok');
 } else {

@@ -32,6 +32,7 @@ import { sendDailyReport, sendWeeklyReport } from '../src/lib/daily-report';
 import { syncToBigQuery } from '../src/lib/bq-sync';
 import { processPendingAssets } from '../src/lib/asset-pipeline';
 import { isR2Configured } from '../src/lib/r2';
+import { resolvePendingDestinations } from '../src/lib/ad-destination';
 
 const CONCURRENCY = Math.max(1, Number(process.env.CONCURRENCY ?? 2));
 const PACE_MS = Math.max(0, Number(process.env.PACE_MS ?? 4000));
@@ -134,6 +135,34 @@ async function drainAssets(): Promise<void> {
   }
 }
 
+// Destination URLs: the API has no link field, so every ad's Ad Library modal is read
+// once (src/lib/ad-destination.ts). Same shape as the asset drain, its own knobs and
+// breaker, because it hits a different Meta surface (public library page, no token).
+const LINK_BATCH = Math.max(0, Number(process.env.LINK_BATCH ?? 30));
+const LINK_DRY_LIMIT = Math.max(1, Number(process.env.LINK_DRY_LIMIT ?? 3));
+const LINK_COOLDOWN_MS = Math.max(0, Number(process.env.LINK_COOLDOWN_MS ?? 1_800_000));
+let linksOk = 0, linksChecked = 0, linkDryBatches = 0, linkPausedUntil = 0;
+async function drainLinks(): Promise<void> {
+  if (LINK_BATCH === 0 || Date.now() < linkPausedUntil) return;
+  try {
+    const r = await resolvePendingDestinations(LINK_BATCH);
+    if (r.processed === 0) return;
+    linksOk += r.ok;
+    linksChecked += r.processed - r.error;
+    console.log(`  🔗 links: ${r.ok} found, ${r.no_link} none, ${r.not_in_library} gone, ${r.error} errors (total ${linksOk}/${linksChecked})`);
+    // All-error batches mean the library page is refusing us, not that the ads are bad;
+    // errored rows stay unchecked, so pausing loses nothing.
+    linkDryBatches = r.error === r.processed ? linkDryBatches + 1 : 0;
+    if (linkDryBatches >= LINK_DRY_LIMIT) {
+      linkDryBatches = 0;
+      linkPausedUntil = Date.now() + LINK_COOLDOWN_MS;
+      console.log(`  ⛔ link drain looks blocked, pausing ${LINK_COOLDOWN_MS / 60000}min.`);
+    }
+  } catch (e) {
+    console.log(`  🔗 link drain error: ${e instanceof Error ? e.message : 'error'}`);
+  }
+}
+
 let running = true;
 let processed = 0, ok = 0, failed = 0;
 process.on('SIGINT', () => { console.log('\nStopping after current brands…'); running = false; });
@@ -174,6 +203,7 @@ async function main() {
       // asset backlog rather than sleeping through them.
       console.log(`⏸️  Quota backoff (${BACKOFF_START}:00–${BACKOFF_END}:00 UTC) — ingestion paused, draining assets instead.`);
       await drainAssets();
+      await drainLinks();
       await sleep(POLL_MS);
       continue;
     }
@@ -182,6 +212,7 @@ async function main() {
       if (ONCE) { console.log('Backlog drained.'); break; }
       // No API work to do, so spend the idle tick on the asset queue instead of sleeping.
       await drainAssets();
+      await drainLinks();
       const remaining = await prisma.adLibraryBrand.count({ where: { ingestionStatus: { in: ['pending', 'failed'] } } });
       // Deliberately no asset-queue count here: it is a COUNT over ~1.5M rows and this
       // branch runs every POLL_MS. The running totals above already show drain progress.
@@ -192,6 +223,7 @@ async function main() {
     console.log(`Batch of ${brands.length} due brands (tokens: ${tokenManager.getTotalTokens()})`);
     await processWithConcurrency(brands.map((b) => ({ id: b.id, pageId: b.pageId, pageName: b.pageName })));
     await drainAssets();
+    await drainLinks();
     console.log(`  → running total: ${processed} processed (${ok} ok, ${failed} failed)`);
    } catch (e) {
     // Resilience: a transient DB error (e.g. Neon data-transfer quota) must not
