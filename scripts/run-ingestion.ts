@@ -208,19 +208,9 @@ async function fetchAllAdsForBrand(pageId: string): Promise<MetaAd[]> {
   return allAds;
 }
 
+// Multi-text ads are flexible, not carousel; see detectDisplayFormat in src/lib/ingestion/ingest-core.ts.
 function detectDisplayFormat(ad: MetaAd): string {
-  // Video detection via API media_type=video filter (set by processBrand)
-  if ((ad as any)._isVideo) return 'video';
-
-  const titles = ad.ad_creative_link_titles || [];
-  const descriptions = ad.ad_creative_link_descriptions || [];
-  const captions = ad.ad_creative_link_captions || [];
-
-  const uniqueTitles = new Set(titles.filter(t => t?.length > 0));
-  const uniqueDescriptions = new Set(descriptions.filter(d => d?.length > 0));
-
-  if (uniqueTitles.size > 2 || uniqueDescriptions.size > 2 || captions.length > 2) return 'carousel';
-  return 'image';
+  return (ad as any)._isVideo ? 'video' : 'image';
 }
 
 async function upsertAd(ad: MetaAd, brandId: string): Promise<'created' | 'updated'> {

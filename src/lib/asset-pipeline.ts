@@ -123,11 +123,11 @@ export async function processAsset(assetId: string): Promise<ProcessAssetResult>
         },
       });
 
-      // Also update the ad's displayFormat if it differs
-      if (mediaType === 'video' && asset.ad.displayFormat !== 'video') {
+      // The render is the only reliable source of display format (incl. carousel)
+      if (extracted.format && asset.ad.displayFormat !== extracted.format) {
         await prisma.adLibraryAd.update({
           where: { id: asset.ad.id },
-          data: { displayFormat: 'video' },
+          data: { displayFormat: extracted.format },
         });
       }
 
