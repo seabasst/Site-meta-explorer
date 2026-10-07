@@ -9,7 +9,34 @@ export interface ExtractedMedia {
   url: string;
   type: 'image' | 'video';
   bylines?: string;
+  /** Display format read off the rendered ad; undefined when the render can't be trusted. */
+  format?: 'image' | 'video' | 'carousel';
 }
+
+export interface RenderSignals {
+  /** Leaf elements reading exactly like a card CTA ("Shop now", "Learn more", ...). */
+  ctas: number;
+  /** Page says "This ad has multiple versions" (flexible / multi-text ad). */
+  multipleVersions: boolean;
+  /** Facebook served a login wall instead of the ad. */
+  loginWall: boolean;
+  hasVideo: boolean;
+}
+
+/**
+ * A carousel renders one CTA per card; a flexible ad renders one version at a
+ * time ("1 of N") with a single CTA. Login-wall pages also show several
+ * buttons, so they yield no verdict.
+ * ponytail: CTA-count heuristic, verified on IM8 flexible ads only; confirm on a
+ * known carousel brand when tokens allow.
+ */
+export function classifyRender(sig: RenderSignals): ExtractedMedia['format'] {
+  if (sig.loginWall) return undefined;
+  if (sig.ctas >= 2 && !sig.multipleVersions) return 'carousel';
+  return sig.hasVideo ? 'video' : 'image';
+}
+
+const CTA_RE = /^(shop now|learn more|order now|buy now|sign up|get offer|subscribe|see more|book now|download|apply now|contact us|get quote|watch more|send message)$/i;
 
 // Reuse a single browser instance across requests
 let browserInstance: Browser | null = null;
@@ -95,7 +122,14 @@ export async function extractMediaFromSnapshot(
       await new Promise((r) => setTimeout(r, 2000));
     }
 
-    const extracted = await page.evaluate(() => {
+    const extracted = await page.evaluate((ctaSource: string) => {
+      // The cookie banner is a dialog whose "Learn more" buttons look like card CTAs
+      document.querySelectorAll('[role="dialog"]').forEach((d) => d.remove());
+      const ctaRe = new RegExp(ctaSource, 'i');
+      const ctas = Array.from(document.querySelectorAll('div, span, a')).filter(
+        (e) => e.children.length === 0 && ctaRe.test(((e as HTMLElement).innerText || '').trim()),
+      ).length;
+
       const media: { src: string; tag: string; w: number; h: number }[] = [];
 
       // Videos first (higher priority)
@@ -147,16 +181,23 @@ export async function extractMediaFromSnapshot(
         bylines = sponsoredWithMatch[0].trim();
       }
 
-      return { media, bylines };
-    });
+      return {
+        media,
+        bylines,
+        ctas,
+        multipleVersions: /This ad has multiple versions/i.test(bodyText),
+        loginWall: /You must log in to continue|Log into Facebook/i.test(bodyText),
+      };
+    }, CTA_RE.source);
 
     const { media, bylines } = extracted;
+    const format = classifyRender({ ...extracted, hasVideo: media.some((m) => m.tag === 'video') });
 
     // Filter noise and pick best candidate
     // Prefer videos, then largest image from fbcdn
     for (const m of media) {
       if (m.tag === 'video' && m.src && !isNoiseUrl(m.src)) {
-        return { url: m.src, type: 'video', bylines: bylines || undefined };
+        return { url: m.src, type: 'video', bylines: bylines || undefined, format };
       }
     }
 
@@ -172,12 +213,12 @@ export async function extractMediaFromSnapshot(
       });
 
     if (imagesCandidates.length > 0) {
-      return { url: imagesCandidates[0].src, type: 'image', bylines: bylines || undefined };
+      return { url: imagesCandidates[0].src, type: 'image', bylines: bylines || undefined, format };
     }
 
     // No media found but we might still have bylines
     if (bylines) {
-      return { url: '', type: 'image', bylines };
+      return { url: '', type: 'image', bylines, format };
     }
 
     return null;

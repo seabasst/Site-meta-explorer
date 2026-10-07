@@ -141,11 +141,11 @@ async function processAsset(asset: {
       },
     });
 
-    // Update ad displayFormat if video detected
-    if (extracted.type === 'video') {
+    // The render is the only reliable source of display format (incl. carousel)
+    if (extracted.format) {
       await prisma.adLibraryAd.update({
         where: { id: asset.ad.id },
-        data: { displayFormat: 'video' },
+        data: { displayFormat: extracted.format },
       });
     }
 

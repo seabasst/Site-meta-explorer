@@ -133,14 +133,7 @@ function parseDate(dateStr?: string): Date | null {
 }
 
 function detectDisplayFormat(ad: MetaAd): string {
-  const bodies = ad.ad_creative_bodies || [];
-  const titles = ad.ad_creative_link_titles || [];
-
-  // Multiple bodies/titles suggest carousel or DPA
-  if (bodies.length > 1 || titles.length > 1) {
-    return 'carousel';
-  }
-
+  // Multi-text ads are flexible, not carousel; see detectDisplayFormat in src/lib/ingestion/ingest-core.ts.
   // Check snapshot URL for video indicators (heuristic)
   if (ad.ad_snapshot_url?.includes('video')) {
     return 'video';

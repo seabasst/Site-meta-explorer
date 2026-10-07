@@ -935,22 +935,18 @@ async function fetchAndStoreDemographics(brandId: string, pageId: string, pageNa
 // Ad Processing
 // =============================================================================
 
+// The API can't tell a carousel from a flexible ad: both return several
+// bodies/titles/descriptions (IM8 2026-10-06: 418 multi-text ads, all flexible
+// "1 of N", zero carousels). So ingestion only knows video vs image; 'carousel'
+// is set by the snapshot render in the asset pipeline (media-extractor.ts).
 function detectDisplayFormat(ad: MetaAd): string {
-  // Video detection via API media_type=video filter (set by processBrand)
-  if ((ad as any)._isVideo) return 'video';
+  return (ad as any)._isVideo ? 'video' : 'image';
+}
 
-  const titles = ad.ad_creative_link_titles || [];
-  const descriptions = ad.ad_creative_link_descriptions || [];
-  const captions = ad.ad_creative_link_captions || [];
-
-  const uniqueTitles = new Set(titles.filter(t => t && t.length > 0));
-  const uniqueDescriptions = new Set(descriptions.filter(d => d && d.length > 0));
-
-  if (uniqueTitles.size > 2 || uniqueDescriptions.size > 2 || captions.length > 2) {
-    return 'carousel';
-  }
-
-  return 'image';
+// Formats that came from a render or the media_type=video filter beat the
+// API guess, so a re-poll must not downgrade them back to 'image'.
+export function mergeDisplayFormat(existing: string | null | undefined, fromApi: string): string {
+  return existing === 'video' || existing === 'carousel' ? existing : fromApi;
 }
 
 async function fetchVideoAdIds(pageId: string): Promise<Set<string>> {
@@ -1010,7 +1006,7 @@ async function upsertAd(
 ): Promise<{ action: 'created' | 'updated'; adDbId: string; obs: AdObs | null }> {
   const existing = await prisma.adLibraryAd.findUnique({
     where: { adId: ad.id },
-    select: { id: true, reachEstimate: true, isActive: true },
+    select: { id: true, reachEstimate: true, isActive: true, displayFormat: true },
   });
 
   const data = {
@@ -1021,7 +1017,7 @@ async function upsertAd(
     endDate: ad.ad_delivery_stop_time ? new Date(ad.ad_delivery_stop_time) : null,
     isActive: !ad.ad_delivery_stop_time,
     publisherPlatforms: ad.publisher_platforms || [],
-    displayFormat: detectDisplayFormat(ad),
+    displayFormat: mergeDisplayFormat(existing?.displayFormat, detectDisplayFormat(ad)),
     body: ad.ad_creative_bodies?.[0] || null,
     caption: ad.ad_creative_link_captions?.[0] || null,
     linkDescription: ad.ad_creative_link_descriptions?.[0] || null,

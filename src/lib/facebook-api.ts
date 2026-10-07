@@ -776,23 +776,9 @@ export async function fetchFacebookAds(options: {
 
       const currentBeneficiary = ad.beneficiary_payers?.find(bp => bp.current);
 
-      // Detect media type:
-      // 1. Carousel: multiple link titles or link URLs indicate carousel cards
-      // 2. Video: ad ID found in the video IDs set from the API
-      // 3. Image: everything else
-      const linkTitleCount = ad.ad_creative_link_titles?.length || 0;
-      const linkUrlCount = ad.ad_creative_link_urls?.length || 0;
-      const isCarousel = linkTitleCount > 1 || linkUrlCount > 1;
-      const isVideo = videoAdIds.has(ad.id);
-
-      let mediaType: 'video' | 'image' | 'carousel' | 'unknown';
-      if (isCarousel) {
-        mediaType = 'carousel';
-      } else if (isVideo) {
-        mediaType = 'video';
-      } else {
-        mediaType = 'image';
-      }
+      // Video if the media_type=VIDEO query returned it, else image. Several link
+      // titles/URLs mean a flexible ad as often as a carousel, so no carousel guess.
+      const mediaType: 'video' | 'image' | 'carousel' | 'unknown' = videoAdIds.has(ad.id) ? 'video' : 'image';
 
       return {
         adId: ad.id,
