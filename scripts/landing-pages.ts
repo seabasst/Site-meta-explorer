@@ -6,8 +6,8 @@
  *
  * 1. Destination. Read from the ad's own Ad Library modal (src/lib/ad-destination.ts)
  *    unless the worker already did; written back to linkUrl/linkCheckedAt.
- * 2. Landing page. Each unique URL (query stripped) is rendered once in the
- *    same browser, so SPAs and redirects resolve like a real visit.
+ * 2. Landing page. Each unique URL (query stripped) is rendered once, as it looks
+ *    today (src/lib/landing-snapshot.ts; the worker stores run-time snapshots).
  * 3. Connection. Claude scores ad -> page continuity per unique (copy, page).
  *
  * Output: out/landing-<pageId>.json
@@ -17,59 +17,15 @@
  */
 import { prisma } from '../src/lib/prisma';
 import Anthropic from '@anthropic-ai/sdk';
-import puppeteer, { type Browser } from 'puppeteer';
+import puppeteer from 'puppeteer';
 import fs from 'node:fs';
 import assert from 'node:assert';
 import { resolveDestination, destinationFromHref } from '../src/lib/ad-destination';
+import { pageKey, fetchLanding, type LandingPage } from '../src/lib/landing-snapshot';
 
 const PACE_MS = Number(process.env.PACE_MS ?? 3000);
 const MODEL = process.env.LP_MODEL ?? 'claude-sonnet-5';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-/** Cache key for a landing page: host + path, no query/hash, no trailing slash. */
-export function pageKey(url: string): string {
-  const u = new URL(url);
-  return (u.hostname.replace(/^www\./, '') + u.pathname).replace(/\/$/, '').toLowerCase();
-}
-
-interface LandingPage {
-  requestedUrl: string;
-  finalUrl: string | null;
-  status: number | null;
-  title: string;
-  metaDescription: string;
-  h1: string[];
-  prices: string[];
-  text: string;
-  error?: string;
-}
-
-async function fetchLanding(browser: Browser, url: string): Promise<LandingPage> {
-  const page = await browser.newPage();
-  await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36');
-  await page.setViewport({ width: 390, height: 844, isMobile: true }); // Meta traffic is mobile
-  try {
-    const res = await page.goto(url, { waitUntil: 'networkidle2', timeout: 45000 }).catch(() => null);
-    await sleep(1500);
-    const data = await page.evaluate(() => {
-      // <main> skips cookie banners and nav that otherwise eat the text budget
-      const root = (document.querySelector('main') ?? document.body) as HTMLElement | null;
-      const text = (root?.innerText ?? '').replace(/\s+\n/g, '\n').replace(/\n{2,}/g, '\n');
-      return {
-        title: document.title,
-        metaDescription: document.querySelector('meta[name="description"]')?.getAttribute('content') ?? '',
-        h1: [...document.querySelectorAll('h1')].map((h) => (h as HTMLElement).innerText.trim()).filter(Boolean).slice(0, 3),
-        prices: [...new Set(text.match(/(\d[\d  .,]*[  ]?(kr|SEK|NOK|DKK|€|EUR|£|\$)|(€|£|\$)[  ]?\d[\d.,]*)/g) ?? [])].slice(0, 10),
-        text: text.slice(0, 4000),
-      };
-    });
-    return { requestedUrl: url, finalUrl: page.url(), status: res?.status() ?? null, ...data };
-  } catch (e) {
-    return { requestedUrl: url, finalUrl: null, status: null, title: '', metaDescription: '', h1: [], prices: [], text: '', error: String(e) };
-  } finally {
-    await page.close().catch(() => {});
-  }
-}
 
 const anthropic = new Anthropic();
 
@@ -149,7 +105,7 @@ async function main() {
         continue;
       }
       const key = pageKey(url);
-      if (!pages.has(key)) pages.set(key, await fetchLanding(browser, url));
+      if (!pages.has(key)) pages.set(key, await fetchLanding(url, browser));
       const lp = pages.get(key)!;
       const scoreKey = `${ad.body}|${ad.title}|${ad.linkDescription}|${key}`;
       if (!scores.has(scoreKey)) scores.set(scoreKey, await scoreConnection(ad, lp));

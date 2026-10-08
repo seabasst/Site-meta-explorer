@@ -149,7 +149,7 @@ async function drainLinks(): Promise<void> {
     if (r.processed === 0) return;
     linksOk += r.ok;
     linksChecked += r.processed - r.error;
-    console.log(`  🔗 links: ${r.ok} found, ${r.no_link} none, ${r.not_in_library} gone, ${r.error} errors (total ${linksOk}/${linksChecked})`);
+    console.log(`  🔗 links: ${r.ok} found, ${r.no_link} none, ${r.not_in_library} gone, ${r.error} errors, ${r.snapshots} pages captured (total ${linksOk}/${linksChecked})`);
     // All-error batches mean the library page is refusing us, not that the ads are bad;
     // errored rows stay unchecked, so pausing loses nothing.
     linkDryBatches = r.error === r.processed ? linkDryBatches + 1 : 0;

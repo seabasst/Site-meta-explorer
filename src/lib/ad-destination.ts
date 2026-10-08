@@ -12,6 +12,7 @@
 import type { Browser } from 'puppeteer';
 import { prisma } from './prisma';
 import { getBrowser } from './media-extractor';
+import { pageKey, snapshotLanding } from './landing-snapshot';
 
 export type DestinationResult =
   // multipleVersions: flexible/catalog ad; Meta shows a different version per load, so
@@ -76,6 +77,11 @@ export async function resolveDestination(adId: string, browser?: Browser): Promi
 /**
  * Resolve destinations for ads never checked, newest first (the fetchable window is
  * the recent past). Errors leave the row unchecked so it is retried.
+ *
+ * Ads ingested in the last LANDING_SNAPSHOT_DAYS (default 7; 0 disables) also get
+ * their landing page captured, at most once per page per that window, so we hold
+ * what the page said while the ad was running. Older ads are skipped: today's page
+ * says nothing about what their audience saw.
  * ponytail: no index on linkCheckedAt; the createdAt-desc scan walks past checked
  * rows. Add @@index([linkCheckedAt, createdAt]) if batch selection gets slow.
  */
@@ -84,11 +90,14 @@ export async function resolvePendingDestinations(limit: number, opts: { brandId?
     where: { linkCheckedAt: null, ...(opts.brandId && { brandId: opts.brandId }) },
     orderBy: { createdAt: 'desc' },
     take: limit,
-    select: { id: true, adId: true },
+    select: { id: true, adId: true, createdAt: true },
   });
+  const SNAPSHOT_DAYS = Math.max(0, Number(process.env.LANDING_SNAPSHOT_DAYS ?? 7));
+  const snapshotSince = Date.now() - SNAPSHOT_DAYS * 86_400_000;
+  const snapshotting = new Map<string, Promise<unknown>>(); // one capture per page per batch
   const CONCURRENCY = Math.max(1, Number(process.env.LINK_CONCURRENCY ?? 2));
   const PACE_MS = Math.max(0, Number(process.env.LINK_PACE_MS ?? 2000));
-  const counts = { processed: ads.length, ok: 0, no_link: 0, not_in_library: 0, error: 0 };
+  const counts = { processed: ads.length, ok: 0, no_link: 0, not_in_library: 0, error: 0, snapshots: 0 };
   for (let i = 0; i < ads.length; i += CONCURRENCY) {
     await Promise.all(ads.slice(i, i + CONCURRENCY).map(async (ad) => {
       const r = await resolveDestination(ad.adId);
@@ -98,6 +107,14 @@ export async function resolvePendingDestinations(limit: number, opts: { brandId?
         where: { id: ad.id },
         data: { linkCheckedAt: new Date(), ...(r.status === 'ok' && { linkUrl: r.url }) },
       });
+      if (r.status === 'ok' && SNAPSHOT_DAYS && ad.createdAt.getTime() >= snapshotSince) {
+        let key: string;
+        try { key = pageKey(r.url); } catch { return; }
+        if (!snapshotting.has(key)) {
+          snapshotting.set(key, snapshotLanding(r.url, SNAPSHOT_DAYS).then((x) => { if (x.created) counts.snapshots++; }, () => {}));
+        }
+        await snapshotting.get(key);
+      }
     }));
     if (PACE_MS && i + CONCURRENCY < ads.length) await new Promise((r) => setTimeout(r, PACE_MS));
   }

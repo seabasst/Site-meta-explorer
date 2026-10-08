@@ -21,7 +21,7 @@ async function main() {
     ? (await prisma.adLibraryBrand.findUniqueOrThrow({ where: { pageId: process.env.BRAND } })).id
     : undefined;
   const t0 = Date.now();
-  const tot = { processed: 0, ok: 0, no_link: 0, not_in_library: 0, error: 0 };
+  const tot = { processed: 0, ok: 0, no_link: 0, not_in_library: 0, error: 0, snapshots: 0 };
   let dry = 0, dbErrors = 0;
   while (running && tot.processed < MAX) {
     let r;
@@ -40,7 +40,7 @@ async function main() {
     dry = r.error === r.processed ? dry + 1 : 0;
     if (dry >= DRY_LIMIT) { console.log(`⛔ ${DRY_LIMIT} all-error batches: looks blocked. Wait and rerun.`); break; }
     const rate = tot.processed / ((Date.now() - t0) / 60000);
-    console.log(`  ${tot.processed} checked · ${tot.ok} links, ${tot.no_link} none, ${tot.not_in_library} gone, ${tot.error} errors · ${rate.toFixed(1)}/min`);
+    console.log(`  ${tot.processed} checked · ${tot.ok} links, ${tot.no_link} none, ${tot.not_in_library} gone, ${tot.error} errors, ${tot.snapshots} pages captured · ${rate.toFixed(1)}/min`);
   }
   await prisma.$disconnect();
   process.exit(0);
