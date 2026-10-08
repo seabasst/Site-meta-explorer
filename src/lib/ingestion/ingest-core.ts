@@ -415,6 +415,18 @@ const DEMOGRAPHICS_FIELDS = [
   'id', 'eu_total_reach', 'age_country_gender_reach_breakdown',
 ].join(',');
 
+// Errors that are about Meta's side, not about this brand. These must never count
+// toward the brand's failCount — see the catch block in processBrand.
+export function isTransientError(message: string): boolean {
+  const m = message.toLowerCase();
+  return (
+    m.includes('(#613)') ||
+    m.includes('rate limit') ||
+    m.includes('an unexpected error has occurred') ||
+    m.includes('please retry')
+  );
+}
+
 // EU countries for demographics (required for demographic data)
 const EU_DEMOGRAPHICS_COUNTRIES = [
   'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
@@ -1201,12 +1213,17 @@ async function processBrand(brandId: string, pageId: string, pageName: string) {
       },
     });
 
-    // Mark brand as failed and increment fail count
+    // Mark brand as failed and increment fail count — but only for errors that say
+    // something about the brand. A shared-quota rate limit says nothing about it, and
+    // three of them retire the brand permanently (selectDueBrands filters failCount<3,
+    // and failCount only resets on success, which an unselected brand can never reach).
+    // 3,198 brands had been retired this way by 2026-09-15, all during the daily
+    // 05:00–17:00 UTC quota storm.
     await prisma.adLibraryBrand.update({
       where: { id: brandId },
       data: {
         ingestionStatus: 'failed',
-        failCount: { increment: 1 },
+        ...(isTransientError(errorMessage) ? {} : { failCount: { increment: 1 } }),
       },
     });
 

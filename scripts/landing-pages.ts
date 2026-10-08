@@ -1,0 +1,137 @@
+/**
+ * Landing-page analysis: where does each ad send people, and does the page
+ * keep the ad's promise?
+ *
+ *   npx tsx --env-file=.env.local scripts/landing-pages.ts <pageId> [limit=50]
+ *
+ * 1. Destination. Read from the ad's own Ad Library modal (src/lib/ad-destination.ts)
+ *    unless the worker already did; written back to linkUrl/linkCheckedAt.
+ * 2. Landing page. Each unique URL (query stripped) is rendered once, as it looks
+ *    today (src/lib/landing-snapshot.ts; the worker stores run-time snapshots).
+ * 3. Connection. Claude scores ad -> page continuity per unique (copy, page).
+ *
+ * Output: out/landing-<pageId>.json
+ *
+ * ponytail: sequential and paced (PACE_MS) because Meta rate-limits page loads;
+ * ~5s/ad. Bulk runs over many brands want the worker's concurrency knobs.
+ */
+import { prisma } from '../src/lib/prisma';
+import Anthropic from '@anthropic-ai/sdk';
+import puppeteer from 'puppeteer';
+import fs from 'node:fs';
+import assert from 'node:assert';
+import { resolveDestination, destinationFromHref } from '../src/lib/ad-destination';
+import { pageKey, fetchLanding, type LandingPage } from '../src/lib/landing-snapshot';
+
+const PACE_MS = Number(process.env.PACE_MS ?? 3000);
+const MODEL = process.env.LP_MODEL ?? 'claude-sonnet-5';
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const anthropic = new Anthropic();
+
+async function scoreConnection(ad: { body: string | null; title: string | null; linkDescription: string | null; ctaText: string | null }, lp: LandingPage) {
+  const prompt = `You audit Meta ads for message match: does the landing page continue what the ad promised?
+
+AD
+Primary text: ${ad.body ?? '(none)'}
+Headline: ${ad.title ?? '(none)'}
+Description: ${ad.linkDescription ?? '(none)'}
+CTA: ${ad.ctaText ?? '(none)'}
+
+LANDING PAGE (rendered on mobile)
+Final URL: ${lp.finalUrl} (HTTP ${lp.status})
+Title: ${lp.title}
+Meta description: ${lp.metaDescription}
+H1: ${lp.h1.join(' | ')}
+Prices seen: ${lp.prices.join(', ') || 'none'}
+Visible text (truncated):
+${lp.text}
+
+Only judge from what is above; if the page text is a cookie wall or empty, say so in "verdict" and use null scores.
+Reply with ONLY this JSON:
+{"page_type":"product|collection|home|campaign_landing|article|quiz|signup|other",
+ "message_match":1-5 or null,
+ "headline_echoed":true|false|null,
+ "offer_in_ad":"the concrete offer/price/discount in the ad, or null",
+ "offer_on_page":true|false|null,
+ "product_match":"same|related|unrelated|n/a",
+ "language_match":true|false|null,
+ "gaps":["up to 3 concrete breaks between ad and page"],
+ "verdict":"one sentence"}`;
+  const res = await anthropic.messages.create({ model: MODEL, max_tokens: 600, messages: [{ role: 'user', content: prompt }] })
+    .catch((e) => ({ error: String(e?.error?.error?.message ?? e) }));
+  if ('error' in res) return { error: res.error }; // keep the destination + page even when scoring fails
+  const raw = res.content.map((c) => (c.type === 'text' ? c.text : '')).join('');
+  try {
+    return JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
+  } catch {
+    return { error: 'unparseable', raw };
+  }
+}
+
+async function main() {
+  const [pageId, limitArg] = process.argv.slice(2);
+  if (!pageId) throw new Error('usage: landing-pages.ts <pageId> [limit]');
+  const brand = await prisma.adLibraryBrand.findUniqueOrThrow({ where: { pageId } });
+  const ads = await prisma.adLibraryAd.findMany({
+    where: { brandId: brand.id, isActive: true },
+    orderBy: [{ reachEstimate: { sort: 'desc', nulls: 'last' } }],
+    take: Number(limitArg ?? 50),
+    select: { id: true, adId: true, body: true, title: true, linkDescription: true, ctaText: true, caption: true, linkUrl: true, reachEstimate: true },
+  });
+  console.log(`${brand.pageName}: ${ads.length} active ads`);
+
+  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+  const pages = new Map<string, LandingPage>();
+  const scores = new Map<string, unknown>();
+  const rows = [];
+  try {
+    for (const [i, ad] of ads.entries()) {
+      // Always read the modal here: the analysis needs to know whether the URL is one
+      // sampled version of a multi-version ad, which the stored linkUrl can't say.
+      let url: string | null = ad.linkUrl;
+      let multipleVersions: boolean | null = null;
+      {
+        const r = await resolveDestination(ad.adId, browser);
+        await sleep(PACE_MS);
+        if (r.status === 'ok') { url = r.url; multipleVersions = r.multipleVersions; }
+        if (r.status !== 'error') {
+          await prisma.adLibraryAd.update({ where: { id: ad.id }, data: { linkCheckedAt: new Date(), linkUrl: url } });
+        }
+      }
+      if (!url) {
+        console.log(`[${i + 1}/${ads.length}] ${ad.adId} no destination found`);
+        rows.push({ adId: ad.adId, reach: ad.reachEstimate, linkUrl: null });
+        continue;
+      }
+      const key = pageKey(url);
+      if (!pages.has(key)) pages.set(key, await fetchLanding(url, browser));
+      const lp = pages.get(key)!;
+      const scoreKey = `${ad.body}|${ad.title}|${ad.linkDescription}|${key}`;
+      if (!scores.has(scoreKey)) scores.set(scoreKey, await scoreConnection(ad, lp));
+      const score = scores.get(scoreKey);
+      console.log(`[${i + 1}/${ads.length}] ${ad.adId} -> ${key} ${JSON.stringify((score as { message_match?: number }).message_match)}`);
+      rows.push({ adId: ad.adId, reach: ad.reachEstimate, caption: ad.caption, linkUrl: url, multipleVersions, pageKey: key, ...(score as object) });
+    }
+  } finally {
+    await browser.close();
+  }
+
+  fs.mkdirSync('out', { recursive: true });
+  const outFile = `out/landing-${pageId}.json`;
+  fs.writeFileSync(outFile, JSON.stringify({ brand: brand.pageName, pageId, runAt: new Date().toISOString(), model: MODEL, ads: rows, pages: Object.fromEntries(pages) }, null, 2));
+  console.log(`${rows.filter((r) => r.linkUrl).length}/${rows.length} resolved, ${pages.size} unique pages, ${scores.size} scored -> ${outFile}`);
+  await prisma.$disconnect();
+}
+
+if (process.argv[1]?.endsWith('landing-pages.ts') && process.argv[2] === '--self-check') {
+  assert.equal(destinationFromHref('https://l.facebook.com/l.php?u=https%3A%2F%2Fshop.se%2Fp%3Futm%3Dx&h=1'), 'https://shop.se/p?utm=x');
+  assert.equal(destinationFromHref('https://shop.se/a'), null);
+  assert.equal(destinationFromHref('https://l.facebook.com/l.php?u=https%3A%2F%2Fmetastatus.com%2Fads'), null);
+  assert.equal(destinationFromHref('https://l.facebook.com/l.php?u=https%3A%2F%2Fwww.instagram.com%2F_u%2Fx'), null);
+  assert.equal(destinationFromHref('https://l.facebook.com/l.php?u=https%3A%2F%2Ffb.com%2Fcanvas_doc%2F123'), 'https://fb.com/canvas_doc/123');
+  assert.equal(pageKey('https://www.Shop.se/p/Sko/?utm_source=fb#x'), 'shop.se/p/sko');
+  console.log('self-check ok');
+} else {
+  main().catch((e) => { console.error(e); process.exit(1); });
+}

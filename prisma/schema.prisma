@@ -279,6 +279,7 @@ model AdLibraryAd {
   title              String?  // Link title
   linkDescription    String?  // Link description
   linkUrl            String?  // Destination URL
+  linkCheckedAt      DateTime? // When the Ad Library modal was read for linkUrl (null = never; set even when no link/ad gone)
   ctaText            String?  // Call-to-action text
   ctaType            String?  // Call-to-action type (SHOP_NOW, LEARN_MORE, etc.)
   snapshotUrl        String?  // Meta's ad_snapshot_url
@@ -330,6 +331,25 @@ model AdLibraryAd {
 // delta between two observations is the only public proxy we have for how fast
 // Meta is choosing to serve an ad. Rows stop accruing once an ad stops moving,
 // so the table grows with live delivery, not with the ad archive.
+// What a landing page said when captured (src/lib/landing-snapshot.ts). Keyed by
+// pageKey (host + path) rather than ad, since many ads share a page.
+model LandingPageSnapshot {
+  id              Int      @id @default(autoincrement())
+  pageKey         String   // host + path, lowercased, no query
+  url             String   // URL as the ad linked it
+  finalUrl        String?  // after redirects; null when the load failed
+  status          Int?     // HTTP status
+  title           String?
+  metaDescription String?
+  h1              String[]
+  prices          String[]
+  text            String?  // main text, first 4000 chars
+  error           String?  // DNS failure, timeout, ...
+  capturedAt      DateTime @default(now())
+
+  @@index([pageKey, capturedAt])
+}
+
 model AdObservation {
   id         Int      @id @default(autoincrement())
   adId       String
