@@ -12,6 +12,12 @@ import { getCPM } from '@/lib/spend-estimator';
 //
 // "Live" = active at the brand's last check. isActive never flips back for ads
 // that stop between runs, so the ad must also have been touched by that run.
+//
+// Spend is estimated for the 30 days up to that check, in EUR. Meta only gives
+// cumulative reach per ad and our delivery log has one point for almost every ad,
+// so reach inside the window is estimated: each ad's reach is spread evenly over
+// the days it ran (start to last sighting) and the share inside the window counts.
+// Ads that stopped during the window are included up to their last sighting.
 // =============================================================================
 
 export const dynamic = 'force-dynamic';
@@ -21,6 +27,18 @@ export const dynamic = 'force-dynamic';
 function toShares<T extends { percentage: number }>(rows: T[]): T[] {
   const sum = rows.reduce((a, r) => a + r.percentage, 0);
   return sum > 0 ? rows.map((r) => ({ ...r, percentage: (r.percentage / sum) * 100 })) : [];
+}
+
+// ECB euro reference rate; the CPM benchmark table is in USD.
+async function usdPerEur(): Promise<{ rate: number; date: string } | null> {
+  try {
+    const xml = await (await fetch('https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml', { next: { revalidate: 86400 } })).text();
+    const rate = Number(xml.match(/currency='USD' rate='([\d.]+)'/)?.[1]);
+    const date = xml.match(/time='(\d{4}-\d{2}-\d{2})'/)?.[1];
+    return rate > 0 && date ? { rate, date } : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ pageId: string }> }) {
@@ -35,10 +53,26 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ pag
   const LIVE = `a."brandId" = $1 AND a."isActive"
     AND a."updatedAt" >= COALESCE((SELECT "lastCheckedAt" FROM "AdLibraryBrand" WHERE id = $1) - interval '1 day', '-infinity')`;
 
-  const [totals, topAds, dates] = await Promise.all([
+  const [totals, window30, topAds, dates, fx] = await Promise.all([
     prisma.$queryRawUnsafe<Array<{ liveAds: number; reach: bigint }>>(
       `SELECT count(*)::int AS "liveAds", COALESCE(sum(a."reachEstimate"), 0)::bigint AS reach
        FROM "AdLibraryAd" a WHERE ${LIVE}`,
+      brand.id
+    ),
+    prisma.$queryRawUnsafe<Array<{ reach: bigint; ads: number }>>(
+      `WITH b AS (SELECT COALESCE("lastCheckedAt", now()::timestamp) AS ref, "lastCheckedAt" AS checked FROM "AdLibraryBrand" WHERE id = $1),
+       ads AS (
+         SELECT a."reachEstimate" AS reach, COALESCE(a."startDate", a."createdAt") AS start,
+           CASE WHEN NOT a."isActive" THEN COALESCE(a."endDate", a."updatedAt")
+                WHEN a."updatedAt" >= b.checked - interval '1 day' THEN b.ref
+                ELSE a."updatedAt" END AS seen,
+           b.ref - interval '30 days' AS win
+         FROM "AdLibraryAd" a, b WHERE a."brandId" = $1 AND a."reachEstimate" > 0
+       )
+       SELECT COALESCE(sum(reach * LEAST(1, GREATEST(0,
+                EXTRACT(EPOCH FROM (seen - GREATEST(start, win))) / GREATEST(EXTRACT(EPOCH FROM (seen - start)), 86400)))), 0)::bigint AS reach,
+              count(*)::int AS ads
+       FROM ads WHERE seen > win`,
       brand.id
     ),
     prisma.$queryRawUnsafe<Array<{
@@ -63,6 +97,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ pag
        FROM "AdLibraryBrand" WHERE id = $1`,
       brand.id
     ),
+    usdPerEur(),
   ]);
 
   const reach = Number(totals[0].reach);
@@ -75,7 +110,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ pag
   const sampleAds = (brand.demographicsJson as { adsWithDemographics?: number } | null)?.adsWithDemographics ?? 0;
 
   // Reach-weighted country CPM as the calculator's starting point; the user edits it.
-  const defaultCpm = countries.length
+  const cpmUsd = countries.length
     ? countries.reduce((a, c) => a + (c.share / 100) * getCPM(c.code), 0)
     : getCPM(brand.country ?? '');
 
@@ -89,6 +124,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ pag
     ages: toShares(demo?.ageBreakdown ?? []).map((g) => ({ age: g.age, share: g.percentage })),
     demographics: { sampleAds, updatedAt: dates[0]?.demographicsAt ?? null },
     topAds,
-    defaultCpm: Math.round(defaultCpm * 100) / 100,
+    spend: {
+      reach30: Number(window30[0].reach),
+      ads30: window30[0].ads,
+      // Without a rate the USD figure is used as-is; the page says so.
+      defaultCpmEur: Math.round((fx ? cpmUsd / fx.rate : cpmUsd) * 100) / 100,
+      fx,
+    },
   });
 }

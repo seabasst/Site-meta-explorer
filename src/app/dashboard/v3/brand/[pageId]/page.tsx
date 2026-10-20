@@ -23,9 +23,10 @@ type Report = {
   ages: { age: string; share: number }[];
   demographics: { sampleAds: number; updatedAt: string | null };
   topAds: { adId: string; reach: number | null; title: string | null; body: string | null; format: string | null; startDate: string | null; image: string | null; video: string | null }[];
-  defaultCpm: number;
+  spend: { reach30: number; ads30: number; defaultCpmEur: number; fx: { rate: number; date: string } | null };
 };
 
+const eur = (n: number) => formatCurrency(n, 'EUR');
 const pct = (n: number) => `${n >= 10 ? Math.round(n) : n.toFixed(1)}%`;
 const adLibraryUrl = (adId: string) => `https://www.facebook.com/ads/library/?id=${adId}`;
 
@@ -67,10 +68,11 @@ export default function BrandReportPage() {
 }
 
 function ReportBody({ d, onEarlyBird }: { d: Report; onEarlyBird: () => void }) {
-  const [cpm, setCpm] = useState(d.defaultCpm);
+  const [cpm, setCpm] = useState(d.spend.defaultCpmEur);
   const [freq, setFreq] = useState(1);
-  const impressions = d.reach * freq;
+  const impressions = d.spend.reach30 * freq;
   const spend = (impressions / 1000) * cpm;
+  const windowLabel = d.checkedAt ? `30 days to ${shortDate(d.checkedAt)}` : 'last 30 days';
   const meta = [d.brand.category && d.brand.category !== 'auto-sweep' ? d.brand.category : null, d.brand.country ? countryName(d.brand.country) : null, `Page ${d.brand.pageId}`].filter(Boolean);
 
   return (
@@ -96,7 +98,7 @@ function ReportBody({ d, onEarlyBird }: { d: Report; onEarlyBird: () => void }) 
       <section className="mt-8 grid grid-cols-1 divide-y divide-stone-200/70 rounded-[32px] bg-white ring-1 ring-stone-200/70 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
         <Kpi label="Live ads" value={d.liveAds.toLocaleString('en-US')} sub="Active at our last check" />
         <Kpi label="EU reach" value={formatNumber(d.reach)} sub="Summed over live ads, since each started" />
-        <Kpi label="Estimated spend" value={formatCurrency(spend)} sub={<a href="#spend" className="underline decoration-stone-300 underline-offset-2 hover:text-stone-900">CPM ${cpm} · frequency {freq.toFixed(1)}. Adjust</a>} accent />
+        <Kpi label="Estimated spend, last 30 days" value={eur(spend)} sub={<a href="#spend" className="underline decoration-stone-300 underline-offset-2 hover:text-stone-900">{windowLabel} · CPM €{cpm} · frequency {freq.toFixed(1)}. Adjust</a>} accent />
       </section>
 
       {/* Countries + audience */}
@@ -122,13 +124,13 @@ function ReportBody({ d, onEarlyBird }: { d: Report; onEarlyBird: () => void }) 
 
       {/* Spend */}
       <section id="spend" className="mt-12 scroll-mt-24">
-        <h2 className="text-2xl font-semibold tracking-[-0.03em]">Estimated spend</h2>
-        <p className="mt-1 text-[15px] text-stone-500">Meta doesn&apos;t publish spend for commercial ads. Set your own CPM and frequency.</p>
+        <h2 className="text-2xl font-semibold tracking-[-0.03em]">Estimated spend, last 30 days</h2>
+        <p className="mt-1 text-[15px] text-stone-500">Meta doesn&apos;t publish spend for commercial ads. Set your own CPM in euro and frequency.</p>
         <div className="mt-6 grid gap-4 md:grid-cols-[1fr_1.1fr]">
           <div className="space-y-8 rounded-[32px] bg-white p-7 ring-1 ring-stone-200/70 md:p-8">
             <Slider
-              id="cpm" label="CPM (USD per 1,000 impressions)" value={cpm} min={1} max={40} step={0.5} onChange={setCpm}
-              help={`Default $${d.defaultCpm}: country CPMs from Enhencer's 2024 benchmark (a few countries estimated), weighted by this account's reach.`}
+              id="cpm" label="CPM (EUR per 1,000 impressions)" value={cpm} min={1} max={40} step={0.5} onChange={setCpm}
+              help={`Default €${d.spend.defaultCpmEur}: country CPMs from Enhencer's 2024 benchmark (USD, a few countries estimated), weighted by this account's reach, ${d.spend.fx ? `converted at the ECB rate of ${shortDate(d.spend.fx.date)} (1 EUR = ${d.spend.fx.rate} USD)` : 'not converted: the ECB rate was unavailable'}.`}
             />
             <Slider
               id="freq" label="Frequency (impressions per person reached)" value={freq} min={1} max={6} step={0.1} onChange={setFreq}
@@ -137,14 +139,17 @@ function ReportBody({ d, onEarlyBird }: { d: Report; onEarlyBird: () => void }) 
           </div>
           <div className="flex flex-col rounded-[32px] bg-stone-900 p-7 text-white md:p-8">
             <div className="text-xs font-medium uppercase tracking-[0.14em] text-rose-300">Estimate</div>
-            <div className="mt-4 text-5xl font-semibold tracking-[-0.045em] tabular-nums md:text-6xl">{formatCurrency(spend)}</div>
+            <div className="mt-4 text-5xl font-semibold tracking-[-0.045em] tabular-nums md:text-6xl">{eur(spend)}</div>
+            <div className="mt-1 text-sm text-stone-400">{windowLabel}</div>
             <dl className="mt-8 space-y-2.5 text-[14px] text-stone-300">
-              <Row k="EU reach, live ads" v={d.reach.toLocaleString('en-US')} />
+              <Row k="EU reach in the window (est.)" v={d.spend.reach30.toLocaleString('en-US')} />
               <Row k={`× frequency ${freq.toFixed(1)}`} v={`${Math.round(impressions).toLocaleString('en-US')} impressions`} />
-              <Row k={`÷ 1,000 × CPM $${cpm}`} v={formatCurrency(spend)} />
+              <Row k={`÷ 1,000 × CPM €${cpm}`} v={eur(spend)} />
             </dl>
             <p className="mt-auto pt-8 text-xs leading-relaxed text-stone-400">
-              Covers the lifetime of the {d.liveAds.toLocaleString('en-US')} live ads, EU reach only. An estimate, not a platform-reported number.
+              Meta reports reach per ad since it started, not per day, so the window is estimated: each ad&apos;s EU reach is spread evenly over
+              the days it ran and the share inside the window counts. Based on {d.spend.ads30.toLocaleString('en-US')} ads that ran in the window,
+              including ones that stopped. An estimate, not a platform-reported number.
             </p>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { JUNK_BRAND_SQL } from '@/lib/junk-brands';
 
 // =============================================================================
 // GET /api/genome/trends
@@ -12,6 +13,8 @@ import { prisma } from '@/lib/prisma';
 // A "launch" is an ad we first saw (createdAt) inside the window whose startDate
 // is also inside it, so a brand ingested for the first time doesn't count its
 // whole back catalogue as launches.
+//
+// Scam-shop and app networks are filtered out of every list (see junk-brands.ts).
 //
 // All date maths stays in SQL: these columns are timestamp WITHOUT time zone and
 // node-pg would shift them to local time if they round-tripped through JS.
@@ -41,7 +44,9 @@ export async function GET() {
         WHERE x."createdAt" > a.t - interval '7 days' AND x."startDate" > a.t - interval '8 days'
         GROUP BY 1
       ),
-      top AS ((SELECT * FROM w ORDER BY week DESC LIMIT 200) UNION (SELECT * FROM w ORDER BY day DESC LIMIT 1))
+      -- Junk is dropped here, not in w: filtering the ad scan makes the planner seq-scan 2.4M rows.
+      ok AS (SELECT w.* FROM w JOIN "AdLibraryBrand" jb ON jb.id = w."brandId" WHERE NOT ${JUNK_BRAND_SQL}),
+      top AS ((SELECT * FROM ok ORDER BY week DESC LIMIT 200) UNION (SELECT * FROM ok ORDER BY day DESC LIMIT 1))
       SELECT b."pageId", b."pageName", b.category, b."activeAdCount" AS "liveAds",
         top.week, top.day, top."lastLaunch",
         to_char(f.first, 'YYYY-MM-DD') AS "firstAd",
@@ -53,7 +58,7 @@ export async function GET() {
     ),
     prisma.$queryRawUnsafe<Array<{ pageId: string; pageName: string; category: string | null; liveAds: number }>>(
       `SELECT "pageId", "pageName", category, "activeAdCount" AS "liveAds"
-       FROM "AdLibraryBrand" WHERE "lastCheckedAt" > ${ANCHOR} - interval '30 days'
+       FROM "AdLibraryBrand" WHERE "lastCheckedAt" > ${ANCHOR} - interval '30 days' AND NOT ${JUNK_BRAND_SQL}
        ORDER BY "activeAdCount" DESC LIMIT 10`
     ),
     // category = the discovery term that brought the account in; 'auto-sweep' and
@@ -63,7 +68,7 @@ export async function GET() {
       `SELECT category, count(*)::int AS brands, sum("activeAdCount")::int AS "liveAds"
        FROM "AdLibraryBrand"
        WHERE category IS NOT NULL AND category <> 'auto-sweep' AND category NOT LIKE 'party-%'
-         AND "lastCheckedAt" > ${ANCHOR} - interval '30 days'
+         AND "lastCheckedAt" > ${ANCHOR} - interval '30 days' AND NOT ${JUNK_BRAND_SQL}
        GROUP BY 1 HAVING count(*) >= 3 ORDER BY 3 DESC LIMIT 10`
     ),
   ]);
