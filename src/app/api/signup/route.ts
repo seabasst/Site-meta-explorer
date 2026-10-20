@@ -5,6 +5,7 @@ const NOTION_DATABASE_ID = '2f5a66a6b1b680339d4ecbc1b741a756';
 interface SignupRequest {
   email: string;
   name?: string;
+  topic?: string; // what they signed up for, e.g. a data request or early bird
 }
 
 export async function POST(request: Request) {
@@ -26,6 +27,8 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    const topic = typeof body.topic === 'string' ? body.topic.trim().slice(0, 200) : '';
 
     const notionApiKey = process.env.NOTION_API_KEY;
 
@@ -53,7 +56,7 @@ export async function POST(request: Request) {
             title: [
               {
                 text: {
-                  content: `${body.email.trim()}${body.name ? ` (${body.name.trim()})` : ''}`,
+                  content: `${body.email.trim()}${body.name ? ` (${body.name.trim()})` : ''}${topic ? ` · ${topic}` : ''}`,
                 },
               },
             ],
