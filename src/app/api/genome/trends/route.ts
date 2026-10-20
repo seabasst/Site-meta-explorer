@@ -87,6 +87,6 @@ export async function GET() {
       categories,
     },
     // Front-page data moves at ingest speed; let the CDN absorb the traffic.
-    { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' } }
+    { headers: { 'Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400' } }
   );
 }

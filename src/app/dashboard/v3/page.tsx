@@ -155,7 +155,7 @@ function SearchBox({ onRequest }: { onRequest: (q: string) => void }) {
                       onMouseEnter={() => setActive(i)}
                       className={`flex items-center gap-3.5 rounded-2xl px-3 py-2.5 ${i === active ? 'bg-stone-100' : ''}`}
                     >
-                      <Monogram name={h.pageName} />
+                      <Monogram name={h.pageName} pageId={h.pageId} />
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-[15px] font-medium">{h.pageName}</span>
                         <span className="block truncate text-[13px] text-stone-500">
@@ -261,7 +261,7 @@ function RocketCard({ label, launch, count, when, highlight }: { label: string; 
     <Link href={brandHref(launch.pageId)} className={`${shell} hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-20px_rgba(28,25,23,0.18)]`}>
       {head}
       <div className="mt-6 flex items-center gap-3">
-        <Monogram name={launch.pageName} size={44} />
+        <Monogram name={launch.pageName} pageId={launch.pageId} size={44} />
         <div className="min-w-0">
           <div className="truncate text-lg font-semibold tracking-tight">{launch.pageName}</div>
           <div className="truncate text-sm text-stone-500">{categoryLabel(launch.category)} · {launch.liveAds.toLocaleString('en-US')} live ads</div>
@@ -298,7 +298,7 @@ function RankList({ rows, offset = 1 }: { rows: { pageId: string; name: string; 
         <li key={r.pageId} className="animate-in fade-in slide-in-from-bottom-1 fill-mode-both motion-reduce:animate-none" style={{ animationDelay: `${i * 40}ms` }}>
           <Link href={brandHref(r.pageId)} className="flex items-center gap-3 rounded-2xl px-2 py-2.5 transition hover:bg-stone-50">
             <span className="w-5 text-right text-xs tabular-nums text-stone-400">{i + offset}</span>
-            <Monogram name={r.name} size={34} />
+            <Monogram name={r.name} pageId={r.pageId} size={34} />
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[14px] font-medium">{r.name}</span>
               <span className="block truncate text-[12px] text-stone-500">{r.sub}</span>

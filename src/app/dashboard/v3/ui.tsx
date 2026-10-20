@@ -17,15 +17,22 @@ export const countryName = (code: string) => {
 export const shortDate = (d: string) =>
   new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 
-export function Monogram({ name, size = 40 }: { name: string; size?: number }) {
+// The page's Facebook profile picture, with its initial underneath for pages
+// without one (or while it loads).
+export function Monogram({ name, pageId, size = 40 }: { name: string; pageId?: string; size?: number }) {
   const letter = name.replace(/[^\p{L}\p{N}]/gu, '').charAt(0).toUpperCase() || '?';
+  const [failed, setFailed] = useState(false);
   return (
     <span
       aria-hidden
-      className="grid shrink-0 place-items-center rounded-[30%] bg-stone-100 font-semibold text-stone-600 ring-1 ring-inset ring-stone-200/70"
+      className="relative grid shrink-0 place-items-center overflow-hidden rounded-[30%] bg-stone-100 font-semibold text-stone-600 ring-1 ring-inset ring-stone-200/70"
       style={{ width: size, height: size, fontSize: size * 0.42 }}
     >
       {letter}
+      {pageId && !failed && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={`/api/genome/avatar/${pageId}`} alt="" loading="lazy" onError={() => setFailed(true)} className="absolute inset-0 h-full w-full object-cover" />
+      )}
     </span>
   );
 }

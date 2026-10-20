@@ -80,7 +80,7 @@ function ReportBody({ d, onEarlyBird }: { d: Report; onEarlyBird: () => void }) 
       {/* Header */}
       <header className="mt-6 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div className="flex items-center gap-4">
-          <Monogram name={d.brand.name} size={64} />
+          <Monogram name={d.brand.name} pageId={d.brand.pageId} size={64} />
           <div className="min-w-0">
             <h1 className="truncate text-3xl font-semibold tracking-[-0.04em] md:text-[44px] md:leading-[1.05]">{d.brand.name}</h1>
             <p className="mt-1.5 text-[15px] text-stone-500 first-letter:uppercase">{meta.join(' · ')}</p>
