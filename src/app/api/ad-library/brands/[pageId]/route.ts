@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/admin';
 import type { Prisma } from '@prisma/client';
 import { CATEGORY_KEYS } from '@/lib/classification/taxonomy';
 
@@ -433,6 +434,9 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ pageId: string }> }
 ) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     const { pageId } = await params;
     const body = (await req.json()) as UpdateBrandBody;
@@ -566,6 +570,9 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ pageId: string }> }
 ) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     const { pageId } = await params;
 

@@ -15,7 +15,7 @@ interface RoadmapRequest {
   pageUrl: string | null;
   status: string;
   upvoteCount: number;
-  userEmail: string;
+  userEmail: string | null;
   createdAt: string;
   hasUpvoted: boolean;
   isOwner: boolean;

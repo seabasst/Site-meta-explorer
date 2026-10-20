@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/admin';
 import type { Prisma } from '@prisma/client';
 
 // =============================================================================
@@ -199,6 +200,9 @@ interface CreateBrandBody {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     const body = (await req.json()) as CreateBrandBody;
 
@@ -270,6 +274,9 @@ interface BulkUpdateBody {
 }
 
 export async function PATCH(req: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   try {
     const body = (await req.json()) as BulkUpdateBody;
 
