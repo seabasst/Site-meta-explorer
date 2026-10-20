@@ -218,7 +218,25 @@ export async function processPendingAssets(
     throw new Error('R2 is not configured. Set R2_* environment variables.');
   }
 
-  // Find pending assets
+  // Find pending assets, NEWEST FIRST.
+  //
+  // Meta serves render_ad only while an ad is still in the archive. An ad ingested
+  // months ago returns "Error: invalid ID" and can never be fetched again, no matter
+  // how many times it is retried. findMany with no orderBy returns rows in physical
+  // order, which on an append-only table is oldest-first, so every batch was spent on
+  // the dead head of a 1.75M-row queue and stored nothing. The drain then looked
+  // blocked, the circuit breaker reset those same dead rows to pending, and the next
+  // cycle served them straight back: an infinite loop on rows that can never succeed.
+  //
+  // Measured 2026-09-20: 0 of 100 stored draining the queue as-is, from both Fly and a
+  // residential IP, against 14 of 15 stored when the same code was pointed at assets
+  // from ads ingested in the last 7 days.
+  //
+  // Newest-first is the fix and also the right policy: an asset's fetchable window is
+  // short, so fresh ads are the only ones worth spending the render_ad budget on.
+  // ponytail: this sorts ~1.75M rows in ~2.9s per batch, against a batch that takes
+  // ~2.5min to process, so ~2% overhead. Add @@index([downloadStatus, createdAt]) if
+  // that ratio ever stops being acceptable.
   const pendingAssets = await prisma.adAsset.findMany({
     where: {
       downloadStatus: 'pending',
@@ -229,6 +247,7 @@ export async function processPendingAssets(
       }),
     },
     select: { id: true },
+    orderBy: { createdAt: 'desc' },
     take: limit,
   });
 
@@ -236,8 +255,11 @@ export async function processPendingAssets(
   let succeeded = 0;
   let failed = 0;
 
-  // Process assets with concurrency limit
-  const CONCURRENCY = 5;
+  // Process assets with concurrency limit. Both knobs are env-tunable because Facebook
+  // starts refusing render_ad under sustained load, and the refusal is indistinguishable
+  // from a missing ad at the row level — so pacing is the only defence.
+  const CONCURRENCY = Math.max(1, Number(process.env.ASSET_CONCURRENCY ?? 5));
+  const PACE_MS = Math.max(0, Number(process.env.ASSET_PACE_MS ?? 0));
   for (let i = 0; i < pendingAssets.length; i += CONCURRENCY) {
     const batch = pendingAssets.slice(i, i + CONCURRENCY);
     const batchResults = await Promise.all(
@@ -251,6 +273,10 @@ export async function processPendingAssets(
       } else {
         failed++;
       }
+    }
+
+    if (PACE_MS && i + CONCURRENCY < pendingAssets.length) {
+      await new Promise((r) => setTimeout(r, PACE_MS));
     }
   }
 

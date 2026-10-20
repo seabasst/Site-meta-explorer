@@ -191,7 +191,21 @@ export async function syncToBigQuery(): Promise<{ synced: boolean; reason?: stri
     // For incremental, only pull rows changed since the newest watermark already in BQ.
     let since: Date | undefined;
     if (incremental) {
-      const [rows] = await q(`SELECT MAX(${spec.watermarkCol}) AS m FROM ${ref(spec.raw)}`);
+      // A full-refresh load creates its target implicitly. The incremental path never
+      // does: it reads a watermark out of the target and later MERGEs into it, and both
+      // of those require the table to already exist. So a newly declared incremental
+      // table fails every night with "Table not found" until someone creates it by hand.
+      // raw_observations shipped in #15 and did exactly that, from 2026-09-10 onward.
+      // The schema is declared on the spec, so create from it. A table created here is
+      // empty, so `since` stays undefined and the first run backfills the whole log.
+      const [targetExists] = await ds.table(spec.raw).exists();
+      if (!targetExists) {
+        await ds.createTable(spec.raw, { schema: { fields: spec.schema } });
+        console.log(`  created missing BigQuery table ${spec.raw}`);
+      }
+      const [rows] = targetExists
+        ? await q(`SELECT MAX(${spec.watermarkCol}) AS m FROM ${ref(spec.raw)}`)
+        : [[] as Record<string, unknown>[]];
       const m = (rows?.[0] as { m?: { value?: string } | string } | undefined)?.m;
       const v = typeof m === 'object' && m ? m.value : (m as string | undefined);
       // Rewind an hour: a row written while the previous sync was running can land

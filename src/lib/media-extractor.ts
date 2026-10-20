@@ -4,6 +4,7 @@
  */
 
 import puppeteer, { type Browser } from 'puppeteer';
+import { getMetaToken } from './meta-token';
 
 export interface ExtractedMedia {
   url: string;
@@ -50,6 +51,10 @@ async function getBrowser(): Promise<Browser> {
 
   browserLaunchPromise = puppeteer.launch({
     headless: true,
+    // Set in the worker image, which uses Debian's Chromium instead of Puppeteer's
+    // download. Explicit rather than relying on Puppeteer's own env resolution, because
+    // a wrong binary path fails on Fly in a way that is awkward to debug remotely.
+    ...(process.env.PUPPETEER_EXECUTABLE_PATH ? { executablePath: process.env.PUPPETEER_EXECUTABLE_PATH } : {}),
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
   });
 
@@ -77,9 +82,30 @@ function isNoiseUrl(url: string): boolean {
   return IGNORED_PATTERNS.some((p) => p.test(url));
 }
 
+/**
+ * Snapshot URLs are stored with the access token that was current at ingestion time, so
+ * a row queued weeks ago carries a dead token and renders an error page instead of the
+ * ad. The ad id is the only durable part, so re-stamp the URL with a live token before
+ * loading it. Every caller goes through here, so the whole asset backlog benefits.
+ */
+function withCurrentToken(snapshotUrl: string): string {
+  const token = getMetaToken();
+  if (!token) return snapshotUrl;
+  try {
+    const u = new URL(snapshotUrl);
+    if (!u.pathname.includes('/ads/archive/render_ad')) return snapshotUrl;
+    if (!u.searchParams.get('id')) return snapshotUrl;
+    u.searchParams.set('access_token', token);
+    return u.toString();
+  } catch {
+    return snapshotUrl;
+  }
+}
+
 export async function extractMediaFromSnapshot(
-  snapshotUrl: string,
+  rawSnapshotUrl: string,
 ): Promise<ExtractedMedia | null> {
+  const snapshotUrl = withCurrentToken(rawSnapshotUrl);
   let page = null;
   try {
     const browser = await getBrowser();
@@ -96,7 +122,14 @@ export async function extractMediaFromSnapshot(
       }
     });
 
-    await page.goto(snapshotUrl, { waitUntil: 'networkidle2', timeout: 15000 });
+    try {
+      await page.goto(snapshotUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+    } catch {
+      // networkidle2 often never settles on heavy video snapshots, but the media
+      // element is usually already in the DOM. Extract what rendered instead of
+      // throwing the whole asset away.
+      await page.waitForSelector('video, img', { timeout: 10000 }).catch(() => {});
+    }
 
     // Dismiss Facebook cookie consent wall if present
     const dismissedCookie = await page.evaluate(() => {
