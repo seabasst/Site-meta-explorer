@@ -31,8 +31,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // Only add Google provider if credentials are configured
     ...(isGoogleConfigured ? [
       Google({
-        clientId: process.env.AUTH_GOOGLE_ID!,
-        clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+        // Trimmed: the production AUTH_GOOGLE_ID carries a trailing newline, which
+        // reaches Google as "client_id=...%0A" and fails with 401 invalid_client.
+        clientId: process.env.AUTH_GOOGLE_ID!.trim(),
+        clientSecret: process.env.AUTH_GOOGLE_SECRET!.trim(),
       }),
     ] : []),
     Credentials({
