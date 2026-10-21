@@ -6,6 +6,7 @@ import {
   isR2Configured,
 } from './r2';
 import { extractMediaFromSnapshot } from './media-extractor';
+import { getMetaToken } from './meta-token';
 
 interface DownloadResult {
   buffer: Buffer;
@@ -321,4 +322,38 @@ export async function getAssetStats(brandId?: string) {
     storageSizeBytes: storageStats._sum.fileSizeBytes || 0,
     storageSizeMB: Math.round((storageStats._sum.fileSizeBytes || 0) / 1024 / 1024),
   };
+}
+
+/**
+ * Download media for a brand's top live ads by reach, the ones the Genome report
+ * shows. The global drain works newest-first through a ~2M-row backlog, so the
+ * long-running winners a report leads with would otherwise never get a preview.
+ * Failed rows are retried too: a top ad is worth another render_ad call.
+ * Sequential on purpose, Meta throttles render_ad under parallel load.
+ */
+export async function processTopAdAssets(brandId: string, ads = 3): Promise<BatchProcessResult> {
+  const rows = await prisma.$queryRaw<Array<{ id: string }>>`
+    SELECT s.id FROM "AdAsset" s
+    JOIN (
+      SELECT a.id FROM "AdLibraryAd" a JOIN "AdLibraryBrand" b ON b.id = a."brandId"
+      WHERE a."brandId" = ${brandId} AND a."isActive"
+        AND a."updatedAt" >= COALESCE(b."lastCheckedAt" - interval '1 day', '-infinity')
+      ORDER BY a."reachEstimate" DESC NULLS LAST LIMIT ${ads}
+    ) top ON top.id = s."adId"
+    WHERE s."downloadStatus" IN ('pending', 'failed')`;
+  const ids = rows.map((r) => r.id);
+
+  // Stored render_ad URLs carry whichever token was current when the ad was first
+  // ingested, and most of those are dead. Re-stamp them with the live one.
+  const token = getMetaToken();
+  if (ids.length && token) {
+    await prisma.$executeRaw`
+      UPDATE "AdAsset" SET "originalUrl" = regexp_replace("originalUrl", 'access_token=[^&]+', ${'access_token=' + token})
+      WHERE id = ANY(${ids}) AND "originalUrl" LIKE '%render_ad%'`;
+  }
+
+  const results: ProcessAssetResult[] = [];
+  for (const id of ids) results.push(await processAsset(id));
+  const succeeded = results.filter((r) => r.success).length;
+  return { processed: ids.length, succeeded, failed: ids.length - succeeded, results };
 }

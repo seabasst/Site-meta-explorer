@@ -30,6 +30,8 @@ import { prisma } from '../src/lib/prisma';
 import { selectDueBrands, processBrand, tokenManager, sleep } from '../src/lib/ingestion/ingest-core';
 import { sendDailyReport, sendWeeklyReport } from '../src/lib/daily-report';
 import { syncToBigQuery } from '../src/lib/bq-sync';
+import { processTopAdAssets } from '../src/lib/asset-pipeline';
+import { isR2Configured } from '../src/lib/r2';
 
 const CONCURRENCY = Math.max(1, Number(process.env.CONCURRENCY ?? 2));
 const PACE_MS = Math.max(0, Number(process.env.PACE_MS ?? 4000));
@@ -38,6 +40,9 @@ const POLL_MS = Math.max(5000, Number(process.env.POLL_MS ?? 60_000));
 const REPORT_HOUR = Math.min(23, Math.max(0, Number(process.env.REPORT_HOUR ?? 7))); // UTC hour to post the daily Slack report
 const REPORT_WEEKDAY = Math.min(6, Math.max(0, Number(process.env.REPORT_WEEKDAY ?? 1))); // UTC weekday for the weekly summary (0=Sun, 1=Mon)
 const ONCE = process.argv.includes('--once');
+// Media for each refreshed brand's top live ads (what the Genome report shows), fetched
+// right after its refresh. 0 disables, e.g. on an image without Chromium.
+const TOP_AD_ASSETS = Math.max(0, Number(process.env.TOP_AD_ASSETS ?? 3));
 
 // EXPERIMENT: daytime backoff. During the peak-contention UTC window Meta throttles the
 // shared app quota hard (13:00–17:00 UTC measured ~5x slower than the overnight peak),
@@ -111,6 +116,11 @@ async function processWithConcurrency(brands: { id: string; pageId: string; page
         const good = (r as { success?: boolean })?.success !== false;
         good ? ok++ : failed++;
         console.log(`  ${good ? '✓' : '✗'} ${b.pageName}`);
+        if (good && TOP_AD_ASSETS && isR2Configured()) {
+          // Never let R2 or Puppeteer trouble stop ingestion.
+          const a = await processTopAdAssets(b.id, TOP_AD_ASSETS).catch(() => null);
+          if (a?.processed) console.log(`    📦 top ads: ${a.succeeded}/${a.processed} assets stored`);
+        }
       } catch (e) {
         failed++;
         console.log(`  ✗ ${b.pageName} — ${e instanceof Error ? e.message : 'error'}`);

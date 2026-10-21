@@ -71,6 +71,9 @@ const IGNORED_PATTERNS = [
   /tr\?/,
   /beacon/i,
   /\/images\/cookies\//,
+  // Inline PNGs are Meta's grey loading skeletons, never the creative. Being wide,
+  // they out-sized the real image in the pick below (25 stored as ad media by 2026-10-20).
+  /^data:/,
 ];
 
 function isNoiseUrl(url: string): boolean {

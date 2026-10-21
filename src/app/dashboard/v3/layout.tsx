@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Genome v3 | Creative Intelligence',
+  title: 'Genome | See what any brand runs on Meta',
 };
 
 export default function V3Layout({ children }: { children: React.ReactNode }) {
