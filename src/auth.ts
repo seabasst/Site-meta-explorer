@@ -25,6 +25,11 @@ const DEMO_USER = {
 // Check if Google OAuth is configured
 const isGoogleConfigured = !!(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET)
 
+// Everyone who signs in as the demo user shares one identity, so it stays off
+// in production (including Vercel previews) unless ENABLE_DEMO_LOGIN=1
+export const isDemoLoginEnabled =
+  process.env.NODE_ENV !== "production" || process.env.ENABLE_DEMO_LOGIN === "1"
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   providers: [
@@ -35,29 +40,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         clientSecret: process.env.AUTH_GOOGLE_SECRET!,
       }),
     ] : []),
-    Credentials({
-      name: "Email",
-      credentials: {
-        email: { label: "Email", type: "email", placeholder: "demo@example.com" },
-        password: { label: "Password", type: "password", placeholder: "demo123" },
-      },
-      async authorize(credentials) {
-        // Demo authentication - validates against hardcoded user
-        // In production, validate against database with hashed passwords
-        if (
-          credentials?.email === DEMO_USER.email &&
-          credentials?.password === DEMO_USER.password
-        ) {
-          return {
-            id: DEMO_USER.id,
-            email: DEMO_USER.email,
-            name: DEMO_USER.name,
-            image: DEMO_USER.image,
+    ...(isDemoLoginEnabled ? [
+      Credentials({
+        name: "Email",
+        credentials: {
+          email: { label: "Email", type: "email", placeholder: "demo@example.com" },
+          password: { label: "Password", type: "password", placeholder: "demo123" },
+        },
+        async authorize(credentials) {
+          // Demo authentication - validates against hardcoded user
+          // In production, validate against database with hashed passwords
+          if (
+            credentials?.email === DEMO_USER.email &&
+            credentials?.password === DEMO_USER.password
+          ) {
+            return {
+              id: DEMO_USER.id,
+              email: DEMO_USER.email,
+              name: DEMO_USER.name,
+              image: DEMO_USER.image,
+            }
           }
-        }
-        return null
-      },
-    }),
+          return null
+        },
+      }),
+    ] : []),
   ],
   session: { strategy: "jwt" },
   pages: {
@@ -65,6 +72,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async jwt({ token, user, account }) {
+      // Demo JWTs issued before the flag went off would otherwise roll on forever
+      if (!isDemoLoginEnabled && token.email === DEMO_USER.email) return null
       if (user && user.email) {
         // Upsert user in DB on every sign-in so Google users get a row
         try {
