@@ -5,6 +5,19 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  async redirects() {
+    // facebookadexplorer.kirimedia.co is closed: every page goes to Genome. /api is
+    // left alone so crons, Stripe webhooks and auth callbacks aimed at the old host
+    // keep working. Temporary (307) so the host can be reopened.
+    return [
+      {
+        source: "/:path((?!api/).*)",
+        has: [{ type: "host", value: "facebookadexplorer.kirimedia.co" }],
+        destination: "https://genome.kirimedia.co/:path",
+        permanent: false,
+      },
+    ];
+  },
   async rewrites() {
     // genome.kirimedia.co serves the v3 dashboard at its root.
     // Must be beforeFiles: a bare array is afterFiles, which loses to the
