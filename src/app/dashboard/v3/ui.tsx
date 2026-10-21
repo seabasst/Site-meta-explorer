@@ -6,16 +6,7 @@ import { Check, X } from 'lucide-react';
 
 // Shared pieces for the Genome front page and the brand report.
 
-export const brandHref = (pageId: string) => `/dashboard/v3/brand/${pageId}`;
-
-const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
-export const countryName = (code: string) => {
-  try { return regionNames.of(code) ?? code; } catch { return code; }
-};
-
-// Dates arrive as 'YYYY-MM-DD' strings from SQL; render them without a TZ shift.
-export const shortDate = (d: string) =>
-  new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+export { brandHref, countryName, shortDate } from './format';
 
 // The page's Facebook profile picture, with its initial underneath for pages
 // without one (or while it loads).
@@ -55,6 +46,28 @@ export function TopBar({ onEarlyBird }: { onEarlyBird: () => void }) {
         </button>
       </div>
     </header>
+  );
+}
+
+// Page chrome for server-rendered pages: top bar plus the early-bird dialog.
+export function Shell({ children }: { children: React.ReactNode }) {
+  const [lead, setLead] = useState<Lead | null>(null);
+  return (
+    <div className="min-h-[100dvh] bg-[#FAF9F7] text-stone-900 antialiased" style={{ fontFamily: 'var(--font-geist-sans), system-ui, sans-serif' }}>
+      <TopBar onEarlyBird={() => setLead({ kind: 'earlybird' })} />
+      {children}
+      <LeadDialog lead={lead} onClose={() => setLead(null)} />
+    </div>
+  );
+}
+
+export function Ghost({ className = '', eyes = '#FAF9F7' }: { className?: string; eyes?: string }) {
+  return (
+    <svg viewBox="0 0 64 72" aria-hidden className={className}>
+      <path fill="currentColor" d="M32 3C16.5 3 5 14.6 5 30v35.5c0 2.2 2.5 3.4 4.2 2l6.3-5 6.4 5a3 3 0 0 0 3.7 0l6.4-5 6.4 5a3 3 0 0 0 3.7 0l6.4-5 6.3 5c1.7 1.4 4.2.2 4.2-2V30C59 14.6 47.5 3 32 3Z" />
+      <ellipse cx="23" cy="30" rx="4.5" ry="6" fill={eyes} />
+      <ellipse cx="41" cy="30" rx="4.5" ry="6" fill={eyes} />
+    </svg>
   );
 }
 

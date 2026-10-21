@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowDown, ArrowRight, Loader2, Rocket, Search } from 'lucide-react';
 import { formatNumber } from '@/lib/spend-estimator';
-import { brandHref, Lead, LeadDialog, Monogram, shortDate, TopBar } from './ui';
+import { brandHref, Ghost, Lead, LeadDialog, Monogram, shortDate, TopBar } from './ui';
 
 // =============================================================================
 // /dashboard/v3 — Genome front page (genome.kirimedia.co).
@@ -59,6 +59,13 @@ export default function GenomeHome() {
             What&apos;s moving right now <ArrowDown size={15} strokeWidth={1.75} className="animate-bounce motion-reduce:animate-none" />
           </a>
         </div>
+        <Link
+          href="/dashboard/v3/black-week"
+          className="group absolute right-4 top-4 flex flex-col items-center gap-1.5 lg:right-10 lg:top-1/2 lg:-translate-y-1/2"
+        >
+          <Ghost className="h-14 w-12 text-stone-900 drop-shadow-[0_12px_14px_rgba(28,25,23,0.25)] transition-transform duration-300 animate-[ghost-float_4s_ease-in-out_infinite] group-hover:-rotate-6 group-hover:scale-110 motion-reduce:animate-none lg:h-20 lg:w-[70px]" />
+          <span className="text-[11px] font-medium text-stone-700 lg:text-xs">BlackWeek analysis</span>
+        </Link>
       </section>
 
       <TrendsSection trends={trends} error={trendsError} />
