@@ -415,15 +415,20 @@ const DEMOGRAPHICS_FIELDS = [
   'id', 'eu_total_reach', 'age_country_gender_reach_breakdown',
 ].join(',');
 
-// Errors that are about Meta's side, not about this brand. These must never count
-// toward the brand's failCount — see the catch block in processBrand.
+// Errors that are about Meta's side or ours, not about this brand. These must never
+// count toward the brand's failCount — see the catch block in processBrand.
+// 'access token' covers our own dead tokens: from 2026-10-07 every job failed with
+// "All tokens are expired or invalid…", and that alone retired 27,164 brands.
 export function isTransientError(message: string): boolean {
   const m = message.toLowerCase();
   return (
     m.includes('(#613)') ||
     m.includes('rate limit') ||
     m.includes('an unexpected error has occurred') ||
-    m.includes('please retry')
+    m.includes('please retry') ||
+    m.includes('access token') ||
+    m.includes('fetch failed') ||
+    m.includes('connection terminated')
   );
 }
 

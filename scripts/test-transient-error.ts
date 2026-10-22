@@ -12,11 +12,17 @@ const transient = [
   'API Error: (#613) Calls to this api have exceeded the rate limit. (code: 613)',
   'API Error: An unexpected error has occurred. Please retry your request later.',
   'Rate limit reached, backing off',
+  // 2026-10-07 → 10-22: dead tokens, network drops, Neon drops.
+  'All tokens are expired or invalid. Please update your Facebook access tokens.',
+  'All tokens expired. Please update your Facebook access tokens. Last error: Error validating access token: Session has expired',
+  'fetch failed',
+  'Connection terminated unexpectedly',
 ];
 const permanent = [
   'API Error: (#100) Invalid parameter',
   'Page not found',
   'Unsupported get request. Object with ID does not exist',
+  'API Error: This object does not exist or does not support this action',
   '',
 ];
 

@@ -185,6 +185,16 @@ async function main() {
       await sleep(POLL_MS);
       continue;
     }
+    // Dead tokens never recover in-process (TokenManager marks them expired for good),
+    // and new ones arrive via `fly secrets set`, which restarts the machine. Until then
+    // every brand would fail in milliseconds, so stop dispatching instead of writing a
+    // failed IngestionJob per brand per poll (450 a night from 2026-10-07 to 10-22).
+    if (!tokenManager.hasUsableTokens()) {
+      console.log(`⛔ All ${tokenManager.getTotalTokens()} Meta token(s) expired or invalid — ingestion halted until FACEBOOK_ACCESS_TOKEN* is replaced.`);
+      if (ONCE) break;
+      await sleep(POLL_MS);
+      continue;
+    }
     const brands = await selectDueBrands(BATCH);
     if (brands.length === 0) {
       if (ONCE) { console.log('Backlog drained.'); break; }
