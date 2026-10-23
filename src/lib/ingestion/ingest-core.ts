@@ -395,11 +395,17 @@ const BRANDS_PER_RUN = 10; // Process 10 brands per cron run
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 30000;
 
-// Target countries - Nordic + major EU markets
-// Balance between coverage and avoiding "data too large" errors
-const TARGET_COUNTRIES = [
-  'SE', 'NO', 'DK', 'FI',  // Nordic
-  'DE', 'GB', 'FR', 'NL',  // Major EU markets
+// Target countries - EU/EEA + UK + CH. Cut to 8 in Feb 2026 together with AD_FIELDS to stop
+// "data too large" (code 1). The field cut is what fixed it: every code-1 job failure is
+// from 21-25 Feb 2026, and 140 full-field pages at 32 countries hit none (2026-10-23).
+// fetchAdsPage still halves the page size on code 1. The 8-country list silently dropped
+// every ad delivered only elsewhere (one brand: 31 of 90 active ads were Poland-only).
+// Env-overridable (comma list) so it can be narrowed again without a rebuild.
+const TARGET_COUNTRIES = process.env.TARGET_COUNTRIES?.toUpperCase().match(/\b[A-Z]{2}\b/g) ?? [
+  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
+  'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
+  'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',  // EU
+  'GB', 'NO', 'CH', 'IS', 'LI',
 ];
 
 // Core fields only - reduced to prevent "data too large" errors
@@ -962,9 +968,12 @@ async function fetchVideoAdIds(pageId: string): Promise<Set<string>> {
         search_page_ids: pageId,
         ad_reached_countries: JSON.stringify(TARGET_COUNTRIES),
         ad_type: 'ALL',
+        // Only ACTIVE ads get tagged. Omitted, Meta defaults to ALL and this scanned the
+        // page's whole video history (Candlelight: 182k ids for 8.5k live videos).
+        ad_active_status: 'ACTIVE',
         media_type: 'video',
         fields: 'id',
-        limit: '100',
+        limit: '1000', // id-only pages are tiny
       });
       if (cursor) params.set('after', cursor);
 
