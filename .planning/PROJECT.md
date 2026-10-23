@@ -97,7 +97,7 @@ Help brands and agencies see what competitors are running and how they're reachi
 
 ### Active
 
-(No active milestone — planning next)
+v10.0 TikTok Ad Library (Phases 73-77), see ROADMAP.md
 
 ### Out of Scope
 

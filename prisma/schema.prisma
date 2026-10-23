@@ -220,7 +220,8 @@ model BenchmarkBrand {
 
 model AdLibraryBrand {
   id            String   @id @default(cuid())
-  pageId        String   @unique // Facebook Page ID
+  pageId        String   @unique // Facebook Page ID, or "tiktok-<business_id>" for TikTok
+  platform      String   @default("meta") // meta, tiktok. Ads inherit it via brandId
   pageName      String
   profilePicUrl String?
   country       String?  // Primary country code (DE, GB, etc.)
@@ -265,7 +266,7 @@ model AdLibraryBrand {
 
 model AdLibraryAd {
   id   String @id @default(cuid())
-  adId String @unique // Meta's ad_id
+  adId String @unique // Meta's ad_id, or "tiktok-<ad.id>" for TikTok
 
   // Brand relation
   brandId String
