@@ -69,7 +69,37 @@ Phases 68-72 — See milestones/v9.0-ROADMAP.md for full details
 
 ---
 
-*No active milestone. Run `/gsd:discuss-milestone` to plan next.*
+## v10.0 TikTok Ad Library (Phases 73-77), ACTIVE
+
+**Goal:** TikTok ads, creative and targeting for EU advertisers in the same tool as Meta.
+**Source:** TikTok Commercial Content API (`research.adlib.basic`). EU only, 1 year after last shown, reach as rounded buckets, no spend or impressions.
+**Blocked on:** API approval (applied by Sebastian), and the usage terms allowing commercial use.
+
+### Phase 73: Platform schema
+**Goal**: TikTok brands and ads fit the existing tables without touching Meta paths
+**Status**: Code done, live DB column pending
+- `AdLibraryBrand.platform` (`meta` default, `tiktok`). Ads inherit it via `brandId`
+- TikTok ids prefixed `tiktok-` in `pageId` and `adId` (`src/lib/tiktok-api.ts`)
+- Meta ingestion skips TikTok brands: guard in `processBrand`, filter in `selectDueBrands` and the cron route
+- Apply the column by hand, never `prisma db push`: the live DB has `LandingPageSnapshot` and `AdLibraryAd.linkCheckedAt` from the unmerged landing-page branch, and a push drops them
+
+### Phase 74: TikTok API client
+**Goal**: Token, advertiser search, ad query and detail, paging via `search_id`, 429 handling
+**Depends on**: Phase 73. Testable only with keys
+
+### Phase 75: TikTok ingestion
+**Goal**: Fly worker ingests TikTok brands on its own quota, videos to R2, targeting into `targetingJson`
+**Depends on**: Phase 74 and API approval
+
+### Phase 76: UI
+**Goal**: Platform filter in the ad library, reach ranges, targeting panel
+**Depends on**: Phase 73
+
+### Phase 77: Rate limit and bulk run
+**Goal**: Measure the real quota (not published), then ingest the seed brands
+**Depends on**: Phase 75
+
+**Open decisions:** placement (filter in existing library vs separate section), 10 to 20 seed brands, linking TikTok advertisers to existing Meta brands in v1 or later.
 
 ---
-*Last updated: 2026-04-07 — v9.0 milestone archived*
+*Last updated: 2026-10-23, v10.0 started*

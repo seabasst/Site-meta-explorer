@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import {
   tokenManager,
   processBrand,
+  selectDueBrands,
   sleep,
   BRANDS_PER_RUN,
   CRON_SECRET,
@@ -29,24 +30,7 @@ export async function GET(req: NextRequest) {
     //       ads on brands we already track. Without this, 'active' brands are
     //       never revisited and the pipeline goes dormant after the backfill.
     // Overdue accounts (oldest / never-checked lastCheckedAt) are queued first.
-    const REFRESH_AFTER_DAYS = 7;
-    const staleBefore = new Date(Date.now() - REFRESH_AFTER_DAYS * 24 * 60 * 60 * 1000);
-
-    const brands = await prisma.adLibraryBrand.findMany({
-      where: {
-        failCount: { lt: 3 }, // Skip brands that failed too many times
-        OR: [
-          { ingestionStatus: { in: ['pending', 'failed'] } },
-          { ingestionStatus: 'active', lastCheckedAt: null },
-          { ingestionStatus: 'active', lastCheckedAt: { lt: staleBefore } },
-        ],
-      },
-      orderBy: [
-        { lastCheckedAt: { sort: 'asc', nulls: 'first' } },
-        { priority: 'desc' },
-      ],
-      take: BRANDS_PER_RUN,
-    });
+    const brands = await selectDueBrands(BRANDS_PER_RUN);
 
     if (brands.length === 0) {
       return NextResponse.json({
@@ -145,6 +129,7 @@ export async function POST(req: NextRequest) {
       // Process D-Congress brands only (priority=100)
       brands = await prisma.adLibraryBrand.findMany({
         where: {
+          platform: 'meta',
           priority: 100,
           OR: [
             { ingestionStatus: { in: ['pending', 'failed'] } },
@@ -159,6 +144,7 @@ export async function POST(req: NextRequest) {
       // Default: process next pending brands
       brands = await prisma.adLibraryBrand.findMany({
         where: {
+          platform: 'meta',
           ingestionStatus: { in: ['pending', 'failed'] },
           failCount: { lt: 3 },
         },
