@@ -1,4 +1,5 @@
 import { prisma } from '../prisma';
+import { isTikTokId } from '../tiktok-api';
 
 // The queue is overdue-first and idempotent, so a run cut short by the function
 // time limit simply resumes on the next run. (maxDuration is left at the plan
@@ -1122,6 +1123,11 @@ async function upsertAd(
 }
 
 async function processBrand(brandId: string, pageId: string, pageName: string) {
+  // Meta only. A TikTok id is non-numeric, which would send it down the search_terms
+  // path below and attach whatever Meta ads match the brand's name.
+  if (isTikTokId(pageId)) {
+    return { success: false, brand: pageName, error: 'Not a Meta brand' };
+  }
   console.log(`Processing brand: ${pageName} (${pageId})`);
 
   // Create job
@@ -1253,6 +1259,7 @@ export async function selectDueBrands(limit: number) {
   const staleBefore = new Date(Date.now() - REFRESH_AFTER_DAYS * 24 * 60 * 60 * 1000);
   return prisma.adLibraryBrand.findMany({
     where: {
+      platform: 'meta', // processBrand skips TikTok without touching lastCheckedAt, so they'd hog every batch
       failCount: { lt: 3 },
       OR: [
         { ingestionStatus: { in: ['pending', 'failed'] } },

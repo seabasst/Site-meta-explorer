@@ -3,6 +3,7 @@ interface RetryOptions {
   baseDelay?: number;
   maxDelay?: number;
   onRetry?: (attempt: number, error: Error) => void;
+  shouldRetry?: (error: Error) => boolean; // default: retry every error
 }
 
 /**
@@ -17,7 +18,8 @@ export async function fetchWithRetry<T>(
     maxRetries = 3,
     baseDelay = 1000,
     maxDelay = 10000,
-    onRetry
+    onRetry,
+    shouldRetry
   } = options;
 
   let lastError: Error | undefined;
@@ -28,7 +30,7 @@ export async function fetchWithRetry<T>(
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
 
-      if (attempt === maxRetries) {
+      if (attempt === maxRetries || (shouldRetry && !shouldRetry(lastError))) {
         throw lastError;
       }
 
