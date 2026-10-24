@@ -77,7 +77,7 @@ Phases 68-72 — See milestones/v9.0-ROADMAP.md for full details
 
 ### Phase 73: Platform schema
 **Goal**: TikTok brands and ads fit the existing tables without touching Meta paths
-**Status**: Code done, live DB column pending
+**Status**: Done. Column added to the live DB 2026-10-24 (28,673 brands, all `meta`)
 - `AdLibraryBrand.platform` (`meta` default, `tiktok`). Ads inherit it via `brandId`
 - TikTok ids prefixed `tiktok-` in `pageId` and `adId` (`src/lib/tiktok-api.ts`)
 - Meta ingestion skips TikTok brands: guard in `processBrand`, filter in `selectDueBrands` and the cron route

@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-04-07)
 
 Phase: 74 (TikTok API client)
 Plan: —
-Status: Phase 73 and 74 code done; live DB column still missing; client untested against live API
+Status: Phase 73 done (live DB column added 2026-10-24); phase 74 code done, untested against live API
 Last activity: 2026-10-24, phase 74 client written
 
 ## Performance Metrics
@@ -32,10 +32,10 @@ v10.0: platform lives on AdLibraryBrand only; TikTok ids carry a `tiktok-` prefi
 ### Blockers/Concerns
 
 - TikTok Commercial Content API approval pending
-- Live DB column must be added by hand before this code deploys (see ROADMAP phase 73). `prisma db push` is unsafe while the landing-page branch is unmerged
+- `prisma db push` is unsafe while the landing-page branch is unmerged: it would drop LandingPageSnapshot and AdLibraryAd.linkCheckedAt
 
 ## Session Continuity
 
 Last session: 2026-10-24
-Stopped at: Phase 74, waiting for the live DB column and TikTok API keys
+Stopped at: Phase 74, waiting for TikTok API keys
 Resume file: None
