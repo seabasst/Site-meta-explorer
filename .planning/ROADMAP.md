@@ -86,6 +86,10 @@ Phases 68-72 — See milestones/v9.0-ROADMAP.md for full details
 ### Phase 74: TikTok API client
 **Goal**: Token, advertiser search, ad query and detail, paging via `search_id`, 429 handling
 **Depends on**: Phase 73. Testable only with keys
+**Status**: Code done (`src/lib/tiktok-api.ts`, self-check `scripts/test-tiktok-api.ts`), not yet run against the live API
+- i64 ids kept as strings via Node 22 JSON source-text access (business ids pass 2^53)
+- Retries only 429, 401 (re-mints token) and 5xx; a 400 fails at once
+- First live call must confirm: `advertiser_business_ids` filter (only in older docs; fallback is `search_term` + filter on business_id), `videos` vs `ad_videos`, `paid_by`, `has_more` type, date format
 
 ### Phase 75: TikTok ingestion
 **Goal**: Fly worker ingests TikTok brands on its own quota, videos to R2, targeting into `targetingJson`
