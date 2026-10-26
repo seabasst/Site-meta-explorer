@@ -185,12 +185,13 @@ async function main() {
       await sleep(POLL_MS);
       continue;
     }
-    // Dead tokens never recover in-process (TokenManager marks them expired for good),
-    // and new ones arrive via `fly secrets set`, which restarts the machine. Until then
-    // every brand would fail in milliseconds, so stop dispatching instead of writing a
-    // failed IngestionJob per brand per poll (450 a night from 2026-10-07 to 10-22).
-    if (!tokenManager.hasUsableTokens()) {
-      console.log(`⛔ All ${tokenManager.getTotalTokens()} Meta token(s) expired or invalid — ingestion halted until FACEBOOK_ACCESS_TOKEN* is replaced.`);
+    // With every token dead each brand would fail in milliseconds, so stop dispatching
+    // instead of writing a failed IngestionJob per brand per poll (450 a night from
+    // 2026-10-07 to 10-22). Dead tokens are re-probed every 15 min and resume ingestion
+    // if one passes: a valid token can be marked dead in error (2026-10-23, 26h halt).
+    // Replaced tokens arrive via `fly secrets set`, which restarts the machine.
+    if (!tokenManager.hasUsableTokens() && (await tokenManager.reviveDeadTokens()) === 0) {
+      console.log(`⛔ All ${tokenManager.getTotalTokens()} Meta token(s) expired or invalid — ingestion halted, re-probing every 15 min. ${tokenManager.describeDeadTokens()}`);
       if (ONCE) break;
       await sleep(POLL_MS);
       continue;
