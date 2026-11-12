@@ -11,8 +11,12 @@ Answer in the user's language. Tables before prose. Never invent numbers, benchm
 
 The tools `list_verticals` and `get_vertical_benchmark` come from the `kiri-benchmarks` MCP server. If they are missing, stop and tell the user:
 
-1. Read and accept the terms at https://genome.kirimedia.co/mcp/terms and request a key there.
-2. Connect it: `claude mcp add --transport http kiri-benchmarks https://genome.kirimedia.co/api/mcp --header "Authorization: Bearer <key>"`
+1. Sign in at https://genome.kirimedia.co/mcp/terms, read and accept the terms, and get a key there. It is shown once.
+2. Connect it:
+   - Claude Code: `claude mcp add --transport http kiri-benchmarks https://genome.kirimedia.co/api/mcp --header "Authorization: Bearer <key>"`
+   - claude.ai (no header field): Settings > Connectors > Add custom connector, server URL `https://genome.kirimedia.co/api/mcp/<key>`
+
+A 401 means the key is missing, wrong or revoked (getting a new key revokes the old one). A 429 means the key's daily request limit is used up until 00:00 UTC.
 
 The MCP only receives the vertical and tier. The account's data never leaves the user's machine. Keep it that way: do not send account figures to any tool.
 

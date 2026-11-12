@@ -28,6 +28,7 @@ model User {
   monitoredBrands MonitoredBrand[]
   brandGuidelines BrandGuidelines?
   brandProfiles   BrandProfile[]
+  mcpApiKeys      McpApiKey[]
 }
 
 model SavedAd {
@@ -352,6 +353,29 @@ model VerticalBenchmark {
   data     Json     // what the MCP serves
   panel    Json     // the hand-reviewed page list it was built from
   builtAt  DateTime @default(now())
+}
+
+// Self-serve keys for the benchmark MCP, issued on /mcp/terms. Only the key's sha256 is
+// stored. The accepted terms version is what binds the holder to Meta's Platform Terms.
+// Created by prisma/manual/mcp-api-keys.sql (additive), never by `prisma db push`.
+model McpApiKey {
+  keyHash         String   @id
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  termsVersion    String
+  termsAcceptedAt DateTime @default(now())
+  revoked         Boolean  @default(false)
+
+  @@index([userId])
+}
+
+// MCP requests per key per UTC day, for the daily cap. Also counts MCP_API_KEY_HASHES keys.
+model McpKeyUsage {
+  keyHash String
+  day     DateTime @db.Date
+  count   Int      @default(0)
+
+  @@id([keyHash, day])
 }
 
 model AdAsset {
