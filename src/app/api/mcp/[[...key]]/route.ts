@@ -1,12 +1,13 @@
 // Free MCP server (Streamable HTTP, stateless, JSON responses) serving industry benchmarks for Meta
 // ad lifespans. Benchmarks are precomputed rows in "VerticalBenchmark" (see the Prisma model).
 //
-// Keys: give one only to someone who accepted /mcp/terms. Issue with
-//   node -e "const k='kiri_'+require('crypto').randomBytes(24).toString('hex');console.log(k, require('crypto').createHash('sha256').update(k).digest('hex'))"
-// then append the hash (second value) to MCP_API_KEY_HASHES (comma-separated) in Vercel and redeploy.
-// Connect: claude mcp add --transport http kiri-benchmarks https://genome.kirimedia.co/api/mcp --header "Authorization: Bearer <key>"
-import { createHash } from 'node:crypto';
+// Keys: self-serve on /mcp/terms (signed-in user accepts the terms, see /api/mcp-key), stored as
+// sha256 in "McpApiKey". Revoke with UPDATE "McpApiKey" SET "revoked" = true WHERE "keyHash" = '<hash>'.
+// Keys hand-issued before that live as hashes in MCP_API_KEY_HASHES (comma-separated) and still work.
+// Connect, key in a header:  claude mcp add --transport http kiri-benchmarks https://genome.kirimedia.co/api/mcp --header "Authorization: Bearer <key>"
+// or in the path, for clients without a header field (claude.ai connectors): https://genome.kirimedia.co/api/mcp/<key>
 import { prisma } from '@/lib/prisma';
+import { MCP_DAILY_REQUEST_CAP, hashMcpKey } from '@/lib/mcp-keys';
 
 const PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
 const TIERS = ['small', 'medium', 'large'] as const;
@@ -55,10 +56,20 @@ const TOOLS = [
 
 type Rpc = { jsonrpc: '2.0'; id?: string | number | null; method: string; params?: Record<string, unknown> };
 
-function authorized(req: Request): boolean {
-  const key = req.headers.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
-  const hashes = (process.env.MCP_API_KEY_HASHES ?? '').split(',').map(s => s.trim()).filter(Boolean);
-  return !!key && hashes.includes(createHash('sha256').update(key).digest('hex'));
+// 200 if the key may make this request, else the status to refuse it with.
+async function checkKey(key: string | undefined): Promise<200 | 401 | 429> {
+  if (!key) return 401;
+  const hash = hashMcpKey(key);
+  const handIssued = (process.env.MCP_API_KEY_HASHES ?? '').split(',').map(s => s.trim()).filter(Boolean);
+  if (!handIssued.includes(hash)) {
+    const live = await prisma.$queryRaw<unknown[]>`SELECT 1 FROM "McpApiKey" WHERE "keyHash" = ${hash} AND NOT "revoked"`;
+    if (!live.length) return 401;
+  }
+  const [{ count }] = await prisma.$queryRaw<{ count: number }[]>`
+    INSERT INTO "McpKeyUsage" ("keyHash", "day", "count") VALUES (${hash}, (now() AT TIME ZONE 'UTC')::date, 1)
+    ON CONFLICT ("keyHash", "day") DO UPDATE SET "count" = "McpKeyUsage"."count" + 1
+    RETURNING "count"`;
+  return count > MCP_DAILY_REQUEST_CAP ? 429 : 200;
 }
 
 async function callTool(name: string, args: Record<string, unknown>) {
@@ -111,11 +122,22 @@ async function handle(msg: Rpc) {
   }
 }
 
-export async function POST(req: Request) {
-  if (!authorized(req)) {
+export async function POST(req: Request, { params }: { params: Promise<{ key?: string[] }> }) {
+  // /api/mcp/<key> for clients that cannot send headers; otherwise a Bearer header on /api/mcp.
+  const path = (await params).key;
+  const key = path ? (path.length === 1 ? path[0] : undefined) : req.headers.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
+  const status = await checkKey(key);
+  if (status === 401) {
     return Response.json(
-      { jsonrpc: '2.0', id: null, error: { code: -32001, message: 'Missing or invalid API key. Terms and key requests: https://genome.kirimedia.co/mcp/terms' } },
-      { status: 401 },
+      { jsonrpc: '2.0', id: null, error: { code: -32001, message: 'Missing, invalid or revoked API key. Get one at https://genome.kirimedia.co/mcp/terms' } },
+      { status },
+    );
+  }
+  if (status === 429) {
+    const midnight = new Date().setUTCHours(24, 0, 0, 0);
+    return Response.json(
+      { jsonrpc: '2.0', id: null, error: { code: -32002, message: `Daily limit of ${MCP_DAILY_REQUEST_CAP} requests reached for this key. It resets at 00:00 UTC.` } },
+      { status, headers: { 'Retry-After': String(Math.ceil((midnight - Date.now()) / 1000)) } },
     );
   }
   let body: Rpc | Rpc[];
