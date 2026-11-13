@@ -40,7 +40,7 @@ export default function GenomeHome() {
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF9F7] text-stone-900 antialiased" style={{ fontFamily: 'var(--font-geist-sans), system-ui, sans-serif' }}>
-      <TopBar onEarlyBird={() => setLead({ kind: 'earlybird' })} />
+      <TopBar />
 
       <section className="relative flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-center px-4 pb-20 pt-10">
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[60%] bg-[radial-gradient(55%_60%_at_50%_0%,#ffe4e6_0%,rgba(250,249,247,0)_70%)]" />

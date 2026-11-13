@@ -11,55 +11,15 @@ import {
 } from 'lucide-react';
 import { formatNumber } from '../../v2-shell';
 import { Ad, formatFormatLabel } from '../types';
+import { MetaAdPreview } from '@/components/ads/meta-ad-preview';
 
 export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact, onSelect }: { ad: Ad; darkMode: boolean; isSaved?: boolean; onToggleSave?: (adId: string) => void; compact?: boolean; onSelect?: () => void }) {
-  // Find the best available asset (prefer completed R2 downloads)
-  const primaryAsset = ad.assets?.find(a => a.downloadStatus === 'completed' && a.storedUrl);
-
   const formatIcon = () => {
     switch (ad.displayFormat) {
       case 'video': return <Play className="w-3 h-3" />;
       case 'carousel': return <Layers className="w-3 h-3" />;
       default: return <ImageIcon className="w-3 h-3" />;
     }
-  };
-
-  const renderPreview = () => {
-    // 1. R2-stored asset (best quality)
-    if (primaryAsset?.storedUrl) {
-      if (primaryAsset.assetType === 'video') {
-        return (
-          <video
-            src={primaryAsset.storedUrl}
-            poster={primaryAsset.thumbnailUrl || undefined}
-            className="w-full h-full object-cover"
-            controls
-            muted
-            loop
-            playsInline
-            preload="metadata"
-          />
-        );
-      }
-      return (
-        <img
-          src={primaryAsset.storedUrl}
-          alt={ad.title || 'Ad creative'}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-      );
-    }
-
-    // 2. Fallback: show body text
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-4">
-        <ImageIcon className={`w-8 h-8 mb-3 ${darkMode ? 'text-slate-600' : 'text-slate-300'}`} />
-        <p className={`text-xs text-center line-clamp-4 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-          {ad.body || ad.title || 'No preview available'}
-        </p>
-      </div>
-    );
   };
 
   return (
@@ -75,9 +35,8 @@ export function AdCard({ ad, darkMode, isSaved, onToggleSave, compact, onSelect 
       {/* Preview */}
       <div
         className={`relative ${compact ? 'aspect-square' : 'aspect-[4/5]'} overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}
-        onClick={e => { if ((e.target as HTMLElement).closest('video')) e.stopPropagation(); }}
       >
-        {renderPreview()}
+        <MetaAdPreview adId={ad.adId} advertiser={ad.brand.pageName} asLink={!onSelect} />
 
         {/* Format badge - top right */}
         <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded text-[10px] text-white font-bold uppercase tracking-wide flex items-center gap-1 z-10">

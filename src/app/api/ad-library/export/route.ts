@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { publicSnapshotUrl } from '@/lib/meta-ad-url';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
@@ -185,7 +186,7 @@ function transformToExportAd(ad: Record<string, unknown>): ExportAd {
     linkUrl: ad.linkUrl as string | null,
     ctaText: ad.ctaText as string | null,
     ctaType: ad.ctaType as string | null,
-    snapshotUrl: ad.snapshotUrl as string | null,
+    snapshotUrl: publicSnapshotUrl(ad.snapshotUrl as string | null),
     startDate: formatDate(ad.startDate as Date | null),
     endDate: formatDate(ad.endDate as Date | null),
     adDurationDays: ad.adDurationDays as number | null,

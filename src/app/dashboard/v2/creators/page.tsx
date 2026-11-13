@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { V2Shell, V2Card, V2SectionTitle, V2Skeleton, formatNumber } from '../v2-shell';
 import { useV2 } from '../v2-context';
+import { MetaAdPreview } from '@/components/ads/meta-ad-preview';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -217,7 +218,7 @@ function CreatorLightbox({ creator, darkMode, onClose }: { creator: Creator; dar
               </div>
             ) : ads.length > 0 ? (
               <div className="grid grid-cols-2 gap-3">
-                {ads.filter(ad => ad.mediaUrl).map((ad, idx) => (
+                {ads.filter(ad => ad.adId).map((ad, idx) => (
                   <div
                     key={ad.adId || idx}
                     className={`rounded-xl border overflow-hidden ${
@@ -225,21 +226,7 @@ function CreatorLightbox({ creator, darkMode, onClose }: { creator: Creator; dar
                     }`}
                   >
                     <div className="relative aspect-[9/16] overflow-hidden">
-                      {ad.mediaType === 'video' ? (
-                        <video
-                          src={ad.mediaUrl!}
-                          controls
-                          className="w-full h-full object-cover"
-                          preload="metadata"
-                        />
-                      ) : (
-                        <img
-                          src={ad.mediaUrl!}
-                          alt={`Ad by ${ad.brandName}`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      )}
+                      <MetaAdPreview adId={ad.adId!} advertiser={ad.brandName} />
                     </div>
                     <div className={`px-2.5 py-2 space-y-1 border-t ${
                       darkMode ? 'border-[#1235e2]/10' : 'border-slate-100'
