@@ -59,7 +59,7 @@ export async function batchFetchPages(
         const result = await fetchWithRetry(
           () => fetchAdsByPageUrl(url, accessToken, {
             countries: EU_COUNTRIES,
-            limit: 500, // Pro tier depth
+            limit: 500,
           }),
           { maxRetries: 2, baseDelay: 2000 }
         );

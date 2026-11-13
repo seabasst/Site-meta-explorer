@@ -13,11 +13,11 @@ import {
   DollarSign,
   Eye,
   Link2,
-  Image as ImageIcon,
   Tag,
 } from 'lucide-react';
 import { formatNumber } from '../../v2-shell';
 import { Ad } from '../types';
+import { MetaAdPreview } from '@/components/ads/meta-ad-preview';
 import { TAXONOMY, CATEGORY_KEYS, type CategoryKey } from '@/lib/classification/taxonomy';
 
 const CATEGORY_SHORT_LABELS: Record<CategoryKey, string> = {
@@ -66,46 +66,7 @@ export function AdDetailLightbox({ ad, darkMode, isSaved, onToggleSave, onClose 
     return () => { document.body.style.overflow = ''; };
   }, []);
 
-  const primaryAsset = ad.assets?.find(a => a.downloadStatus === 'completed' && a.storedUrl);
   const assetCount = ad.assets?.length ?? 0;
-
-  const renderMedia = () => {
-    if (primaryAsset?.storedUrl) {
-      if (primaryAsset.assetType === 'video') {
-        return (
-          <video
-            src={primaryAsset.storedUrl}
-            poster={primaryAsset.thumbnailUrl || undefined}
-            className="max-h-[70vh] w-full object-contain rounded-lg"
-            controls
-            muted
-            playsInline
-            preload="metadata"
-          />
-        );
-      }
-      return (
-        <img
-          src={primaryAsset.storedUrl}
-          alt={ad.title || 'Ad creative'}
-          className="max-h-[70vh] w-full object-contain rounded-lg"
-          loading="lazy"
-        />
-      );
-    }
-
-    // Text fallback
-    return (
-      <div className={`flex flex-col items-center justify-center p-8 rounded-lg min-h-[200px] ${
-        darkMode ? 'bg-slate-800' : 'bg-slate-100'
-      }`}>
-        <ImageIcon className={`w-12 h-12 mb-3 ${darkMode ? 'text-slate-600' : 'text-slate-300'}`} />
-        <p className={`text-sm text-center ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-          {ad.body || ad.title || 'No preview available'}
-        </p>
-      </div>
-    );
-  };
 
   const formatSpend = () => {
     if (ad.spendLower == null && ad.spendUpper == null) return 'N/A';
@@ -322,7 +283,7 @@ export function AdDetailLightbox({ ad, darkMode, isSaved, onToggleSave, onClose 
             darkMode ? 'bg-slate-900/50' : 'bg-slate-50'
           } rounded-tl-2xl md:rounded-bl-2xl rounded-tr-2xl md:rounded-tr-none`}>
             <div className="relative w-full">
-              {renderMedia()}
+              <MetaAdPreview adId={ad.adId} advertiser={ad.brand.pageName} className="min-h-[200px] w-full rounded-lg" />
               {assetCount > 1 && (
                 <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-xs text-white font-bold">
                   {assetCount} assets

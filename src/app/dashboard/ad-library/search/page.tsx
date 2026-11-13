@@ -22,6 +22,7 @@ import {
   FileJson,
   RefreshCw,
 } from 'lucide-react';
+import { MetaAdPreview } from '@/components/ads/meta-ad-preview';
 
 interface Ad {
   id: string;
@@ -119,25 +120,12 @@ function PlatformBadges({ platforms }: { platforms: string[] }) {
 }
 
 function AdCard({ ad, viewMode }: { ad: Ad; viewMode: 'grid' | 'list' }) {
-  const [imageError, setImageError] = useState(false);
-
   if (viewMode === 'list') {
     return (
       <div className="glass rounded-lg p-4 flex gap-4 hover:bg-[var(--bg-tertiary)]/50 transition-colors">
         {/* Thumbnail */}
         <div className="w-24 h-24 rounded-lg bg-[var(--bg-tertiary)] overflow-hidden shrink-0 relative">
-          {ad.snapshotUrl && !imageError ? (
-            <img
-              src={ad.snapshotUrl}
-              alt=""
-              className="w-full h-full object-cover"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
-              <FormatIcon format={ad.displayFormat} />
-            </div>
-          )}
+          <MetaAdPreview adId={ad.adId} advertiser={ad.brand.pageName} className="h-full w-full" />
           <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/50 text-white">
             {ad.displayFormat || 'unknown'}
           </div>
@@ -202,18 +190,7 @@ function AdCard({ ad, viewMode }: { ad: Ad; viewMode: 'grid' | 'list' }) {
     <div className="glass rounded-xl overflow-hidden group">
       {/* Image */}
       <div className="aspect-square bg-[var(--bg-tertiary)] relative overflow-hidden">
-        {ad.snapshotUrl && !imageError ? (
-          <img
-            src={ad.snapshotUrl}
-            alt=""
-            className="w-full h-full object-cover"
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
-            <FormatIcon format={ad.displayFormat} />
-          </div>
-        )}
+        <MetaAdPreview adId={ad.adId} advertiser={ad.brand.pageName} />
 
         {/* Status badge */}
         <div className="absolute top-2 left-2">

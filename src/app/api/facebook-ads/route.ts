@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { publicSnapshotUrl } from '@/lib/meta-ad-url';
 import {
   fetchFacebookAds,
   fetchAdsByPageUrl,
@@ -7,10 +8,10 @@ import {
   type FacebookAdResult,
   type FacebookApiResult,
 } from '@/lib/facebook-api';
-import { auth } from '@/auth';
-import { getSubscriptionStatus } from '@/lib/subscription';
-import { getTierFromStatus, getMaxDepth, type TierName } from '@/lib/tiers';
 import { prisma } from '@/lib/prisma';
+
+// Most ads one request may analyse (the analyser offers 100, 500 and 1K).
+const MAX_ADS = 1000;
 
 /**
  * Search for ads in the local database.
@@ -91,7 +92,7 @@ async function searchLocalDatabase(
         linkTitle: ad.title,
         linkCaption: ad.caption,
         linkUrl: ad.linkUrl,
-        snapshotUrl: ad.snapshotUrl,
+        snapshotUrl: publicSnapshotUrl(ad.snapshotUrl),
         euTotalReach: ad.reachEstimate || 0,
         mediaType,
         demographics: null, // Not stored in local DB
@@ -222,28 +223,12 @@ export async function POST(request: NextRequest) {
       pageId,
       searchTerms,
       countries = [...EU_COUNTRIES, 'GB'],
-      limit = 100,  // Default to free tier limit
+      limit = 100,
       activeStatus = 'ACTIVE',
     } = body;
     const { dateMin, dateMax } = body;
 
-    // --- TIER ENFORCEMENT ---
-    // Get user's tier from session
-    const session = await auth();
-    let tier: TierName = 'free';
-
-    if (session?.user?.email) {
-      const status = await getSubscriptionStatus(session.user.email);
-      tier = getTierFromStatus(status);
-    }
-
-    // Cap limit to tier maximum
-    const maxAllowed = getMaxDepth(tier);
-    if (limit > maxAllowed) {
-      console.log(`[Tier] Capped limit from ${limit} to ${maxAllowed} for ${tier} tier`);
-      limit = maxAllowed;
-    }
-    // --- END TIER ENFORCEMENT ---
+    limit = Math.min(limit, MAX_ADS);
 
     // Validate that at least one search method is provided
     if (!adLibraryUrl && !pageId && !searchTerms) {
@@ -381,21 +366,7 @@ export async function GET(request: NextRequest) {
   const countries = searchParams.get('countries')?.split(',') || [...EU_COUNTRIES, 'GB'];
   let limit = parseInt(searchParams.get('limit') || '25', 10);
 
-  // --- TIER ENFORCEMENT ---
-  const session = await auth();
-  let tier: TierName = 'free';
-
-  if (session?.user?.email) {
-    const status = await getSubscriptionStatus(session.user.email);
-    tier = getTierFromStatus(status);
-  }
-
-  const maxAllowed = getMaxDepth(tier);
-  if (limit > maxAllowed) {
-    console.log(`[Tier] GET: Capped limit from ${limit} to ${maxAllowed} for ${tier} tier`);
-    limit = maxAllowed;
-  }
-  // --- END TIER ENFORCEMENT ---
+  limit = Math.min(limit, MAX_ADS);
 
   if (!pageId && !searchTerms) {
     return NextResponse.json(

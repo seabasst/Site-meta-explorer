@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { publicSnapshotUrl } from '@/lib/meta-ad-url';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -139,8 +140,8 @@ export async function DELETE(request: NextRequest) {
 // Handle BigInt serialization
 function serializeAd(ad: Record<string, unknown>) {
   return JSON.parse(
-    JSON.stringify(ad, (_key, value) =>
-      typeof value === 'bigint' ? Number(value) : value
+    JSON.stringify(ad, (key, value) =>
+      typeof value === 'bigint' ? Number(value) : key === 'snapshotUrl' ? publicSnapshotUrl(value) : value
     )
   );
 }

@@ -77,17 +77,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ pag
     ),
     prisma.$queryRawUnsafe<Array<{
       adId: string; reach: number | null; title: string | null; body: string | null;
-      format: string | null; startDate: string | null; image: string | null; video: string | null;
+      format: string | null; startDate: string | null;
     }>>(
+      // No creative URLs: the page credits the advertiser and links to the ad on Meta's Ad Library instead.
       `SELECT a."adId", a."reachEstimate" AS reach, a.title, a.body, a."displayFormat" AS format,
-         to_char(a."startDate", 'YYYY-MM-DD') AS "startDate",
-         (SELECT COALESCE(s."thumbnailUrl", CASE WHEN s."assetType" <> 'video' THEN s."storedUrl" END)
-          FROM "AdAsset" s
-          WHERE s."adId" = a.id AND COALESCE(s."thumbnailUrl", CASE WHEN s."assetType" <> 'video' THEN s."storedUrl" END) IS NOT NULL
-          ORDER BY s.position LIMIT 1) AS image,
-         (SELECT s."storedUrl" FROM "AdAsset" s
-          WHERE s."adId" = a.id AND s."assetType" = 'video' AND s."storedUrl" IS NOT NULL
-          ORDER BY s.position LIMIT 1) AS video
+         to_char(a."startDate", 'YYYY-MM-DD') AS "startDate"
        FROM "AdLibraryAd" a WHERE ${LIVE}
        ORDER BY a."reachEstimate" DESC NULLS LAST LIMIT 3`,
       brand.id

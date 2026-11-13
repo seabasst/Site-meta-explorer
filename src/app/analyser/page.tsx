@@ -30,9 +30,6 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { SignInButton } from '@/components/auth/sign-in-button';
 import { UserMenu } from '@/components/auth/user-menu';
-import { SubscriptionStatus } from '@/components/subscription/subscription-status';
-import { DepthSelector } from '@/components/tier/depth-selector';
-import { FeatureGate } from '@/components/tier/feature-gate';
 import { KiriMediaPopup } from '@/components/promo/kiri-media-popup';
 import { FeedbackPopup } from '@/components/feedback/feedback-popup';
 // Spend analysis temporarily disabled - updating CPM benchmarks
@@ -102,7 +99,7 @@ export default function Home() {
   // Region filter: 'global' shows all ads, 'eu' shows only EU ads (with full demographic data)
   const [regionFilter, setRegionFilter] = useState<'global' | 'eu'>('eu');
 
-  // Analysis depth - number of ads to analyze (tier-gated via DepthSelector)
+  // Analysis depth - number of ads to analyze
   const [analysisLimit, setAnalysisLimit] = useState<number>(100);
 
   // Date range filter
@@ -443,12 +440,6 @@ export default function Home() {
                 Ad Library Pro
               </span>
             </Link>
-            <Link
-              href="/#pricing"
-              className="inline-flex items-center gap-2 bg-[#1235e2] hover:bg-[#0f2bc0] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
-            >
-              Get Pro
-            </Link>
           </div>
         </nav>
 
@@ -682,11 +673,23 @@ export default function Home() {
                 <div className="w-px h-6 bg-[var(--border-subtle)] hidden sm:block" />
 
                 <span className="text-xs text-[var(--text-muted)]">Depth:</span>
-                <DepthSelector
-                  value={analysisLimit}
-                  onChange={setAnalysisLimit}
-                  disabled={isLoadingAds}
-                />
+                <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-1 border border-[var(--border-subtle)]">
+                  {[100, 500, 1000].map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setAnalysisLimit(d)}
+                      disabled={isLoadingAds}
+                      className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        analysisLimit === d
+                          ? 'bg-[var(--accent-green)] text-white'
+                          : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
+                      }`}
+                    >
+                      {d === 1000 ? '1K' : d}
+                    </button>
+                  ))}
+                </div>
 
                 <div className="w-px h-6 bg-[var(--border-subtle)] hidden sm:block" />
 
@@ -1304,7 +1307,6 @@ export default function Home() {
 
                     {/* Top Ads by Reach - Featured ad previews */}
                     {apiResult.ads.length > 0 && (
-                      <FeatureGate feature="adPreviews">
                         <div className="glass rounded-lg p-5 mb-6" data-pdf-section="ad-previews">
                           <div className="flex items-center justify-between mb-4">
                             <h3 className="font-serif text-lg text-[var(--text-primary)]">
@@ -1317,11 +1319,10 @@ export default function Home() {
                               .sort((a, b) => b.euTotalReach - a.euTotalReach)
                               .slice(0, 6)
                               .map((ad, index) => (
-                                <AdPreviewCard key={ad.adArchiveId || index} ad={ad} />
+                                <AdPreviewCard key={ad.adArchiveId || index} ad={ad} advertiser={ad.pageName || apiResult.pageName} />
                               ))}
                           </div>
                         </div>
-                      </FeatureGate>
                     )}
 
                     {/* Trend Analysis */}
@@ -1525,25 +1526,6 @@ export default function Home() {
 
               </div>
 
-              {/* Upgrade Card */}
-              {apiResult && (
-                <div className="mt-12 mb-8 p-6 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-center">
-                  <BarChart3 className="w-8 h-8 text-[#1235e2] mx-auto mb-3" />
-                  <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">
-                    Want deeper insights?
-                  </h3>
-                  <p className="text-sm text-[var(--text-secondary)] mb-4 max-w-md mx-auto">
-                    Explore the full Ad Library Pro dashboard with saved brands,
-                    category browsing, and AI-powered creative analysis.
-                  </p>
-                  <Link
-                    href="/#pricing"
-                    className="inline-flex items-center gap-2 bg-[#1235e2] hover:bg-[#0f2bc0] text-white text-sm font-medium px-6 py-2.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
-                  >
-                    Explore Pro Dashboard
-                  </Link>
-                </div>
-              )}
             </div>
           )}
 

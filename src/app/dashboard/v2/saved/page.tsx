@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { V2Shell, V2Card, V2SectionTitle, V2Skeleton, formatNumber } from '../v2-shell';
 import { useV2 } from '../v2-context';
+import { MetaAdPreview } from '@/components/ads/meta-ad-preview';
 
 interface Ad {
   id: string;
@@ -198,34 +199,6 @@ export default function SavedAdsPage() {
 }
 
 function SavedAdCard({ ad, darkMode, onUnsave }: { ad: Ad; darkMode: boolean; onUnsave: (adId: string) => void }) {
-  const primaryAsset = ad.assets?.find((a) => a.downloadStatus === 'completed' && a.storedUrl);
-
-  const renderPreview = () => {
-    if (primaryAsset?.storedUrl) {
-      if (primaryAsset.assetType === 'video') {
-        return (
-          <video
-            src={primaryAsset.storedUrl}
-            poster={primaryAsset.thumbnailUrl || undefined}
-            className="w-full h-full object-cover"
-            controls muted loop playsInline preload="metadata"
-          />
-        );
-      }
-      return (
-        <img src={primaryAsset.storedUrl} alt={ad.title || 'Ad creative'} className="w-full h-full object-cover" loading="lazy" />
-      );
-    }
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-4">
-        <ImageIcon className={`w-8 h-8 mb-3 ${darkMode ? 'text-slate-600' : 'text-slate-300'}`} />
-        <p className={`text-xs text-center line-clamp-4 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-          {ad.body || ad.title || 'No preview available'}
-        </p>
-      </div>
-    );
-  };
-
   const formatIcon = () => {
     switch (ad.displayFormat) {
       case 'video': return <Play className="w-3 h-3" />;
@@ -241,7 +214,7 @@ function SavedAdCard({ ad, darkMode, onUnsave }: { ad: Ad; darkMode: boolean; on
         : 'bg-white border-slate-200 hover:border-[#1235e2]/40'
     }`}>
       <div className={`relative aspect-[4/5] overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
-        {renderPreview()}
+        <MetaAdPreview adId={ad.adId} advertiser={ad.brand.pageName} />
 
         <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded text-[10px] text-white font-bold uppercase tracking-wide flex items-center gap-1 z-10">
           {formatIcon()}

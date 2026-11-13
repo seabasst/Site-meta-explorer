@@ -45,14 +45,6 @@ export function LandingFooter() {
                     Dashboard
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="#pricing"
-                    className="text-sm text-slate-400 hover:text-white transition-colors duration-300"
-                  >
-                    Pricing
-                  </Link>
-                </li>
               </ul>
             </div>
           </div>
