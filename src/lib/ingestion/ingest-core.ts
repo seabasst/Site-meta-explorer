@@ -35,6 +35,44 @@ interface TokenState {
 // Threshold for proactive rotation (percentage)
 const USAGE_ROTATION_THRESHOLD = 80;
 
+// Codes that can mean the token is dead (190, 102, 463, 467) or lacks Ad Library access
+// (10, 200). Meta also returns them for one-off request problems, so none of them kills a
+// token until a probe with that same token fails too (TokenManager.confirmDead).
+const TOKEN_ERROR_CODES = [190, 102, 463, 467, 10, 200];
+// How often dead tokens are re-probed while every token is dead.
+const TOKEN_REVIVE_INTERVAL_MS = 15 * 60_000;
+// Facebook's own page. Any page works: an empty ads_archive result still passes the probe.
+const PROBE_PAGE_ID = '20531316728';
+
+interface MetaError {
+  code: number;
+  error_subcode?: number;
+  type?: string;
+  message?: string;
+  fbtrace_id?: string;
+}
+
+function formatMetaError(e: MetaError): string {
+  const code = `code ${e.code}${e.error_subcode ? `/${e.error_subcode}` : ''}`;
+  return [code, e.type, `"${e.message ?? ''}"`, `fbtrace=${e.fbtrace_id ?? '-'}`].filter(Boolean).join(' ');
+}
+
+// The cheapest call that proves a token can still read the Ad Library. /me would not: a
+// token can be valid yet have lost ads_archive access. Returns Meta's error, or null when
+// the token works. Throws on network failure (which says nothing about the token).
+async function probeToken(token: string): Promise<MetaError | null> {
+  const params = new URLSearchParams({
+    access_token: token,
+    search_page_ids: PROBE_PAGE_ID,
+    ad_reached_countries: '["SE"]',
+    ad_type: 'ALL',
+    fields: 'id',
+    limit: '1',
+  });
+  const data = await (await fetch(`${BASE_URL}/${API_VERSION}/ads_archive?${params}`)).json();
+  return data.error ?? null;
+}
+
 // Token rotation manager with health tracking
 class TokenManager {
   private tokens: string[];
@@ -142,30 +180,66 @@ class TokenManager {
     this.currentIndex = (this.currentIndex + 1) % this.tokens.length;
   }
 
-  // Mark token as expired (permanent until refreshed)
-  markExpired(errorMessage?: string): void {
-    const state = this.tokenStates.get(this.currentIndex);
-    if (state) {
-      state.status = 'expired';
-      state.lastError = errorMessage || 'Token expired';
-      console.log(`⚠️ Token ${this.currentIndex + 1}/${this.tokens.length} EXPIRED: ${errorMessage}`);
+  // Called with the token a request used when it got a TOKEN_ERROR_CODES error. Marks the
+  // token dead only if a probe with it fails the same way; otherwise the error belonged to
+  // that request. On 2026-10-23 one such error killed TOKEN1 (valid until 2026-12-11) and
+  // halted the Fly worker for 26h. Takes the token, not currentIndex: with CONCURRENCY > 1
+  // currentIndex may already point at another request's token. Returns true if marked dead.
+  async confirmDead(token: string, error: MetaError): Promise<boolean> {
+    const index = this.tokens.indexOf(token);
+    const state = this.tokenStates.get(index);
+    if (!state) return false;
+
+    let probe: MetaError | null;
+    try {
+      probe = await probeToken(token);
+    } catch {
+      return false; // network trouble says nothing about the token
+    }
+    if (!probe || !TOKEN_ERROR_CODES.includes(probe.code)) {
+      console.log(`Token ${index + 1} passed a re-probe after ${formatMetaError(error)} — keeping it, failing this request only`);
+      return false;
     }
 
-    // Rotate to next token
-    this.currentIndex = (this.currentIndex + 1) % this.tokens.length;
+    state.status = [10, 200].includes(probe.code) ? 'invalid' : 'expired';
+    state.lastError = `${new Date().toISOString()} request: ${formatMetaError(error)} | probe: ${formatMetaError(probe)}`;
+    console.log(`⛔ TOKEN ${index + 1}/${this.tokens.length} MARKED ${state.status.toUpperCase()} — ${state.lastError}`);
+    this.currentIndex = (index + 1) % this.tokens.length;
+    return true;
   }
 
-  // Mark token as invalid (wrong permissions, etc.)
-  markInvalid(errorMessage?: string): void {
-    const state = this.tokenStates.get(this.currentIndex);
-    if (state) {
-      state.status = 'invalid';
-      state.lastError = errorMessage || 'Token invalid';
-      console.log(`⚠️ Token ${this.currentIndex + 1}/${this.tokens.length} INVALID: ${errorMessage}`);
-    }
+  private lastReviveAt = 0;
 
-    // Rotate to next token
-    this.currentIndex = (this.currentIndex + 1) % this.tokens.length;
+  // Re-probe dead tokens (at most every TOKEN_REVIVE_INTERVAL_MS) and reactivate any that
+  // pass, so a token marked dead in error comes back without a machine restart.
+  // Returns how many were revived.
+  async reviveDeadTokens(now = Date.now()): Promise<number> {
+    if (now - this.lastReviveAt < TOKEN_REVIVE_INTERVAL_MS) return 0;
+    this.lastReviveAt = now;
+    let revived = 0;
+    for (const [index, state] of this.tokenStates.entries()) {
+      if (state.status !== 'expired' && state.status !== 'invalid') continue;
+      try {
+        const probe = await probeToken(this.tokens[index]);
+        if (probe && TOKEN_ERROR_CODES.includes(probe.code)) continue;
+      } catch {
+        continue; // network trouble: try again next round
+      }
+      console.log(`✅ Token ${index + 1}/${this.tokens.length} passed a probe — revived (was: ${state.lastError})`);
+      state.status = 'active';
+      state.lastError = undefined;
+      revived++;
+    }
+    return revived;
+  }
+
+  // Why each dead token was marked dead, for the worker's halt line. It repeats every
+  // poll, so the original Meta error stays inside Fly's short log buffer.
+  describeDeadTokens(): string {
+    return [...this.tokenStates.entries()]
+      .filter(([, s]) => s.status === 'expired' || s.status === 'invalid')
+      .map(([i, s]) => `T${i + 1} ${s.status}: ${s.lastError}`)
+      .join(' ; ');
   }
 
   getCurrentTokenIndex(): number {
@@ -553,36 +627,17 @@ async function fetchAdsPage(
     // - 2, 4, 17, 613, 80004: Rate limiting / temporary
     // - 1: Data too large (can retry with smaller limit)
 
-    // Token expired (code 190)
-    if (errorCode === 190) {
-      tokenManager.markExpired(errorMessage);
-
-      // If we have usable tokens, retry with next one
-      if (tokenManager.hasUsableTokens()) {
-        console.log(`Token expired, switching to token ${tokenManager.getCurrentTokenIndex()}/${tokenManager.getTotalTokens()}...`);
-        return fetchAdsPage(pageId, pageName, cursor, retryCount, limit);
+    // Token expired/invalid or missing permissions — only if a re-probe agrees.
+    if (TOKEN_ERROR_CODES.includes(errorCode)) {
+      if (await tokenManager.confirmDead(token, data.error)) {
+        if (tokenManager.hasUsableTokens()) {
+          console.log(`Switching to token ${tokenManager.getCurrentTokenIndex()}/${tokenManager.getTotalTokens()}...`);
+          return fetchAdsPage(pageId, pageName, cursor, retryCount, limit);
+        }
+        throw new Error(`All tokens are expired or invalid. Please update your Facebook access tokens. Last error: ${formatMetaError(data.error)}`);
       }
-      throw new Error(`All tokens expired. Please update your Facebook access tokens. Last error: ${errorMessage}`);
-    }
-
-    // Session/token issues (permanent until refreshed)
-    if ([102, 463, 467].includes(errorCode)) {
-      tokenManager.markExpired(errorMessage);
-      if (tokenManager.hasUsableTokens()) {
-        console.log(`Token invalid (code ${errorCode}), switching tokens...`);
-        return fetchAdsPage(pageId, pageName, cursor, retryCount, limit);
-      }
-      throw new Error(`Token error (${errorCode}): ${errorMessage}`);
-    }
-
-    // Permission errors
-    if ([200, 10].includes(errorCode)) {
-      tokenManager.markInvalid(`Missing permissions: ${errorMessage}`);
-      if (tokenManager.hasUsableTokens()) {
-        console.log(`Token missing permissions (code ${errorCode}), trying next token...`);
-        return fetchAdsPage(pageId, pageName, cursor, retryCount, limit);
-      }
-      throw new Error(`Permission error (${errorCode}): ${errorMessage}`);
+      // The token still works, so this was about this request: fail only this brand.
+      throw new Error(`API Error: ${errorMessage} (code: ${errorCode}${data.error.error_subcode ? `/${data.error.error_subcode}` : ''})`);
     }
 
     // Handle "reduce data" error (code 1) by reducing limit
