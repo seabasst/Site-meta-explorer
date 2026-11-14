@@ -28,9 +28,9 @@ const tokenCalls = () => calls.filter((c) => c.url.includes('/oauth/token/')).le
 const BIG = '7012345678901234567'; // past Number.MAX_SAFE_INTEGER
 
 async function main() {
-  // Paging, a 429 mid-way, and ids that JSON would round.
+  // Paging, a 429 mid-way, ids that JSON would round, and the date range TikTok accepts.
   queue.push(
-    { status: 200, body: ok(`{"ads":[{"ad":{"id":${BIG}},"advertiser":{"business_id":${BIG}}}],"has_more":"true","search_id":"s1"}`) },
+    { status: 200, body: ok(`{"ads":[{"ad":{"id":${BIG}},"advertiser":{"business_id":${BIG}}}],"has_more":true,"search_id":"s1"}`) },
     { status: 429, body: '{"error":{"code":"rate_limit_exceeded","message":"slow down"}}' },
     { status: 200, body: ok(`{"ads":[{"ad":{"id":12},"advertiser":{"business_id":${BIG}}}],"has_more":false,"search_id":"s1"}`) },
   );
@@ -39,6 +39,10 @@ async function main() {
   assert.equal(ads[0].advertiser.business_id, BIG);
   const queries = calls.filter((c) => c.url.includes('/ad/query/'));
   assert.equal(queries.length, 3); // page 1, the 429, page 2 again
+  // TikTok 400s on a max of "today". UTC yesterday is still today west of UTC, so max must be earlier.
+  const { max } = JSON.parse(queries[0].body).filters.ad_published_date_range;
+  const utcYesterday = new Date(Date.now() - 86400e3).toISOString().slice(0, 10).replace(/-/g, '');
+  assert.ok(max < utcYesterday, `date range max ${max} must be before ${utcYesterday}`);
   assert.ok(queries[0].body.includes(`"advertiser_business_ids":[${BIG}]`), 'id sent unrounded');
   assert.ok(!queries[0].body.includes('search_id'));
   assert.ok(queries[2].body.includes('"search_id":"s1"'));
@@ -60,7 +64,7 @@ async function main() {
   assert.deepEqual(await searchAdvertisers('Acme'), [{ business_id: '1', business_name: 'Acme' }]);
   assert.equal(tokenCalls(), 1, 'token re-minted after 401');
 
-  console.log('tiktok-api: 12 assertions passed');
+  console.log('tiktok-api: 13 assertions passed');
 }
 
 main();

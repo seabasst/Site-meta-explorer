@@ -15,10 +15,8 @@ export const isTikTokId = (id: string) => id.startsWith(TIKTOK_ID_PREFIX);
 
 const API = 'https://open.tiktokapis.com/v2';
 
-// TikTok's docs contradict their own examples on several names (videos vs ad_videos,
-// paid_for_by in the request vs paid_by in the response, country_code vs
-// country_code_list). The types below follow the response examples; check them
-// against the first live response before trusting them.
+// TikTok's docs contradict their own examples on several names. The types below follow
+// live responses (checked 2026-11-14 on Zalando), not the docs.
 const QUERY_FIELDS = [
   'ad.id', 'ad.first_shown_date', 'ad.last_shown_date', 'ad.status', 'ad.videos',
   'ad.image_urls', 'ad.reach', 'advertiser.business_id', 'advertiser.business_name',
@@ -35,18 +33,18 @@ export interface TikTokAdvertiser {
   business_id: string;
   business_name: string;
   country_code?: string;
-  paid_by?: string;
+  paid_for_by?: string; // the docs' response example says paid_by; the API sends paid_for_by
   tiktok_account?: { avatar_url?: string; follower_count?: number; profile_url?: string };
 }
 
 export interface TikTokAd {
   id: string;
-  first_shown_date: string | number; // yyyymmdd
-  last_shown_date: string | number;
+  first_shown_date: string; // "yyyymmdd"
+  last_shown_date: string;
   status?: string;
   videos?: { url: string }[];
   image_urls?: string[];
-  reach?: { unique_users_seen?: string; unique_users_seen_breakdowns?: unknown }; // rounded, e.g. "30K"
+  reach?: { unique_users_seen?: string; unique_users_seen_breakdowns?: unknown }; // a range: "10M-20M", "62K", "0-1K"
   title?: string;
   external_url?: string;
   call_to_action?: string;
@@ -142,26 +140,26 @@ export async function searchAdvertisers(term: string): Promise<TikTokAdvertiser[
 export async function fetchAllAds(
   filter: { advertiserIds: string[] } | { searchTerm: string },
 ): Promise<TikTokAdItem[]> {
-  const now = new Date();
+  const daysAgo = (n: number) => yyyymmdd(new Date(Date.now() - n * 86400e3));
   const filters = {
-    ad_published_date_range: { min: yyyymmdd(new Date(now.getTime() - 364 * 86400e3)), max: yyyymmdd(now) },
-    // Not in TikTok's current reference, only in older docs. If the first live call
-    // rejects it, fall back to searchTerm and keep the ads whose business_id matches.
+    // TikTok rejects a max of today ("provide a value before today's date"). Two days back
+    // is before today in every timezone, whichever one TikTok's "today" uses; ads from the
+    // last day arrive on the next run.
+    ad_published_date_range: { min: daysAgo(364), max: daysAgo(2) },
+    // Missing from TikTok's current reference but works (checked live 2026-11-14).
     ...('advertiserIds' in filter && { advertiser_business_ids: filter.advertiserIds.map(i64) }),
   };
 
   const ads: TikTokAdItem[] = [];
   let searchId: string | undefined;
   do {
-    const page = await post<{ ads?: TikTokAdItem[]; has_more?: boolean | string; search_id?: string }>(
+    const page = await post<{ ads?: TikTokAdItem[]; has_more?: boolean; search_id?: string }>(
       '/research/adlib/ad/query/',
       QUERY_FIELDS,
       { filters, ...('searchTerm' in filter && { search_term: filter.searchTerm }), max_count: 10, search_id: searchId },
     );
     ads.push(...(page.ads ?? []));
-    // has_more is documented as bool but shown as "true" in the examples.
-    const more = page.has_more === true || page.has_more === 'true';
-    searchId = more && page.ads?.length ? page.search_id : undefined;
+    searchId = page.has_more && page.ads?.length ? page.search_id : undefined;
   } while (searchId);
   return ads;
 }
