@@ -24,7 +24,7 @@ function SignInForm() {
     fetch("/api/auth/providers")
       .then(res => res.json())
       .then(data => setProviders(data))
-      .catch(() => setProviders({ google: false, credentials: true }))
+      .catch(() => setProviders({ google: false, credentials: false }))
   }, [])
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
@@ -52,7 +52,7 @@ function SignInForm() {
   const getErrorMessage = (errorCode: string) => {
     switch (errorCode) {
       case "CredentialsSignin":
-        return "Invalid email or password. Try demo@example.com / demo123"
+        return "Invalid email or password."
       case "OAuthAccountNotLinked":
         return "This email is already linked to another account."
       case "OAuthSignin":
@@ -113,16 +113,18 @@ function SignInForm() {
           </button>
 
           {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[var(--border-subtle)]" />
+          {providers.credentials && (
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-[var(--border-subtle)]" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="px-3 bg-[var(--bg-secondary)] text-[var(--text-muted)]">
+                  or sign in with email
+                </span>
+              </div>
             </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-[var(--bg-secondary)] text-[var(--text-muted)]">
-                or sign in with email
-              </span>
-            </div>
-          </div>
+          )}
         </>
       )}
 
@@ -142,61 +144,65 @@ function SignInForm() {
         <div className="h-12 mb-4 rounded-lg bg-[var(--bg-tertiary)] animate-pulse" />
       )}
 
-      {/* Email/Password Form */}
-      <form onSubmit={handleEmailSignIn} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="demo@example.com"
-            required
-            className="input-field w-full"
-          />
-        </div>
+      {/* Email/Password Form - demo login, off in production */}
+      {providers?.credentials && (
+        <>
+          <form onSubmit={handleEmailSignIn} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="demo@example.com"
+                required
+                className="input-field w-full"
+              />
+            </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="demo123"
-            required
-            className="input-field w-full"
-          />
-        </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="demo123"
+                required
+                className="input-field w-full"
+              />
+            </div>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full btn-primary py-3 text-base font-semibold"
-        >
-          {isLoading ? (
-            <span className="flex items-center justify-center gap-2">
-              <span className="w-4 h-4 border-2 rounded-full border-white/30 border-t-white animate-spin" />
-              Signing in...
-            </span>
-          ) : (
-            "Sign In"
-          )}
-        </button>
-      </form>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full btn-primary py-3 text-base font-semibold"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-4 h-4 border-2 rounded-full border-white/30 border-t-white animate-spin" />
+                  Signing in...
+                </span>
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </form>
 
-      {/* Demo credentials hint */}
-      <div className="mt-6 p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
-        <p className="text-xs text-[var(--text-muted)] text-center">
-          <span className="font-medium text-[var(--accent-green-light)]">Demo credentials:</span>{" "}
-          demo@example.com / demo123
-        </p>
-      </div>
+          {/* Demo credentials hint */}
+          <div className="mt-6 p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
+            <p className="text-xs text-[var(--text-muted)] text-center">
+              <span className="font-medium text-[var(--accent-green-light)]">Demo credentials:</span>{" "}
+              demo@example.com / demo123
+            </p>
+          </div>
+        </>
+      )}
 
       {/* Back link */}
       <div className="mt-6 text-center">
