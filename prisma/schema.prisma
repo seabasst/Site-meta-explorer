@@ -344,6 +344,16 @@ model AdObservation {
   @@index([observedAt])
 }
 
+// Industry ad-lifespan benchmarks served by the free MCP (/api/mcp). Written by
+// scripts/benchmarks/vertical-benchmark.mjs build. Stored here, not in the repo:
+// the repo is public and this is Meta Platform Data, shared only under /mcp/terms.
+model VerticalBenchmark {
+  vertical String   @id
+  data     Json     // what the MCP serves
+  panel    Json     // the hand-reviewed page list it was built from
+  builtAt  DateTime @default(now())
+}
+
 model AdAsset {
   id String @id @default(cuid())
 
