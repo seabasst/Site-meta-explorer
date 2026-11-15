@@ -1312,19 +1312,35 @@ async function processBrand(brandId: string, pageId: string, pageName: string) {
 export async function selectDueBrands(limit: number) {
   const REFRESH_AFTER_DAYS = 7;
   const staleBefore = new Date(Date.now() - REFRESH_AFTER_DAYS * 24 * 60 * 60 * 1000);
-  return prisma.adLibraryBrand.findMany({
-    where: {
-      platform: 'meta', // processBrand skips TikTok without touching lastCheckedAt, so they'd hog every batch
-      failCount: { lt: 3 },
-      OR: [
-        { ingestionStatus: { in: ['pending', 'failed'] } },
-        { ingestionStatus: 'active', lastCheckedAt: null },
-        { ingestionStatus: 'active', lastCheckedAt: { lt: staleBefore } },
-      ],
-    },
-    orderBy: [{ lastCheckedAt: { sort: 'asc', nulls: 'first' } }, { priority: 'desc' }],
-    take: limit,
-  });
+  const due = {
+    platform: 'meta', // processBrand skips TikTok without touching lastCheckedAt, so they'd hog every batch
+    failCount: { lt: 3 },
+    OR: [
+      { ingestionStatus: { in: ['pending', 'failed'] } },
+      { ingestionStatus: 'active', lastCheckedAt: null },
+      { ingestionStatus: 'active', lastCheckedAt: { lt: staleBefore } },
+    ],
+  };
+  // Longest-waiting first, where a never-checked brand has waited since it was added.
+  // Sorting never-checked brands first let discovery's 150 new brands a day jump the
+  // whole backlog: at ~8 jobs a day (2026-11-15) a brand that had been checked once was
+  // never reached again. Two queries because Prisma can't order by COALESCE.
+  const [checked, never] = await Promise.all([
+    prisma.adLibraryBrand.findMany({
+      where: { ...due, lastCheckedAt: { not: null } },
+      orderBy: [{ lastCheckedAt: 'asc' }, { priority: 'desc' }],
+      take: limit,
+    }),
+    prisma.adLibraryBrand.findMany({
+      where: { ...due, lastCheckedAt: null },
+      orderBy: [{ createdAt: 'asc' }, { priority: 'desc' }],
+      take: limit,
+    }),
+  ]);
+  const waitingSince = (b: { lastCheckedAt: Date | null; createdAt: Date }) => (b.lastCheckedAt ?? b.createdAt).getTime();
+  return [...checked, ...never]
+    .sort((a, b) => waitingSince(a) - waitingSince(b) || b.priority - a.priority)
+    .slice(0, limit);
 }
 
 export { tokenManager, processBrand, sleep, BRANDS_PER_RUN, CRON_SECRET, isNumericPageId, TokenManager };
