@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { isAdminEmail } from '@/lib/admin';
 
 /**
  * GET /api/roadmap - List roadmap requests
@@ -36,6 +37,8 @@ export async function GET(req: Request) {
     // Get current user to check which requests they've upvoted
     const session = await auth();
     const userId = session?.user?.id;
+    // Submitter emails are PII: only admins see them.
+    const isAdmin = isAdminEmail(session?.user?.email);
 
     const serialized = requests.map((r) => ({
       id: r.id,
@@ -45,7 +48,7 @@ export async function GET(req: Request) {
       pageUrl: r.pageUrl,
       status: r.status,
       upvoteCount: r.upvoteCount,
-      userEmail: r.userEmail,
+      userEmail: isAdmin ? r.userEmail : null,
       createdAt: r.createdAt.toISOString(),
       hasUpvoted: userId ? r.upvotes.some((u) => u.userId === userId) : false,
       isOwner: userId === r.userId,

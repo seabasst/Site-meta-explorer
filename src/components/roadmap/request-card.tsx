@@ -13,7 +13,7 @@ interface RequestCardProps {
     pageUrl: string | null;
     status: string;
     upvoteCount: number;
-    userEmail: string;
+    userEmail: string | null;
     createdAt: string;
     hasUpvoted: boolean;
     isOwner: boolean;
@@ -153,8 +153,12 @@ export function RequestCard({ request, onUpvote, onDelete, isAdmin }: RequestCar
 
           {/* Meta info */}
           <div className="mt-2 flex items-center gap-2 text-xs text-[var(--text-muted)]">
-            <span>{request.userEmail.split('@')[0]}</span>
-            <span>·</span>
+            {request.userEmail && (
+              <>
+                <span>{request.userEmail.split('@')[0]}</span>
+                <span>·</span>
+              </>
+            )}
             <span>{formatDate(request.createdAt)}</span>
             {request.isOwner && (
               <>
