@@ -562,51 +562,14 @@ function AdLibraryContent() {
                 Create a free account to save ads and build your collection.
               </p>
 
-              <form
-                className="w-full space-y-3"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const form = e.currentTarget;
-                  const email = (form.elements.namedItem('email') as HTMLInputElement).value;
-                  const password = (form.elements.namedItem('password') as HTMLInputElement).value;
-                  const res = await signIn('credentials', { email, password, redirect: false });
-                  if (res?.ok) setShowLoginModal(false);
-                }}
+              {/* Hands off to /auth/signin, which only offers the providers enabled on this deploy */}
+              <button
+                onClick={() => signIn()}
+                className="w-full py-2.5 rounded-lg bg-[#1235e2] text-white text-sm font-semibold hover:bg-[#0f2bc4] transition-colors flex items-center justify-center gap-2"
               >
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="Email"
-                  defaultValue="demo@example.com"
-                  className={`w-full px-3 py-2.5 rounded-lg text-sm border outline-none transition-colors ${
-                    darkMode
-                      ? 'bg-[#101322] border-[#1235e2]/20 text-white placeholder-slate-500 focus:border-[#1235e2]'
-                      : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-[#1235e2]'
-                  }`}
-                />
-                <input
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  defaultValue="demo123"
-                  className={`w-full px-3 py-2.5 rounded-lg text-sm border outline-none transition-colors ${
-                    darkMode
-                      ? 'bg-[#101322] border-[#1235e2]/20 text-white placeholder-slate-500 focus:border-[#1235e2]'
-                      : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-[#1235e2]'
-                  }`}
-                />
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-lg bg-[#1235e2] text-white text-sm font-semibold hover:bg-[#0f2bc4] transition-colors flex items-center justify-center gap-2"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Sign In
-                </button>
-              </form>
-
-              <p className={`text-xs mt-4 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                Demo: demo@example.com / demo123
-              </p>
+                <LogIn className="w-4 h-4" />
+                Sign In
+              </button>
             </div>
           </div>
         </div>
