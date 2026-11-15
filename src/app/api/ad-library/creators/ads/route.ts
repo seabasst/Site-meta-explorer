@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { publicSnapshotUrl } from '@/lib/meta-ad-url';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
     const ads = partnerships.flatMap((p) =>
       p.metaAdIds.map((adId, i) => ({
         adId,
-        snapshotUrl: p.snapshotUrls[i] || null,
+        snapshotUrl: publicSnapshotUrl(p.snapshotUrls[i]),
         mediaUrl: p.mediaUrls[i] || null,
         mediaType: (p.mediaTypes[i] as 'image' | 'video') || 'image',
         body: p.adBodies[i] || null,

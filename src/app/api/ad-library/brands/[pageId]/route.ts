@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { publicSnapshotUrl } from '@/lib/meta-ad-url';
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
 import { CATEGORY_KEYS } from '@/lib/classification/taxonomy';
@@ -176,7 +177,7 @@ function serializeAd(ad: {
     linkUrl: ad.linkUrl,
     ctaText: ad.ctaText,
     ctaType: ad.ctaType,
-    snapshotUrl: ad.snapshotUrl,
+    snapshotUrl: publicSnapshotUrl(ad.snapshotUrl),
     bylines: ad.bylines,
     startDate: ad.startDate,
     endDate: ad.endDate,

@@ -28,7 +28,7 @@ export function Monogram({ name, pageId, size = 40 }: { name: string; pageId?: s
   );
 }
 
-export function TopBar({ onEarlyBird }: { onEarlyBird: () => void }) {
+export function TopBar() {
   return (
     <header className="sticky top-0 z-30 border-b border-stone-200/60 bg-[#FAF9F7]/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center px-4 md:px-6">
@@ -37,26 +37,17 @@ export function TopBar({ onEarlyBird }: { onEarlyBird: () => void }) {
           <span className="text-[17px] font-semibold tracking-[-0.03em]">genome</span>
           <span className="hidden text-xs text-stone-400 sm:inline">by KiriMedia</span>
         </Link>
-        <span className="flex-1" />
-        <button
-          onClick={onEarlyBird}
-          className="rounded-full px-4 py-2 text-sm font-medium text-stone-700 ring-1 ring-stone-300 transition hover:bg-white active:scale-[0.98]"
-        >
-          Early bird
-        </button>
       </div>
     </header>
   );
 }
 
-// Page chrome for server-rendered pages: top bar plus the early-bird dialog.
+// Page chrome for server-rendered pages.
 export function Shell({ children }: { children: React.ReactNode }) {
-  const [lead, setLead] = useState<Lead | null>(null);
   return (
     <div className="min-h-[100dvh] bg-[#FAF9F7] text-stone-900 antialiased" style={{ fontFamily: 'var(--font-geist-sans), system-ui, sans-serif' }}>
-      <TopBar onEarlyBird={() => setLead({ kind: 'earlybird' })} />
+      <TopBar />
       {children}
-      <LeadDialog lead={lead} onClose={() => setLead(null)} />
     </div>
   );
 }
@@ -71,10 +62,10 @@ export function Ghost({ className = '', eyes = '#FAF9F7' }: { className?: string
   );
 }
 
-export type Lead = { kind: 'data'; subject: string } | { kind: 'earlybird'; subject?: string };
+export type Lead = { kind: 'data'; subject: string };
 
-// Both forms land in the same Notion sign-up database as /coming-soon, with the
-// topic in the title so the team can tell a data request from an early-bird lead.
+// Data requests land in the same Notion sign-up database as /coming-soon, with the
+// topic in the title.
 export function LeadDialog({ lead, onClose }: { lead: Lead | null; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [email, setEmail] = useState('');
@@ -92,9 +83,7 @@ export function LeadDialog({ lead, onClose }: { lead: Lead | null; onClose: () =
     e.preventDefault();
     if (!lead) return;
     setState('sending'); setError('');
-    const topic = lead.kind === 'data'
-      ? `Data request: ${lead.subject}`
-      : `Early bird (99 USD)${lead.subject ? `, from ${lead.subject} report` : ''}`;
+    const topic = `Data request: ${lead.subject}`;
     try {
       const r = await fetch('/api/signup', {
         method: 'POST',
@@ -108,8 +97,6 @@ export function LeadDialog({ lead, onClose }: { lead: Lead | null; onClose: () =
       setState('idle');
     }
   }
-
-  const isData = lead?.kind === 'data';
 
   return (
     <dialog
@@ -126,31 +113,22 @@ export function LeadDialog({ lead, onClose }: { lead: Lead | null; onClose: () =
           {state === 'done' ? (
             <div className="pt-2">
               <span className="grid h-11 w-11 place-items-center rounded-full bg-rose-50 text-rose-600"><Check size={20} strokeWidth={2} /></span>
-              <h2 className="mt-5 text-xl font-semibold tracking-tight">{isData ? 'Request received' : "You're on the list"}</h2>
+              <h2 className="mt-5 text-xl font-semibold tracking-tight">Request received</h2>
               <p className="mt-2 text-[15px] leading-relaxed text-stone-600">
-                {isData
-                  ? <>We&apos;ll email <b className="font-medium text-stone-900">{email}</b> when the data for {lead.subject} is in.</>
-                  : <>We&apos;ll be in touch at <b className="font-medium text-stone-900">{email}</b>.</>}
+                We&apos;ll email <b className="font-medium text-stone-900">{email}</b> when the data for {lead.subject} is in.
               </p>
               <button onClick={onClose} className="mt-7 w-full rounded-full bg-stone-900 py-3.5 text-[15px] font-medium text-white transition active:scale-[0.99]">Done</button>
             </div>
           ) : (
             <form onSubmit={submit}>
-              <div className="text-xs font-medium uppercase tracking-[0.14em] text-rose-600">{isData ? 'Request data' : 'Early bird'}</div>
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-rose-600">Request data</div>
               <h2 className="mt-3 pr-8 text-2xl font-semibold leading-tight tracking-[-0.02em]">
-                {isData ? <>Add &ldquo;{lead.subject}&rdquo; to Genome</> : <>99 USD for the full picture</>}
+                Add &ldquo;{lead.subject}&rdquo; to Genome
               </h2>
-              {isData ? (
-                <p className="mt-3 text-[15px] leading-relaxed text-stone-600">
-                  We don&apos;t track this account yet. It can take 1 to 2 days before all its ads are downloaded and analysed.
-                  Leave your email and we&apos;ll mail you when it&apos;s in.
-                </p>
-              ) : (
-                <ul className="mt-4 space-y-2.5 text-[15px] text-stone-700">
-                  <li className="flex gap-3"><Check size={18} strokeWidth={2} className="mt-0.5 shrink-0 text-rose-600" />API access to the whole database</li>
-                  <li className="flex gap-3"><Check size={18} strokeWidth={2} className="mt-0.5 shrink-0 text-rose-600" />Deeper analysis of your competitors</li>
-                </ul>
-              )}
+              <p className="mt-3 text-[15px] leading-relaxed text-stone-600">
+                We don&apos;t track this account yet. It can take 1 to 2 days before all its ads are downloaded and analysed.
+                Leave your email and we&apos;ll mail you when it&apos;s in.
+              </p>
 
               <label htmlFor="lead-email" className="mt-6 block text-sm font-medium text-stone-700">Email</label>
               <input
@@ -164,7 +142,7 @@ export function LeadDialog({ lead, onClose }: { lead: Lead | null; onClose: () =
                 type="submit" disabled={state === 'sending'}
                 className="mt-5 w-full rounded-full bg-rose-600 py-3.5 text-[15px] font-medium text-white transition hover:bg-rose-700 active:scale-[0.99] disabled:opacity-60"
               >
-                {state === 'sending' ? 'Sending…' : isData ? 'Request data' : 'Request early bird'}
+                {state === 'sending' ? 'Sending…' : 'Request data'}
               </button>
             </form>
           )}

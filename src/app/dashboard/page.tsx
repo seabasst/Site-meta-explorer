@@ -46,25 +46,24 @@ export default function DashboardPage() {
           {/* Hero */}
           <div className="inline-flex items-center gap-2 bg-[#1235e2]/10 text-[#1235e2] px-4 py-1.5 rounded-full text-sm font-medium mb-8">
             <Zap className="w-4 h-4" />
-            Pro Dashboard — Early Access
+            Dashboard
           </div>
 
           <h1 className="font-serif text-4xl md:text-5xl text-[var(--text-primary)] mb-4 leading-tight">
-            Try our Pro Dashboard now!
+            Try the full dashboard
           </h1>
           <p className="text-lg text-[var(--text-muted)] mb-4 max-w-xl mx-auto">
             Full ad database, historical trends, competitor tracking, benchmarking reports, and media downloads — all in one place.
           </p>
           <p className="text-sm text-[var(--text-secondary)] mb-10">
-            Free during early access.{' '}
-            <span className="text-[#1235e2] font-semibold">Soon $59/month.</span>
+            Free to use.
           </p>
 
           <Link
             href="/dashboard/v2"
             className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1235e2] text-white rounded-xl text-base font-semibold hover:bg-[#0f2dc5] transition-colors shadow-lg shadow-[#1235e2]/25"
           >
-            Open Pro Dashboard <ArrowRight className="w-5 h-5" />
+            Open the dashboard <ArrowRight className="w-5 h-5" />
           </Link>
 
           {/* Features */}

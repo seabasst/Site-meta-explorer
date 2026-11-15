@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { TermsGated } from '@/components/terms/terms-gated';
 
 export const metadata: Metadata = {
   title: 'Dashboard | Ad Analyser',
@@ -6,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return <TermsGated>{children}</TermsGated>;
 }

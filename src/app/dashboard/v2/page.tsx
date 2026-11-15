@@ -10,14 +10,13 @@ import {
   Plus,
   ArrowRight,
   Clock,
-  Sparkles,
   BarChart3,
   Users,
-  ExternalLink,
 } from 'lucide-react';
 import { V2Shell, V2Card, V2Skeleton, formatNumber } from './v2-shell';
 import { useV2 } from './v2-context';
 import { KpiCard } from '@/components/dashboard/kpi-card';
+import { MetaAdPreview } from '@/components/ads/meta-ad-preview';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -299,41 +298,7 @@ function TopAdsGrid({
                 darkMode ? 'bg-slate-800' : 'bg-slate-100'
               }`}
             >
-              {ad.mediaUrl ? (
-                ad.mediaType === 'video' ? (
-                  <video
-                    src={ad.mediaUrl}
-                    className="w-full h-full object-cover"
-                    muted
-                    playsInline
-                  />
-                ) : (
-                  <img
-                    src={ad.mediaUrl}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                )
-              ) : ad.snapshotUrl ? (
-                <div className="w-full h-full flex items-center justify-center">
-                  <a
-                    href={ad.snapshotUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-[#1235e2] hover:underline flex items-center gap-1"
-                  >
-                    View snapshot <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Sparkles
-                    className={`w-8 h-8 ${
-                      darkMode ? 'text-slate-600' : 'text-slate-300'
-                    }`}
-                  />
-                </div>
-              )}
+              <MetaAdPreview adId={ad.adId} advertiser={ad.brand.name} />
             </div>
 
             {/* Info */}

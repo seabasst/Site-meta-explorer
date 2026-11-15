@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAdMedia } from '@/hooks/use-ad-media';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -33,6 +32,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { MetaAdPreview } from '@/components/ads/meta-ad-preview';
 
 interface Ad {
   id: string;
@@ -135,33 +135,13 @@ function FormatIcon({ format }: { format: string }) {
   }
 }
 
-function AdCard({ ad, viewMode }: { ad: Ad; viewMode: 'grid' | 'list' }) {
-  const [imageError, setImageError] = useState(false);
-  const { mediaUrl, mediaType, isLoading } = useAdMedia(ad.adId, ad.snapshotUrl);
-
+function AdCard({ ad, viewMode, advertiser }: { ad: Ad; viewMode: 'grid' | 'list'; advertiser: string }) {
   if (viewMode === 'list') {
     return (
       <div className="glass rounded-lg p-4 flex gap-4 hover:bg-[var(--bg-tertiary)]/50 transition-colors">
         {/* Thumbnail */}
         <div className="w-24 h-24 rounded-lg bg-[var(--bg-tertiary)] flex-shrink-0 overflow-hidden">
-          {isLoading ? (
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="w-6 h-6 border-2 border-[var(--accent-green)] border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : mediaUrl && !imageError ? (
-            <a href={ad.snapshotUrl || '#'} target="_blank" rel="noopener noreferrer">
-              <img
-                src={mediaUrl}
-                alt=""
-                className="w-full h-full object-cover"
-                onError={() => setImageError(true)}
-              />
-            </a>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
-              <FormatIcon format={ad.displayFormat} />
-            </div>
-          )}
+          <MetaAdPreview adId={ad.adId} advertiser={advertiser} className="h-full w-full" />
         </div>
 
         {/* Content */}
@@ -221,37 +201,7 @@ function AdCard({ ad, viewMode }: { ad: Ad; viewMode: 'grid' | 'list' }) {
     <div className="glass rounded-xl overflow-hidden hover:ring-1 hover:ring-[var(--accent-green)]/30 transition-all group">
       {/* Image/Preview Area */}
       <div className="aspect-square bg-[var(--bg-tertiary)] relative">
-        {isLoading ? (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-[var(--accent-green)] border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : mediaUrl && !imageError ? (
-          <a href={ad.snapshotUrl || '#'} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
-            {mediaType === 'video' ? (
-              <video
-                src={mediaUrl}
-                className="w-full h-full object-cover"
-                muted
-                playsInline
-                preload="metadata"
-              />
-            ) : (
-              <img
-                src={mediaUrl}
-                alt={ad.title || 'Ad creative'}
-                className="w-full h-full object-cover"
-                onError={() => setImageError(true)}
-              />
-            )}
-          </a>
-        ) : (
-          <a href={ad.snapshotUrl || '#'} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
-            <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
-              <FormatIcon format={ad.displayFormat} />
-              <span className="ml-2 text-sm">View Ad</span>
-            </div>
-          </a>
-        )}
+        <MetaAdPreview adId={ad.adId} advertiser={advertiser} />
 
         {/* Status badge */}
         <div className="absolute top-2 left-2">
@@ -831,7 +781,7 @@ export default function BrandDetailPage() {
               : 'space-y-3'
             }>
               {ads.map((ad) => (
-                <AdCard key={ad.id} ad={ad} viewMode={viewMode} />
+                <AdCard key={ad.id} ad={ad} viewMode={viewMode} advertiser={brand.pageName} />
               ))}
             </div>
           )}

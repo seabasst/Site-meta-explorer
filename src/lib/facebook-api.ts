@@ -5,6 +5,7 @@
  * EU DSA regulations require detailed demographic data for all ads shown in EU.
  */
 
+import { publicSnapshotUrl } from '@/lib/meta-ad-url';
 import type {
   AdDemographics,
   DemographicBreakdown,
@@ -792,7 +793,7 @@ export async function fetchFacebookAds(options: {
         linkTitle: ad.ad_creative_link_titles?.[0] || null,
         linkCaption: ad.ad_creative_link_captions?.[0] || null,
         linkUrl: ad.ad_creative_link_urls?.[0] || null,
-        snapshotUrl: ad.ad_snapshot_url || null,
+        snapshotUrl: publicSnapshotUrl(ad.ad_snapshot_url),
         euTotalReach: ad.eu_total_reach || 0,
         mediaType,
         demographics: demographics ? {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { publicSnapshotUrl } from '@/lib/meta-ad-url';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
@@ -304,10 +305,11 @@ function buildOrderByClause(
  */
 function serializeAd(ad: Record<string, unknown>): AdLibraryAdResponse {
   return JSON.parse(
-    JSON.stringify(ad, (_key, value) => {
+    JSON.stringify(ad, (key, value) => {
       if (typeof value === 'bigint') {
         return Number(value);
       }
+      if (key === 'snapshotUrl') return publicSnapshotUrl(value);
       return value;
     })
   );

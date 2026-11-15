@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowUpRight, ImageOff } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { MetaAdPreview } from '@/components/ads/meta-ad-preview';
 import { formatNumber } from '@/lib/spend-estimator';
 import { brandHref } from '../../format';
 import { Monogram, Shell } from '../../ui';
@@ -116,17 +117,8 @@ export default async function BlackWeekBrandPage({ params }: { params: Promise<{
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {b.topAds.map((ad, i) => (
                 <a key={ad.adId} href={`https://www.facebook.com/ads/library/?id=${ad.adId}`} target="_blank" rel="noreferrer" className="group flex flex-col overflow-hidden rounded-[28px] bg-white ring-1 ring-stone-200/70 transition hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-20px_rgba(28,25,23,0.2)]">
-                  <div className="relative aspect-square bg-stone-100">
-                    {ad.media?.type === 'image' && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={ad.media.url} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-                    )}
-                    {ad.media?.type === 'video' && <video src={ad.media.url} muted playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" />}
-                    {!ad.media && (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-stone-400">
-                        <ImageOff size={22} strokeWidth={1.5} /><span className="text-[11px]">Preview not available</span>
-                      </div>
-                    )}
+                  <div className="relative aspect-square bg-stone-100 text-stone-600">
+                    <MetaAdPreview adId={ad.adId} advertiser={b.name} asLink={false} />
                     <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold backdrop-blur">#{i + 1}</span>
                     <span className={`absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-medium backdrop-blur ${ad.named ? 'bg-stone-900/85 text-white' : 'bg-white/90 text-stone-700'}`}>
                       {ad.named ? 'Says Black Week' : 'Offer ad'}

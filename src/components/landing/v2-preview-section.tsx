@@ -164,13 +164,13 @@ export function V2PreviewSection() {
         {/* CTA below mockup */}
         <div className="text-center mt-14">
           <p className="text-slate-400 text-base mb-6">
-            Unlock the full dashboard with 50,000+ ads and AI-powered insights.
+            Open the full dashboard with 50,000+ ads and AI-powered insights.
           </p>
           <Link
-            href="#pricing"
+            href="/dashboard/v2"
             className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white text-sm font-medium px-6 py-3 rounded-full border border-white/10 hover:border-white/20 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
           >
-            View pricing
+            Open the dashboard
           </Link>
         </div>
       </div>

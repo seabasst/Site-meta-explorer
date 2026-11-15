@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { publicSnapshotUrl } from '@/lib/meta-ad-url';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -221,7 +222,7 @@ async function getTopAds(brandIds: string[]) {
       title: ad.title,
       startDate: ad.startDate,
       reach: ad.reachEstimate,
-      snapshotUrl: ad.snapshotUrl,
+      snapshotUrl: publicSnapshotUrl(ad.snapshotUrl),
       mediaUrl: asset?.storedUrl || null,
       mediaType: asset?.assetType === 'video' ? 'video' : 'image',
       brand: {

@@ -25,6 +25,7 @@ import { formatFormatLabel } from '../types';
 import { normalizeDemographicsJson } from '@/lib/demographics-normalizer';
 import { DemographicPeek } from '../components/demographic-peek';
 import { TAXONOMY, CATEGORY_KEYS, type CategoryKey } from '@/lib/classification/taxonomy';
+import { MetaAdPreview } from '@/components/ads/meta-ad-preview';
 
 // ---------------------------------------------------------------------------
 // Types (match API response from /api/ad-library/brands/[pageId])
@@ -429,7 +430,7 @@ export default function BrandDetailPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {ads.map((ad) => (
-              <BrandAdCard key={ad.id} ad={ad} darkMode={darkMode} />
+              <BrandAdCard key={ad.id} ad={ad} darkMode={darkMode} advertiser={brand.pageName} />
             ))}
           </div>
         )}
@@ -654,11 +655,7 @@ function DistributionChart({
 // Brand Ad Card (no navigation -- these are the detail level)
 // ---------------------------------------------------------------------------
 
-function BrandAdCard({ ad, darkMode }: { ad: SerializedAd; darkMode: boolean }) {
-  const primaryAsset = ad.assets?.find(
-    (a) => a.downloadStatus === 'completed' && a.storedUrl
-  );
-
+function BrandAdCard({ ad, darkMode, advertiser }: { ad: SerializedAd; darkMode: boolean; advertiser: string }) {
   const formatIcon = () => {
     switch (ad.displayFormat) {
       case 'video':
@@ -668,42 +665,6 @@ function BrandAdCard({ ad, darkMode }: { ad: SerializedAd; darkMode: boolean }) 
       default:
         return <ImageIcon className="w-3 h-3" />;
     }
-  };
-
-  const renderPreview = () => {
-    if (primaryAsset?.storedUrl) {
-      if (primaryAsset.assetType === 'video') {
-        return (
-          <video
-            src={primaryAsset.storedUrl}
-            poster={primaryAsset.thumbnailUrl || undefined}
-            className="w-full h-full object-cover"
-            controls
-            muted
-            loop
-            playsInline
-            preload="metadata"
-          />
-        );
-      }
-      return (
-        <img
-          src={primaryAsset.storedUrl}
-          alt={ad.title || 'Ad creative'}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-      );
-    }
-
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-4">
-        <ImageIcon className={`w-8 h-8 mb-3 ${darkMode ? 'text-slate-600' : 'text-slate-300'}`} />
-        <p className={`text-xs text-center line-clamp-4 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-          {ad.body || ad.title || 'No preview available'}
-        </p>
-      </div>
-    );
   };
 
   return (
@@ -716,7 +677,7 @@ function BrandAdCard({ ad, darkMode }: { ad: SerializedAd; darkMode: boolean }) 
     >
       {/* Preview */}
       <div className={`relative aspect-[4/5] overflow-hidden ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
-        {renderPreview()}
+        <MetaAdPreview adId={ad.adId} advertiser={advertiser} />
 
         {/* Format badge */}
         <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded text-[10px] text-white font-bold uppercase tracking-wide flex items-center gap-1 z-10">

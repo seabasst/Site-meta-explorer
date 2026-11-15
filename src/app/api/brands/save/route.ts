@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { getSubscriptionStatus } from '@/lib/subscription';
 import { Prisma } from '@prisma/client';
 
 export async function POST(req: Request) {
@@ -30,9 +29,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  // Tier limit: free = 3, pro = 10
-  const status = await getSubscriptionStatus(session.user.email);
-  const maxBrands = status === 'pro' || status === 'past_due' ? 10 : 3;
+  const maxBrands = 10;
 
   const count = await prisma.trackedBrand.count({
     where: { trackerId: session.user.id },
@@ -40,7 +37,7 @@ export async function POST(req: Request) {
 
   if (count >= maxBrands) {
     return NextResponse.json(
-      { error: `Brand limit reached (${maxBrands}). ${status !== 'pro' ? 'Upgrade to Pro for up to 10.' : ''}` },
+      { error: `Brand limit reached (${maxBrands}).` },
       { status: 403 },
     );
   }

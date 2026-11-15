@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, ArrowUpRight, ImageOff } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { MetaAdPreview } from '@/components/ads/meta-ad-preview';
+import { metaAdUrl } from '@/lib/meta-ad-url';
 import { formatCurrency, formatNumber } from '@/lib/spend-estimator';
 import { countryName, Lead, LeadDialog, Monogram, shortDate, TopBar } from '../../ui';
 
@@ -22,13 +24,12 @@ type Report = {
   genders: { gender: string; share: number }[];
   ages: { age: string; share: number }[];
   demographics: { sampleAds: number; updatedAt: string | null };
-  topAds: { adId: string; reach: number | null; title: string | null; body: string | null; format: string | null; startDate: string | null; image: string | null; video: string | null }[];
+  topAds: { adId: string; reach: number | null; title: string | null; body: string | null; format: string | null; startDate: string | null }[];
   spend: { reach30: number; ads30: number; defaultCpmEur: number; fx: { rate: number; date: string } | null };
 };
 
 const eur = (n: number) => formatCurrency(n, 'EUR');
 const pct = (n: number) => `${n >= 10 ? Math.round(n) : n.toFixed(1)}%`;
-const adLibraryUrl = (adId: string) => `https://www.facebook.com/ads/library/?id=${adId}`;
 
 export default function BrandReportPage() {
   const { pageId } = useParams<{ pageId: string }>();
@@ -45,7 +46,7 @@ export default function BrandReportPage() {
 
   return (
     <div className="min-h-[100dvh] bg-[#FAF9F7] text-stone-900 antialiased" style={{ fontFamily: 'var(--font-geist-sans), system-ui, sans-serif' }}>
-      <TopBar onEarlyBird={() => setLead({ kind: 'earlybird', subject: d?.brand.name })} />
+      <TopBar />
       <main className="mx-auto max-w-6xl px-4 pb-20 pt-8 md:px-6">
         <Link href="/dashboard/v3" className="inline-flex items-center gap-1.5 text-sm text-stone-500 transition hover:text-stone-900">
           <ArrowLeft size={15} strokeWidth={1.75} /> New search
@@ -60,14 +61,14 @@ export default function BrandReportPage() {
         )}
         {err === 'failed' && <p className="mt-10 rounded-3xl bg-white p-6 text-sm text-stone-500 ring-1 ring-stone-200/70">Couldn&apos;t build the report right now. Try again in a moment.</p>}
         {!d && !err && <ReportSkeleton />}
-        {d && <ReportBody d={d} onEarlyBird={() => setLead({ kind: 'earlybird', subject: d.brand.name })} />}
+        {d && <ReportBody d={d} />}
       </main>
       <LeadDialog lead={lead} onClose={() => setLead(null)} />
     </div>
   );
 }
 
-function ReportBody({ d, onEarlyBird }: { d: Report; onEarlyBird: () => void }) {
+function ReportBody({ d }: { d: Report }) {
   const [cpm, setCpm] = useState(d.spend.defaultCpmEur);
   const [freq, setFreq] = useState(1);
   const impressions = d.spend.reach30 * freq;
@@ -117,7 +118,7 @@ function ReportBody({ d, onEarlyBird }: { d: Report; onEarlyBird: () => void }) 
         <p className="mt-1 text-[15px] text-stone-500">Among the live ads, ranked by EU reach.</p>
         {d.topAds.length ? (
           <div className="mt-6 grid gap-4 md:grid-cols-2 md:grid-rows-2">
-            {d.topAds.map((ad, i) => <AdCard key={ad.adId} ad={ad} rank={i + 1} hero={i === 0} />)}
+            {d.topAds.map((ad, i) => <AdCard key={ad.adId} ad={ad} advertiser={d.brand.name} rank={i + 1} hero={i === 0} />)}
           </div>
         ) : <Empty>No live ads at our last check.</Empty>}
       </section>
@@ -152,22 +153,6 @@ function ReportBody({ d, onEarlyBird }: { d: Report; onEarlyBird: () => void }) 
               including ones that stopped. An estimate, not a platform-reported number.
             </p>
           </div>
-        </div>
-      </section>
-
-      {/* Early bird */}
-      <section className="mt-12 grid items-center gap-8 rounded-[32px] bg-rose-50 p-8 ring-1 ring-rose-100 md:grid-cols-[1.4fr_1fr] md:p-12">
-        <div>
-          <div className="text-xs font-medium uppercase tracking-[0.14em] text-rose-600">Early bird · 99 USD</div>
-          <h2 className="mt-3 text-3xl font-semibold leading-tight tracking-[-0.035em] md:text-4xl">Want the deeper analysis?</h2>
-          <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-stone-600">
-            Get API access to the whole database and more access to analysis of your competitors.
-          </p>
-        </div>
-        <div className="md:justify-self-end">
-          <button onClick={onEarlyBird} className="w-full rounded-full bg-stone-900 px-7 py-4 text-[15px] font-medium text-white transition hover:bg-stone-800 active:scale-[0.98] md:w-auto">
-            Request early bird account
-          </button>
         </div>
       </section>
 
@@ -270,24 +255,14 @@ function Audience({ genders, ages }: { genders: Report['genders']; ages: Report[
   );
 }
 
-function AdCard({ ad, rank, hero }: { ad: Report['topAds'][number]; rank: number; hero: boolean }) {
+function AdCard({ ad, advertiser, rank, hero }: { ad: Report['topAds'][number]; advertiser: string; rank: number; hero: boolean }) {
   return (
     <a
-      href={adLibraryUrl(ad.adId)} target="_blank" rel="noreferrer"
+      href={metaAdUrl(ad.adId)} target="_blank" rel="noreferrer"
       className={`group flex overflow-hidden rounded-[32px] bg-white ring-1 ring-stone-200/70 transition hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-20px_rgba(28,25,23,0.2)] ${hero ? 'flex-col md:row-span-2' : 'flex-row'}`}
     >
-      <div className={`relative shrink-0 bg-stone-100 ${hero ? 'aspect-[4/3] w-full' : 'w-32 sm:w-40'}`}>
-        {ad.image
-          // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={ad.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-          : ad.video
-            ? <video src={ad.video} muted playsInline preload="metadata" className="absolute inset-0 h-full w-full object-cover" />
-            : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3 text-center text-stone-400">
-                <ImageOff size={22} strokeWidth={1.5} />
-                <span className="text-[11px]">Preview not stored yet</span>
-              </div>
-            )}
+      <div className={`relative shrink-0 bg-stone-100 text-stone-600 ${hero ? 'aspect-[4/3] w-full' : 'w-32 sm:w-40'}`}>
+        <MetaAdPreview adId={ad.adId} advertiser={advertiser} asLink={false} />
         <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold backdrop-blur">#{rank}</span>
       </div>
       <div className="flex min-w-0 flex-1 flex-col p-5 md:p-6">

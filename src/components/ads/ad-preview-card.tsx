@@ -1,13 +1,12 @@
 'use client';
 
 /**
- * AdPreviewCard - Ad preview card with lazy-loaded creative media
+ * AdPreviewCard - Ad preview card (creative shown as a link to Meta's Ad Library)
  * Clicking opens the ad on Facebook Ad Library
  */
 
-import { useState } from 'react';
-import { Play, Image as ImageIcon, ExternalLink, MousePointerClick, Layers } from 'lucide-react';
-import { useAdMedia } from '@/hooks/use-ad-media';
+import { ExternalLink } from 'lucide-react';
+import { MetaAdPreview } from '@/components/ads/meta-ad-preview';
 
 interface AdPreviewCardProps {
   ad: {
@@ -20,21 +19,12 @@ interface AdPreviewCardProps {
     euTotalReach: number;
     startedRunning: string | null;
   };
+  advertiser?: string | null;
 }
 
-export function AdPreviewCard({ ad }: AdPreviewCardProps) {
+export function AdPreviewCard({ ad, advertiser }: AdPreviewCardProps) {
   const adUrl = `https://www.facebook.com/ads/library/?id=${ad.adArchiveId}`;
-  const { mediaUrl, mediaType: resolvedMediaType, isLoading } = useAdMedia(
-    ad.adArchiveId,
-    ad.snapshotUrl,
-  );
-  const [imgError, setImgError] = useState(false);
-
-  // Derive badge type: prefer the per-ad detected type, fall back to resolved media type
-  const badgeType = ad.mediaType !== 'unknown' ? ad.mediaType
-    : resolvedMediaType === 'video' ? 'video'
-    : resolvedMediaType === 'image' ? 'image'
-    : null;
+  const badgeType = ad.mediaType !== 'unknown' ? ad.mediaType : null;
 
   // Format date
   const formattedDate = ad.startedRunning
@@ -53,8 +43,6 @@ export function AdPreviewCard({ ad }: AdPreviewCardProps) {
     }
   })() : null;
 
-  const showMedia = mediaUrl && !imgError;
-
   return (
     <a
       href={adUrl}
@@ -64,67 +52,7 @@ export function AdPreviewCard({ ad }: AdPreviewCardProps) {
     >
       {/* Visual Preview */}
       <div className="relative h-48 bg-gradient-to-br from-[var(--bg-elevated)] via-[var(--bg-tertiary)] to-[var(--bg-elevated)] flex items-center justify-center overflow-hidden">
-        {/* Shimmer loading state */}
-        {isLoading && (
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'linear-gradient(90deg, transparent 0%, var(--bg-elevated) 50%, transparent 100%)',
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 1.5s infinite',
-            }}
-          />
-        )}
-
-        {/* Actual media */}
-        {showMedia && resolvedMediaType === 'snapshot' ? (
-          <iframe
-            src={mediaUrl}
-            title={ad.linkTitle || 'Ad creative'}
-            className="absolute inset-0 w-full h-full border-0"
-            sandbox="allow-scripts allow-same-origin"
-            loading="lazy"
-          />
-        ) : showMedia && resolvedMediaType === 'video' ? (
-          <video
-            src={mediaUrl}
-            className="absolute inset-0 w-full h-full object-cover"
-            muted
-            playsInline
-            preload="metadata"
-          />
-        ) : showMedia && resolvedMediaType === 'image' ? (
-          <img
-            src={mediaUrl}
-            alt={ad.linkTitle || 'Ad creative'}
-            className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
-            onError={() => setImgError(true)}
-          />
-        ) : !isLoading ? (
-          /* Fallback placeholder */
-          <div className="flex flex-col items-center gap-1.5 text-[var(--text-muted)] group-hover:text-[var(--accent-green-light)] transition-colors">
-            {badgeType === 'video' ? (
-              <Play className="w-8 h-8 opacity-50 group-hover:opacity-80 transition-opacity" />
-            ) : badgeType === 'carousel' ? (
-              <Layers className="w-8 h-8 opacity-50 group-hover:opacity-80 transition-opacity" />
-            ) : (
-              <ImageIcon className="w-8 h-8 opacity-50 group-hover:opacity-80 transition-opacity" />
-            )}
-            <div className="flex items-center gap-1 text-xs opacity-70 group-hover:opacity-100">
-              <MousePointerClick className="w-3 h-3" />
-              <span>View {badgeType === 'video' ? 'video' : badgeType === 'carousel' ? 'carousel' : 'ad'}</span>
-            </div>
-          </div>
-        ) : null}
-
-        {/* Play overlay for videos with media */}
-        {showMedia && resolvedMediaType === 'video' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
-            <Play className="w-8 h-8 text-white opacity-80 group-hover:opacity-100 transition-opacity" />
-          </div>
-        )}
+        <MetaAdPreview adId={ad.adArchiveId} advertiser={advertiser} asLink={false} />
 
         {/* Badges */}
         <div className="absolute top-2 left-2 flex items-center gap-2 z-10">
