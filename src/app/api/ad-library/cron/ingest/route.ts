@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     //   (b) active brands whose WEEKLY re-check is due → catches newly-launched
     //       ads on brands we already track. Without this, 'active' brands are
     //       never revisited and the pipeline goes dormant after the backfill.
-    // Overdue accounts (oldest / never-checked lastCheckedAt) are queued first.
+    // Longest-waiting first: oldest lastCheckedAt, never-checked brands by when they were added.
     const brands = await selectDueBrands(BRANDS_PER_RUN);
 
     if (brands.length === 0) {
