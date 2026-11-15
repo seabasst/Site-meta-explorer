@@ -54,3 +54,7 @@ data/brand-ingestion-results.json
 data/sas-destination-sov.json
 data/sas-sov-payload.json
 .gstack/
+
+# Benchmark pulls and panels are Meta Platform Data; this repo is public, so they live in the DB, not git
+data/benchmarks-raw/
+data/benchmark-panels/
